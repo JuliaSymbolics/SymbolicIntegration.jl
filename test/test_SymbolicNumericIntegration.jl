@@ -19,16 +19,25 @@ for path in testset_paths
     include(path)
     println("Testing ", length(data), " integrals...")
     n_failed = 0
+    times = Float64[]
     
     for (i, test) in enumerate(data)
-        computed_result = integrate(test.integrand, test.integration_var)
+        elapsed_time = @elapsed computed_result = integrate(test.integrand, test.integration_var)
+        push!(times, elapsed_time)
+        
         if isequal(computed_result[1], test.result)
-            printstyled("    ∫( ", test.integrand, " )d", test.integration_var, " = ", test.result, "\n"; color = :green)
+            printstyled("    ∫( ", test.integrand, " )d", test.integration_var, " = ", test.result, " (", round(elapsed_time, digits=4), "s)\n"; color = :green)
         else
-            printstyled("    ∫( ", test.integrand, " )d", test.integration_var, " = ", test.result, " but got ", computed_result, "\n"; color = :red)
+            printstyled("    ∫( ", test.integrand, " )d", test.integration_var, " = ", test.result, " but got ", computed_result, " (", round(elapsed_time, digits=4), "s)\n"; color = :red)
             n_failed += 1
         end
     end
 
-    println("$n_failed/$(length(data)) tests failed in $path \n\n\n")
+    total_time = sum(times)
+    avg_time = total_time / length(data)
+    max_time = maximum(times)
+    min_time = minimum(times)
+    
+    println("$n_failed/$(length(data)) tests failed in $path")
+    println("Total=$(round(total_time, digits=3))s, Avg=$(round(avg_time, digits=4))s, Min=$(round(min_time, digits=4))s, Max=$(round(max_time, digits=4))s\n\n\n")
 end
