@@ -13,9 +13,9 @@ println("Note: The results from SymbolicNumericIntegration showed are a tuple of
 
 for path in testset_paths
     if !isfile(path)
-        error("Test set file not found: $path")
+        error("Test set file not found: ", relpath(path))
     end
-    println("Loading test data from ", path, "...")
+    println("Loading test data from ", relpath(path), "...")
     include(path)
     println("Testing ", length(data), " integrals...")
     n_failed = 0
@@ -38,6 +38,6 @@ for path in testset_paths
     max_time = maximum(times)
     min_time = minimum(times)
     
-    println("$n_failed/$(length(data)) tests failed in $path")
+    println("$n_failed/$(length(data)) tests failed in ", relpath(path))
     println("Total=$(round(total_time, digits=3))s, Avg=$(round(avg_time, digits=4))s, Min=$(round(min_time, digits=4))s, Max=$(round(max_time, digits=4))s\n\n\n")
 end
