@@ -34,11 +34,14 @@ function translate_mathematica_to_julia(expr::String)
         (r"\bArcCoth\[", "acoth("),
         (r"\bExp\[", "exp("),
         (r"\bAbs\[", "abs("),
+        (r"(?<=\d)/(?=\d)", "//"), # to make fractions and not divisions
         (r"\bPi\b", "π"),
         (r"\bE\b", "ℯ"),
         ("]", ")"),  # Close brackets
         ("[", "("),  # Open brackets
     ]
+
+    # Hypergeometric2F1 ???
 
     for (mathematica_func, julia_func) in associations
         expr = replace(expr, mathematica_func => julia_func)
