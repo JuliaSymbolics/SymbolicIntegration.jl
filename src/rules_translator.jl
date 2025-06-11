@@ -108,7 +108,6 @@ function translate_result(result)
         if !startswith(parts[1], "Int[")
             throw("Expected first part to be an integral: $parts[1]")
         end 
-        parts[1] = replace(parts[1], r"Int\[(.*), x\]" => s"∫(\1, x)") # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)
         result = replace(result, m.match => "substitute(" * parts[1] * ", " * parts[2] * " => " * parts[3] * ")")
     end
 
@@ -117,26 +116,21 @@ function translate_result(result)
     m = match(r"Coefficient\[(.*?), (.*?), (.*?)\]", result)
 
     associations = [
-        # # common functions
+        # not yet solved integrals
+        (r"Int\[(.*?), x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)
+        # common functions
         ("Log[", "log("), (r"RemoveContent\[(.*?),\s*x\]", s"\1"),
         ("Sqrt[", "sqrt("),
         (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
+        # TODO FracPart
         # brackets
-        # ("[", "("), TODO: unnecessary?
         ("]", ")"),
         # slots and defslots
-        # (r"([a-wyzA-WYZ])_\.", s"(~\1)"), # TODO unnecessary?
-        # (r"([a-wyzA-WYZ])_", s"(~\1)"), # TODO unnecessary?
-        (r"(?<!\w)([a-wyzA-WYZ])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
-        (r"x", s"(~x)"), # replace x with v TODO: unnecessary?
+        (r"(?<!\w)([a-zA-Z])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
     ]
 
-
-    println("Translating result: ", result)
     for (mathematica, julia) in associations
-        println("    starting with ", result)
         result = replace(result, mathematica => julia)
-        println("    replaced with ", result)
     end
    
     return result
@@ -152,37 +146,24 @@ function translate_conditions(conditions)
 end
 
 function convert_single_condition(condition)
-    # convert conditions variables
-    condition = replace(condition, r"(?<!\w)([a-wyzA-WYZ])_\." => s"(~\1)")
-    condition = replace(condition, r"(?<!\w)([a-wyzA-WYZ])_" => s"(~\1)")
-    condition = replace(condition, r"(?<!\w)([a-wyzA-WYZ])(?!\w)" => s"(~\1)") # negative lookbehind and lookahead
-    condition = replace(condition, "x_" => s"(~x)") # TODO: unnecessary?
-    # Convert FreeQ conditions
-    if occursin("FreeQ", condition)
-        condition = replace(condition, r"FreeQ\[(.*), x\]" => s"!contains_int_var(~x, \1)")
-        condition = replace(condition, "{" => "")
-        condition = replace(condition, "}" => "")
+    associations = [
+        (r"FreeQ\[(.*?), x\]", s"!contains_int_var(x, \1)"), ("{", ""), ("}", ""), # from FreeQ[{a, b, c, d, m}, x] to !contains_int_var((~x), (~a), (~b), (~c), (~d), (~m))
+        (r"NeQ\[(.*), (.*)\]", s"!isequal(\1, \2)"), # from NeQ[b*c - a*d, 0] to !isequal(b*c, a*d)
+        (r"EqQ\[(.*), (.*)\]", s"isequal(\1, \2)"),
+        (r"LinearQ\[(.*), (.*)\]", s"linear_expansion(\1, ~x)[3]"), # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
+        (r"IGtQ\[(.*), (.*)\]", s"is_greater_than(\1, \2)"),
+        (r"IntegerQ\[(.*?)\]", s"isa(\1, Integer)"),
+        (r"Not\[(.*?)\]", s"!(\1)"),
+        # convert conditions variables
+        (r"(?<!\w)([a-zA-Z])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
+    ]
+    for (mathematica, julia) in associations
+        println("from ", condition)
+        condition = replace(condition, mathematica => julia)
+        println("to ", condition)
+        println("----------------------")
     end
-    # Convert NeQ conditions
-    if occursin("NeQ", condition)
-        condition = replace(condition, r"NeQ\[(.*), (.*)\]" => s"!isequal(\1, \2)")
-    end
-    if occursin("EqQ", condition)
-        condition = replace(condition, r"EqQ\[(.*), (.*)\]" => s"isequal(\1, \2)")
-    end
-    # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
-    if occursin("LinearQ", condition)
-        condition = replace(condition, r"LinearQ\[(.*), (.*)\]" => s"linear_expansion(\1, ~x)[3]")
-    end
-    # Convert IGtQ conditions
-    if occursin("IGtQ", condition)
-        condition = replace(condition, r"IGtQ\[(.*), (.*)\]" => s"is_greater_than(\1, \2)")
-    end
-   
-    # Convert special characters
-    condition = replace(condition, "{" => "(")
-    condition = replace(condition, "}" => ")")
-
+    println("********************************")
 
     return condition
 end
