@@ -1,29 +1,31 @@
 using Printf
 
-function translate_file(input_filename, output_filename, index)
+function translate_file(input_filename, output_filename)
     if !isfile(input_filename)
         error("Input file '$input_filename' not found!")
     end
     
     println("Translating $input_filename ...")
+    file_index = replace(split(replace(basename(input_filename), r"\.m$" => ""), " ")[1], r"\." => "_")
     
     lines = split(read(input_filename, String), "\n")
     n_rules = 1
 
     # Open output file
     open(output_filename, "w") do f
+        write(f,"file_rules = [\n")
         for line in lines
             if startswith(line, "(*")
                 write(f, "# $line \n")
             elseif startswith(line, "Int[")
                 julia_rule = translate_line(line)
                 if !isnothing(julia_rule)
-                    rule_name = "rule$(index)_$n_rules"
-                    write(f, "$rule_name = $julia_rule\n")
+                    write(f, "$julia_rule #$(file_index)_$n_rules\n")
                     n_rules += 1
                 end
             end
         end
+        write(f,"]")
     end
     println(n_rules, " translated\n")
 end
@@ -50,19 +52,20 @@ function translate_line(line)
     julia_result = translate_result(result)
     
     if conditions == ""
-        return "@rule $julia_integrand => $julia_result"
+        return "    :(@rule $julia_integrand => $julia_result)"
     else
-        return "@rule $julia_integrand => $conditions ? $julia_result : nothing"
+        return "    :(@rule $julia_integrand => $conditions ? $julia_result : nothing)"
     end
 end
 
+# assumes all integrals in the rules are in the x variable
 function transalte_integrand(integrand)
     associations = [
         ("Int[", "∫("), # Handle common Int[...] integrands
-        (", x_Symbol]", ")"),
+        (", x_Symbol]", ",(~v))"),
         (r"([a-wyzA-WYZ])_\.", s"(~!\1)"), # default slot
         (r"([a-wyzA-WYZ])_", s"(~\1)"), # slot
-        (r"x_", s"(x)"),
+        (r"x_", s"(~v)"),
     ]
 
     for (mathematica, julia) in associations
@@ -89,7 +92,7 @@ function translate_result(integrand)
     integrand = replace(integrand, r"([a-wyzA-WYZ])_\." => s"(~\1)")
     integrand = replace(integrand, r"([a-wyzA-WYZ])_" => s"(~\1)")
     integrand = replace(integrand, r"(?<!\w)([a-wyzA-WYZ])(?!\w)" => s"(~\1)") # negative lookbehind and lookahead
-    integrand = replace(integrand, r"x_" => s"(x)")
+    integrand = replace(integrand, r"x" => s"(~v)")
    
     return integrand
 end
@@ -104,9 +107,14 @@ function translate_conditions(conditions)
 end
 
 function convert_single_condition(condition)
+    # convert conditions variables
+    condition = replace(condition, r"(?<!\w)([a-wyzA-WYZ])_\." => s"(~\1)")
+    condition = replace(condition, r"(?<!\w)([a-wyzA-WYZ])_" => s"(~\1)")
+    condition = replace(condition, r"(?<!\w)([a-wyzA-WYZ])(?!\w)" => s"(~\1)") # negative lookbehind and lookahead
+    condition = replace(condition, "x_" => s"(~v)")
     # Convert FreeQ conditions
     if occursin("FreeQ", condition)
-        condition = replace(condition, r"FreeQ\[(.*), x\]" => s"!contains_x(\1)")
+        condition = replace(condition, r"FreeQ\[(.*), x\]" => s"!contains_int_var(~v, \1)")
         condition = replace(condition, "{" => "")
         condition = replace(condition, "}" => "")
     end
@@ -129,11 +137,6 @@ function convert_single_condition(condition)
     condition = replace(condition, "{" => "(")
     condition = replace(condition, "}" => ")")
 
-    # convert conditions variables
-    condition = replace(condition, r"(?<!\w)([a-wyzA-WYZ])_\." => s"(~\1)")
-    condition = replace(condition, r"(?<!\w)([a-wyzA-WYZ])_" => s"(~\1)")
-    condition = replace(condition, r"(?<!\w)([a-wyzA-WYZ])(?!\w)" => s"(~\1)") # negative lookbehind and lookahead
-    condition = replace(condition, "x_" => s"(x)")
 
     return condition
 end
@@ -160,7 +163,7 @@ else
 end
 
 try
-    translate_file(input_file, output_file, "1_1_1_1") #TODO
+    translate_file(input_file, output_file)
 catch e
     println("Error during translation: $e")
     exit(1)
