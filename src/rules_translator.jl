@@ -101,7 +101,7 @@ function translate_result(result)
     end
     
     # substitution with integral inside. Is not a single replace call so it goes first
-    # Subst[Int[(a + b*x)^m, x], x, u]
+    # Subst[Int[(a + b*x)^m, x], x, u] to substitute(∫((a + b*x)^m, x), x => u)
     m = match(r"Subst\[(.*)\]", result)
     if m !== nothing
         parts = split_outside_brackets(m[1])
@@ -110,10 +110,6 @@ function translate_result(result)
         end 
         result = replace(result, m.match => "substitute(" * parts[1] * ", " * parts[2] * " => " * parts[3] * ")")
     end
-
-    # coefficient. Is not a single replace call so it goes first
-    # Coefficient[u, x, 1]
-    m = match(r"Coefficient\[(.*?), (.*?), (.*?)\]", result)
 
     associations = [
         # not yet solved integrals
@@ -137,35 +133,22 @@ function translate_result(result)
 end
 
 function translate_conditions(conditions)
-    if occursin(" && ", conditions)
-        parts = split(conditions, " && ")
-        return join(map(convert_single_condition, parts), " && ")
-    else
-        return convert_single_condition(conditions)
-    end
-end
-
-function convert_single_condition(condition)
     associations = [
         (r"FreeQ\[(.*?), x\]", s"!contains_int_var(x, \1)"), ("{", ""), ("}", ""), # from FreeQ[{a, b, c, d, m}, x] to !contains_int_var((~x), (~a), (~b), (~c), (~d), (~m))
-        (r"NeQ\[(.*), (.*)\]", s"!isequal(\1, \2)"), # from NeQ[b*c - a*d, 0] to !isequal(b*c, a*d)
-        (r"EqQ\[(.*), (.*)\]", s"isequal(\1, \2)"),
-        (r"LinearQ\[(.*), (.*)\]", s"linear_expansion(\1, ~x)[3]"), # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
-        (r"IGtQ\[(.*), (.*)\]", s"is_greater_than(\1, \2)"),
+        (r"NeQ\[(.*?), (.*?)\]", s"!isequal(\1, \2)"), # from NeQ[b*c - a*d, 0] to !isequal(b*c, a*d)
+        (r"EqQ\[(.*?), (.*?)\]", s"isequal(\1, \2)"),
+        (r"LinearQ\[(.*?), (.*?)\]", s"linear_expansion(\1, ~x)[3]"), # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
+        (r"IGtQ\[(.*?), (.*?)\]", s"is_greater_than(\1, \2)"),
         (r"IntegerQ\[(.*?)\]", s"isa(\1, Integer)"),
         (r"Not\[(.*?)\]", s"!(\1)"),
+        # TODO LtQ
         # convert conditions variables
         (r"(?<!\w)([a-zA-Z])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
     ]
     for (mathematica, julia) in associations
-        println("from ", condition)
-        condition = replace(condition, mathematica => julia)
-        println("to ", condition)
-        println("----------------------")
+        conditions = replace(conditions, mathematica => julia)
     end
-    println("********************************")
-
-    return condition
+    return conditions
 end
 
 
