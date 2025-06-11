@@ -52,9 +52,9 @@ function translate_line(line)
     julia_result = translate_result(result)
     
     if conditions == ""
-        return "    :(@rule $julia_integrand => $julia_result)"
+        return ":(@rule $julia_integrand => $julia_result)"
     else
-        return "    :(@rule $julia_integrand => $conditions ? $julia_result : nothing)"
+        return ":(@rule $julia_integrand => $conditions ? $julia_result : nothing)"
     end
 end
 
@@ -62,10 +62,10 @@ end
 function transalte_integrand(integrand)
     associations = [
         ("Int[", "∫("), # Handle common Int[...] integrands
-        (", x_Symbol]", ",(~v))"),
+        (", x_Symbol]", ",(~x))"),
         (r"([a-wyzA-WYZ])_\.", s"(~!\1)"), # default slot
         (r"([a-wyzA-WYZ])_", s"(~\1)"), # slot
-        (r"x_", s"(~v)"),
+        (r"x_", s"(~x)"),
     ]
 
     for (mathematica, julia) in associations
@@ -75,26 +75,71 @@ function transalte_integrand(integrand)
     return integrand
 end
 
-function translate_result(integrand)
+function split_outside_brackets(s)
+    parts = String[]
+    bracket_level = 0
+    last_pos = 1
+
+    for (i, c) in enumerate(s)
+        if c == '['
+            bracket_level += 1
+        elseif c == ']'
+            bracket_level -= 1
+        elseif c == ',' && bracket_level == 0
+            push!(parts, strip(s[last_pos:i-1]))
+            last_pos = i + 1
+        end
+    end
+    push!(parts, strip(s[last_pos:end]))
+    return parts
+end
+
+function translate_result(result)
     # Remove trailing symbol if present
-    if endswith(integrand, "/;") || endswith(integrand, "//;")
-        integrand = integrand[1:end-2]
+    if endswith(result, "/;") || endswith(result, "//;")
+        result = result[1:end-2]
     end
     
-    integrand = replace(integrand, "Log[" => "log(")
-    integrand = replace(integrand, r"RemoveContent\[(.*?),\s*x\]" => s"(\1)")
-    integrand = replace(integrand, "Sqrt[" => "sqrt(")
-    integrand = replace(integrand, "[" => "(")
-    integrand = replace(integrand, "]" => ")")
-    # integrand = replace(integrand, "/" => "//")
+    # substitution with integral inside. Is not a single replace call so it goes first
+    # Subst[Int[(a + b*x)^m, x], x, u]
+    m = match(r"Subst\[(.*)\]", result)
+    if m !== nothing
+        parts = split_outside_brackets(m[1])
+        if !startswith(parts[1], "Int[")
+            throw("Expected first part to be an integral: $parts[1]")
+        end 
+        parts[1] = replace(parts[1], r"Int\[(.*), x\]" => s"∫(\1, x)") # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)
+        result = replace(result, m.match => "substitute(" * parts[1] * ", " * parts[2] * " => " * parts[3] * ")")
+    end
 
-    # convert result variables
-    integrand = replace(integrand, r"([a-wyzA-WYZ])_\." => s"(~\1)")
-    integrand = replace(integrand, r"([a-wyzA-WYZ])_" => s"(~\1)")
-    integrand = replace(integrand, r"(?<!\w)([a-wyzA-WYZ])(?!\w)" => s"(~\1)") # negative lookbehind and lookahead
-    integrand = replace(integrand, r"x" => s"(~v)")
+    # coefficient. Is not a single replace call so it goes first
+    # Coefficient[u, x, 1]
+    m = match(r"Coefficient\[(.*?), (.*?), (.*?)\]", result)
+
+    associations = [
+        # # common functions
+        ("Log[", "log("), (r"RemoveContent\[(.*?),\s*x\]", s"\1"),
+        ("Sqrt[", "sqrt("),
+        (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
+        # brackets
+        # ("[", "("), TODO: unnecessary?
+        ("]", ")"),
+        # slots and defslots
+        # (r"([a-wyzA-WYZ])_\.", s"(~\1)"), # TODO unnecessary?
+        # (r"([a-wyzA-WYZ])_", s"(~\1)"), # TODO unnecessary?
+        (r"(?<!\w)([a-wyzA-WYZ])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
+        (r"x", s"(~x)"), # replace x with v TODO: unnecessary?
+    ]
+
+
+    println("Translating result: ", result)
+    for (mathematica, julia) in associations
+        println("    starting with ", result)
+        result = replace(result, mathematica => julia)
+        println("    replaced with ", result)
+    end
    
-    return integrand
+    return result
 end
 
 function translate_conditions(conditions)
@@ -111,10 +156,10 @@ function convert_single_condition(condition)
     condition = replace(condition, r"(?<!\w)([a-wyzA-WYZ])_\." => s"(~\1)")
     condition = replace(condition, r"(?<!\w)([a-wyzA-WYZ])_" => s"(~\1)")
     condition = replace(condition, r"(?<!\w)([a-wyzA-WYZ])(?!\w)" => s"(~\1)") # negative lookbehind and lookahead
-    condition = replace(condition, "x_" => s"(~v)")
+    condition = replace(condition, "x_" => s"(~x)") # TODO: unnecessary?
     # Convert FreeQ conditions
     if occursin("FreeQ", condition)
-        condition = replace(condition, r"FreeQ\[(.*), x\]" => s"!contains_int_var(~v, \1)")
+        condition = replace(condition, r"FreeQ\[(.*), x\]" => s"!contains_int_var(~x, \1)")
         condition = replace(condition, "{" => "")
         condition = replace(condition, "}" => "")
     end
@@ -125,8 +170,9 @@ function convert_single_condition(condition)
     if occursin("EqQ", condition)
         condition = replace(condition, r"EqQ\[(.*), (.*)\]" => s"isequal(\1, \2)")
     end
+    # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
     if occursin("LinearQ", condition)
-        condition = replace(condition, r"LinearQ\[(.*), (.*)\]" => s"linear_expansion(\1, x)[3]")
+        condition = replace(condition, r"LinearQ\[(.*), (.*)\]" => s"linear_expansion(\1, ~x)[3]")
     end
     # Convert IGtQ conditions
     if occursin("IGtQ", condition)
