@@ -31,4 +31,13 @@ function load_all_rules()
 end
 
 # Load all rules at module initialization
-const rules = load_all_rules()
+rules = load_all_rules() # TODO make const when rerloading rules at will for debug will no more be needed
+
+# TODO just for debug, remove later
+function reload_rules()
+    global rules
+    rules = load_all_rules()
+    if DEBUGINFO
+        println("Rules reloaded. Total rules: ", length(rules))
+    end
+end
