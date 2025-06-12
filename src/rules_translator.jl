@@ -13,19 +13,19 @@ function translate_file(input_filename, output_filename)
 
     # Open output file
     open(output_filename, "w") do f
-        write(f,"file_rules = [\n")
+        write(f, "file_rules = [\n")
         for line in lines
             if startswith(line, "(*")
                 write(f, "# $line \n")
             elseif startswith(line, "Int[")
                 julia_rule = translate_line(line)
                 if !isnothing(julia_rule)
-                    write(f, "$julia_rule #$(file_index)_$n_rules\n")
+                    write(f, "@rule $julia_rule # $(file_index)_$n_rules\n")
                     n_rules += 1
                 end
             end
         end
-        write(f,"]")
+        write(f, "]\n")
     end
     println(n_rules, " translated\n")
 end
@@ -52,9 +52,9 @@ function translate_line(line)
     julia_result = translate_result(result)
     
     if conditions == ""
-        return ":(@rule $julia_integrand => $julia_result)"
+        return "$julia_integrand => $julia_result"
     else
-        return ":(@rule $julia_integrand => $conditions ? $julia_result : nothing)"
+        return "$julia_integrand => $conditions ? $julia_result : nothing"
     end
 end
 
