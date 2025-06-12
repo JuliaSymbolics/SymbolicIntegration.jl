@@ -18,7 +18,8 @@ function load_all_rules()
     # rules_paths = find_rules_files(joinpath(@__DIR__, "IntegrationRules")) TODO
     file1 = joinpath(@__DIR__, "IntegrationRules/1 Algebraic functions/1.1 Binomial products/1.1.1 Linear/1.1.1.1 (a+b x)^m.jl")
     file2 = joinpath(@__DIR__, "IntegrationRules/1 Algebraic functions/1.1 Binomial products/1.1.1 Linear/1.1.1.2 (a+b x)^m (c+d x)^n.jl")
-    rules_paths = [ file1, file2]
+    file3 = joinpath(@__DIR__, "IntegrationRules/9 Miscellaneous/9.1 Integrand simplification rules.jl")
+    rules_paths = [ file3, file1, file2]
 
     all_rules = []
     for file in rules_paths
