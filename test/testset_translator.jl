@@ -121,7 +121,7 @@ function translate_integral_file(input_filename::String, output_filename::String
         error("Input file '$input_filename' not found!")
     end
     
-    println("Translating '$input_filename' to '$output_filename'...")
+    println("Translating...")
     
     integral_count = 0
 
@@ -147,6 +147,7 @@ function translate_integral_file(input_filename::String, output_filename::String
                         result_julia = translate_mathematica_to_julia(parts[4])
                         
                         # Write the translated integral
+                        # TODO what si mistery val?
                         julia_line = "    (integrand = $integrand_julia, result = $result_julia, integration_var = $variable_julia, mistery_val = $number_julia),\n"
                         write(outfile, julia_line)
                     catch e
