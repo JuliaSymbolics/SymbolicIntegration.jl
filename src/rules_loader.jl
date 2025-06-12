@@ -1,4 +1,3 @@
-const DEBUGINFO = true
 
 # Function to recursively find all .jl files in a directory
 function find_rule_files(dir)
@@ -37,7 +36,5 @@ rules = load_all_rules() # TODO make const when rerloading rules at will for deb
 function reload_rules()
     global rules
     rules = load_all_rules()
-    if DEBUGINFO
-        println("Rules reloaded. Total rules: ", length(rules))
-    end
+    println("Rules reloaded. Total rules: ", length(rules))
 end

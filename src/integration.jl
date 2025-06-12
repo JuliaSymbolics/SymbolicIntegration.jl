@@ -1,28 +1,26 @@
-const DEBUGINFO = false
-
-function apply_rule(integrand)
+function apply_rule(integrand; verbose = false)
     result = nothing
     for rule in rules
         result = rule(integrand)
         if result !== nothing
-            DEBUGINFO && println("Applied rule: ", rule, " with result: ", result)
+            verbose && println("Applied rule: ", rule, " with result: ", result)
             return result
         end
     end
 
-    DEBUGINFO && println("No rule found for ", integrand)
+    verbose && println("No rule found for ", integrand)
     return integrand
 end
 
-function shouldtransform(node)
-    DEBUGINFO && println("Checking node ", node, "...")
+function shouldtransform(node; verbose = false)
+    verbose && println("Checking node ", node, "...")
     if !SymbolicUtils.iscall(node)
-        DEBUGINFO && println("    is not a tree, skipping branch.")
+        verbose && println("    is not a tree, skipping branch.")
         return false
     end
 
     cond = SymbolicUtils.operation(node) === ∫
-    DEBUGINFO && println("    is a tree ", cond ? "and is a ∫" : "but not a ∫, skipping branch.")
+    verbose && println("    is a tree ", cond ? "and is a ∫" : "but not a ∫, skipping branch.")
     return cond
 end 
 
@@ -33,12 +31,14 @@ end
 # previous rules, in case a rule transforms the integral in another integral
 # (for example linearity rules). 
 function integrate(integrand, int_var; verbose = false)
-    conditional = IfElse(shouldtransform, apply_rule, Empty())
+    conditional = IfElse(x -> shouldtransform(x; verbose=verbose), 
+                        x -> apply_rule(x; verbose=verbose), 
+                        Empty())
     return Prewalk(conditional)(∫(integrand,int_var))
 end
 
 # If no integration variable provided
-function integrate(integrand)
+function integrate(integrand; verbose = false)
     vars = Symbolics.get_variables(integrand)
     if length(vars) > 1
         error("Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument.")
@@ -50,7 +50,7 @@ function integrate(integrand)
         integration_variable = x
     end
 
-    integrate(integrand, integration_variable)
+    integrate(integrand, integration_variable; verbose=verbose)
 end
 
 function integrate()
