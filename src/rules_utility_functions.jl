@@ -7,7 +7,7 @@ function contains_var(var, node)
     
     if SymbolicUtils.istree(node)
         for arg in SymbolicUtils.arguments(node)
-            if contains_int_var(var, arg)
+            if contains_var(var, arg)
                 return true
             end
         end
@@ -16,7 +16,7 @@ function contains_var(var, node)
 end
 
 function contains_var(var, args...)
-    return all(contains_int_var(var, arg) for arg in args)
+    return all(contains_var(var, arg) for arg in args)
 end
 
 function eqQ(a, b)
@@ -41,7 +41,7 @@ function ileQ(a, b)
     isa(a, Integer) && a <= b
 end
 
-# TODO not sure this is the correct function. this corresponds to Mathematica's FractionalPart not FracPart
+# TODO TODO not sure this is the correct function. this corresponds to Mathematica's FractionalPart not FracPart
 function fracpart(a)
     a - trunc(a)
 end

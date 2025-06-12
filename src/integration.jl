@@ -48,6 +48,7 @@ function integrate(integrand)
     elseif length(vars) == 1
         integration_variable = vars[1]
     else
+        @warn "No integration variable provided. Assuming x"
         @variables x
         integration_variable = x
     end
