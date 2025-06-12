@@ -27,7 +27,7 @@ function translate_file(input_filename, output_filename)
         end
         write(f, "]\n")
     end
-    println(n_rules, " translated\n")
+    println(n_rules-1, " translated\n")
 end
 
 function translate_line(line)
@@ -118,7 +118,12 @@ function translate_result(result)
         ("Log[", "log("), (r"RemoveContent\[(.*?),\s*x\]", s"\1"),
         ("Sqrt[", "sqrt("),
         (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
-        # TODO FracPart
+
+        (r"FracPart\[(.*?)\]", s"fracpart(\1)"),
+        # TODO fracpart with two arguments is ever present?
+        (r"IntegerPart\[(.*?)\]", s"intpart(\1)"),
+        
+
         # brackets
         ("]", ")"),
         # slots and defslots
@@ -134,14 +139,22 @@ end
 
 function translate_conditions(conditions)
     associations = [
-        (r"FreeQ\[(.*?), x\]", s"!contains_int_var(x, \1)"), ("{", ""), ("}", ""), # from FreeQ[{a, b, c, d, m}, x] to !contains_int_var((~x), (~a), (~b), (~c), (~d), (~m))
-        (r"NeQ\[(.*?), (.*?)\]", s"!isequal(\1, \2)"), # from NeQ[b*c - a*d, 0] to !isequal(b*c, a*d)
-        (r"EqQ\[(.*?), (.*?)\]", s"isequal(\1, \2)"),
+        # TODO change * (zero or more charchters) with + (one or more charchters) ???
+        (r"FreeQ\[(.*?), x\]", s"!contains_var(x, \1)"), ("{", ""), ("}", ""), # from FreeQ[{a, b, c, d, m}, x] to !contains_var((~x), (~a), (~b), (~c), (~d), (~m))
+        (r"NeQ\[(.*?), (.*?)\]", s"!eqQ(\1, \2)"),
+        (r"EqQ\[(.*?), (.*?)\]", s"eqQ(\1, \2)"),
         (r"LinearQ\[(.*?), (.*?)\]", s"linear_expansion(\1, ~x)[3]"), # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
-        (r"IGtQ\[(.*?), (.*?)\]", s"is_greater_than(\1, \2)"),
+        
+        (r"IGtQ\[(.*?), (.*?)\]", s"igtQ(\1, \2)"), # IGtQ = Integer Greater than Question
+        (r"IGeQ\[(.*?), (.*?)\]", s"igeQ(\1, \2)"), # IGeQ = Integer Greater than or equal Question
+        (r"ILtQ\[(.*?), (.*?)\]", s"iltQ(\2, \1)"),
+        (r"ILeQ\[(.*?), (.*?)\]", s"ileQ(\1, \2)"),
+        (r"GtQ\[(.*?), (.*?)\]", s"(\1 > \2)"), # GtQ = Greater than Question TODO maybe change them to support more types?
+        (r"GeQ\[(.*?), (.*?)\]", s"(\1 >= \2)"), # GeQ = Greater than or equal Question
+        (r"LtQ\[(.*?), (.*?)\]", s"(\1 < \2)"),
+        (r"LeQ\[(.*?), (.*?)\]", s"(\1 <= \2)"),
         (r"IntegerQ\[(.*?)\]", s"isa(\1, Integer)"),
         (r"Not\[(.*?)\]", s"!(\1)"),
-        # TODO LtQ
         # convert conditions variables
         (r"(?<!\w)([a-zA-Z])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
     ]
