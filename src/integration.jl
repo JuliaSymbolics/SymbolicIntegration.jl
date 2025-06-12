@@ -1,3 +1,4 @@
+const DEBUGINFO = false
 
 function apply_rule(integrand)
     result = nothing
@@ -15,7 +16,7 @@ end
 
 function shouldtransform(node)
     DEBUGINFO && println("Checking node ", node, "...")
-    if !SymbolicUtils.istree(node)
+    if !SymbolicUtils.iscall(node)
         DEBUGINFO && println("    is not a tree, skipping branch.")
         return false
     end
@@ -31,11 +32,7 @@ end
 # Exploring in Preorder allows to re-apply the rules to the result of the
 # previous rules, in case a rule transforms the integral in another integral
 # (for example linearity rules). 
-function integrate(integrand, int_var)
-    # rules2 = load_all_rules()
-    # for r in rules2
-    #     println("Rule: ", r)
-    # end
+function integrate(integrand, int_var; verbose = false)
     conditional = IfElse(shouldtransform, apply_rule, Empty())
     return Prewalk(conditional)(∫(integrand,int_var))
 end

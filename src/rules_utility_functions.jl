@@ -5,7 +5,7 @@ function contains_var(var, node)
         return true
     end
     
-    if SymbolicUtils.istree(node)
+    if SymbolicUtils.iscall(node)
         for arg in SymbolicUtils.arguments(node)
             if contains_var(var, arg)
                 return true
@@ -20,7 +20,7 @@ function contains_var(var, args...)
 end
 
 function eqQ(a, b)
-    if SymbolicUtils.istree(a) && SymbolicUtils.istree(b)
+    if SymbolicUtils.iscall(a) && SymbolicUtils.iscall(b)
         return SymbolicUtils.simplify(a - b) == 0
     else
         return a == b
