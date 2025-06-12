@@ -1,23 +1,4 @@
 
-function contains_int_var(var, node)
-    if node === var
-        return true
-    end
-    
-    if SymbolicUtils.istree(node)
-        for arg in SymbolicUtils.arguments(node)
-            if contains_int_var(var, arg)
-                return true
-            end
-        end
-    end
-    return false
-end
-
-function contains_int_var(var, args...)
-    return all(contains_int_var(var, arg) for arg in args)
-end
-
 function apply_rule(integrand)
     result = nothing
     for rule in rules
@@ -51,6 +32,10 @@ end
 # previous rules, in case a rule transforms the integral in another integral
 # (for example linearity rules). 
 function integrate(integrand, int_var)
+    # rules2 = load_all_rules()
+    # for r in rules2
+    #     println("Rule: ", r)
+    # end
     conditional = IfElse(shouldtransform, apply_rule, Empty())
     return Prewalk(conditional)(∫(integrand,int_var))
 end
