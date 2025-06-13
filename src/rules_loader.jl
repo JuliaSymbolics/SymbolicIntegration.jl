@@ -33,8 +33,14 @@ end
 rules = load_all_rules() # TODO make const when rerloading rules at will for debug will no more be needed
 
 # TODO just for debug, remove later
-function reload_rules()
+function reload_rules(;verbose = false)
     global rules
     rules = load_all_rules()
-    println("Rules reloaded. Total rules: ", length(rules))
+    println("Rules reloaded. Total rules: ", length(rules), ". Here they are in order:")
+    if verbose
+        for (i, rule) in enumerate(rules)
+            println("============ Rule $i: ")
+            println(rule)
+        end
+    end
 end

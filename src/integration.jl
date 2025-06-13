@@ -1,9 +1,9 @@
 function apply_rule(integrand; verbose = false)
     result = nothing
-    for rule in rules
+    for (i, rule) in enumerate(rules)
         result = rule(integrand)
         if result !== nothing
-            verbose && println("Applied rule: ", rule, " with result: ", result)
+            verbose && printstyled("┌---Applied rule $i:\n| ", join(split(string(rule), '\n'), "\n| "), "\n└---with result: ", result, "\n"; color = :light_blue)
             return result
         end
     end
@@ -13,14 +13,14 @@ function apply_rule(integrand; verbose = false)
 end
 
 function shouldtransform(node; verbose = false)
-    verbose && println("Checking node ", node, "...")
+    verbose && print("Checking node ", node, "...")
     if !SymbolicUtils.iscall(node)
-        verbose && println("    is not a tree, skipping branch.")
+        verbose && println(" is not a tree, skipping branch.")
         return false
     end
 
     cond = SymbolicUtils.operation(node) === ∫
-    verbose && println("    is a tree ", cond ? "and is a ∫" : "but not a ∫, skipping branch.")
+    verbose && println(" is a tree ", cond ? "and is a ∫" : "but not a ∫, skipping branch.")
     return cond
 end 
 
