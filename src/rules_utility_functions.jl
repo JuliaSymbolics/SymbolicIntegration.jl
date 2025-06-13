@@ -20,11 +20,8 @@ function contains_var(var, args...)
 end
 
 function eqQ(a, b)
-    if SymbolicUtils.iscall(a) && SymbolicUtils.iscall(b)
-        return SymbolicUtils.simplify(a - b) == 0
-    else
-        return a == b
-    end
+    tmp =  SymbolicUtils.simplify(a - b)
+    return tmp === 0 || tmp === 0.0 || tmp ===  0//1 || tmp === 0.0+0.0im
 end
 
 # b must be a rational number. If a is an integer and a>b, igtQ(a,b) returns true, else it returns false.
