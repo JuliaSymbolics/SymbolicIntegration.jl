@@ -143,7 +143,7 @@ function translate_conditions(conditions)
         (r"FreeQ\[(.*?), x\]", s"!contains_var(x, \1)"), ("{", ""), ("}", ""), # from FreeQ[{a, b, c, d, m}, x] to !contains_var((~x), (~a), (~b), (~c), (~d), (~m))
         (r"NeQ\[(.*?), (.*?)\]", s"!eqQ(\1, \2)"),
         (r"EqQ\[(.*?), (.*?)\]", s"eqQ(\1, \2)"),
-        (r"LinearQ\[(.*?), (.*?)\]", s"linear_expansion(\1, ~x)[3]"), # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
+        (r"LinearQ\[(.*?), (.*?)\]", s"Symbolics.linear_expansion(\1, x)[3]"), # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
         
         (r"IGtQ\[(.*?), (.*?)\]", s"igtQ(\1, \2)"), # IGtQ = Integer Greater than Question
         (r"IGeQ\[(.*?), (.*?)\]", s"igeQ(\1, \2)"), # IGeQ = Integer Greater than or equal Question
