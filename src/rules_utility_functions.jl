@@ -1,5 +1,4 @@
 # if node contains variable `var` return true
-#
 function contains_var(var, node)
     if node === var
         return true
@@ -16,7 +15,7 @@ function contains_var(var, node)
 end
 
 function contains_var(var, args...)
-    return all(contains_var(var, arg) for arg in args)
+    return any(contains_var(var, arg) for arg in args)
 end
 
 function eqQ(a, b)
