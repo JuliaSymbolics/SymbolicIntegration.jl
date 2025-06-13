@@ -41,10 +41,38 @@ function ileQ(a, b)
     isa(a, Integer) && a <= b
 end
 
-# TODO TODO not sure this is the correct function. this corresponds to Mathematica's FractionalPart not FracPart
-function fracpart(a)
-    a - trunc(a)
+# If m, n, ... are explicit integers or fractions, rationalQ(m,n,...) returns true; else it returns false.
+function rationalQ(args...)
+    return all(isa(arg, Rational) || isa(arg, Integer) for arg in args)
 end
+
+# If u is a sum, sumQ(u) returns true; else it returns false.
+function sumQ(u)
+    u = Symbolics.unwrap(u)
+    return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === +
+end
+
+# FracPart[u] returns the sum of the non-integer terms of u.
+function fracpart(a)
+    if rationalQ(a)
+        a - trunc(a)
+    elseif sumQ(a)
+        println(SymbolicUtils.arguments(Symbolics.unwrap(a)))
+        # If a is a sum, we return the sum of the fractional parts of each term
+        return sum(fracpart(term) for term in SymbolicUtils.arguments(Symbolics.unwrap(a)))
+    else
+        return a
+    end
+end
+
+# IntPart[u] returns the sum of the integer terms of u.
 function intpart(a)
-    trunc(a)
+    if rationalQ(a)
+        trunc(a)
+    elseif sumQ(a)
+        # If a is a sum, we return the sum of the integer parts of each term
+        return sum(intpart(term) for term in SymbolicUtils.arguments(Symbolics.unwrap(a)))
+    else
+        return 0
+    end
 end
