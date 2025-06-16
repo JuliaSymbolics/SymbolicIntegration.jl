@@ -1,5 +1,6 @@
 function apply_rule(integrand; verbose = false)
     result = nothing
+    integrand = simplify(integrand)
     for (i, rule) in enumerate(rules)
         result = rule(integrand)
         if result !== nothing
