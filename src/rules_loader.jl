@@ -36,8 +36,9 @@ rules = load_all_rules() # TODO make const when rerloading rules at will for deb
 function reload_rules(;verbose = false)
     global rules
     rules = load_all_rules()
-    println("Rules reloaded. Total rules: ", length(rules), ". Here they are in order:")
+    println("Rules reloaded. Total rules: ", length(rules))
     if verbose
+        println("Here they are in order:")
         for (i, rule) in enumerate(rules)
             println("============ Rule $i: ")
             println(rule)

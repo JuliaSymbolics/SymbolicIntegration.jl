@@ -20,7 +20,7 @@ function translate_file(input_filename, output_filename)
             elseif startswith(line, "Int[")
                 julia_rule = translate_line(line)
                 if !isnothing(julia_rule)
-                    write(f, "@rule $julia_rule # $(file_index)_$n_rules\n")
+                    write(f, "@acrule $julia_rule # $(file_index)_$n_rules\n")
                     n_rules += 1
                 end
             end
