@@ -66,6 +66,7 @@ function transalte_integrand(integrand)
         (r"([a-wyzA-WYZ])_\.", s"(~!\1)"), # default slot
         (r"([a-wyzA-WYZ])_", s"(~\1)"), # slot
         (r"x_", s"(~x)"),
+        (r"(?<=\d)/(?=\d)", "//")
     ]
 
     for (mathematica, julia) in associations
@@ -121,7 +122,7 @@ function translate_result(result)
 
         (r"FracPart\[(.*?)\]", s"fracpart(\1)"),
         # TODO fracpart with two arguments is ever present?
-        (r"IntegerPart\[(.*?)\]", s"intpart(\1)"),
+        (r"IntPart\[(.*?)\]", s"intpart(\1)"),
         
 
         # brackets

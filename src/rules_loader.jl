@@ -31,6 +31,7 @@ end
 
 # Load all rules at module initialization
 rules = load_all_rules() # TODO make const when rerloading rules at will for debug will no more be needed
+# TODO add a way to display the rule identifier (like 1_1_1_2_3) and not only the index
 
 # TODO just for debug, remove later
 function reload_rules(;verbose = false)
