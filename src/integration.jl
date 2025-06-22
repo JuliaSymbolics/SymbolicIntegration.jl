@@ -3,7 +3,7 @@ function apply_rule(integrand; verbose = false)
     for (i, rule) in enumerate(rules)
         result = rule(integrand)
         if result !== nothing
-            verbose && printstyled("┌---Applied rule $i:\n| ", join(split(string(rule), '\n'), "\n| "), "\n└---with result: "; color = :light_blue)
+            verbose && printstyled("┌---Applied rule $(identifiers_dictionary[i]):\n| ", join(split(string(rule), '\n'), "\n| "), "\n└---with result: "; color = :light_blue)
             verbose && printstyled( result, "\n"; color = :light_blue, reverse=true)
             return result
         end
@@ -65,6 +65,7 @@ function integrate(integrand; verbose = false)
     elseif length(vars) == 1
         integration_variable = vars[1]
     else
+        # this is used just to integrate numbers
         @warn "No integration variable provided. Assuming x"
         @variables x
         integration_variable = x

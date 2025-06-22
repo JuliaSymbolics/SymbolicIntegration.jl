@@ -11,21 +11,27 @@ function translate_file(input_filename, output_filename)
     lines = split(read(input_filename, String), "\n")
     n_rules = 1
 
-    # Open output file
-    open(output_filename, "w") do f
-        write(f, "file_rules = [\n")
-        for line in lines
-            if startswith(line, "(*")
-                write(f, "# $line \n")
-            elseif startswith(line, "Int[")
-                julia_rule = translate_line(line)
-                if !isnothing(julia_rule)
-                    write(f, "@smrule $julia_rule # $(file_index)_$n_rules\n")
-                    n_rules += 1
-                end
+    rules_big_string = "file_rules = [\n"
+    identifiers_big_string = "file_identifiers = [\n"
+
+    for line in lines
+        if startswith(line, "(*")
+            rules_big_string *= "# $line \n"
+        elseif startswith(line, "Int[")
+            julia_rule = translate_line(line)
+            if !isnothing(julia_rule)
+                rules_big_string *= "@smrule $julia_rule # $(file_index)_$n_rules\n"
+                identifiers_big_string *= "\"$(file_index)_$n_rules\"\n"
+                n_rules += 1
             end
         end
-        write(f, "]\n")
+    end
+    rules_big_string *= "]\n\n"
+    identifiers_big_string *= "]\n\n"
+    # Open output file
+    open(output_filename, "w") do f
+        write(f, rules_big_string)
+        write(f, identifiers_big_string)
     end
     println(n_rules-1, " translated\n")
 end
