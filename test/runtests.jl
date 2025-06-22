@@ -1,6 +1,7 @@
 using Test
 using SymbolicIntegration
 using Symbolics
+using SymbolicIntegration
 
 @testset "SymbolicIntegration.jl" begin
     @testset "Package Loading" begin

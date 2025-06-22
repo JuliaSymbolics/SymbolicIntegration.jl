@@ -129,6 +129,7 @@ function translate_result(result)
         # slots and defslots
         (r"(?<!\w)([a-zA-Z])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
     ]
+    #TODO transform / into //. But it works just for coefficients i think
 
     for (mathematica, julia) in associations
         result = replace(result, mathematica => julia)

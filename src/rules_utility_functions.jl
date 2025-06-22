@@ -53,7 +53,6 @@ function fracpart(a)
     if rationalQ(a)
         a - trunc(a)
     elseif sumQ(a)
-        println(SymbolicUtils.arguments(Symbolics.unwrap(a)))
         # If a is a sum, we return the sum of the fractional parts of each term
         return sum(fracpart(term) for term in SymbolicUtils.arguments(Symbolics.unwrap(a)))
     else
