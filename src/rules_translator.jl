@@ -20,7 +20,7 @@ function translate_file(input_filename, output_filename)
             elseif startswith(line, "Int[")
                 julia_rule = translate_line(line)
                 if !isnothing(julia_rule)
-                    write(f, "@acrule $julia_rule # $(file_index)_$n_rules\n")
+                    write(f, "@smrule $julia_rule # $(file_index)_$n_rules\n")
                     n_rules += 1
                 end
             end
@@ -68,7 +68,6 @@ function transalte_integrand(integrand)
         (r"x_", s"(~x)"),
         (r"(?<=\d)/(?=\d)", "//")
     ]
-
     for (mathematica, julia) in associations
         integrand = replace(integrand, mathematica => julia)
     end
