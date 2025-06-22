@@ -25,16 +25,16 @@ end
 
 # b must be a rational number. If a is an integer and a>b, igtQ(a,b) returns true, else it returns false.
 function igtQ(a, b)
-    isa(a, Integer) && a > b # TODO maybe add isa(a, Rational) ?
+    isinteger(a) && a > b # TODO maybe add isa(a, Rational) ?
 end
 function igeQ(a, b)
-    isa(a, Integer) && a >= b
+    isinteger(a) && a >= b
 end
 function iltQ(a, b)
-    isa(a, Integer) && a < b
+    isinteger(a) && a < b
 end
 function ileQ(a, b)
-    isa(a, Integer) && a <= b
+    isinteger(a) && a <= b
 end
 
 # If m, n, ... are explicit integers or fractions, rationalQ(m,n,...) returns true; else it returns false.
