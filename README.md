@@ -33,6 +33,7 @@ Complete symbolic integration using the Risch algorithm from Manuel Bronstein's 
 
 The framework is designed to support additional integration methods as they are developed.
 
+For now there are just a few rules, I am each day translating more of them. If you enconunter any issues using the package, please write me or open a issue on the repo.
 
 
 ## Installation
