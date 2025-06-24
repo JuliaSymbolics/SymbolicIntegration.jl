@@ -125,9 +125,10 @@ function translate_result(result)
         ("Sqrt[", "sqrt("),
         (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
 
-        (r"FracPart\[(.*?)\]", s"fracpart(\1)"),
-        # TODO fracpart with two arguments is ever present?
+        (r"FracPart\[(.*?)\]", s"fracpart(\1)"), # TODO fracpart with two arguments is ever present?
         (r"IntPart\[(.*?)\]", s"intpart(\1)"),
+
+        (r"ExpandIntegrand\[(.*?), (.*?)\]", s"expand(\1)"), # TODO is this enough?
         
 
         # brackets
