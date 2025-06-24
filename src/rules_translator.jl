@@ -154,7 +154,7 @@ function translate_conditions(conditions)
         
         (r"IGtQ\[(.*?), (.*?)\]", s"igtQ(\1, \2)"), # IGtQ = Integer Greater than Question
         (r"IGeQ\[(.*?), (.*?)\]", s"igeQ(\1, \2)"), # IGeQ = Integer Greater than or equal Question
-        (r"ILtQ\[(.*?), (.*?)\]", s"iltQ(\2, \1)"),
+        (r"ILtQ\[(.*?), (.*?)\]", s"iltQ(\1, \2)"),
         (r"ILeQ\[(.*?), (.*?)\]", s"ileQ(\1, \2)"),
         (r"GtQ\[(.*?), (.*?)\]", s"(\1 > \2)"), # GtQ = Greater than Question TODO maybe change them to support more types?
         (r"GeQ\[(.*?), (.*?)\]", s"(\1 >= \2)"), # GeQ = Greater than or equal Question
