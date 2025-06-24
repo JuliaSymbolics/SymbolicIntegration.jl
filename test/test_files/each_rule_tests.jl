@@ -15,4 +15,5 @@ data = [
     (integrand = (-1+2x)^(-5//2)*(3+6x)^(-5//2), result = -(x/(27sqrt(3)(-1 + 2x)^(3/2) *(1 + 2x)^(3/2))) + (2x)/(27*sqrt(3)*sqrt(-1 + 2x)*sqrt(1 + 2x)), integration_var = x) # 7 TODO this doesnt get applied bc to be applied the exponent need to be <= -3/2, and this case is not supported by current pattern matching
     (integrand = (-1+2x)^2*(3+6x)^2, result = 9x - 24x^3 + (144x^5)/5, integration_var = x) # 8 TODO rule 200 is missing
     (integrand = (1+2x)^2*(3-6x)^2, result = 9x - 24x^3 + (144x^5)/5, integration_var = x) # 8 other case TODO rule 200 is missing
+    (integrand = (-1+2x)^(0.1)*(3+6x)^(0.1), result = 666, integration_var = x) # 9 TODO result missing bc of Hypergeometric functions
 ]
