@@ -24,7 +24,9 @@ function load_all_rules()
     identifiers = []
     for file in rules_paths
         include(file)
-        append!(all_rules, file_rules)
+        file_identifiers = [x[1] for x in file_rules]
+        rules = [x[2] for x in file_rules]
+        append!(all_rules, rules)
         append!(identifiers, file_identifiers)
     end
     
