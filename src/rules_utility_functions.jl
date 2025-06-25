@@ -1,3 +1,10 @@
+# this custom division function is added to produce 
+# - rationals if called with integers
+# - floats if called with floats
+# it's also a infix operator with the same precedence of /
+⨸(x::Union{Rational, Integer}, y::Union{Rational, Integer}) = x // y
+⨸(x, y) = x / y
+
 # if node contains variable `var` return true
 function contains_var(var, node)
     if node === var

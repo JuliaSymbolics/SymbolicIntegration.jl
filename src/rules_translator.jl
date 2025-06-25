@@ -118,25 +118,24 @@ function translate_result(result)
     end
 
     associations = [
-        # not yet solved integrals
-        (r"Int\[(.*?), x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)
         # common functions
         ("Log[", "log("), (r"RemoveContent\[(.*?),\s*x\]", s"\1"),
         ("Sqrt[", "sqrt("),
         (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
-
+        # custom functions
         (r"FracPart\[(.*?)\]", s"fracpart(\1)"), # TODO fracpart with two arguments is ever present?
         (r"IntPart\[(.*?)\]", s"intpart(\1)"),
-
         (r"ExpandIntegrand\[(.*?), (.*?)\]", s"expand(\1)"), # TODO is this enough?
         
+        # not yet solved integrals
+        (r"Int\[(.*?), x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
 
-        # brackets
-        ("]", ")"),
+        ("]", ")"), # brackets
+        ("/", "⨸"), # custom division
+
         # slots and defslots
         (r"(?<!\w)([a-zA-Z])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
     ]
-    #TODO transform / into //. But it works just for coefficients i think
 
     for (mathematica, julia) in associations
         result = replace(result, mathematica => julia)
