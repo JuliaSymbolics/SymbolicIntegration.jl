@@ -81,11 +81,8 @@ end
 
 # returns the simplest nth root of u
 function rt(u, n::Integer)
-   return u^(1⨸n)
-end
-
-function elliptic_e(phi, m)
-    # TODO use Elliptic.jl ?
+    return u^(1⨸n) # TODO this doesnt allow for exact simplification of roots
+    # return SymbolicUtils.Pow{Real}(u, 1⨸n)
 end
 
 # If u is not 0 and has a positive form, posQ(u) returns True, else it returns False
