@@ -78,3 +78,27 @@ function intpart(a)
         return 0
     end
 end
+
+# returns the simplest nth root of u
+function rt(u, n::Integer)
+   return u^(1⨸n)
+end
+
+function elliptic_e(phi, m)
+    # TODO use Elliptic.jl ?
+end
+
+# If u is not 0 and has a positive form, posQ(u) returns True, else it returns False
+function posQ(u)
+    return !eqQ(u, 0) && (u>0)
+end
+
+# If u is not 0 and has a negative form, negQ(u) returns True, else it returns False
+function negQ(u)
+    return !posQ(u) && !eqQ(u, 0)
+end
+
+# If m, n, ... are explicit fractions, FractionQ[m,n,...] returns True; else it returns False.
+function fractionQ(args...)
+    return all(isa(arg, Rational) for arg in args)
+end

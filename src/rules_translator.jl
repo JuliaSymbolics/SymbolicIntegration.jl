@@ -12,7 +12,6 @@ function translate_file(input_filename, output_filename)
     n_rules = 1
 
     rules_big_string = "file_rules = [\n"
-    identifiers_big_string = "file_identifiers = [\n"
 
     for line in lines
         if startswith(line, "(*")
@@ -20,18 +19,15 @@ function translate_file(input_filename, output_filename)
         elseif startswith(line, "Int[")
             julia_rule = translate_line(line)
             if !isnothing(julia_rule)
-                rules_big_string *= "@smrule $julia_rule # $(file_index)_$n_rules\n"
-                identifiers_big_string *= "\"$(file_index)_$n_rules\"\n"
+                rules_big_string *= "(\"$(file_index)_$n_rules\",\n@smrule $julia_rule)\n"
                 n_rules += 1
             end
         end
     end
     rules_big_string *= "]\n\n"
-    identifiers_big_string *= "]\n\n"
     # Open output file
     open(output_filename, "w") do f
         write(f, rules_big_string)
-        write(f, identifiers_big_string)
     end
     println(n_rules-1, " translated\n")
 end
@@ -121,11 +117,15 @@ function translate_result(result)
         # common functions
         ("Log[", "log("), (r"RemoveContent\[(.*?),\s*x\]", s"\1"),
         ("Sqrt[", "sqrt("),
+        ("ArcTan[", "atan("),
+        ("ArcTanh[", "atanh("),
         (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
         # custom functions
         (r"FracPart\[(.*?)\]", s"fracpart(\1)"), # TODO fracpart with two arguments is ever present?
         (r"IntPart\[(.*?)\]", s"intpart(\1)"),
         (r"ExpandIntegrand\[(.*?), (.*?)\]", s"expand(\1)"), # TODO is this enough?
+        (r"EllipticE\[(.*?), (.*?)\]", s"elliptic_e(\1, \2)"),
+        (r"Rt\[(.*?), (.*?)\]", s"rt(\1, \2)"),
         
         # not yet solved integrals
         (r"Int\[(.*?), x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
@@ -162,6 +162,13 @@ function translate_conditions(conditions)
         (r"LeQ\[(.*?), (.*?)\]", s"(\1 <= \2)"),
         (r"IntegerQ\[(.*?)\]", s"isa(\1, Integer)"),
         (r"Not\[(.*?)\]", s"!(\1)"),
+        (r"PosQ\[(.*?)\]", s"posQ(\1)"),
+        (r"NegQ\[(.*?)\]", s"negQ(\1)"),
+        (r"Numerator\[(.*?)\]", s"numerator(\1)"),
+        (r"Denominator\[(.*?)\]", s"denominator(\1)"),
+        (r"FractionQ\[(.*?)\]", s"fractionQ(\1)"), 
+        (r"FractionQ\[(.*?), (.*?)\]", s"fractionQ(\1, \2)"), # TODO fractionQ with three or more arguments?
+
         # convert conditions variables
         (r"(?<!\w)([a-zA-Z])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
     ]
