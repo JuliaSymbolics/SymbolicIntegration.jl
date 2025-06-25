@@ -1,60 +1,48 @@
-function apply_rule(integrand; verbose = false)
+# returns a tuple:
+# if found a rule to apply, (solution, true)
+# if not, (original problem, false)
+function apply_rule(problem, verbose)
     result = nothing
     for (i, rule) in enumerate(rules)
-        result = rule(integrand)
+        result = rule(problem)
         if result !== nothing
-            verbose && printstyled("┌---Applied rule $(identifiers_dictionary[i]):\n| ", join(split(string(rule), '\n'), "\n| "), "\n└---with result: "; color = :light_blue)
+            verbose && printstyled("┌---Applied rule $(identifiers_dictionary[i]) on ", problem, "\n| ", join(split(string(rule), '\n'), "\n| "), "\n└---with result: "; color = :light_blue)
             verbose && printstyled( result, "\n"; color = :light_blue, reverse=true)
-            return result
+            return (result, true)
         end
     end
 
-    verbose && println("No rule found for ", integrand)
-    return integrand
+    verbose && println("No rule found for ", problem)
+    return (problem, false)
 end
 
-# TODO: there is a inefficiency here. when nodes like (..1.)*∫(..2..) are found, 
-# true is returned, all rules are checked again, without succes, only
-# after the prewalk checks the children of the expressions ..1.. and
-# ∫(..2..) Needs to be modified to check diectly the integrand
-function shouldtransform(node; verbose = false)
-    verbose && print("Checking node ", node, "...")
-    if !SymbolicUtils.iscall(node)
-        verbose && println(" is not a tree, skipping branch.")
-        return false
-    end
+# TODO add threaded for speed?
+function repeated_prewalk(x, verbose)
+    verbose && println("Checking ", x, "...")
+    !iscall(x) && return x
     
-    
-    node_op = SymbolicUtils.operation(node)
-    # search for nodes ∫(...)
-    if node_op === ∫
-        verbose && println("Is a tree with ∫ operation, applying rules")
-        return true
-        # search for nodes (...)*∫(...) it is intentionally not recursive, but checks only one level deep
-    elseif node_op === *
-        for a in arguments(node)
-            if SymbolicUtils.iscall(a) && operation(a)===∫
-                verbose && println("Is a tree like (...)*∫(...) applying rules (inefficiency)")
-                return true
-            end
+    if operation(x)===∫
+        (x,success) = apply_rule(x, verbose)
+        if success
+            return repeated_prewalk(x, verbose)
+        else
+            return x
         end
     end
-    verbose && println(" is a tree but not a ∫, skipping branch.")
-    return false
-end 
 
-# Prewalk from SymbolicUtils.Rewriters is used, to explore the tree of the 
-# integrand symbolic expression. when a node is a ∫, the rules are applied to
-# the node (if applicable) and the result is substituted in the tree. 
-# Exploring in Preorder allows to re-apply the rules to the result of the
-# previous rules, in case a rule transforms the integral in another integral
-# (for example linearity rules). 
-function integrate(integrand, int_var; verbose = false)
-    rewriter = If(
-        x -> shouldtransform(x; verbose=verbose), 
-        x -> apply_rule(x; verbose=verbose)
+    x = SymbolicUtils.maketerm(
+        typeof(x), 
+        operation(x), 
+        map(in -> repeated_prewalk(in, verbose),arguments(x)), 
+        SymbolicUtils.metadata(x)
     )
-    return Prewalk(rewriter)(∫(integrand,int_var))
+
+    return x
+end
+
+function integrate(integrand, int_var; verbose = false)
+    problem = ∫(integrand,int_var)
+    repeated_prewalk(problem, verbose)
 end
 
 # If no integration variable provided
