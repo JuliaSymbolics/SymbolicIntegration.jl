@@ -29,7 +29,7 @@ file_rules = [
 ("9_1_12",
 @smrule ∫((~a)*(~u),(~x)) => !contains_var((~x), (~a)) ? (~a)*∫((~u), (~x)) : nothing) # TODO edge cases?
 # ("9_1_13",
-# @smrule ∫(((~!c)*(~x))^(~!m)*(~u),(~x)) => !contains_var((~x), (~c), (~m)) && SumQ[(~u)] && !(Symbolics.linear_expansion((~u), (~x))[3)] && Not[MatchQ[(~u), a_ + b_.*v_ ? ∫(expand(((~c)*(~x))^(~m)*(~u)), (~x)) : nothing)
+# @smrule ∫(((~!c)*(~x))^(~!m)*(~u),(~x)) => !contains_var((~x), (~c), (~m)) && sumQ(~u) && !(Symbolics.linear_expansion((~u), (~x))[3]) && Not[MatchQ[(~u), a_ + b_.*v_]] ? ∫(expand(((~c)*(~x))^(~m)*(~u)), (~x)) : nothing)
 ("9_1_14",
 @smrule ∫((~!u)*((~!a)*(~x)^(~n))^(~m),(~x)) => !contains_var((~x), (~a), (~m), (~n)) && !(isa((~m), Integer)) ? (~a)^intpart((~m))*((~a)*(~x)^(~n))^fracpart((~m))⨸(~x)^((~n)*fracpart((~m)))* ∫((~u)*(~x)^((~m)*(~n)), (~x)) : nothing)
 ("9_1_15",
@@ -53,12 +53,12 @@ file_rules = [
 # (* Int[u_.*(a_.*v_)^m_*(b_.*v_+c_.*v_^2),x_Symbol] := 1/a*Int[u*(a*v)^(m+1)*(b+c*v),x] /; FreeQ[{a,b,c},x] && LeQ[m,-1] *) 
 # ("9_1_23",
 # @smrule ∫((~!u)*((~a) + (~!b)*(~v))^(~m)*((~!A) + (~!B)*(~v) + (~!C)*(~v)^2),(~x)) => !contains_var((~x), (~a), (~b), (~A), (~B), (~C)) && eqQ((~A)*(~b)^2 - (~a)*(~b)*(~B) + (~a)^2*(~C), 0) && ((~m) <= -1) ? 1⨸(~b)^2*∫((~u)*((~a) + (~b)*(~v))^((~m) + 1)*Simp[(~b)*(~B) - (~a)*(~C) + (~b)*(~C)*(~v), (~x)), (~x)) : nothing)
-# ("9_1_24",
-# @smrule ∫((~!u)*((~a) + (~!b)*(~x)^(~!n))^(~!m)*((~c) + (~!d)*(~x)^(~!q))^(~!p),(~x)) => !contains_var((~x), (~a), (~b), (~c), (~d), (~m), (~n)) && eqQ((~q), -(~n)) && isa((~p), Integer) && eqQ((~a)*(~c) - (~b)*(~d), 0) && !(isa((~m), Integer) && NegQ[(~n))] ? ((~d)⨸(~a))^(~p)*∫((~u)*((~a) + (~b)*(~x)^(~n))^((~m) + (~p))⨸(~x)^((~n)*(~p)), (~x)) : nothing)
+("9_1_24",
+@smrule ∫((~!u)*((~a) + (~!b)*(~x)^(~!n))^(~!m)*((~c) + (~!d)*(~x)^(~!q))^(~!p),(~x)) => !contains_var((~x), (~a), (~b), (~c), (~d), (~m), (~n)) && eqQ((~q), -(~n)) && isa((~p), Integer) && eqQ((~a)*(~c) - (~b)*(~d), 0) && !(isa((~m), Integer) && negQ(~n)) ? ((~d)⨸(~a))^(~p)*∫((~u)*((~a) + (~b)*(~x)^(~n))^((~m) + (~p))⨸(~x)^((~n)*(~p)), (~x)) : nothing)
 ("9_1_25",
 @smrule ∫((~!u)*((~a) + (~!b)*(~x)^(~!n))^(~!m)*((~c) + (~!d)*(~x)^(~j))^(~!p),(~x)) => !contains_var((~x), (~a), (~b), (~c), (~d), (~m), (~n), (~p)) && eqQ((~j), 2*(~n)) && eqQ((~p), -(~m)) && eqQ((~b)^2*(~c) + (~a)^2*(~d), 0) && ((~a) > 0) && ((~d) < 0) ? (-(~b)^2⨸(~d))^(~m)*∫((~u)*((~a) - (~b)*(~x)^(~n))^(-(~m)), (~x)) : nothing)
 # ("9_1_26",
 # @smrule ∫((~!u)*((~a) + (~!b)*(~x) + (~!c)*(~x)^2)^(~!p),(~x)) => !contains_var((~x), (~a), (~b), (~c)) && eqQ((~b)^2 - 4*(~a)*(~c), 0) && isa((~p), Integer) ? ∫((~u)*Cancel[((~b)⨸2 + (~c)*(~x))^(2*(~p))⨸(~c)^(~p)), (~x)) : nothing)
-# ("9_1_27",
-# @smrule ∫((~!u)*((~a) + (~!b)*(~x)^(~n) + (~!c)*(~x)^n2_.)^(~!p),(~x)) => !contains_var((~x), (~a), (~b), (~c), (~n)) && eqQ(n2, 2*(~n)) && eqQ((~b)^2 - 4*(~a)*(~c), 0) && isa((~p), Integer) ? 1⨸(~c)^(~p)*∫((~u)*((~b)⨸2 + (~c)*(~x)^(~n))^(2*(~p)), (~x)) : nothing)
+("9_1_27",
+@smrule ∫((~!u)*((~a) + (~!b)*(~x)^(~n) + (~!c)*(~x)^(~!n2))^(~!p),(~x)) => !contains_var((~x), (~a), (~b), (~c), (~n)) && eqQ(~n2, 2*(~n)) && eqQ((~b)^2 - 4*(~a)*(~c), 0) && isa((~p), Integer) ? 1⨸(~c)^(~p)*∫((~u)*((~b)⨸2 + (~c)*(~x)^(~n))^(2*(~p)), (~x)) : nothing)
 ]
