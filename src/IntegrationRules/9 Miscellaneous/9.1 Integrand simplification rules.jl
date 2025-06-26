@@ -45,7 +45,7 @@ file_rules = [
 ("9_1_19",
 @smrule ∫((~!u)*((~!a)*(~v))^(~m)*((~!b)*(~v))^(~n),(~x)) => !contains_var((~x), (~a), (~b), (~m), (~n)) && !(isa((~m), Integer)) && !(isa((~n), Integer)) && !(isa((~m) + (~n), Integer)) ? (~b)^intpart((~n))*((~b)*(~v))^fracpart((~n))⨸((~a)^intpart((~n))*((~a)*(~v))^fracpart((~n)))* ∫((~u)*((~a)*(~v))^((~m) + (~n)), (~x)) : nothing)
 ("9_1_20",
-@smrule ∫((~!u)*((~a) + (~!b)*(~v))^(~!m)*((~c) + (~!d)*(~v))^(~!n),(~x)) => !contains_var((~x), (~a), (~b), (~c), (~d), (~n)) && eqQ((~b)*(~c) - (~a)*(~d), 0) && isa((~m), Integer) && (!(isa((~n), Integer)) || SimplerQ[(~c) + (~d)*(~x), (~a) + (~b)*(~x)]) ? ((~b)⨸(~d))^(~m)*∫((~u)*((~c) + (~d)*(~v))^((~m) + (~n)), (~x)) : nothing)
+@smrule ∫((~!u)*((~a) + (~!b)*(~v))^(~!m)*((~c) + (~!d)*(~v))^(~!n),(~x)) => !contains_var((~x), (~a), (~b), (~c), (~d), (~n)) && eqQ((~b)*(~c) - (~a)*(~d), 0) && isa((~m), Integer) && (!(isa((~n), Integer)) || simplerQ((~c) + (~d)*(~x), (~a) + (~b)*(~x))) ? ((~b)⨸(~d))^(~m)*∫((~u)*((~c) + (~d)*(~v))^((~m) + (~n)), (~x)) : nothing)
 ("9_1_21",
 @smrule ∫((~!u)*((~a) + (~!b)*(~v))^(~m)*((~c) + (~!d)*(~v))^(~n),(~x)) => !contains_var((~x), (~a), (~b), (~c), (~d), (~m), (~n)) && eqQ((~b)*(~c) - (~a)*(~d), 0) && ((~b)/(~d) > 0) && !(isa((~m), Integer) || isa((~n), Integer)) ? ((~b)⨸(~d))^(~m)*∫((~u)*((~c) + (~d)*(~v))^((~m) + (~n)), (~x)) : nothing)
 ("9_1_22",
