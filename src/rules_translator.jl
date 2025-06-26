@@ -63,12 +63,13 @@ end
 # assumes all integrals in the rules are in the x variable
 function transalte_integrand(integrand)
     associations = [
-        ("Int[", "∫("), # Handle common Int[...] integrands
-        (", x_Symbol]", ",(~x))"),
-        (r"([a-wyzA-WYZ])_\.", s"(~!\1)"), # default slot
-        (r"([a-wyzA-WYZ])_", s"(~\1)"), # slot
-        (r"x_", s"(~x)"),
+        ("Int[", "∫(") # Handle common Int[...] integrands
+        (", x_Symbol]", ",(~x))")
+        (r"([a-wyzA-WYZ])_\.", s"(~!\1)") # default slot
+        (r"([a-wyzA-WYZ])_", s"(~\1)") # slot
+        (r"x_", s"(~x)")
         (r"(?<=\d)/(?=\d)", "//")
+        (r"Sqrt\[(.*?)\]", s"sqrt(\1)")
     ]
     for (mathematica, julia) in associations
         integrand = replace(integrand, mathematica => julia)

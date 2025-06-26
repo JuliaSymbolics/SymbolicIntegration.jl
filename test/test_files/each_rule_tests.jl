@@ -21,7 +21,10 @@ data = [
     (integrand = (1/(-1+2x))^2*(3+6x)^(1.1), result = 666, integration_var = x) # 10 TODO result missing bc of Hypergeometric functions
     (integrand = (1/(-1+2x))^2*(3+6x)^(-1.1), result = 666, integration_var = x) # 11 TODO doesnt work bc of patterm matching 1/((...)*(...))
     (integrand = (-1 + 2x)^2*(3 + 6x)^(2.1), result = 666, integration_var = x) # 12
+    # 2_1
+    (integrand = (1+x)^2*((2^x)^2), result = 2^(2x)/(4*log(2)^3) - (2^(2x)*(1 + x))/(2*log(2)^2) + (2^(2x)*(1 + x)^2)/(2*log(2)), integration_var = x) # 1
+    (integrand = (1+x)^-2*((2^x)^2), result = 2^(2x)/(4*log(2)^3) - (2^(2x)*(1 + x))/(2*log(2)^2) + (2^(2x)*(1 + x)^2)/(2*log(2)), integration_var = x) # 2
+    (integrand = 2^(2(2+x))/sqrt(1+2x), result = 2^(2x)/(4*log(2)^3) - (2^(2x)*(1 + x))/(2*log(2)^2) + (2^(2x)*(1 + x)^2)/(2*log(2)), integration_var = x) # 5 TODO the integral needs to be done before substitute
     # 2_3
     (integrand = 2^(1 + 2x), result = 1.4426950408889634*(2^(2x)), integration_var = x)
-
 ]

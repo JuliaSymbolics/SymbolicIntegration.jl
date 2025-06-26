@@ -1,4 +1,5 @@
 file_rules = [
+# we assume UseGamma = false
 # (* ::Subsection::Closed:: *) 
 # (* 2.1 (c+d x)^m (a+b (F^(g (e+f x)))^n)^p *) 
 ("2_1_1",
@@ -10,7 +11,7 @@ file_rules = [
 # ("2_1_4", # TODO gamma???
 # @smrule ∫(((~!c) + (~!d)*(~x))^(~!m)*(~F)^((~!g)*((~!e) + (~!f)*(~x))),(~x)) => !contains_var((~x), (~F), (~c), (~d), (~e), (~f), (~g)) && isa((~m), Integer) ? (-(~d))^(~m)*(~F)^((~g)*((~e) - (~c)*(~f)⨸(~d)))⨸((~f)^((~m) + 1)*(~g)^((~m) + 1)*log((~F))^((~m) + 1))* Gamma[(~m) + 1, -(~f)*(~g)*log((~F))⨸(~d)*((~c) + (~d)*(~x))) : nothing)
 ("2_1_5",
-@smrule ∫((~F)^((~!g)*((~!e) + (~!f)*(~x)))/Sqrt[(~!c) + (~!d)*(~x)],(~x)) => !contains_var((~x), (~F), (~c), (~d), (~e), (~f), (~g)) ? 2⨸(~d)*substitute(∫((~F)^((~g)*((~e) - (~c)*(~f)⨸(~d)) + (~f)*(~g)*(~x)^2⨸(~d)), (~x)), (~x) => sqrt((~c) + (~d)*(~x))) : nothing)
+@smrule ∫((~F)^((~!g)*((~!e) + (~!f)*(~x)))/sqrt((~!c) + (~!d)*(~x)),(~x)) => !contains_var((~x), (~F), (~c), (~d), (~e), (~f), (~g)) ? 2⨸(~d)*substitute(∫((~F)^((~g)*((~e) - (~c)*(~f)⨸(~d)) + (~f)*(~g)*(~x)^2⨸(~d)), (~x)), (~x) => sqrt((~c) + (~d)*(~x))) : nothing)
 # ("2_1_6", # TODO gamma???
 # @smrule ∫(((~!c) + (~!d)*(~x))^(~m)*(~F)^((~!g)*((~!e) + (~!f)*(~x))),(~x)) => !contains_var((~x), (~F), (~c), (~d), (~e), (~f), (~g), (~m)) && !(isa((~m), Integer)) ? -(~F)^((~g)*((~e) - (~c)*(~f)⨸(~d)))*((~c) + (~d)*(~x))^ fracpart( (~m))⨸((~d)*(-(~f)*(~g)*log((~F))⨸(~d))^(intpart((~m)) + 1)*(-(~f)*(~g)* log((~F))*((~c) + (~d)*(~x))⨸(~d))^fracpart((~m)))* Gamma[(~m) + 1, (-(~f)*(~g)*log((~F))⨸(~d))*((~c) + (~d)*(~x))) : nothing)
 ("2_1_7",
