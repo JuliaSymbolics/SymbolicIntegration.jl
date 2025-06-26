@@ -1,31 +1,17 @@
-
-# Function to recursively find all .jl files in a directory
-function find_rule_files(dir)
-    files = String[]
-    for (root, dirs, filenames) in walkdir(dir)
-        for filename in filenames
-            if endswith(filename, ".jl")
-                push!(files, joinpath(root, filename))
-            end
-        end
-    end
-    return files
-end
-
 # Load all rules from the IntegrationRules directory
 function load_all_rules()
-    # rules_paths = find_rules_files(joinpath(@__DIR__, "IntegrationRules")) TODO
-    file1 = joinpath(@__DIR__, "IntegrationRules/1 Algebraic functions/1.1 Binomial products/1.1.1 Linear/1.1.1.1 (a+b x)^m.jl")
-    file2 = joinpath(@__DIR__, "IntegrationRules/1 Algebraic functions/1.1 Binomial products/1.1.1 Linear/1.1.1.2 (a+b x)^m (c+d x)^n.jl")
-    file3 = joinpath(@__DIR__, "IntegrationRules/9 Miscellaneous/9.1 Integrand simplification rules.jl")
-    file_atanh = joinpath(@__DIR__, "IntegrationRules/1 Algebraic functions/1.1 Binomial products/1.1.3 General/1.1.3.1 (a+b x^n)^p.jl")
-    file_exp = joinpath(@__DIR__, "IntegrationRules/2 Exponentials/2.3 Miscellaneous exponentials.jl")
-    rules_paths = [file3, file1, file2, file_atanh, file_exp]
+    rules_paths = [
+    "IntegrationRules/9 Miscellaneous/9.1 Integrand simplification rules.jl"
+    "IntegrationRules/1 Algebraic functions/1.1 Binomial products/1.1.1 Linear/1.1.1.1 (a+b x)^m.jl"
+    "IntegrationRules/1 Algebraic functions/1.1 Binomial products/1.1.1 Linear/1.1.1.2 (a+b x)^m (c+d x)^n.jl"
+    "IntegrationRules/1 Algebraic functions/1.1 Binomial products/1.1.3 General/1.1.3.1 (a+b x^n)^p.jl"
+    "IntegrationRules/2 Exponentials/2.3 Miscellaneous exponentials.jl"
+    ]
 
     all_rules = []
     identifiers = []
     for file in rules_paths
-        include(file)
+        include(joinpath(@__DIR__, file))
         file_identifiers = [x[1] for x in file_rules]
         rules = [x[2] for x in file_rules]
         append!(all_rules, rules)
