@@ -168,6 +168,9 @@ function translate_conditions(conditions)
         (r"Denominator\[(.*?)\]", s"extended_denominator(\1)"),
         (r"FractionQ\[(.*?)\]", s"fractionQ(\1)"), 
         (r"FractionQ\[(.*?), (.*?)\]", s"fractionQ(\1, \2)"), # TODO fractionQ with three or more arguments?
+        (r"SumQ\[(.*?)\]", s"sumQ(\1)"),
+        (r"NonsumQ\[(.*?)\]", s"!sumQ(\1)"),
+
 
         # convert conditions variables
         (r"(?<!\w)([a-zA-Z])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
