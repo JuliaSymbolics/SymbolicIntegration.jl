@@ -26,8 +26,8 @@ file_rules = [
 # @smrule ∫(-(~u),(~x)) => Identity[-1)*∫((~u), (~x)))
 # ("9_1_11",
 # @smrule ∫(Complex[0, (~a)]*(~u),(~x)) => !contains_var((~x), (~a)) && eqQ((~a)^2, 1) ? Complex[Identity[0), (~a))*∫((~u), (~x)) : nothing)
-# ("9_1_12",
-# @smrule ∫((~a)*(~u),(~x)) => !contains_var((~x), (~a)) && Not[MatchQ[(~u), b_*v_ ? (~a)*∫((~u), (~x)) : nothing)
+("9_1_12",
+@smrule ∫((~a)*(~u),(~x)) => !contains_var((~x), (~a)) ? (~a)*∫((~u), (~x)) : nothing) # TODO edge cases?
 # ("9_1_13",
 # @smrule ∫(((~!c)*(~x))^(~!m)*(~u),(~x)) => !contains_var((~x), (~c), (~m)) && SumQ[(~u)] && !(Symbolics.linear_expansion((~u), (~x))[3)] && Not[MatchQ[(~u), a_ + b_.*v_ ? ∫(expand(((~c)*(~x))^(~m)*(~u)), (~x)) : nothing)
 ("9_1_14",
