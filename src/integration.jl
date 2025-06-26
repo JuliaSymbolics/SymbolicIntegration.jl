@@ -22,9 +22,9 @@ function repeated_prewalk(x, verbose)
     !iscall(x) && return x
     
     if operation(x)===∫
-        (x,success) = apply_rule(x, verbose)
-        if success
-            return repeated_prewalk(x, verbose)
+        (new_x,success) = apply_rule(x, verbose)
+        if success && new_x !== x
+            return repeated_prewalk(new_x, verbose)
         else
             return x
         end
@@ -62,7 +62,7 @@ function integrate(integrand; verbose = false)
     integrate(integrand, integration_variable; verbose=verbose)
 end
 
-function integrate()
+function integrate(;verbose=false)
     @warn "No integrand provided. Please provide one like this: `integrate(x^2 + 3x + 2, x)`"
     return nothing
 end 
