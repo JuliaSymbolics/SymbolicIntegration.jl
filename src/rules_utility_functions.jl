@@ -99,3 +99,17 @@ end
 function fractionQ(args...)
     return all(isa(arg, Rational) for arg in args)
 end
+
+function extended_denominator(u)
+    return denominator(u)
+end
+function extended_denominator(u::Float64)
+    return 1
+end
+
+function extended_numerator(u)
+    return numerator(u)
+end
+function extended_numerator(u::Float64)
+    return u
+end

@@ -164,8 +164,8 @@ function translate_conditions(conditions)
         (r"Not\[(.*?)\]", s"!(\1)"),
         (r"PosQ\[(.*?)\]", s"posQ(\1)"),
         (r"NegQ\[(.*?)\]", s"negQ(\1)"),
-        (r"Numerator\[(.*?)\]", s"numerator(\1)"),
-        (r"Denominator\[(.*?)\]", s"denominator(\1)"),
+        (r"Numerator\[(.*?)\]", s"extended_numerator(\1)"),
+        (r"Denominator\[(.*?)\]", s"extended_denominator(\1)"),
         (r"FractionQ\[(.*?)\]", s"fractionQ(\1)"), 
         (r"FractionQ\[(.*?), (.*?)\]", s"fractionQ(\1, \2)"), # TODO fractionQ with three or more arguments?
 

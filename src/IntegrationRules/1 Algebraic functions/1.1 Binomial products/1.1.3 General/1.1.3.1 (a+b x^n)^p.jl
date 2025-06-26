@@ -13,8 +13,8 @@ file_rules = [
 @smrule ∫(((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) => !contains_var((~x), (~a), (~b)) && ((~n) < 0) && isa((~p), Integer) ? ∫((~x)^((~n)*(~p))*((~b) + (~a)*(~x)^(-(~n)))^(~p), (~x)) : nothing)
 ("1_1_3_1_6",
 @smrule ∫(((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) => !contains_var((~x), (~a), (~b)) && igtQ((~n), 0) && igtQ((~p), 0) ? ∫(expand(((~a) + (~b)*(~x)^(~n))^(~p)), (~x)) : nothing)
-# ("1_1_3_1_7",
-# @smrule ∫(((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) => !contains_var((~x), (~a), (~b)) && igtQ((~n), 0) && ((~p) > 0) && (isa(2*(~p), Integer) || eqQ((~n), 2) && isa(4*(~p), Integer) || eqQ((~n), 2) && isa(3*(~p), Integer) || (denominator((~p) + 1/(~n)) < denominator((~p)))) ? (~x)*((~a) + (~b)*(~x)^(~n))^(~p)⨸((~n)*(~p) + 1) + (~a)*(~n)*(~p)⨸((~n)*(~p) + 1)*∫(((~a) + (~b)*(~x)^(~n))^((~p) - 1), (~x)) : nothing)
+("1_1_3_1_7",
+@smrule ∫(((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) => !contains_var((~x), (~a), (~b)) && igtQ((~n), 0) && ((~p) > 0) && (isa(2*(~p), Integer) || eqQ((~n), 2) && isa(4*(~p), Integer) || eqQ((~n), 2) && isa(3*(~p), Integer) || (extended_denominator((~p) + 1/(~n)) < extended_denominator((~p)))) ? (~x)*((~a) + (~b)*(~x)^(~n))^(~p)⨸((~n)*(~p) + 1) + (~a)*(~n)*(~p)⨸((~n)*(~p) + 1)*∫(((~a) + (~b)*(~x)^(~n))^((~p) - 1), (~x)) : nothing)
 # ("1_1_3_1_8",     # TODO use Elliptic.jl ?
 # @smrule ∫(1/((~a) + (~!b)*(~x)^2)^(5//4),(~x)) => !contains_var((~x), (~a), (~b)) && ((~a) > 0) && posQ((~b)/(~a)) ? 2⨸((~a)^(5⨸4)*rt((~b)⨸(~a), 2))*elliptic_e(1⨸2*atan(rt((~b)⨸(~a), 2)*(~x)), 2) : nothing)
 ("1_1_3_1_9",
