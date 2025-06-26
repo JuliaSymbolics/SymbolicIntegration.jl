@@ -120,6 +120,7 @@ function translate_result(result)
         ("Sqrt[", "sqrt("),
         ("ArcTan[", "atan("),
         ("ArcTanh[", "atanh("),
+        ("ArcCosh[", "acosh("),
         (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
         # custom functions
         (r"FracPart\[(.*?)\]", s"fracpart(\1)"), # TODO fracpart with two arguments is ever present?
@@ -151,6 +152,7 @@ function translate_conditions(conditions)
         (r"FreeQ\[(.*?), x\]", s"!contains_var(x, \1)"), ("{", ""), ("}", ""), # from FreeQ[{a, b, c, d, m}, x] to !contains_var((~x), (~a), (~b), (~c), (~d), (~m))
         (r"NeQ\[(.*?), (.*?)\]", s"!eqQ(\1, \2)"),
         (r"EqQ\[(.*?), (.*?)\]", s"eqQ(\1, \2)"),
+        (r"IntLinearQ\[(.*?), (.*?), (.*?), (.*?), (.*?), (.*?), (.*?)\]", s"intlinearQ(\1, \2, \3, \4, \5, \6, \7)"),
         (r"LinearQ\[(.*?), (.*?)\]", s"Symbolics.linear_expansion(\1, x)[3]"), # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
         
         (r"IGtQ\[(.*?), (.*?)\]", s"igtQ(\1, \2)"), # IGtQ = Integer Greater than Question
@@ -161,7 +163,8 @@ function translate_conditions(conditions)
         (r"GeQ\[(.*?), (.*?)\]", s"(\1 >= \2)"), # GeQ = Greater than or equal Question
         (r"LtQ\[(.*?), (.*?)\]", s"(\1 < \2)"),
         (r"LeQ\[(.*?), (.*?)\]", s"(\1 <= \2)"),
-        (r"IntegerQ\[(.*?)\]", s"isa(\1, Integer)"),
+        (r"IntegerQ\[(.*?)\]", s"extended_isinteger(\1)"),
+        (r"IntegersQ\[(.*?), (.*?)\]", s"extended_isinteger(\1, \2)"), # TODO IntegersQ with three or more arguments?
         (r"Not\[(.*?)\]", s"!(\1)"),
         (r"PosQ\[(.*?)\]", s"posQ(\1)"),
         (r"NegQ\[(.*?)\]", s"negQ(\1)"),
@@ -171,6 +174,8 @@ function translate_conditions(conditions)
         (r"FractionQ\[(.*?), (.*?)\]", s"fractionQ(\1, \2)"), # TODO fractionQ with three or more arguments?
         (r"SumQ\[(.*?)\]", s"sumQ(\1)"),
         (r"NonsumQ\[(.*?)\]", s"!sumQ(\1)"),
+        (r"SimplerQ\[(.*?), (.*?)\]", s"simplerQ(\1, \2)"),
+
 
 
         # convert conditions variables

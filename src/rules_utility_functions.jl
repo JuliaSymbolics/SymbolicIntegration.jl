@@ -44,6 +44,18 @@ function ileQ(a, b)
     isinteger(a) && a <= b
 end
 
+function extended_isinteger(u)
+    try
+        return isinteger(u)
+    catch e
+        return false
+    end
+end
+
+function extended_isinteger(args...)
+    return all(extended_isinteger(arg) for arg in args)
+end
+
 # If m, n, ... are explicit integers or fractions, rationalQ(m,n,...) returns true; else it returns false.
 function rationalQ(args...)
     return all(isa(arg, Rational) || isa(arg, Integer) for arg in args)
@@ -112,4 +124,61 @@ function extended_numerator(u)
 end
 function extended_numerator(u::Float64)
     return u
+end
+
+# IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is  integrable wrt x in terms of non-hypergeometric functions.
+function intlinearQ(a, b, c, d, m, n, x)
+    return igtQ(m, 0) || igtQ(n, 0) || 
+           extended_isinteger(3*m, 3*n) || extended_isinteger(4*m, 4*n) || 
+           extended_isinteger(2*m, 6*n) || extended_isinteger(6*m, 2*n) || 
+           iltQ(m + n, -1) || (extended_isinteger(m + n) && rationalQ(m))
+end
+
+# If u is simpler than v, SimplerQ[u,v] returns True, else it returns False.  SimplerQ[u,u] returns False.
+function simplerQ(u, v)
+    if extended_isinteger(u)
+        if extended_isinteger(v)
+            if u == v
+                return false
+            elseif u == -v
+                return v < 0
+            else
+                return abs(u) < abs(v)
+            end
+        else
+            return true
+        end
+    end
+    # If v is an integer but u is not
+    if extended_isinteger(v)
+        return false
+    end
+    # If u is a fraction
+    if isa(u, Rational)
+        if isa(v, Rational)
+            if denominator(u) == denominator(v)
+                return simplerQ(numerator(u), numerator(v))
+            else
+                return denominator(u) < denominator(v)
+            end
+        else
+            return true
+        end
+    end
+    # If v is a fraction but u is not
+    if isa(v, Rational)
+        return false
+    end
+    
+    return leaf_count(u) < leaf_count(v)
+end
+
+# Helper function to count leaves (atoms) in an expression
+function leaf_count(expr)
+    expr = Symbolics.unwrap(expr)
+    if !SymbolicUtils.iscall(expr)
+        return 1
+    else
+        return sum(leaf_count(arg) for arg in SymbolicUtils.arguments(expr))+1
+    end
 end
