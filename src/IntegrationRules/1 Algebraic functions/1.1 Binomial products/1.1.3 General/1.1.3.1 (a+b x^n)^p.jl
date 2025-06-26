@@ -57,10 +57,10 @@ file_rules = [
 # @smrule ∫(1/((~a) + (~!b)*(~x)^(~n)),(~x)) => !contains_var((~x), (~a), (~b)) && igtQ((~n)/4, 1) && ((~a)/(~b) > 0) ? With[{(~r) = Numerator[rt((~a)⨸(~b), 4)), (~s) = Denominator[rt((~a)⨸(~b), 4))}, (~r)⨸(2*sqrt(2)*(~a))* ∫((sqrt(2)*(~r) - (~s)*(~x)^((~n)⨸4))⨸((~r)^2 - sqrt(2)*(~r)*(~s)*(~x)^((~n)⨸4) + (~s)^2*(~x)^((~n)⨸2)), (~x)) + (~r)⨸(2*sqrt(2)*(~a))* ∫((sqrt(2)*(~r) + (~s)*(~x)^((~n)⨸4))⨸((~r)^2 + sqrt(2)*(~r)*(~s)*(~x)^((~n)⨸4) + (~s)^2*(~x)^((~n)⨸2)), (~x))) : nothing)
 # ("1_1_3_1_26",
 # @smrule ∫(1/((~a) + (~!b)*(~x)^(~n)),(~x)) => !contains_var((~x), (~a), (~b)) && igtQ((~n)/4, 1) && !(((~a)/(~b) > 0)) ? With[{(~r) = Numerator[rt(-(~a)⨸(~b), 2)), (~s) = Denominator[rt(-(~a)⨸(~b), 2))}, (~r)⨸(2*(~a))*∫(1⨸((~r) - (~s)*(~x)^((~n)⨸2)), (~x)) + (~r)⨸(2*(~a))*∫(1⨸((~r) + (~s)*(~x)^((~n)⨸2)), (~x))) : nothing)
-# ("1_1_3_1_27",
-# @smrule ∫(1/Sqrt[(~a) + (~!b)*(~x)^2],(~x)) => !contains_var((~x), (~a), (~b)) && ((~a) > 0) && posQ((~b)) ? ArcSinh[rt((~b), 2)*(~x)⨸sqrt((~a)))⨸rt((~b), 2) : nothing)
-# ("1_1_3_1_28",
-# @smrule ∫(1/Sqrt[(~a) + (~!b)*(~x)^2],(~x)) => !contains_var((~x), (~a), (~b)) && ((~a) > 0) && negQ((~b)) ? ArcSin[rt(-(~b), 2)*(~x)⨸sqrt((~a)))⨸rt(-(~b), 2) : nothing)
+("1_1_3_1_27",
+@smrule ∫(1/sqrt((~a) + (~!b)*(~x)^2),(~x)) => !contains_var((~x), (~a), (~b)) && ((~a) > 0) && posQ((~b)) ? asinh(rt((~b), 2)*(~x)⨸sqrt((~a)))⨸rt((~b), 2) : nothing)
+("1_1_3_1_28",
+@smrule ∫(1/sqrt((~a) + (~!b)*(~x)^2),(~x)) => !contains_var((~x), (~a), (~b)) && ((~a) > 0) && negQ((~b)) ? asin(rt(-(~b), 2)*(~x)⨸sqrt((~a)))⨸rt(-(~b), 2) : nothing)
 # ("1_1_3_1_29",
 # @smrule ∫(1/Sqrt[(~a) + (~!b)*(~x)^2],(~x)) => !contains_var((~x), (~a), (~b)) && !(((~a) > 0)) ? substitute(∫(1⨸(1 - (~b)*(~x)^2), (~x)), (~x) => (~x)⨸sqrt((~a) + (~b)*(~x)^2)) : nothing)
 # # (* Int[1/Sqrt[a_+b_.*x_^3],x_Symbol] := With[{q=Rt[b/a,3]}, -Sqrt[2]*(1+Sqrt[3])*(1+Sqrt[3]+q*x)^2*Sqrt[(1+q^3*x^3)/(1+Sqrt[3]+ q*x)^4]/(3^(1/4)*q*Sqrt[a+b*x^3])* EllipticF[ArcSin[(-1+Sqrt[3]-q*x)/(1+Sqrt[3]+q*x)],-7-4*Sqrt[3]]]  /; FreeQ[{a,b},x] && PosQ[a] *) 

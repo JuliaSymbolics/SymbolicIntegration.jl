@@ -21,9 +21,11 @@ data = [
     (integrand = (1/(-1+2x))^2*(3+6x)^(1.1), result = 666, integration_var = x) # 10 TODO result missing bc of Hypergeometric functions
     (integrand = (1/(-1+2x))^2*(3+6x)^(-1.1), result = 666, integration_var = x) # 11 TODO doesnt work bc of patterm matching 1/((...)*(...))
     (integrand = (-1 + 2x)^2*(3 + 6x)^(2.1), result = 0.215054(3 + 6x)^3.1 - 0.0542005(3 + 6x)^4.1 +  0.00363108(3 + 6x)^5.1, integration_var = x) # 12
-    (integrand = (1+2x)^(1//2)*(3-6x)^(3//2), result = 3//2sqrt(3)*sqrt(1 - 2x)*x*sqrt(1 + 2x) + 1//2sqrt(3)*(1 - 2x)^(3//2)*(1 + 2x)^(3//2) + 3//4sqrt(3)*asin(2x), integration_var = x) # 18 TODO rule 1_1_1_2_8 doenst get applied bc of pattern matching 1/((...)*(...))
+    (integrand = (1+2x)^(1//2)*(3-6x)^(3//2), result = (3//2)sqrt(3)*sqrt(1 - 2x)*x*sqrt(1 + 2x) + (1//2)sqrt(3)*(1 - 2x)^(3//2)*(1 + 2x)^(3//2) + (3//4)sqrt(3)*asin(2x), integration_var = x) # 18 TODO rule 1_1_1_2_8 doenst get applied bc of pattern matching 1/((...)*(...))
     (integrand = 1/(sqrt(1+2x)*sqrt(-1+2x)), result = (1//2)*acosh(2x), integration_var = x) # 21
-    (integrand = 1/(sqrt(1+2x)*sqrt(1-2x)), result = (1//2)*asin(2x), integration_var = x) # 22 TODO rule 222 not yet present
+    (integrand = 1/(sqrt(1+2x)*sqrt(1-2x)), result = (1//2)*asin(2x), integration_var = x) # 22
+    # 1_1_3_1
+    (integrand = 1 / sqrt(1 - 4(x^2)), result = (1//2)*asin(2x), integration_var = x) # 28
     # 2_1
     (integrand = (1+x)^2*((2^x)^2), result = 2^(2x)/(4*log(2)^3) - (2^(2x)*(1 + x))/(2*log(2)^2) + (2^(2x)*(1 + x)^2)/(2*log(2)), integration_var = x) # 1
     (integrand = (1+x)^-2*((2^x)^2), result = 2^(2x)/(4*log(2)^3) - (2^(2x)*(1 + x))/(2*log(2)^2) + (2^(2x)*(1 + x)^2)/(2*log(2)), integration_var = x) # 2
