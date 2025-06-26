@@ -21,4 +21,7 @@ data = [
     (integrand = (1/(-1+2x))^2*(3+6x)^(1.1), result = 666, integration_var = x) # 10 TODO result missing bc of Hypergeometric functions
     (integrand = (1/(-1+2x))^2*(3+6x)^(-1.1), result = 666, integration_var = x) # 11 TODO doesnt work bc of patterm matching 1/((...)*(...))
     (integrand = (-1 + 2x)^2*(3 + 6x)^(2.1), result = 666, integration_var = x) # 12
+    # 2_3
+    (integrand = 2^(1 + 2x), result = 1.4426950408889634*(2^(2x)), integration_var = x)
+
 ]

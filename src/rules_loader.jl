@@ -18,8 +18,9 @@ function load_all_rules()
     file1 = joinpath(@__DIR__, "IntegrationRules/1 Algebraic functions/1.1 Binomial products/1.1.1 Linear/1.1.1.1 (a+b x)^m.jl")
     file2 = joinpath(@__DIR__, "IntegrationRules/1 Algebraic functions/1.1 Binomial products/1.1.1 Linear/1.1.1.2 (a+b x)^m (c+d x)^n.jl")
     file3 = joinpath(@__DIR__, "IntegrationRules/9 Miscellaneous/9.1 Integrand simplification rules.jl")
-    fileatanh = joinpath(@__DIR__, "IntegrationRules/1 Algebraic functions/1.1 Binomial products/1.1.3 General/1.1.3.1 (a+b x^n)^p.jl")
-    rules_paths = [file3, file1, file2, fileatanh]
+    file_atanh = joinpath(@__DIR__, "IntegrationRules/1 Algebraic functions/1.1 Binomial products/1.1.3 General/1.1.3.1 (a+b x^n)^p.jl")
+    file_exp = joinpath(@__DIR__, "IntegrationRules/2 Exponentials/2.3 Miscellaneous exponentials.jl")
+    rules_paths = [file3, file1, file2, file_atanh, file_exp]
 
     all_rules = []
     identifiers = []
