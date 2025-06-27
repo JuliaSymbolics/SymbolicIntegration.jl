@@ -27,7 +27,9 @@ file_rules = [
 # ("9_1_11",
 # @smrule ∫(Complex[0, (~a)]*(~u),(~x)) => !contains_var((~x), (~a)) && eqQ((~a)^2, 1) ? Complex[Identity[0), (~a))*∫((~u), (~x)) : nothing)
 ("9_1_12",
-@smrule ∫((~a)*(~u),(~x)) => !contains_var((~x), (~a)) ? (~a)*∫((~u), (~x)) : nothing) # TODO edge cases?
+@smrule ∫((~a)*(~u),(~x)) => !contains_var((~x), (~a)) ? (~a)*∫((~u), (~x)) : nothing) # TODO add edge cases?
+("9_1_12_1",
+@smrule ∫((~a)/(~u),(~x)) => !contains_var((~x), (~a)) && !eqQ(~a,1) ? (~a)*∫(1/(~u), (~x)) : nothing) # TODO if pattern matching was better 9_1_12_1 would be handled by 9_1_12 
 # ("9_1_13",
 # @smrule ∫(((~!c)*(~x))^(~!m)*(~u),(~x)) => !contains_var((~x), (~c), (~m)) && sumQ(~u) && !(Symbolics.linear_expansion((~u), (~x))[3]) && Not[MatchQ[(~u), a_ + b_.*v_]] ? ∫(expand(((~c)*(~x))^(~m)*(~u)), (~x)) : nothing)
 ("9_1_14",

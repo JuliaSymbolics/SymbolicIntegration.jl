@@ -1,6 +1,7 @@
 data = [
     # 9_1
-    (integrand = 2((1 + x^3)^4.1)*((2 + 2((1 / x)^3))^5), result = 666, integration_var = x) # 24 TODO result is missing bc of Hypergeometric functions
+    (integrand = 2/x, result = 2log(x), integration_var = x) # 9_1_12_1
+    (integrand = 2((1 + x^3)^4.1)*((2 + 2((1 / x)^3))^5), result = 666, integration_var = x) # 9_1_24 TODO result is missing bc of Hypergeometric functions
     # 1_1_1_1
     (integrand = 1/x, result = log(x), integration_var = x)
     (integrand = a^-3, result = (-1//2) / (a^2), integration_var = a)
