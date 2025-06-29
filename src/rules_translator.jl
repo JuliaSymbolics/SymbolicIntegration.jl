@@ -19,7 +19,7 @@ function translate_file(input_filename, output_filename)
         elseif startswith(line, "Int[")
             julia_rule = translate_line(line)
             if !isnothing(julia_rule)
-                rules_big_string *= "(\"$(file_index)_$n_rules\",\n@smrule $julia_rule)\n"
+                rules_big_string *= "(\"$(file_index)_$n_rules\",\n@smrule $julia_rule)\n\n"
                 n_rules += 1
             end
         end
@@ -42,6 +42,8 @@ function translate_line(line)
     integral = parts[1]
     result = parts[2]
 
+    julia_integrand = transalte_integrand(integral)
+
     # Extract conditions if present
     conditions = ""
     if occursin(" /; ", result)
@@ -50,13 +52,12 @@ function translate_line(line)
         conditions = translate_conditions(cond_parts[2])
     end
       
-    julia_integrand = transalte_integrand(integral)
     julia_result = translate_result(result)
     
     if conditions == ""
         return "$julia_integrand => $julia_result"
     else
-        return "$julia_integrand => $conditions ? $julia_result : nothing"
+        return "$julia_integrand =>\n        $conditions ?\n$julia_result : nothing"
     end
 end
 
@@ -148,7 +149,7 @@ end
 
 function translate_conditions(conditions)
     associations = [
-        # TODO change * (zero or more charchters) with + (one or more charchters) ???
+        # TODO change in regex * (zero or more charchters) with + (one or more charchters) ???
         (r"FreeQ\[(.*?), x\]", s"!contains_var(x, \1)"), ("{", ""), ("}", ""), # from FreeQ[{a, b, c, d, m}, x] to !contains_var((~x), (~a), (~b), (~c), (~d), (~m))
         (r"NeQ\[(.*?), (.*?)\]", s"!eqQ(\1, \2)"),
         (r"EqQ\[(.*?), (.*?)\]", s"eqQ(\1, \2)"),
@@ -176,7 +177,9 @@ function translate_conditions(conditions)
         (r"NonsumQ\[(.*?)\]", s"!sumQ(\1)"),
         (r"SimplerQ\[(.*?), (.*?)\]", s"simplerQ(\1, \2)"),
 
-
+        # improve readibility
+        ("&&", "&&\n       "),
+        ("||", "||\n       "),
 
         # convert conditions variables
         (r"(?<!\w)([a-zA-Z])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
