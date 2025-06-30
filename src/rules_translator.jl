@@ -19,7 +19,7 @@ function translate_file(input_filename, output_filename)
         elseif startswith(line, "Int[")
             julia_rule = translate_line(line)
             if !isnothing(julia_rule)
-                rules_big_string *= "(\"$(file_index)_$n_rules\",\n@smrule $julia_rule)\n\n"
+                rules_big_string *= "(\"$(file_index)_$n_rules\",\n@rule $julia_rule)\n\n"
                 n_rules += 1
             end
         end
