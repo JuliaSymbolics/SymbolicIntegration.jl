@@ -25,6 +25,7 @@ data = [
     (integrand = (1+2x)^(1//2)*(3-6x)^(3//2), result = (3//2)sqrt(3)*sqrt(1 - 2x)*x*sqrt(1 + 2x) + (1//2)sqrt(3)*(1 - 2x)^(3//2)*(1 + 2x)^(3//2) + (3//4)sqrt(3)*asin(2x), integration_var = x) # 18 TODO rule 1_1_1_2_8 doenst get applied bc of pattern matching 1/((...)*(...))
     (integrand = 1/(sqrt(1+2x)*sqrt(-1+2x)), result = (1//2)*acosh(2x), integration_var = x) # 21
     (integrand = 1/(sqrt(1+2x)*sqrt(1-2x)), result = (1//2)*asin(2x), integration_var = x) # 22
+    (integrand = 1/(sqrt(1+2x)*sqrt(3+4x)), result = asinh(sqrt(2)*sqrt(1+2x))/sqrt(2), integration_var = x) # 23
     # 1_1_3_1
     (integrand = 1 / sqrt(1 - 4(x^2)), result = (1//2)*asin(2x), integration_var = x) # 28
     # 2_1
