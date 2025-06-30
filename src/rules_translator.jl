@@ -177,6 +177,7 @@ function translate_conditions(conditions)
         (r"FractionQ\[(.*?), (.*?)\]", s"fractionQ(\1, \2)"), # TODO fractionQ with three or more arguments?
         (r"SumQ\[(.*?)\]", s"sumQ(\1)"),
         (r"NonsumQ\[(.*?)\]", s"!sumQ(\1)"),
+        (r"SumSimplerQ\[(.*?), (.*?)\]", s"sumsimplerQ(\1, \2)"),
         (r"SimplerQ\[(.*?), (.*?)\]", s"simplerQ(\1, \2)"),
 
         # improve readibility

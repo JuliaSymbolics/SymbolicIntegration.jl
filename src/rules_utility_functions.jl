@@ -126,7 +126,7 @@ function extended_numerator(u::Float64)
     return u
 end
 
-# IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is  integrable wrt x in terms of non-hypergeometric functions.
+# IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is integrable wrt x in terms of non-hypergeometric functions.
 function intlinearQ(a, b, c, d, m, n, x)
     return igtQ(m, 0) || igtQ(n, 0) || 
            extended_isinteger(3*m, 3*n) || extended_isinteger(4*m, 4*n) || 
@@ -181,4 +181,9 @@ function leaf_count(expr)
     else
         return sum(leaf_count(arg) for arg in SymbolicUtils.arguments(expr))+1
     end
+end
+
+# If u+v is simpler than u, SumSimplerQ[u,v] returns True, else it returns False.
+function sumsimplerQ(u, v)
+    simplerQ(u + v, u) && !eqQ(u + v, u) && !eqQ(v, 0)
 end
