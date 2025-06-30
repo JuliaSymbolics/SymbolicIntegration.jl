@@ -106,22 +106,24 @@ function translate_result(result)
     
     # substitution with integral inside. Is not a single replace call so it goes first
     # Subst[Int[(a + b*x)^m, x], x, u] to substitute(∫((a + b*x)^m, x), x => u)
+    # TODO change to Subst[Int[(a + b*x)^m, x], x, u] -> substitute(integrate((a + b*x)^m, x), x => u)
     m = match(r"Subst\[(.*)\]", result)
     if m !== nothing
         parts = split_outside_brackets(m[1])
         if !startswith(parts[1], "Int[")
-            throw("Expected first part to be an integral: $parts[1]")
-        end 
+            throw("Expected first part to be an integral: $(parts[1])")
+        end
+        parts[1] = replace(parts[1], r"Int\[(.*), x\]" => s"integrate(\1, x)")
         result = replace(result, m.match => "substitute(" * parts[1] * ", " * parts[2] * " => " * parts[3] * ")")
     end
 
     associations = [
         # common functions
-        ("Log[", "log("), (r"RemoveContent\[(.*?),\s*x\]", s"\1"),
-        ("Sqrt[", "sqrt("),
-        ("ArcTan[", "atan("),
-        ("ArcTanh[", "atanh("),
-        ("ArcCosh[", "acosh("),
+        (r"RemoveContent\[(.*?),\s*x\]", s"\1"), (r"Log\[(.*?)\]", s"log(\1)"),
+        (r"Sqrt\[(.*?)\]", s"sqrt(\1)"),
+        (r"ArcTan\[(.*?)\]", s"atan(\1)"),
+        (r"ArcTanh\[(.*?)\]", s"atanh(\1)"),
+        (r"ArcCosh\[(.*?)\]", s"acosh(\1)"),
         (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
         # custom functions
         (r"FracPart\[(.*?)\]", s"fracpart(\1)"), # TODO fracpart with two arguments is ever present?
@@ -129,11 +131,11 @@ function translate_result(result)
         (r"ExpandIntegrand\[(.*?), (.*?)\]", s"expand(\1)"), # TODO is this enough?
         (r"EllipticE\[(.*?), (.*?)\]", s"elliptic_e(\1, \2)"),
         (r"Rt\[(.*?), (.*?)\]", s"rt(\1, \2)"),
+        (r"Simplify\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         
         # not yet solved integrals
         (r"Int\[(.*?), x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
 
-        ("]", ")"), # brackets
         ("/", "⨸"), # custom division
 
         # slots and defslots
