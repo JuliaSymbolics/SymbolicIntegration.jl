@@ -30,20 +30,6 @@ function eq(a, b)
     return tmp === 0 || tmp === 0.0 || tmp ===  0//1 || tmp === 0.0+0.0im
 end
 
-# b must be a rational number. If a is an integer and a>b, igtQ(a,b) returns true, else it returns false.
-function igt(a, b)
-    isinteger(a) && a > b # TODO maybe add isa(a, Rational) ?
-end
-function ige(a, b)
-    isinteger(a) && a >= b
-end
-function ilt(a, b)
-    isinteger(a) && a < b
-end
-function ile(a, b)
-    isinteger(a) && a <= b
-end
-
 function extended_isinteger(u)
     try
         return isinteger(u)
@@ -90,6 +76,27 @@ function intpart(a)
         return 0
     end
 end
+
+# Greater than
+# If u>v, GtQ[u,v] returns True; else it returns False
+# If u>v and v>w, GtQ[u,v,w] returns True; else it returns False.
+gt(u, v) = (isa(u, Num) || isa(v, Num)) ? false : u > v
+gt(u, v, w) = gt(u, v) && gt(v, w)
+# Greater or equal than
+ge(u, v) = isa(u, Num) || isa(v, Num) ? false : u >= v
+ge(u, v, w) = ge(u, v) && ge(v, w)
+# Lower than
+lt(u, v) = (isa(u, Num) || isa(v, Num)) ? false : u < v
+lt(u, v, w) = lt(u, v) && lt(v, w)
+# Lower or equal than
+le(u, v) = (isa(u, Num) || isa(v, Num)) ? false : u <= v
+le(u, v, w) = le(u, v) && le(v, w)
+
+# If a is an integer and a>b, igtQ(a,b) returns true, else it returns false.
+igt(a, b) = isinteger(a) && gt(a, b)
+ige(a, b) = isinteger(a) && ge(a, b)
+ilt(a, b) = isinteger(a) && lt(a, b)
+ile(a, b) = isinteger(a) && le(a, b)
 
 # returns the simplest nth root of u
 function rt(u, n::Integer)
@@ -211,4 +218,14 @@ function int_and_subst(integrand, integration_var, from, to, rule_number)
         return substitute(result, from => to)
     end
     return subst(∫(integrand, integration_var),from, to)
+end
+
+# yields True if expr is an expression which cannot be divided into subexpressions, and yields False otherwise. 
+function atom(expr)
+    expr = Symbolics.unwrap(expr)
+    if !SymbolicUtils.iscall(expr)
+        return true
+    end
+    # If expr is a call, check if it has any arguments
+    return isempty(SymbolicUtils.arguments(expr))
 end

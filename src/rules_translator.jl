@@ -152,9 +152,6 @@ function translate_result(result, index)
         result = replace(result, full_str => "int_and_subst($integrand, $intvar, $from, $to, \"$index\")")
         m = match(r"Subst\[Int\[", result)
     end
-    if index == "1_1_1_2_28"
-        println(result)
-    end
 
     associations = [
         # common functions
@@ -201,10 +198,10 @@ function translate_conditions(conditions)
         (r"IGeQ\[(.*?), (.*?)\]", s"ige(\1, \2)"), # IGeQ = Integer Greater than or equal Question
         (r"ILtQ\[(.*?), (.*?)\]", s"ilt(\1, \2)"),
         (r"ILeQ\[(.*?), (.*?)\]", s"ile(\1, \2)"),
-        (r"GtQ\[(.*?), (.*?)\]", s"(\1 > \2)"), # GtQ = Greater than Question TODO maybe change them to support more types?
-        (r"GeQ\[(.*?), (.*?)\]", s"(\1 >= \2)"), # GeQ = Greater than or equal Question
-        (r"LtQ\[(.*?), (.*?)\]", s"(\1 < \2)"),
-        (r"LeQ\[(.*?), (.*?)\]", s"(\1 <= \2)"),
+        (r"GtQ\[(.*?), (.*?)\]", s"gt(\1, \2)"), (r"GtQ\[(.*?), (.*?), (.*?)\]", s"gt(\1, \2, \3)"),
+        (r"GeQ\[(.*?), (.*?)\]", s"ge(\1, \2)"), (r"GeQ\[(.*?), (.*?), (.*?)\]", s"ge(\1, \2, \3)"),
+        (r"LtQ\[(.*?), (.*?)\]", s"lt(\1, \2)"), (r"LtQ\[(.*?), (.*?), (.*?)\]", s"lt(\1, \2, \3)"),
+        (r"LeQ\[(.*?), (.*?)\]", s"le(\1, \2)"), (r"LeQ\[(.*?), (.*?), (.*?)\]", s"le(\1, \2, \3)"),
         (r"IntegerQ\[(.*?)\]", s"extended_isinteger(\1)"),
         (r"IntegersQ\[(.*?), (.*?)\]", s"extended_isinteger(\1, \2)"), # TODO IntegersQ with three or more arguments?
         (r"Not\[(.*?)\]", s"!(\1)"),
@@ -219,6 +216,7 @@ function translate_conditions(conditions)
         (r"SumSimplerQ\[(.*?), (.*?)\]", s"sumsimpler(\1, \2)"),
         (r"SimplerQ\[(.*?), (.*?)\]", s"simpler(\1, \2)"),
         (r"Simplify\[(.*?)\]", s"simplify(\1)"),
+        (r"AtomQ\[(.*?)\]", s"atom(\1)"),
 
         # improve readibility
         ("&&", "&&\n       "),
