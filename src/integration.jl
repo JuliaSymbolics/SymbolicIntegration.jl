@@ -23,8 +23,12 @@ function repeated_prewalk(x, verbose)
     
     if operation(x)===∫
         (new_x,success) = apply_rule(x, verbose)
-        if success && new_x !== x
-            return repeated_prewalk(new_x, verbose)
+        if success
+            if new_x !== x
+                return repeated_prewalk(new_x, verbose)
+            else
+                verbose && println("Infinite cycle detected for ", x, ", aborting.")
+            end
         else
             return x
         end
@@ -40,13 +44,13 @@ function repeated_prewalk(x, verbose)
     return x
 end
 
-function integrate(integrand, int_var; verbose = false)
+function integrate(integrand, int_var; verbose = true) # TODO change default verbose to false
     problem = ∫(integrand,int_var)
     repeated_prewalk(problem, verbose)
 end
 
 # If no integration variable provided
-function integrate(integrand; verbose = false)
+function integrate(integrand; verbose = true) # TODO change default verbose to false
     vars = Symbolics.get_variables(integrand)
     if length(vars) > 1
         error("Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument.")
