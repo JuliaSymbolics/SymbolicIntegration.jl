@@ -80,6 +80,7 @@ end
 # Greater than
 # If u>v, GtQ[u,v] returns True; else it returns False
 # If u>v and v>w, GtQ[u,v,w] returns True; else it returns False.
+# TODO maybe change isa(u, Num) with Symbolics.unwrap(u) isa Symbolics.Symbolic
 gt(u, v) = (isa(u, Num) || isa(v, Num)) ? false : u > v
 gt(u, v, w) = gt(u, v) && gt(v, w)
 # Greater or equal than
