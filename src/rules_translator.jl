@@ -138,7 +138,7 @@ function translate_result(result, index)
     m = match(r"With\[\{q = (?<q>.*?)\}, (?<body>.*)\]", result)
     if m !== nothing
         result = m[:body]
-        result = replace(result, "q" => m[:q])
+        result = replace(result, r"(?<!\w)q(?!\w)" => m[:q])
     end
     
     # substitution with integral inside
@@ -151,6 +151,9 @@ function translate_result(result, index)
         integrand, intvar = split(int[5:end-1], ", ", limit=2) # remove "Int[" and "]"
         result = replace(result, full_str => "int_and_subst($integrand, $intvar, $from, $to, \"$index\")")
         m = match(r"Subst\[Int\[", result)
+    end
+    if index == "1_1_1_2_28"
+        println(result)
     end
 
     associations = [

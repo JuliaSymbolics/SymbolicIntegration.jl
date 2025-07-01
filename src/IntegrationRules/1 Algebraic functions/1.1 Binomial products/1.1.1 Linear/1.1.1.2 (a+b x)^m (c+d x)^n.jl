@@ -210,7 +210,6 @@ acosh((~b)*(~x)⨸(~a))⨸(~b) : nothing)
         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
         ((~b)*(~c) - (~a)*(~d) > 0) &&
         ((~b) > 0) ?
-# TODO the integrate function call ehre messes up the printing of rules
 2⨸sqrt((~b))* int_and_subst(1⨸sqrt((~b)*(~c) - (~a)*(~d) + (~d)*(~x)^2), (~x), (~x), sqrt((~a) + (~b)*(~x)), "1_1_1_2_23") : nothing)
 
 ("1_1_1_2_24",
@@ -253,20 +252,20 @@ log((~a) + (~b)*(~x))⨸(2*(~b)*rt(-((~b)*(~c) - (~a)*(~d))⨸(~b), 3)) - 3⨸(2
         neg(((~b)*(~c) - (~a)*(~d))/(~b)) ?
 -log((~a) + (~b)*(~x))⨸(2*(~b)*rt(-((~b)*(~c) - (~a)*(~d))⨸(~b), 3)^2) + 3⨸(2*(~b)*rt(-((~b)*(~c) - (~a)*(~d))⨸(~b), 3)^2)*int_and_subst(1⨸(rt(-((~b)*(~c) - (~a)*(~d))⨸(~b), 3) + (~x)), (~x), (~x), ((~c) + (~d)*(~x))^(1⨸3), "1_1_1_2_27") + 3⨸(2*(~b)*rt(-((~b)*(~c) - (~a)*(~d))⨸(~b), 3))* int_and_subst(1⨸(rt(-((~b)*(~c) - (~a)*(~d))⨸(~b), 3)^2 - rt(-((~b)*(~c) - (~a)*(~d))⨸(~b), 3)*(~x) + (~x)^2), (~x), (~x), ((~c) + (~d)*(~x))^(1⨸3), "1_1_1_2_27") : nothing)
 
-# ("1_1_1_2_28",
-# @rule ∫(1/(((~!a) + (~!b)*(~x))^(1//3)*((~!c) + (~!d)*(~x))^(2//3)),(~x)) =>
-#         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
-#         !eq((~b)*(~c) - (~a)*(~d), 0) &&
-#         pos((~d)/(~b)) ?
-# -Srt((~d)⨸(~b), 3)rt[3]*rt((~d)⨸(~b), 3)⨸(~d)* atan(2*rt((~d)⨸(~b), 3)*((~a) + (~b)*(~x))^(1⨸3)⨸(SRt[(~d)⨸(~b), 3)rt[3]*((~c) + (~d)*(~x))^(1⨸3)) + 1⨸Srt((~d)⨸(~b), 3)rt[3]] - rt((~d)⨸(~b), 3)⨸(2*(~d))*log((~c) + (~d)*(~x)) - 3*rt((~d)⨸(~b), 3)⨸(2*(~d))*log(rt((~d)⨸(~b), 3)*((~a) + (~b)*(~x))^(1⨸3)⨸((~c) + (~d)*(~x))^(1⨸3) - 1) : nothing)
-# 
-# ("1_1_1_2_29",
-# @rule ∫(1/(((~!a) + (~!b)*(~x))^(1//3)*((~!c) + (~!d)*(~x))^(2//3)),(~x)) =>
-#         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
-#         !eq((~b)*(~c) - (~a)*(~d), 0) &&
-#         neg((~d)/(~b)) ?
-# Srt(-(~d)⨸(~b), 3)rt[3]*rt(-(~d)⨸(~b), 3)⨸(~d)* atan(1⨸Srt(-(~d)⨸(~b), 3)rt[3) - 2*rt(-(~d)⨸(~b), 3)*((~a) + (~b)*(~x))^(1⨸3)⨸(Srt(-(~d)⨸(~b), 3)rt[3]*((~c) + (~d)*(~x))^(1⨸3))] + rt(-(~d)⨸(~b), 3)⨸(2*(~d))*log((~c) + (~d)*(~x)) + 3*rt(-(~d)⨸(~b), 3)⨸(2*(~d))*log(rt(-(~d)⨸(~b), 3)*((~a) + (~b)*(~x))^(1⨸3)⨸((~c) + (~d)*(~x))^(1⨸3) + 1) : nothing)
-# 
+("1_1_1_2_28",
+@rule ∫(1/(((~!a) + (~!b)*(~x))^(1//3)*((~!c) + (~!d)*(~x))^(2//3)),(~x)) =>
+        !contains_var((~x), (~a), (~b), (~c), (~d)) &&
+        !eq((~b)*(~c) - (~a)*(~d), 0) &&
+        pos((~d)/(~b)) ?
+-sqrt(3)*rt((~d)⨸(~b), 3)⨸(~d)* atan(2*rt((~d)⨸(~b), 3)*((~a) + (~b)*(~x))^(1⨸3)⨸(sqrt(3)*((~c) + (~d)*(~x))^(1⨸3)) + 1⨸sqrt(3)) - rt((~d)⨸(~b), 3)⨸(2*(~d))*log((~c) + (~d)*(~x)) - 3*rt((~d)⨸(~b), 3)⨸(2*(~d))*log(rt((~d)⨸(~b), 3)*((~a) + (~b)*(~x))^(1⨸3)⨸((~c) + (~d)*(~x))^(1⨸3) - 1) : nothing)
+
+("1_1_1_2_29",
+@rule ∫(1/(((~!a) + (~!b)*(~x))^(1//3)*((~!c) + (~!d)*(~x))^(2//3)),(~x)) =>
+        !contains_var((~x), (~a), (~b), (~c), (~d)) &&
+        !eq((~b)*(~c) - (~a)*(~d), 0) &&
+        neg((~d)/(~b)) ?
+sqrt(3)*rt(-(~d)⨸(~b), 3)⨸(~d)* atan(1⨸sqrt(3) - 2*rt(-(~d)⨸(~b), 3)*((~a) + (~b)*(~x))^(1⨸3)⨸(sqrt(3)*((~c) + (~d)*(~x))^(1⨸3))) + rt(-(~d)⨸(~b), 3)⨸(2*(~d))*log((~c) + (~d)*(~x)) + 3*rt(-(~d)⨸(~b), 3)⨸(2*(~d))*log(rt(-(~d)⨸(~b), 3)*((~a) + (~b)*(~x))^(1⨸3)⨸((~c) + (~d)*(~x))^(1⨸3) + 1) : nothing)
+
 # ("1_1_1_2_30",
 # @rule ∫(((~!a) + (~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~m),(~x)) =>
 #         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
@@ -372,6 +371,6 @@ log((~a) + (~b)*(~x))⨸(2*(~b)*rt(-((~b)*(~c) - (~a)*(~d))⨸(~b), 3)) - 3⨸(2
 #         !eq(Coefficient[(~u), (~x), 0), 0] ?
 # 1⨸Symbolics.coeff((~u), (~x) ^ 1)* int_and_subst(((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~n), (~x), (~x), (~u), "1_1_1_2_40") : nothing)
 # 
-# # (* IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is  integrable wrt x in terms of non-hypergeometric functions. *) IntLinearQ[a_, b_, c_, d_, m_, n_, x_] := IGtQ[m, 0] || IGtQ[n, 0] || IntegersQ[3*m, 3*n] || IntegersQ[4*m, 4*n] || IntegersQ[2*m, 6*n] || IntegersQ[6*m, 2*n] || ILtQ[m + n, -1] || IntegerQ[m + n] && RationalQ[m] 
+# (* IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is  integrable wrt x in terms of non-hypergeometric functions. *) IntLinearQ[a_, b_, c_, d_, m_, n_, x_] := IGtQ[m, 0] || IGtQ[n, 0] || IntegersQ[3*m, 3*n] || IntegersQ[4*m, 4*n] || IntegersQ[2*m, 6*n] || IntegersQ[6*m, 2*n] || ILtQ[m + n, -1] || IntegerQ[m + n] && RationalQ[m] 
 ]
 
