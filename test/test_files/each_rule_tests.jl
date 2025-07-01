@@ -27,6 +27,9 @@ data = [
     (integrand = 1/(sqrt(1+2x)*sqrt(1-2x)), result = (1//2)*asin(2x), integration_var = x) # 22
     (integrand = 1/(sqrt(1+2x)*sqrt(3+4x)), result = asinh(sqrt(2)*sqrt(1+2x))/sqrt(2), integration_var = x) # 23
     (integrand = 1/((1+2x)*(3+4x)^(1//3)), result = (1//2)*sqrt(3)*atan((1 + 2(3 + 4x)^(1//3))/sqrt(3)) -  (1//4)*log(1 + 2x) + (3//4)*log(1 - (3 + 4x)^(1//3)), integration_var = x) # 24
+    (integrand = 1/((1+2x)*(2+6x)^(1//3)), result = 666, integration_var = x) # 25 TODO add resutl
+    (integrand = 1/((1+2x)*(3+4x)^(2//3)), result = 666, integration_var = x) # 26
+    (integrand = 1/((1+2x)*(2+6x)^(2//3)), result = 666, integration_var = x) # 27
     # 1_1_3_1
     (integrand = 1 / sqrt(1 - 4(x^2)), result = (1//2)*asin(2x), integration_var = x) # 28
     # 2_1
