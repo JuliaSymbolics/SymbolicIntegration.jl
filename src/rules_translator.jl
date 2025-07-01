@@ -153,15 +153,15 @@ function translate_conditions(conditions)
     associations = [
         # TODO change in regex * (zero or more charchters) with + (one or more charchters) ???
         (r"FreeQ\[(.*?), x\]", s"!contains_var(x, \1)"), ("{", ""), ("}", ""), # from FreeQ[{a, b, c, d, m}, x] to !contains_var((~x), (~a), (~b), (~c), (~d), (~m))
-        (r"NeQ\[(.*?), (.*?)\]", s"!eqQ(\1, \2)"),
-        (r"EqQ\[(.*?), (.*?)\]", s"eqQ(\1, \2)"),
+        (r"NeQ\[(.*?), (.*?)\]", s"!eq(\1, \2)"),
+        (r"EqQ\[(.*?), (.*?)\]", s"eq(\1, \2)"),
         (r"IntLinearQ\[(.*?), (.*?), (.*?), (.*?), (.*?), (.*?), (.*?)\]", s"intlinearQ(\1, \2, \3, \4, \5, \6, \7)"),
         (r"LinearQ\[(.*?), (.*?)\]", s"Symbolics.linear_expansion(\1, x)[3]"), # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
         
-        (r"IGtQ\[(.*?), (.*?)\]", s"igtQ(\1, \2)"), # IGtQ = Integer Greater than Question
-        (r"IGeQ\[(.*?), (.*?)\]", s"igeQ(\1, \2)"), # IGeQ = Integer Greater than or equal Question
-        (r"ILtQ\[(.*?), (.*?)\]", s"iltQ(\1, \2)"),
-        (r"ILeQ\[(.*?), (.*?)\]", s"ileQ(\1, \2)"),
+        (r"IGtQ\[(.*?), (.*?)\]", s"igt(\1, \2)"), # IGtQ = Integer Greater than Question
+        (r"IGeQ\[(.*?), (.*?)\]", s"ige(\1, \2)"), # IGeQ = Integer Greater than or equal Question
+        (r"ILtQ\[(.*?), (.*?)\]", s"ilt(\1, \2)"),
+        (r"ILeQ\[(.*?), (.*?)\]", s"ile(\1, \2)"),
         (r"GtQ\[(.*?), (.*?)\]", s"(\1 > \2)"), # GtQ = Greater than Question TODO maybe change them to support more types?
         (r"GeQ\[(.*?), (.*?)\]", s"(\1 >= \2)"), # GeQ = Greater than or equal Question
         (r"LtQ\[(.*?), (.*?)\]", s"(\1 < \2)"),
@@ -169,16 +169,17 @@ function translate_conditions(conditions)
         (r"IntegerQ\[(.*?)\]", s"extended_isinteger(\1)"),
         (r"IntegersQ\[(.*?), (.*?)\]", s"extended_isinteger(\1, \2)"), # TODO IntegersQ with three or more arguments?
         (r"Not\[(.*?)\]", s"!(\1)"),
-        (r"PosQ\[(.*?)\]", s"posQ(\1)"),
-        (r"NegQ\[(.*?)\]", s"negQ(\1)"),
+        (r"PosQ\[(.*?)\]", s"pos(\1)"),
+        (r"NegQ\[(.*?)\]", s"neg(\1)"),
         (r"Numerator\[(.*?)\]", s"extended_numerator(\1)"),
         (r"Denominator\[(.*?)\]", s"extended_denominator(\1)"),
-        (r"FractionQ\[(.*?)\]", s"fractionQ(\1)"), 
-        (r"FractionQ\[(.*?), (.*?)\]", s"fractionQ(\1, \2)"), # TODO fractionQ with three or more arguments?
-        (r"SumQ\[(.*?)\]", s"sumQ(\1)"),
-        (r"NonsumQ\[(.*?)\]", s"!sumQ(\1)"),
-        (r"SumSimplerQ\[(.*?), (.*?)\]", s"sumsimplerQ(\1, \2)"),
-        (r"SimplerQ\[(.*?), (.*?)\]", s"simplerQ(\1, \2)"),
+        (r"FractionQ\[(.*?)\]", s"fraction(\1)"), 
+        (r"FractionQ\[(.*?), (.*?)\]", s"fraction(\1, \2)"), # TODO fractionQ with three or more arguments?
+        (r"SumQ\[(.*?)\]", s"issum(\1)"),
+        (r"NonsumQ\[(.*?)\]", s"!issum(\1)"),
+        (r"SumSimplerQ\[(.*?), (.*?)\]", s"sumsimpler(\1, \2)"),
+        (r"SimplerQ\[(.*?), (.*?)\]", s"simpler(\1, \2)"),
+        (r"Simplify\[(.*?)\]", s"simplify(\1)"),
 
         # improve readibility
         ("&&", "&&\n       "),

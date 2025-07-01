@@ -25,22 +25,22 @@ function contains_var(var, args...)
     return any(contains_var(var, arg) for arg in args)
 end
 
-function eqQ(a, b)
+function eq(a, b)
     tmp =  SymbolicUtils.simplify(a - b)
     return tmp === 0 || tmp === 0.0 || tmp ===  0//1 || tmp === 0.0+0.0im
 end
 
 # b must be a rational number. If a is an integer and a>b, igtQ(a,b) returns true, else it returns false.
-function igtQ(a, b)
+function igt(a, b)
     isinteger(a) && a > b # TODO maybe add isa(a, Rational) ?
 end
-function igeQ(a, b)
+function ige(a, b)
     isinteger(a) && a >= b
 end
-function iltQ(a, b)
+function ilt(a, b)
     isinteger(a) && a < b
 end
-function ileQ(a, b)
+function ile(a, b)
     isinteger(a) && a <= b
 end
 
@@ -57,21 +57,21 @@ function extended_isinteger(args...)
 end
 
 # If m, n, ... are explicit integers or fractions, rationalQ(m,n,...) returns true; else it returns false.
-function rationalQ(args...)
+function rational(args...)
     return all(isa(arg, Rational) || isa(arg, Integer) for arg in args)
 end
 
 # If u is a sum, sumQ(u) returns true; else it returns false.
-function sumQ(u)
+function issum(u)
     u = Symbolics.unwrap(u)
     return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === +
 end
 
 # FracPart[u] returns the sum of the non-integer terms of u.
 function fracpart(a)
-    if rationalQ(a)
+    if rational(a)
         a - trunc(a)
-    elseif sumQ(a)
+    elseif issum(a)
         # If a is a sum, we return the sum of the fractional parts of each term
         return sum(fracpart(term) for term in SymbolicUtils.arguments(Symbolics.unwrap(a)))
     else
@@ -81,9 +81,9 @@ end
 
 # IntPart[u] returns the sum of the integer terms of u.
 function intpart(a)
-    if rationalQ(a)
+    if rational(a)
         trunc(a)
-    elseif sumQ(a)
+    elseif sum(a)
         # If a is a sum, we return the sum of the integer parts of each term
         return sum(intpart(term) for term in SymbolicUtils.arguments(Symbolics.unwrap(a)))
     else
@@ -98,17 +98,17 @@ function rt(u, n::Integer)
 end
 
 # If u is not 0 and has a positive form, posQ(u) returns True, else it returns False
-function posQ(u)
-    return !eqQ(u, 0) && (u>0)
+function pos(u)
+    return !eq(u, 0) && (u>0)
 end
 
 # If u is not 0 and has a negative form, negQ(u) returns True, else it returns False
-function negQ(u)
-    return !posQ(u) && !eqQ(u, 0)
+function neg(u)
+    return !pos(u) && !eq(u, 0)
 end
 
 # If m, n, ... are explicit fractions, FractionQ[m,n,...] returns True; else it returns False.
-function fractionQ(args...)
+function fraction(args...)
     return all(isa(arg, Rational) for arg in args)
 end
 
@@ -127,15 +127,15 @@ function extended_numerator(u::Float64)
 end
 
 # IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is integrable wrt x in terms of non-hypergeometric functions.
-function intlinearQ(a, b, c, d, m, n, x)
-    return igtQ(m, 0) || igtQ(n, 0) || 
+function intlinear(a, b, c, d, m, n, x)
+    return igt(m, 0) || igt(n, 0) || 
            extended_isinteger(3*m, 3*n) || extended_isinteger(4*m, 4*n) || 
            extended_isinteger(2*m, 6*n) || extended_isinteger(6*m, 2*n) || 
-           iltQ(m + n, -1) || (extended_isinteger(m + n) && rationalQ(m))
+           ilt(m + n, -1) || (extended_isinteger(m + n) && rational(m))
 end
 
 # If u is simpler than v, SimplerQ[u,v] returns True, else it returns False.  SimplerQ[u,u] returns False.
-function simplerQ(u, v)
+function simpler(u, v)
     if extended_isinteger(u)
         if extended_isinteger(v)
             if u == v
@@ -157,7 +157,7 @@ function simplerQ(u, v)
     if isa(u, Rational)
         if isa(v, Rational)
             if denominator(u) == denominator(v)
-                return simplerQ(numerator(u), numerator(v))
+                return simpler(numerator(u), numerator(v))
             else
                 return denominator(u) < denominator(v)
             end
@@ -184,6 +184,6 @@ function leaf_count(expr)
 end
 
 # If u+v is simpler than u, SumSimplerQ[u,v] returns True, else it returns False.
-function sumsimplerQ(u, v)
-    simplerQ(u + v, u) && !eqQ(u + v, u) && !eqQ(v, 0)
+function sumsimpler(u, v)
+    simpler(u + v, u) && !eq(u + v, u) && !eq(v, 0)
 end
