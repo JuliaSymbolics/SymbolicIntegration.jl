@@ -17,9 +17,10 @@ function translate_file(input_filename, output_filename)
         if startswith(line, "(*")
             rules_big_string *= "# $line \n"
         elseif startswith(line, "Int[")
-            julia_rule = translate_line(line)
+            rule_index = "$(file_index)_$n_rules"
+            julia_rule = translate_line(line, rule_index)
             if !isnothing(julia_rule)
-                rules_big_string *= "(\"$(file_index)_$n_rules\",\n@rule $julia_rule)\n\n"
+                rules_big_string *= "(\"$rule_index\",\n@rule $julia_rule)\n\n"
                 n_rules += 1
             end
         end
@@ -32,7 +33,7 @@ function translate_file(input_filename, output_filename)
     println(n_rules-1, " translated\n")
 end
 
-function translate_line(line)
+function translate_line(line, index)
     # Separate the integrand and result
     parts = split(line, " := ")
     if length(parts) < 2
@@ -52,7 +53,7 @@ function translate_line(line)
         conditions = translate_conditions(cond_parts[2])
     end
       
-    julia_result = translate_result(result)
+    julia_result = translate_result(result, index)
     
     if conditions == ""
         return "$julia_integrand => $julia_result"
@@ -79,17 +80,21 @@ function transalte_integrand(integrand)
     return integrand
 end
 
-function split_outside_brackets(s)
+# split_outside_brackets("foo(1,2,3), dog, foo2(4,5,hellohello)", ('()'), ',')
+#  "foo(1,2,3)"
+#  "dog"
+#  "foo2(4,5,hello)"
+function split_outside_brackets(s, brakets, delimiter)
     parts = String[]
     bracket_level = 0
     last_pos = 1
 
     for (i, c) in enumerate(s)
-        if c == '['
+        if c == brakets[1]
             bracket_level += 1
-        elseif c == ']'
+        elseif c == brakets[2]
             bracket_level -= 1
-        elseif c == ',' && bracket_level == 0
+        elseif c == delimiter && bracket_level == 0
             push!(parts, strip(s[last_pos:i-1]))
             last_pos = i + 1
         end
@@ -98,23 +103,54 @@ function split_outside_brackets(s)
     return parts
 end
 
-function translate_result(result)
+# find_closing_braket(
+#    "1+3*Subst[Int[1/Sqrt[b*c - a*d + d*x^2], x], x, Sqrt[a + b*x]+Log[x]]+44",
+#    "Subst[Int[", "[]")
+# returns
+# Subst[Int[1/Sqrt[b*c - a*d + d*x^2], x], x, Sqrt[a + b*x]+Log[x]]
+# Note, string must contain closing brakets
+function find_closing_braket(string, start_pattern, brakets)
+    depth = count(c -> c == brakets[1], start_pattern)
+    start_index = findfirst(start_pattern, string)
+    if start_index === nothing
+        return ""
+    end
+    for i in start_index[end]+1:length(string)
+        if string[i] == brakets[1]
+            depth += 1
+        elseif string[i] == brakets[2]
+            depth -= 1
+            if depth == 0
+                return string[start_index[1]:i]
+            end
+        end
+    end
+end
+
+function translate_result(result, index)
     # Remove trailing symbol if present
     if endswith(result, "/;") || endswith(result, "//;")
         result = result[1:end-2]
     end
-    
-    # substitution with integral inside. Is not a single replace call so it goes first
-    # Subst[Int[(a + b*x)^m, x], x, u] to substitute(∫((a + b*x)^m, x), x => u)
-    # TODO change to Subst[Int[(a + b*x)^m, x], x, u] -> substitute(integrate((a + b*x)^m, x), x => u)
-    m = match(r"Subst\[(.*)\]", result)
+
+    # variable definition with "With" keyword
+    # With[{q = Rt[(b*c - a*d)/b, 3]}, -Log[RemoveContent[a + b*x, x]]/(2*b*q) - 3/(2*b*q)*Subst[Int[1/(q - x), x], x, (c + d*x)^(1/3)] + 3/(2*b)* Subst[Int[1/(q^2 + q*x + x^2), x], x, (c + d*x)^(1/3)]]
+    m = match(r"With\[\{q = (?<q>.*?)\}, (?<body>.*)\]", result)
     if m !== nothing
-        parts = split_outside_brackets(m[1])
-        if !startswith(parts[1], "Int[")
-            throw("Expected first part to be an integral: $(parts[1])")
-        end
-        parts[1] = replace(parts[1], r"Int\[(.*), x\]" => s"integrate(\1, x)")
-        result = replace(result, m.match => "substitute(" * parts[1] * ", " * parts[2] * " => " * parts[3] * ")")
+        result = m[:body]
+        result = replace(result, "q" => m[:q])
+    end
+    
+    # substitution with integral inside
+    # from 2/Sqrt[b]* Subst[Int[1/Sqrt[b*c - a*d + d*x^2], x], x, Sqrt[a + b*x]]
+    # to 2/Sqrt[b]* int_and_subst(1/Sqrt[b*c - a*d + d*x^2], x, x, Sqrt[a + b*x], "1_1_1_2_23")
+    m = match(r"Subst\[Int\[", result)
+    while m !== nothing
+        full_str = find_closing_braket(result, "Subst[Int[", "[]")
+        int, from, to = split_outside_brackets(full_str[7:end-1] , "[]", ',') # remove "Subst[" and "]"
+        integrand, intvar = split(int[5:end-1], ", ", limit=2) # remove "Int[" and "]"
+        result = replace(result, full_str => "int_and_subst($integrand, $intvar, $from, $to, \"$index\")")
+        m = match(r"Subst\[Int\[", result)
     end
 
     associations = [
@@ -155,7 +191,7 @@ function translate_conditions(conditions)
         (r"FreeQ\[(.*?), x\]", s"!contains_var(x, \1)"), ("{", ""), ("}", ""), # from FreeQ[{a, b, c, d, m}, x] to !contains_var((~x), (~a), (~b), (~c), (~d), (~m))
         (r"NeQ\[(.*?), (.*?)\]", s"!eq(\1, \2)"),
         (r"EqQ\[(.*?), (.*?)\]", s"eq(\1, \2)"),
-        (r"IntLinearQ\[(.*?), (.*?), (.*?), (.*?), (.*?), (.*?), (.*?)\]", s"intlinearQ(\1, \2, \3, \4, \5, \6, \7)"),
+        (r"IntLinearQ\[(.*?), (.*?), (.*?), (.*?), (.*?), (.*?), (.*?)\]", s"intlinear(\1, \2, \3, \4, \5, \6, \7)"),
         (r"LinearQ\[(.*?), (.*?)\]", s"Symbolics.linear_expansion(\1, x)[3]"), # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
         
         (r"IGtQ\[(.*?), (.*?)\]", s"igt(\1, \2)"), # IGtQ = Integer Greater than Question

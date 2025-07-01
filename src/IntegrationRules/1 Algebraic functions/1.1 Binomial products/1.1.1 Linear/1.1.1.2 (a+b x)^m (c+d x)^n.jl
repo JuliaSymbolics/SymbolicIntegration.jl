@@ -210,39 +210,48 @@ acosh((~b)*(~x)⨸(~a))⨸(~b) : nothing)
         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
         ((~b)*(~c) - (~a)*(~d) > 0) &&
         ((~b) > 0) ?
-2⨸sqrt((~b))* substitute(integrate(1⨸sqrt((~b)*(~c) - (~a)*(~d) + (~d)*(~x)^2), (~x)), (~x) => sqrt((~a) + (~b)*(~x))) : nothing)
+# TODO the integrate function call ehre messes up the printing of rules
+2⨸sqrt((~b))* int_and_subst(1⨸sqrt((~b)*(~c) - (~a)*(~d) + (~d)*(~x)^2), (~x), (~x), sqrt((~a) + (~b)*(~x)), "1_1_1_2_23") : nothing)
 
-# ("1_1_1_2_24",
-# @rule ∫(1/(((~!a) + (~!b)*(~x))*((~!c) + (~!d)*(~x))^(1//3)),(~x)) =>
-#         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
-#         pos(((~b)*(~c) - (~a)*(~d))/(~b)) ?
-# With[{(~q) = rt(((~b)*(~c) - (~a)*(~d))⨸(~b), 3)}, -log((~a) + (~b)*(~x))⨸(2*(~b)*(~q)) - 3⨸(2*(~b)*(~q))*substitute(integrate(1⨸((~q) - (~x)), (~x)), (~x) => ((~c) + (~d)*(~x))^(1⨸3)] + 3⨸(2*(~b))* Subst[∫(1⨸((~q)^2 + (~q)*(~x) + (~x)^2), (~x))) : nothing)
-# 
+("1_1_1_2_24",
+@rule ∫(1/(((~!a) + (~!b)*(~x))*((~!c) + (~!d)*(~x))^(1//3)),(~x)) =>
+!contains_var((~x), (~a), (~b), (~c), (~d)) &&
+pos(((~b)*(~c) - (~a)*(~d))/(~b)) ?
+-log((~a) + (~b)*(~x))⨸(2*(~b)*(rt(((~b)*(~c) - (~a)*(~d))⨸(~b), 3))) - 3⨸(2*(~b)*(rt(((~b)*(~c) - (~a)*(~d))⨸(~b), 3)))*int_and_subst(1⨸((~q) - (~x)), (~x), (~x), ((~c) + (~d)*(~x))^(1⨸3), "1_1_1_2_24") + 3⨸(2*(~b))* int_and_subst(1⨸((rt(((~b)*(~c) - (~a)*(~d))⨸(~b), 3))^2 + (rt(((~b)*(~c) - (~a)*(~d))⨸(~b), 3))*(~x) + (~x)^2), (~x),(~x), ((~c) + (~d)*(~x))^(1⨸3), "1_1_1_2_24") : nothing)
+
+# These two versions are the same, this second is a bit more readable
 # ("1_1_1_2_24",
 # function foo(pattern)
 #     r = @rule ∫(1/(((~!a) + (~!b)*(~x))*((~!c) + (~!d)*(~x))^(1//3)),(~x)) =>
 #         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
 #         pos(((~b)*(~c) - (~a)*(~d))/(~b)) ?
 #     (~a, ~b, ~c, ~d, ~x) : nothing
-#     # With[{(~q) = rt(((~b)*(~c) - (~a)*(~d))⨸(~b), 3)}, -log((~a) + (~b)*(~x))⨸(2*(~b)*(~q)) - 3⨸(2*(~b)*(~q))*substitute(integrate(1⨸((~q) - (~x)), (~x)), (~x) => ((~c) + (~d)*(~x))^(1⨸3)] + 3⨸(2*(~b))* Subst[∫(1⨸((~q)^2 + (~q)*(~x) + (~x)^2), (~x))) : nothing)
-# end
+#     result = r(pattern)
+#     if result !== nothing
+#         (a_, b_, c_, d_, x_) = result
+#         q_ = rt(((b_)*(c_) - (a_)*(d_))⨸(b_), 3)
+#         return -log(a_ + b_*x_)⨸(2*b_*q_) - 3⨸(2*b_*q_)*int_and_subst(1⨸(q_ - x_), x_, x_, (c_ + d_*x_)^(1⨸3), "1_1_1_2_24") + 3⨸(2*(b_))* int_and_subst(1⨸((q_)^2 + (q_)*(x_) + (x_)^2), x_, x_, (c_ + d_*x_)^(1⨸3), "1_1_1_2_24")
+#     end
+#     return nothing
+# end)
+
 # ("1_1_1_2_25",
 # @rule ∫(1/(((~!a) + (~!b)*(~x))*((~!c) + (~!d)*(~x))^(1//3)),(~x)) =>
 #         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
 #         neg(((~b)*(~c) - (~a)*(~d))/(~b)) ?
-# With[{(~q) = rt(-((~b)*(~c) - (~a)*(~d))⨸(~b), 3)}, log((~a) + (~b)*(~x))⨸(2*(~b)*(~q)) - 3⨸(2*(~b)*(~q))*substitute(integrate(1⨸((~q) + (~x)), (~x)), (~x) => ((~c) + (~d)*(~x))^(1⨸3)] + 3⨸(2*(~b))* Subst[∫(1⨸((~q)^2 - (~q)*(~x) + (~x)^2), (~x))) : nothing)
+# With[{(~q) = rt(-((~b)*(~c) - (~a)*(~d))⨸(~b), 3)}, log((~a) + (~b)*(~x))⨸(2*(~b)*(~q)) - 3⨸(2*(~b)*(~q))*int_and_subst(∫(1⨸((~q) + (~x)), (~x)), (~x), ((~c) + (~d)*(~x))^(1⨸3)] + 3⨸(2*(~b))* Subst[∫(1⨸((~q)^2 - (~q)*(~x) + (~x)^2), (~x)), "1_1_1_2_25") : nothing)
 # 
 # ("1_1_1_2_26",
 # @rule ∫(1/(((~!a) + (~!b)*(~x))*((~!c) + (~!d)*(~x))^(2//3)),(~x)) =>
 #         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
 #         pos(((~b)*(~c) - (~a)*(~d))/(~b)) ?
-# With[{(~q) = rt(((~b)*(~c) - (~a)*(~d))⨸(~b), 3)}, -log((~a) + (~b)*(~x))⨸(2*(~b)*(~q)^2) - 3⨸(2*(~b)*(~q)^2)*substitute(integrate(1⨸((~q) - (~x)), (~x)), (~x) => ((~c) + (~d)*(~x))^(1⨸3)] - 3⨸(2*(~b)*(~q))* Subst[∫(1⨸((~q)^2 + (~q)*(~x) + (~x)^2), (~x))) : nothing)
+# With[{(~q) = rt(((~b)*(~c) - (~a)*(~d))⨸(~b), 3)}, -log((~a) + (~b)*(~x))⨸(2*(~b)*(~q)^2) - 3⨸(2*(~b)*(~q)^2)*int_and_subst(∫(1⨸((~q) - (~x)), (~x)), (~x), ((~c) + (~d)*(~x))^(1⨸3)] - 3⨸(2*(~b)*(~q))* Subst[∫(1⨸((~q)^2 + (~q)*(~x) + (~x)^2), (~x)), "1_1_1_2_26") : nothing)
 # 
 # ("1_1_1_2_27",
 # @rule ∫(1/(((~!a) + (~!b)*(~x))*((~!c) + (~!d)*(~x))^(2//3)),(~x)) =>
 #         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
 #         neg(((~b)*(~c) - (~a)*(~d))/(~b)) ?
-# With[{(~q) = rt(-((~b)*(~c) - (~a)*(~d))⨸(~b), 3)}, -log((~a) + (~b)*(~x))⨸(2*(~b)*(~q)^2) + 3⨸(2*(~b)*(~q)^2)*substitute(integrate(1⨸((~q) + (~x)), (~x)), (~x) => ((~c) + (~d)*(~x))^(1⨸3)] + 3⨸(2*(~b)*(~q))* Subst[∫(1⨸((~q)^2 - (~q)*(~x) + (~x)^2), (~x))) : nothing)
+# With[{(~q) = rt(-((~b)*(~c) - (~a)*(~d))⨸(~b), 3)}, -log((~a) + (~b)*(~x))⨸(2*(~b)*(~q)^2) + 3⨸(2*(~b)*(~q)^2)*int_and_subst(∫(1⨸((~q) + (~x)), (~x)), (~x), ((~c) + (~d)*(~x))^(1⨸3)] + 3⨸(2*(~b)*(~q))* Subst[∫(1⨸((~q)^2 - (~q)*(~x) + (~x)^2), (~x)), "1_1_1_2_27") : nothing)
 # 
 # ("1_1_1_2_28",
 # @rule ∫(1/(((~!a) + (~!b)*(~x))^(1//3)*((~!c) + (~!d)*(~x))^(2//3)),(~x)) =>
@@ -264,7 +273,7 @@ acosh((~b)*(~x)⨸(~a))⨸(~b) : nothing)
 #         !eq((~b)*(~c) - (~a)*(~d), 0) &&
 #         (-1 < (~m), 0) &&
 #         (3 <= extended_denominator((~m)), 4) &&
-#         Atom[(~b)*(~c) + (~a)*(~d)] ?
+#         AtomQ[(~b)*(~c) + (~a)*(~d)] ?
 # ((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~m)⨸((~a)*(~c) + ((~b)*(~c) + (~a)*(~d))*(~x) + (~b)*(~d)*(~x)^2)^(~m)* ∫(((~a)*(~c) + ((~b)*(~c) + (~a)*(~d))*(~x) + (~b)*(~d)*(~x)^2)^(~m), (~x)) : nothing)
 # 
 # ("1_1_1_2_31",
@@ -283,7 +292,7 @@ acosh((~b)*(~x)⨸(~a))⨸(~b) : nothing)
 #         (-1 <= (~n), 0) &&
 #         (extended_denominator((~n)) <= extended_denominator((~m))) &&
 #         intlinear((~a), (~b), (~c), (~d), (~m), (~n), (~x)) ?
-# With[{(~p) = Denominator[(~m)]}, (~p)⨸(~b)* substitute(integrate((~x)^((~p)*((~m) + 1) - 1)*((~c) - (~a)*(~d)⨸(~b) + (~d)*(~x)^(~p)⨸(~b))^(~n), (~x)), (~x) => ((~a) + (~b)*(~x))^(1⨸(~p))]) : nothing)
+# With[{(~p) = Denominator[(~m)]}, (~p)⨸(~b)* int_and_subst(∫((~x)^((~p)*((~m) + 1) - 1)*((~c) - (~a)*(~d)⨸(~b) + (~d)*(~x)^(~p)⨸(~b))^(~n), (~x)), (~x), ((~a) + (~b)*(~x))^(1⨸(~p))], "1_1_1_2_32") : nothing)
 # 
 # ("1_1_1_2_33",
 # @rule ∫(((~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
@@ -311,10 +320,10 @@ acosh((~b)*(~x)⨸(~a))⨸(~b) : nothing)
 #         !(extended_isinteger((~n))) &&
 #         !(((~c) > 0)) &&
 #         !((-(~d)/((~b)*(~c)) > 0)) &&
-#         (Rational[(~m)] &&
+#         (RationalQ[(~m)] &&
 #         !(eq((~n), -1/2) &&
 #         eq((~c)^2 - (~d)^2, 0)) ||
-#         !(Rational[(~n))]) ?
+#         !(RationalQ[(~n))]) ?
 # (~c)^intpart((~n))*((~c) + (~d)*(~x))^fracpart((~n))⨸(1 + (~d)*(~x)⨸(~c))^fracpart((~n))* ∫(((~b)*(~x))^(~m)*(1 + (~d)*(~x)⨸(~c))^(~n), (~x)) : nothing)
 # 
 # ("1_1_1_2_36",
@@ -341,8 +350,8 @@ acosh((~b)*(~x)⨸(~a))⨸(~b) : nothing)
 #         !(extended_isinteger((~m))) &&
 #         !(extended_isinteger((~n))) &&
 #         ((~b)/((~b)*(~c) - (~a)*(~d)) > 0) &&
-#         (Rational[(~m)] ||
-#         !(Rational[(~n)) &&
+#         (RationalQ[(~m)] ||
+#         !(RationalQ[(~n)) &&
 #         (-(~d)/((~b)*(~c) - (~a)*(~d)) > 0)]) ?
 # ((~a) + (~b)*(~x))^((~m) + 1)⨸((~b)*((~m) + 1)*((~b)⨸((~b)*(~c) - (~a)*(~d)))^(~n))* Hypergeometric2F1[-(~n), (~m) + 1, (~m) + 2, -(~d)*((~a) + (~b)*(~x))⨸((~b)*(~c) - (~a)*(~d))] : nothing)
 # 
@@ -352,7 +361,7 @@ acosh((~b)*(~x)⨸(~a))⨸(~b) : nothing)
 #         !eq((~b)*(~c) - (~a)*(~d), 0) &&
 #         !(extended_isinteger((~m))) &&
 #         !(extended_isinteger((~n))) &&
-#         (Rational[(~m)] ||
+#         (RationalQ[(~m)] ||
 #         !(simpler((~n) + 1, (~m) + 1))) ?
 # ((~c) + (~d)*(~x))^ fracpart( (~n))⨸(((~b)⨸((~b)*(~c) - (~a)*(~d)))^intpart((~n))*((~b)*((~c) + (~d)*(~x))⨸((~b)*(~c) - (~a)*(~d)))^ fracpart((~n)))* ∫(((~a) + (~b)*(~x))^(~m)*Simp[(~b)*(~c)⨸((~b)*(~c) - (~a)*(~d)) + (~b)*(~d)*(~x)⨸((~b)*(~c) - (~a)*(~d)), (~x))^(~n), (~x)] : nothing)
 # 
@@ -361,8 +370,8 @@ acosh((~b)*(~x)⨸(~a))⨸(~b) : nothing)
 #         !contains_var((~x), (~a), (~b), (~c), (~d), (~m), (~n)) &&
 #         Symbolics.linear_expansion((~u), (~x))[3] &&
 #         !eq(Coefficient[(~u), (~x), 0), 0] ?
-# 1⨸Symbolics.coeff((~u), (~x) ^ 1)* substitute(integrate(((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~n), (~x)), (~x) => (~u)) : nothing)
+# 1⨸Symbolics.coeff((~u), (~x) ^ 1)* int_and_subst(∫(((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~n), (~x)), (~x), (~u), "1_1_1_2_40") : nothing)
 # 
-# # (* IntLinear[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is  integrable wrt x in terms of non-hypergeometric functions. *) IntLinear[a_, b_, c_, d_, m_, n_, x_] := IGt[m, 0] || IGt[n, 0] || Integers[3*m, 3*n] || Integers[4*m, 4*n] || Integers[2*m, 6*n] || Integers[6*m, 2*n] || ILt[m + n, -1] || Integer[m + n] && Rational[m] 
+# # (* IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is  integrable wrt x in terms of non-hypergeometric functions. *) IntLinearQ[a_, b_, c_, d_, m_, n_, x_] := IGtQ[m, 0] || IGtQ[n, 0] || IntegersQ[3*m, 3*n] || IntegersQ[4*m, 4*n] || IntegersQ[2*m, 6*n] || IntegersQ[6*m, 2*n] || ILtQ[m + n, -1] || IntegerQ[m + n] && RationalQ[m] 
 ]
 

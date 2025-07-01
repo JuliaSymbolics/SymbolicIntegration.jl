@@ -187,3 +187,28 @@ end
 function sumsimpler(u, v)
     simpler(u + v, u) && !eq(u + v, u) && !eq(v, 0)
 end
+
+# contains_op(∫, expr) is the same as checking is the integral has been comletely solved
+function contains_op(op, expr)
+    expr = Symbolics.unwrap(expr)
+    if iscall(expr)
+        if nameof(operation(expr))=== nameof(op)
+            return true
+        end
+        return any(contains_op(op, a) for a in arguments(expr))
+    end
+    return false
+end
+
+# also putting directly substitute(integrate(...), ... => ...) in the rules works
+# but using a custom funciton is better because
+# - if the integral is not solved, substitute does bad things like substituting the integration variable
+# - we can print rule application
+function int_and_subst(integrand, integration_var, from, to, rule_number)
+    printstyled("Applied rule $rule_number with result $integrand\n\n"; color=:light_blue)
+    result = integrate(integrand, integration_var)
+    if !contains_op(∫, result)
+        return substitute(result, from => to)
+    end
+    return ∫(integrand, integration_var)
+end
