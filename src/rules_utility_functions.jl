@@ -210,5 +210,5 @@ function int_and_subst(integrand, integration_var, from, to, rule_number)
     if !contains_op(∫, result)
         return substitute(result, from => to)
     end
-    return ∫(integrand, integration_var)
+    return subst(∫(integrand, integration_var),from, to)
 end
