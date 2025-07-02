@@ -33,7 +33,7 @@ file_rules = [
 #         PolynomialQ[(~w), (~x)] &&
 #         Symbolics.linear_expansion((~v), (~x))[3] &&
 #         PowerOfSymbolics.linear_expansion((~u), (~x))[3] &&
-#         extended_isinteger((~m)) &&
+#         ext_isinteger((~m)) &&
 #         TrueQ[$UseGamma] ?
 # ∫(expand( (~w)*NormalizePowerOfLinear[(~u))^(~m)*(~F)^((~c)*ExpandToSum[(~v), (~x))), (~x)], (~x)] : nothing)
 # 
@@ -43,7 +43,7 @@ file_rules = [
 #         PolynomialQ[(~w), (~x)] &&
 #         Symbolics.linear_expansion((~v), (~x))[3] &&
 #         PowerOfSymbolics.linear_expansion((~u), (~x))[3] &&
-#         extended_isinteger((~m)) &&
+#         ext_isinteger((~m)) &&
 #         !(TrueQ[$UseGamma)] ?
 # ∫(expand((~F)^((~c)*ExpandToSum[(~v))), (~w)*NormalizePowerOfLinear[(~u), (~x))^(~m), (~x)], (~x)] : nothing)
 # 
@@ -53,7 +53,7 @@ file_rules = [
 #         PolynomialQ[(~w), (~x)] &&
 #         Symbolics.linear_expansion((~v), (~x))[3] &&
 #         PowerOfSymbolics.linear_expansion((~u), (~x))[3] &&
-#         !(extended_isinteger((~m))) ?
+#         !(ext_isinteger((~m))) ?
 # Module[{uu = NormalizePowerOfLinear[(~u), (~x)], (~z)}, (~z) = If[PowerQ[uu] && FreeQ[uu[[2]], (~x)], uu[[1]]^((~m)*uu[[2]]), uu^(~m)]; uu^(~m)⨸(~z)*∫(expand((~w)*(~z)*(~F)^((~c)*ExpandToSum[(~v))), (~x)), (~x)]] : nothing)
 # 
 # ("2_3_8",
@@ -92,21 +92,21 @@ file_rules = [
 # ("2_3_13",
 # @rule ∫((~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n)),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d)) &&
-#         extended_isinteger(2/(~n)) &&
+#         ext_isinteger(2/(~n)) &&
 #         ilt((~n), 0) ?
 # ((~c) + (~d)*(~x))*(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n))⨸(~d) - (~b)*(~n)*log((~F))*∫(((~c) + (~d)*(~x))^(~n)*(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n)), (~x)) : nothing)
 # 
 # ("2_3_14",
 # @rule ∫((~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n)),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d)) &&
-#         extended_isinteger(2/(~n)) &&
-#         !(extended_isinteger((~n))) ?
+#         ext_isinteger(2/(~n)) &&
+#         !(ext_isinteger((~n))) ?
 # With[{(~k) = Denominator[(~n)]}, (~k)⨸(~d)* substitute(integrate((~x)^((~k) - 1)*(~F)^((~a) + (~b)*(~x)^((~k)*(~n))), (~x)), (~x) => ((~c) + (~d)*(~x))^(1⨸(~k))]) : nothing)
 # 
 # ("2_3_15",
 # @rule ∫((~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n)),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d), (~n)) &&
-#         !(extended_isinteger(2/(~n))) ?
+#         !(ext_isinteger(2/(~n))) ?
 # -(~F)^(~a)*((~c) + (~d)*(~x))* Gamma[1⨸(~n), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F))]⨸((~d)* (~n)*(-(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))^(1⨸(~n))) : nothing)
 # 
 # ("2_3_16",
@@ -131,9 +131,9 @@ file_rules = [
 # ("2_3_19",
 # @rule ∫(((~!c) + (~!d)*(~x))^(~!m)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n)),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d)) &&
-#         extended_isinteger(2*((~m) + 1)/(~n)) &&
+#         ext_isinteger(2*((~m) + 1)/(~n)) &&
 #         (0 < ((~m) + 1)/(~n), 5) &&
-#         extended_isinteger((~n)) &&
+#         ext_isinteger((~n)) &&
 #         ((0 < (~n), (~m) + 1) ||
 #         ((~m) < (~n), 0)) ?
 # ((~c) + (~d)*(~x))^((~m) - (~n) + 1)*(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n))⨸((~b)*(~d)*(~n)*log((~F))) - ((~m) - (~n) + 1)⨸((~b)*(~n)*log((~F)))* ∫(((~c) + (~d)*(~x))^((~m) - (~n))*(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n)), (~x)) : nothing)
@@ -141,7 +141,7 @@ file_rules = [
 # ("2_3_20",
 # @rule ∫(((~!c) + (~!d)*(~x))^(~!m)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n)),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d), (~m), (~n)) &&
-#         extended_isinteger(2*Simplify[((~m) + 1)/(~n))] &&
+#         ext_isinteger(2*Simplify[((~m) + 1)/(~n))] &&
 #         (0 < Simplify[((~m) + 1)/(~n)), 5] &&
 #         !(RationalQ[(~m))] &&
 #         sumsimpler((~m), -(~n)) ?
@@ -150,9 +150,9 @@ file_rules = [
 # ("2_3_21",
 # @rule ∫(((~!c) + (~!d)*(~x))^(~!m)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n)),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d)) &&
-#         extended_isinteger(2*((~m) + 1)/(~n)) &&
+#         ext_isinteger(2*((~m) + 1)/(~n)) &&
 #         (-4 < ((~m) + 1)/(~n), 5) &&
-#         extended_isinteger( (~n)) &&
+#         ext_isinteger( (~n)) &&
 #         (((~n) > 0) &&
 #         ((~m) < -1) ||
 #         (-(~n) > 0) &&
@@ -162,7 +162,7 @@ file_rules = [
 # ("2_3_22",
 # @rule ∫(((~!c) + (~!d)*(~x))^(~!m)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n)),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d), (~m), (~n)) &&
-#         extended_isinteger(2*Simplify[((~m) + 1)/(~n))] &&
+#         ext_isinteger(2*Simplify[((~m) + 1)/(~n))] &&
 #         (-4 < Simplify[((~m) + 1)/(~n)), 5] &&
 #         !(RationalQ[(~m))] &&
 #         sumsimpler((~m), (~n)) ?
@@ -171,17 +171,17 @@ file_rules = [
 # ("2_3_23",
 # @rule ∫(((~!c) + (~!d)*(~x))^(~!m)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n)),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d), (~m), (~n)) &&
-#         extended_isinteger(2*((~m) + 1)/(~n)) &&
+#         ext_isinteger(2*((~m) + 1)/(~n)) &&
 #         (0 < ((~m) + 1)/(~n), 5) &&
-#         !(extended_isinteger((~n))) ?
+#         !(ext_isinteger((~n))) ?
 # With[{(~k) = Denominator[(~n)]}, (~k)⨸(~d)* substitute(integrate((~x)^((~k)*((~m) + 1) - 1)*(~F)^((~a) + (~b)*(~x)^((~k)*(~n))), (~x)), (~x) => ((~c) + (~d)*(~x))^(1⨸(~k))]) : nothing)
 # 
 # ("2_3_24",
 # @rule ∫(((~!e) + (~!f)*(~x))^(~!m)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n)),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d), (~e), (~f), (~m), (~n)) &&
 #         eq((~d)*(~e) - (~c)*(~f), 0) &&
-#         extended_isinteger(2*Simplify[((~m) + 1)/(~n))] &&
-#         !(extended_isinteger((~m))) &&
+#         ext_isinteger(2*Simplify[((~m) + 1)/(~n))] &&
+#         !(ext_isinteger((~m))) &&
 #         !eq((~f), (~d)) &&
 #         !eq((~c)*(~e), 0) ?
 # ((~e) + (~f)*(~x))^(~m)⨸((~c) + (~d)*(~x))^(~m)*∫(((~c) + (~d)*(~x))^(~m)*(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n)), (~x)) : nothing)
@@ -450,7 +450,7 @@ file_rules = [
 # @rule ∫((~G)^((~!h) ((~!f) + (~!g)*(~x)))* (~H)^((~!t) ((~!r) + (~!s)*(~x)))*((~a) + (~!b)*(~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~!p),(~x)) =>
 #         !contains_var((~x), (~F), (~G), (~H), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~r), (~s), (~t)) &&
 #         eq((~d)*(~e)*(~p)*Log[(~F)] + (~g)*(~h)*Log[(~G)], 0) &&
-#         extended_isinteger((~p)) ?
+#         ext_isinteger((~p)) ?
 # (~G)^(((~f) - (~c)*(~g)⨸(~d))*(~h))* ∫((~H)^((~t)*((~r) + (~s)*(~x)))*((~b) + (~a)*(~F)^(-(~e)*((~c) + (~d)*(~x))))^(~p), (~x)) : nothing)
 # 
 # ("2_3_65",
@@ -468,7 +468,7 @@ file_rules = [
 # ("2_3_67",
 # @rule ∫((~G)^((~!h) ((~!f) + (~!g)*(~x)))* (~H)^((~!t) ((~!r) + (~!s)*(~x)))*((~a) + (~!b)*(~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~p),(~x)) =>
 #         !contains_var((~x), (~F), (~G), (~H), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~r), (~s), (~t), (~p)) &&
-#         !(extended_isinteger((~p))) ?
+#         !(ext_isinteger((~p))) ?
 # (~G)^((~h)*((~f) + (~g)*(~x)))* (~H)^((~t)*((~r) + (~s)*(~x)))*((~a) + (~b)*(~F)^((~e)*((~c) + (~d)*(~x))))^ (~p)⨸(((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))*(((~a) + (~b)*(~F)^((~e)*((~c) + (~d)*(~x))))⨸(~a))^(~p))* Hypergeometric2F1[-(~p), ((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)* log((~F))), ((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)*log((~F))) + 1, simplify(-(~b)⨸(~a)*(~F)^((~e)*((~c) + (~d)*(~x))))] : nothing)
 # 
 # ("2_3_68",
@@ -546,14 +546,14 @@ file_rules = [
 # @rule ∫((~u)^(~!m)*(~F)^((~!g)*((~!d) + (~!e)*(~x))^(~!n))/((~!a) + (~!b)*(~x) + (~c)*(~x)^2),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d), (~e), (~g), (~n)) &&
 #         PolynomialQ[(~u), (~x)] &&
-#         extended_isinteger((~m)) ?
+#         ext_isinteger((~m)) ?
 # ∫(expand((~F)^((~g)*((~d) + (~e)*(~x))^(~n))), (~x)) : nothing)
 # 
 # ("2_3_79",
 # @rule ∫((~u)^(~!m)*(~F)^((~!g)*((~!d) + (~!e)*(~x))^(~!n))/((~a) + (~c)*(~x)^2),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~c), (~d), (~e), (~g), (~n)) &&
 #         PolynomialQ[(~u), (~x)] &&
-#         extended_isinteger((~m)) ?
+#         ext_isinteger((~m)) ?
 # ∫(expand((~F)^((~g)*((~d) + (~e)*(~x))^(~n))), (~x)) : nothing)
 # 
 # ("2_3_80",
@@ -599,21 +599,21 @@ file_rules = [
 # ("2_3_87",
 # @rule ∫((~F)^((~!f)*((~!a) + (~!b)*Log[(~!c)*((~!d) + (~!e)*(~x))^(~!n)])^2),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d), (~e), (~f), (~n)) &&
-#         extended_isinteger(2*(~a)*(~b)*(~f)*Log[(~F))] ?
+#         ext_isinteger(2*(~a)*(~b)*(~f)*Log[(~F))] ?
 # (~c)^(2*(~a)*(~b)*(~f)*log((~F)))* ∫(((~d) + (~e)*(~x))^(2*(~a)*(~b)*(~f)*(~n)*log((~F)))* (~F)^((~a)^2*(~f) + (~b)^2*(~f)*log((~c)*((~d) + (~e)*(~x))^(~n))^2), (~x)) : nothing)
 # 
 # ("2_3_88",
 # @rule ∫((~F)^((~!f)*((~!a) + (~!b)*Log[(~!c)*((~!d) + (~!e)*(~x))^(~!n)])^2),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d), (~e), (~f), (~n)) &&
-#         !(extended_isinteger(2*(~a)*(~b)*(~f)*Log[(~F)))] ?
+#         !(ext_isinteger(2*(~a)*(~b)*(~f)*Log[(~F)))] ?
 # ((~c)*((~d) + (~e)*(~x))^(~n))^(2*(~a)*(~b)*(~f)*log((~F)))⨸((~d) + (~e)*(~x))^(2*(~a)*(~b)*(~f)*(~n)*log((~F)))* ∫(((~d) + (~e)*(~x))^(2*(~a)*(~b)*(~f)*(~n)*log((~F)))* (~F)^((~a)^2*(~f) + (~b)^2*(~f)*log((~c)*((~d) + (~e)*(~x))^(~n))^2), (~x)) : nothing)
 # 
 # ("2_3_89",
 # @rule ∫(((~!g) + (~!h)*(~x))^(~!m)* (~F)^((~!f)*((~!a) + (~!b)*Log[(~!c)*((~!d) + (~!e)*(~x))^(~!n)])^2),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~m), (~n)) &&
 #         eq((~e)*(~g) - (~d)*(~h), 0) &&
-#         extended_isinteger(2*(~a)*(~b)*(~f)*Log[(~F))] &&
-#         (extended_isinteger((~m)) ||
+#         ext_isinteger(2*(~a)*(~b)*(~f)*Log[(~F))] &&
+#         (ext_isinteger((~m)) ||
 #         eq((~h), (~e))) ?
 # (~h)^(~m)*(~c)^(2*(~a)*(~b)*(~f)*log((~F)))⨸(~e)^(~m)* ∫(((~d) + (~e)*(~x))^((~m) + 2*(~a)*(~b)*(~f)*(~n)*log((~F)))* (~F)^((~a)^2*(~f) + (~b)^2*(~f)*log((~c)*((~d) + (~e)*(~x))^(~n))^2), (~x)) : nothing)
 # 
@@ -650,7 +650,7 @@ file_rules = [
 # ("2_3_95",
 # @rule ∫((~!u)*((~!a)*(~F)^(~v))^(~n),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~n)) &&
-#         !(extended_isinteger((~n))) ?
+#         !(ext_isinteger((~n))) ?
 # ((~a)*(~F)^(~v))^(~n)⨸(~F)^((~n)*(~v))*∫((~u)*(~F)^((~n)*(~v)), (~x)) : nothing)
 # 
 # ("2_3_96",
@@ -676,14 +676,14 @@ file_rules = [
 # ("2_3_99",
 # @rule ∫((~!u)*((~!a)*(~F)^(~v) + (~!b)*(~F)^(~w))^(~n),(~x)) =>
 #         !contains_var((~x), (~F), (~a), (~b), (~n)) &&
-#         !(extended_isinteger((~n))) &&
+#         !(ext_isinteger((~n))) &&
 #         Symbolics.linear_expansion((~v), (~x))[3] ?
 # ((~a)*(~F)^(~v) + (~b)*(~F)^(~w))^(~n)⨸((~F)^((~n)*(~v))*((~a) + (~b)*(~F)^ExpandToSum[(~w) - (~v), (~x)])^(~n))* ∫((~u)*(~F)^((~n)*(~v))*((~a) + (~b)*(~F)^ExpandToSum[(~w) - (~v), (~x)))^(~n), (~x)] : nothing)
 # 
 # ("2_3_100",
 # @rule ∫((~!u)*((~!a)*(~F)^(~v) + (~!b)*(~G)^(~w))^(~n),(~x)) =>
 #         !contains_var((~x), (~F), (~G), (~a), (~b), (~n)) &&
-#         !(extended_isinteger((~n))) &&
+#         !(ext_isinteger((~n))) &&
 #         Symbolics.linear_expansion((~v), (~x))[3] ?
 # ((~a)*(~F)^(~v) + (~b)*(~G)^(~w))^ (~n)⨸((~F)^((~n)*(~v))*((~a) + (~b)*(~E)^ExpandToSum[log((~G))*(~w) - log((~F))*(~v), (~x)])^(~n))* ∫((~u)*(~F)^((~n)*(~v))*((~a) + (~b)*(~E)^ExpandToSum[log((~G))*(~w) - log((~F))*(~v), (~x)))^(~n), (~x)] : nothing)
 # 

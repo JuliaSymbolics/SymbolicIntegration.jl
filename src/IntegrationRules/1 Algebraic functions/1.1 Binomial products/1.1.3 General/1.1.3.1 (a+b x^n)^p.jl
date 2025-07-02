@@ -14,7 +14,7 @@ file_rules = [
 ("1_1_3_1_6",
 @rule ∫(((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) => !contains_var((~x), (~a), (~b)) && igt((~n), 0) && igt((~p), 0) ? ∫(expand(((~a) + (~b)*(~x)^(~n))^(~p)), (~x)) : nothing)
 ("1_1_3_1_7",
-@rule ∫(((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) => !contains_var((~x), (~a), (~b)) && igt((~n), 0) && ((~p) > 0) && (isa(2*(~p), Integer) || eq((~n), 2) && isa(4*(~p), Integer) || eq((~n), 2) && isa(3*(~p), Integer) || (extended_denominator((~p) + 1/(~n)) < extended_denominator((~p)))) ? (~x)*((~a) + (~b)*(~x)^(~n))^(~p)⨸((~n)*(~p) + 1) + (~a)*(~n)*(~p)⨸((~n)*(~p) + 1)*∫(((~a) + (~b)*(~x)^(~n))^((~p) - 1), (~x)) : nothing)
+@rule ∫(((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) => !contains_var((~x), (~a), (~b)) && igt((~n), 0) && ((~p) > 0) && (isa(2*(~p), Integer) || eq((~n), 2) && isa(4*(~p), Integer) || eq((~n), 2) && isa(3*(~p), Integer) || (ext_den((~p) + 1/(~n)) < ext_den((~p)))) ? (~x)*((~a) + (~b)*(~x)^(~n))^(~p)⨸((~n)*(~p) + 1) + (~a)*(~n)*(~p)⨸((~n)*(~p) + 1)*∫(((~a) + (~b)*(~x)^(~n))^((~p) - 1), (~x)) : nothing)
 # ("1_1_3_1_8",     # TODO use Elliptic.jl ?
 # @rule ∫(1/((~a) + (~!b)*(~x)^2)^(5//4),(~x)) => !contains_var((~x), (~a), (~b)) && ((~a) > 0) && pos((~b)/(~a)) ? 2⨸((~a)^(5⨸4)*rt((~b)⨸(~a), 2))*elliptic_e(1⨸2*atan(rt((~b)⨸(~a), 2)*(~x)), 2) : nothing)
 ("1_1_3_1_9",
@@ -22,7 +22,7 @@ file_rules = [
 ("1_1_3_1_10",
 @rule ∫(1/((~a) + (~!b)*(~x)^2)^(7//6),(~x)) => !contains_var((~x), (~a), (~b)) ? 1⨸(((~a) + (~b)*(~x)^2)^(2⨸3)*((~a)⨸((~a) + (~b)*(~x)^2))^(2⨸3))* substitute(∫(1⨸(1 - (~b)*(~x)^2)^(1⨸3), (~x)), (~x) => (~x)⨸sqrt((~a) + (~b)*(~x)^2)) : nothing)
 ("1_1_3_1_11",
-@rule ∫(((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) => !contains_var((~x), (~a), (~b)) && igt((~n), 0) && ((~p) < -1) && (isa(2*(~p), Integer) || (~n) == 2 && isa(4*(~p), Integer) || (~n) == 2 && isa(3*(~p), Integer) || extended_denominator((~p) + 1/(~n)) < extended_denominator((~p))) ? -(~x)*((~a) + (~b)*(~x)^(~n))^((~p) + 1)⨸((~a)*(~n)*((~p) + 1)) + ((~n)*((~p) + 1) + 1)⨸((~a)*(~n)*((~p) + 1))*∫(((~a) + (~b)*(~x)^(~n))^((~p) + 1), (~x)) : nothing)
+@rule ∫(((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) => !contains_var((~x), (~a), (~b)) && igt((~n), 0) && ((~p) < -1) && (isa(2*(~p), Integer) || (~n) == 2 && isa(4*(~p), Integer) || (~n) == 2 && isa(3*(~p), Integer) || ext_den((~p) + 1/(~n)) < ext_den((~p))) ? -(~x)*((~a) + (~b)*(~x)^(~n))^((~p) + 1)⨸((~a)*(~n)*((~p) + 1)) + ((~n)*((~p) + 1) + 1)⨸((~a)*(~n)*((~p) + 1))*∫(((~a) + (~b)*(~x)^(~n))^((~p) + 1), (~x)) : nothing)
 ("1_1_3_1_12",
 @rule ∫(1/((~a) + (~!b)*(~x)^3),(~x)) => !contains_var((~x), (~a), (~b)) ? 1⨸(3*rt((~a), 3)^2)*∫(1⨸(rt((~a), 3) + rt((~b), 3)*(~x)), (~x)) + 1⨸(3*rt((~a), 3)^2)* ∫((2*rt((~a), 3) - rt((~b), 3)*(~x))⨸(rt((~a), 3)^2 - rt((~a), 3)*rt((~b), 3)*(~x) + rt((~b), 3)^2*(~x)^2), (~x)) : nothing)
 # (* Int[1/(a_+b_.*x_^5),x_Symbol] := With[{r=Numerator[Rt[a/b,5]], s=Denominator[Rt[a/b,5]]}, r/(5*a)*Int[1/(r+s*x),x] + 2*r/(5*a)*Int[(r-1/4*(1-Sqrt[5])*s*x)/(r^2-1/2*(1-Sqrt[5])*r*s*x+s^ 2*x^2),x] + 2*r/(5*a)*Int[(r-1/4*(1+Sqrt[5])*s*x)/(r^2-1/2*(1+Sqrt[5])*r*s*x+s^ 2*x^2),x]] /; Free[{a,b},x] && Pos[a/b] *) 

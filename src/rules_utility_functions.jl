@@ -30,22 +30,18 @@ function eq(a, b)
     return tmp === 0 || tmp === 0.0 || tmp ===  0//1 || tmp === 0.0+0.0im
 end
 
-function extended_isinteger(u)
-    try
-        return isinteger(u)
-    catch e
-        return false
-    end
+function ext_isinteger(u)
+    isa(u, Num) && return false # for symbolic expressions
+    isa(u, Number) && return isinteger(u) # for numeric types
+    return false
 end
+ext_isinteger(args...) = all(ext_isinteger(arg) for arg in args)
 
-function extended_isinteger(args...)
-    return all(extended_isinteger(arg) for arg in args)
-end
+# If m, n, ... are explicit fractions, FractionQ[m,n,...] returns True; else it returns False.
+fraction(args...) = all(isa(arg, Rational) for arg in args)
 
 # If m, n, ... are explicit integers or fractions, rationalQ(m,n,...) returns true; else it returns false.
-function rational(args...)
-    return all(isa(arg, Rational) || isa(arg, Integer) for arg in args)
-end
+rational(args...) = all(isa(arg, Rational) || isa(arg, Integer) for arg in args)
 
 # If u is a sum, sumQ(u) returns true; else it returns false.
 function issum(u)
@@ -100,52 +96,30 @@ ilt(a, b) = isinteger(a) && lt(a, b)
 ile(a, b) = isinteger(a) && le(a, b)
 
 # returns the simplest nth root of u
-function rt(u, n::Integer)
-    return u^(1⨸n) # TODO this doesnt allow for exact simplification of roots
-    # return SymbolicUtils.Pow{Real}(u, 1⨸n)
-end
+# return SymbolicUtils.Pow{Real}(u, 1⨸n)
+# TODO this doesnt allow for exact simplification of roots
+rt(u, n::Integer) = u^(1⨸n) 
 
 # If u is not 0 and has a positive form, posQ(u) returns True, else it returns False
-function pos(u)
-    return !eq(u, 0) && (u>0)
-end
+pos(u) = !eq(u, 0) && (u>0)
+neg(u) = !pos(u) && !eq(u, 0)
 
-# If u is not 0 and has a negative form, negQ(u) returns True, else it returns False
-function neg(u)
-    return !pos(u) && !eq(u, 0)
-end
-
-# If m, n, ... are explicit fractions, FractionQ[m,n,...] returns True; else it returns False.
-function fraction(args...)
-    return all(isa(arg, Rational) for arg in args)
-end
-
-function extended_denominator(u)
-    return denominator(u)
-end
-function extended_denominator(u::Float64)
-    return 1
-end
-
-function extended_numerator(u)
-    return numerator(u)
-end
-function extended_numerator(u::Float64)
-    return u
-end
+# extended denominator
+ext_den(u) = isa(u, Float64) ? 1 : denominator(u)
+ext_num(u) = isa(u, Float64) ? u : numerator(u)
 
 # IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is integrable wrt x in terms of non-hypergeometric functions.
 function intlinear(a, b, c, d, m, n, x)
     return igt(m, 0) || igt(n, 0) || 
-           extended_isinteger(3*m, 3*n) || extended_isinteger(4*m, 4*n) || 
-           extended_isinteger(2*m, 6*n) || extended_isinteger(6*m, 2*n) || 
-           ilt(m + n, -1) || (extended_isinteger(m + n) && rational(m))
+           ext_isinteger(3*m, 3*n) || ext_isinteger(4*m, 4*n) || 
+           ext_isinteger(2*m, 6*n) || ext_isinteger(6*m, 2*n) || 
+           ilt(m + n, -1) || (ext_isinteger(m + n) && rational(m))
 end
 
 # If u is simpler than v, SimplerQ[u,v] returns True, else it returns False.  SimplerQ[u,u] returns False.
 function simpler(u, v)
-    if extended_isinteger(u)
-        if extended_isinteger(v)
+    if ext_isinteger(u)
+        if ext_isinteger(v)
             if u == v
                 return false
             elseif u == -v
@@ -158,7 +132,7 @@ function simpler(u, v)
         end
     end
     # If v is an integer but u is not
-    if extended_isinteger(v)
+    if ext_isinteger(v)
         return false
     end
     # If u is a fraction
@@ -192,9 +166,7 @@ function leaf_count(expr)
 end
 
 # If u+v is simpler than u, SumSimplerQ[u,v] returns True, else it returns False.
-function sumsimpler(u, v)
-    simpler(u + v, u) && !eq(u + v, u) && !eq(v, 0)
-end
+sumsimpler(u, v) = simpler(u + v, u) && !eq(u + v, u) && !eq(v, 0)
 
 # contains_op(∫, expr) is the same as checking is the integral has been comletely solved
 function contains_op(op, expr)
