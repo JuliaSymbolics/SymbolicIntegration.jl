@@ -5,7 +5,7 @@ function translate_file(input_filename, output_filename)
         error("Input file '$input_filename' not found!")
     end
     println("Translating $input_filename ...")
-    
+
     file_index = replace(split(replace(basename(input_filename), r"\.m$" => ""), " ")[1], r"\." => "_")
     
     lines = split(read(input_filename, String), "\n")
@@ -157,6 +157,7 @@ function translate_result(result, index)
         (r"RemoveContent\[(.*?),\s*x\]", s"\1"), (r"Log\[(.*?)\]", s"log(\1)"),
         (r"Sqrt\[(.*?)\]", s"sqrt(\1)"),
         (r"ArcTan\[(.*?)\]", s"atan(\1)"),
+        (r"ArcSin\[(.*?)\]", s"asin(\1)"),
         (r"ArcTanh\[(.*?)\]", s"atanh(\1)"),
         (r"ArcCosh\[(.*?)\]", s"acosh(\1)"),
         (r"Coefficient\[(.*?), (.*?)\]", s"Symbolics.coeff(\1, \2)"),
@@ -165,11 +166,16 @@ function translate_result(result, index)
         (r"FracPart\[(.*?)\]", s"fracpart(\1)"), # TODO fracpart with two arguments is ever present?
         (r"IntPart\[(.*?)\]", s"intpart(\1)"),
         (r"ExpandIntegrand\[(.*?), (.*?)\]", s"expand(\1)"), # TODO is this enough?
-        (r"EllipticE\[(.*?), (.*?)\]", s"elliptic_e(\1, \2)"),
+        # (r"ExpandIntegrand\[(.*?), (.*?), (.*?)\]", s"???"),
         (r"Rt\[(.*?), (.*?)\]", s"rt(\1, \2)"),
         (r"Simplify\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
+        (r"Simp\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"Denominator\[(.*?)\]", s"ext_den(\1)"),
         
+        # (r"EllipticE\[(.*?), (.*?)\]", s"elliptic_e(\1, \2)"),
+        # (r"EllipticF\[(.*?), (.*?)\]", s"elliptic_f(\1, \2)"),
+        # (r"Hypergeometric2F1\[(.*?), (.*?)\]", s"elliptic_f(\1, \2)"),
+
         # not yet solved integrals
         (r"Int\[(.*?), x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
 

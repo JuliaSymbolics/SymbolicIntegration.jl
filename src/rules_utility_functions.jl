@@ -50,6 +50,7 @@ function issum(u)
 end
 
 # FracPart[u] returns the sum of the non-integer terms of u.
+# fracpart(3//2 + x) = (1//2) + x, fracpart(2.4) = 2.4
 function fracpart(a)
     if rational(a)
         a - trunc(a)
