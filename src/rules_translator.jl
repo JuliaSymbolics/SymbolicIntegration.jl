@@ -4,15 +4,14 @@ function translate_file(input_filename, output_filename)
     if !isfile(input_filename)
         error("Input file '$input_filename' not found!")
     end
-    
     println("Translating $input_filename ...")
+    
     file_index = replace(split(replace(basename(input_filename), r"\.m$" => ""), " ")[1], r"\." => "_")
     
     lines = split(read(input_filename, String), "\n")
     n_rules = 1
 
     rules_big_string = "file_rules = [\n"
-
     for line in lines
         if startswith(line, "(*")
             rules_big_string *= "# $line \n"
@@ -25,7 +24,7 @@ function translate_file(input_filename, output_filename)
             end
         end
     end
-    rules_big_string *= "]\n\n"
+    rules_big_string *= "]\n"
     # Open output file
     open(output_filename, "w") do f
         write(f, rules_big_string)
@@ -135,10 +134,10 @@ function translate_result(result, index)
 
     # variable definition with "With" keyword
     # With[{q = Rt[(b*c - a*d)/b, 3]}, -Log[RemoveContent[a + b*x, x]]/(2*b*q) - 3/(2*b*q)*Subst[Int[1/(q - x), x], x, (c + d*x)^(1/3)] + 3/(2*b)* Subst[Int[1/(q^2 + q*x + x^2), x], x, (c + d*x)^(1/3)]]
-    m = match(r"With\[\{q = (?<q>.*?)\}, (?<body>.*)\]", result)
+    m = match(r"With\[\{(?<varname>[a-zA-Z]{1,2}) = (?<vardef>.*?)\}, (?<body>.*)\]", result)
     if m !== nothing
         result = m[:body]
-        result = replace(result, r"(?<!\w)q(?!\w)" => m[:q])
+        result = replace(result, Regex("(?<!\\w)$(m[:varname])(?!\\w)") => m[:vardef])
     end
     
     # substitution with integral inside
@@ -160,6 +159,7 @@ function translate_result(result, index)
         (r"ArcTan\[(.*?)\]", s"atan(\1)"),
         (r"ArcTanh\[(.*?)\]", s"atanh(\1)"),
         (r"ArcCosh\[(.*?)\]", s"acosh(\1)"),
+        (r"Coefficient\[(.*?), (.*?)\]", s"Symbolics.coeff(\1, \2)"),
         (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
         # custom functions
         (r"FracPart\[(.*?)\]", s"fracpart(\1)"), # TODO fracpart with two arguments is ever present?
@@ -168,6 +168,7 @@ function translate_result(result, index)
         (r"EllipticE\[(.*?), (.*?)\]", s"elliptic_e(\1, \2)"),
         (r"Rt\[(.*?), (.*?)\]", s"rt(\1, \2)"),
         (r"Simplify\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
+        (r"Denominator\[(.*?)\]", s"ext_den(\1)"),
         
         # not yet solved integrals
         (r"Int\[(.*?), x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
@@ -198,24 +199,33 @@ function translate_conditions(conditions)
         (r"IGeQ\[(.*?), (.*?)\]", s"ige(\1, \2)"), # IGeQ = Integer Greater than or equal Question
         (r"ILtQ\[(.*?), (.*?)\]", s"ilt(\1, \2)"),
         (r"ILeQ\[(.*?), (.*?)\]", s"ile(\1, \2)"),
+
         (r"GtQ\[(.*?), (.*?)\]", s"gt(\1, \2)"), (r"GtQ\[(.*?), (.*?), (.*?)\]", s"gt(\1, \2, \3)"),
         (r"GeQ\[(.*?), (.*?)\]", s"ge(\1, \2)"), (r"GeQ\[(.*?), (.*?), (.*?)\]", s"ge(\1, \2, \3)"),
         (r"LtQ\[(.*?), (.*?)\]", s"lt(\1, \2)"), (r"LtQ\[(.*?), (.*?), (.*?)\]", s"lt(\1, \2, \3)"),
         (r"LeQ\[(.*?), (.*?)\]", s"le(\1, \2)"), (r"LeQ\[(.*?), (.*?), (.*?)\]", s"le(\1, \2, \3)"),
-        (r"IntegerQ\[(.*?)\]", s"extended_isinteger(\1)"),
-        (r"IntegersQ\[(.*?), (.*?)\]", s"extended_isinteger(\1, \2)"), # TODO IntegersQ with three or more arguments?
+
+        (r"IntegerQ\[(.*?)\]", s"ext_isinteger(\1)"),
+        (r"IntegersQ\[(.*?), (.*?)\]", s"ext_isinteger(\1, \2)"), # TODO IntegersQ with three or more arguments?
+        (r"FractionQ\[(.*?)\]", s"fraction(\1)"), 
+        (r"FractionQ\[(.*?), (.*?)\]", s"fraction(\1, \2)"), # TODO fractionQ with three or more arguments?
+        (r"RationalQ\[(.*?)\]", s"rational(\1)"), 
+        (r"RationalQ\[(.*?), (.*?)\]", s"rational(\1, \2)"), # TODO fractionQ with three or more arguments?
+
+
         (r"Not\[(.*?)\]", s"!(\1)"),
         (r"PosQ\[(.*?)\]", s"pos(\1)"),
         (r"NegQ\[(.*?)\]", s"neg(\1)"),
-        (r"Numerator\[(.*?)\]", s"extended_numerator(\1)"),
-        (r"Denominator\[(.*?)\]", s"extended_denominator(\1)"),
-        (r"FractionQ\[(.*?)\]", s"fraction(\1)"), 
-        (r"FractionQ\[(.*?), (.*?)\]", s"fraction(\1, \2)"), # TODO fractionQ with three or more arguments?
+        (r"Numerator\[(.*?)\]", s"ext_num(\1)"),
+        (r"Denominator\[(.*?)\]", s"ext_den(\1)"),
+        (r"Coefficient\[(.*?), (.*?)\]", s"Symbolics.coeff(\1, \2)"), # TODO is this enough?
+        (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
         (r"SumQ\[(.*?)\]", s"issum(\1)"),
         (r"NonsumQ\[(.*?)\]", s"!issum(\1)"),
         (r"SumSimplerQ\[(.*?), (.*?)\]", s"sumsimpler(\1, \2)"),
         (r"SimplerQ\[(.*?), (.*?)\]", s"simpler(\1, \2)"),
-        (r"Simplify\[(.*?)\]", s"simplify(\1)"),
+        (r"Simplify\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
+        (r"Simp\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"AtomQ\[(.*?)\]", s"atom(\1)"),
 
         # improve readibility

@@ -51,7 +51,7 @@ file_rules = [
 @rule ∫(((~a) + (~!b)*(~x))^(~!m)*((~c) + (~!d)*(~x))^(~!m),(~x)) =>
         !contains_var((~x), (~a), (~b), (~c), (~d), (~m)) &&
         eq((~b)*(~c) + (~a)*(~d), 0) &&
-        (extended_isinteger((~m)) ||
+        (ext_isinteger((~m)) ||
         gt((~a), 0) &&
         gt((~c), 0)) ?
 ∫(((~a)*(~c) + (~b)*(~d)*(~x)^2)^(~m), (~x)) : nothing)
@@ -60,7 +60,7 @@ file_rules = [
 @rule ∫(((~a) + (~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~m),(~x)) =>
         !contains_var((~x), (~a), (~b), (~c), (~d), (~m)) &&
         eq((~b)*(~c) + (~a)*(~d), 0) &&
-        !(extended_isinteger(2*(~m))) ?
+        !(ext_isinteger(2*(~m))) ?
 ((~a) + (~b)*(~x))^ fracpart((~m))*((~c) + (~d)*(~x))^fracpart((~m))⨸((~a)*(~c) + (~b)*(~d)*(~x)^2)^fracpart((~m))* ∫(((~a)*(~c) + (~b)*(~d)*(~x)^2)^(~m), (~x)) : nothing)
 
 ("1_1_1_2_10",
@@ -68,7 +68,7 @@ file_rules = [
         !contains_var((~x), (~a), (~b), (~c), (~d), (~n)) &&
         !eq((~b)*(~c) - (~a)*(~d), 0) &&
         ilt((~m), -1) &&
-        !(extended_isinteger((~n))) &&
+        !(ext_isinteger((~n))) &&
         gt((~n), 0) ?
 ((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^(~n)⨸((~b)*((~m) + 1)) - (~d)*(~n)⨸((~b)*((~m) + 1))*∫(((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^((~n) - 1), (~x)) : nothing)
 
@@ -77,7 +77,7 @@ file_rules = [
         !contains_var((~x), (~a), (~b), (~c), (~d), (~n)) &&
         !eq((~b)*(~c) - (~a)*(~d), 0) &&
         ilt((~m), -1) &&
-        !(extended_isinteger((~n))) &&
+        !(ext_isinteger((~n))) &&
         lt((~n), 0) ?
 ((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^((~n) + 1)⨸(((~b)*(~c) - (~a)*(~d))*((~m) + 1)) - (~d)*((~m) + (~n) + 2)⨸(((~b)*(~c) - (~a)*(~d))*((~m) + 1))* ∫(((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^(~n), (~x)) : nothing)
 
@@ -86,7 +86,7 @@ file_rules = [
         !contains_var((~x), (~a), (~b), (~c), (~d), (~n)) &&
         !eq((~b)*(~c) - (~a)*(~d), 0) &&
         igt((~m), 0) &&
-        (!(extended_isinteger((~n))) ||
+        (!(ext_isinteger((~n))) ||
         eq((~c), 0) &&
         le(7*(~m) + 4*(~n) + 4, 0) ||
         lt(9*(~m) + 5*((~n) + 1), 0) ||
@@ -98,7 +98,7 @@ file_rules = [
         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
         !eq((~b)*(~c) - (~a)*(~d), 0) &&
         ilt((~m), 0) &&
-        extended_isinteger((~n)) &&
+        ext_isinteger((~n)) &&
         !(igt((~n), 0) &&
         lt((~m) + (~n) + 2, 0)) ?
 ∫(expand(((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~n)), (~x)) : nothing)
@@ -109,15 +109,14 @@ file_rules = [
         !eq((~b)*(~c) - (~a)*(~d), 0) &&
         ilt(simplify((~m) + (~n) + 2), 0) &&
         !eq((~m), -1) &&
-        !(
-            lt((~m), -1) &&
-            lt((~n), -1) &&
-            (eq((~a), 0) ||
-            !eq((~c), 0) &&
-            lt((~m) - (~n), 0) &&
-            extended_isinteger((~n)))
-        ) &&
-        (sumsimpler((~m), 1) || !(sumsimpler((~n), 1))) ?
+        !( lt((~m), -1) &&
+        lt((~n), -1) &&
+        (eq((~a), 0) ||
+        !eq((~c), 0) &&
+        lt((~m) - (~n), 0) &&
+        ext_isinteger((~n)))) &&
+        (sumsimpler((~m), 1) ||
+        !(sumsimpler((~n), 1))) ?
 ((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^((~n) + 1)⨸(((~b)*(~c) - (~a)*(~d))*((~m) + 1)) - (~d)*simplify((~m) + (~n) + 2)⨸(((~b)*(~c) - (~a)*(~d))*((~m) + 1))* ∫(((~a) + (~b)*(~x))^simplify((~m) + 1)*((~c) + (~d)*(~x))^(~n), (~x)) : nothing)
 
 ("1_1_1_2_15",
@@ -131,14 +130,15 @@ file_rules = [
 @rule ∫(((~!a) + (~!b)*(~x))^(~m)*((~!c) + (~!d)*(~x))^(~n),(~x)) =>
         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
         !eq((~b)*(~c) - (~a)*(~d), 0) &&
-        ((~n) > 0) &&
-        ((~m) < -1) &&
-        !extended_isinteger((~n)) &&
-        !extended_isinteger((~m)) &&
-        !( 
-                ile((~m) + (~n) + 2, 0) &&
-                (fraction((~m)) ||
-                ge(2*(~n) + (~m) + 1, 0))
+        gt((~n), 0) &&
+        lt((~m), -1) &&
+        !(ext_isinteger((~n)) && !ext_isinteger((~m))) &&
+        !(
+            ile((~m) + (~n) + 2, 0) &&
+            (
+                fraction((~m)) ||
+                ge(2*(~n) + (~m) + 1, 0)
+            )
         ) &&
         intlinear((~a), (~b), (~c), (~d), (~m), (~n), (~x)) ?
 ((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^(~n)⨸((~b)*((~m) + 1)) - (~d)*(~n)⨸((~b)*((~m) + 1))*∫(((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^((~n) - 1), (~x)) : nothing)
@@ -166,12 +166,12 @@ file_rules = [
         gt((~n), 0) &&
         !eq((~m) + (~n) + 1, 0) &&
         !(
-                igt((~m), 0) &&
-                (
-                !extended_isinteger(~n) ||
+            igt((~m), 0) &&
+            (
+                !ext_isinteger(~n) ||
                 gt((~m), 0) &&
                 lt((~m) - (~n), 0)
-                )
+            )
         ) &&
         !(ilt((~m) + (~n) + 2, 0)) &&
         intlinear((~a), (~b), (~c), (~d), (~m), (~n), (~x)) ?
@@ -186,7 +186,7 @@ file_rules = [
         (eq((~a), 0) ||
         !eq((~c), 0) &&
         lt((~m) - (~n), 0) &&
-        extended_isinteger((~n)))) &&
+        ext_isinteger((~n)))) &&
         intlinear((~a), (~b), (~c), (~d), (~m), (~n), (~x)) ?
 ((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^((~n) + 1)⨸(((~b)*(~c) - (~a)*(~d))*((~m) + 1)) - (~d)*((~m) + (~n) + 2)⨸(((~b)*(~c) - (~a)*(~d))*((~m) + 1))* ∫(((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^(~n), (~x)) : nothing)
 
@@ -271,7 +271,7 @@ sqrt(3)*rt(-(~d)⨸(~b), 3)⨸(~d)* atan(1⨸sqrt(3) - 2*rt(-(~d)⨸(~b), 3)*((~
         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
         !eq((~b)*(~c) - (~a)*(~d), 0) &&
         lt(-1, (~m), 0) &&
-        le(3, extended_denominator((~m)), 4) &&
+        le(3, ext_den((~m)), 4) &&
         atom((~b)*(~c) + (~a)*(~d)) ?
 ((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~m)⨸((~a)*(~c) + ((~b)*(~c) + (~a)*(~d))*(~x) + (~b)*(~d)*(~x)^2)^(~m)* ∫(((~a)*(~c) + ((~b)*(~c) + (~a)*(~d))*(~x) + (~b)*(~d)*(~x)^2)^(~m), (~x)) : nothing)
 
@@ -280,97 +280,95 @@ sqrt(3)*rt(-(~d)⨸(~b), 3)⨸(~d)* atan(1⨸sqrt(3) - 2*rt(-(~d)⨸(~b), 3)*((~
         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
         !eq((~b)*(~c) - (~a)*(~d), 0) &&
         lt(-1, (~m), 0) &&
-        le(3, extended_denominator((~m)), 4) ?
+        le(3, ext_den((~m)), 4) ?
 ((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~m)⨸(((~a) + (~b)*(~x))*((~c) + (~d)*(~x)))^(~m)* ∫(((~a)*(~c) + ((~b)*(~c) + (~a)*(~d))*(~x) + (~b)*(~d)*(~x)^2)^(~m), (~x)) : nothing)
 
-# ("1_1_1_2_32",
-# @rule ∫(((~!a) + (~!b)*(~x))^(~m)*((~!c) + (~!d)*(~x))^(~n),(~x)) =>
-#         !contains_var((~x), (~a), (~b), (~c), (~d)) &&
-#         !eq((~b)*(~c) - (~a)*(~d), 0) &&
-#         lt(-1, (~m), 0) &&
-#         le(-1, (~n), 0) &&
-#         le(extended_denominator((~n)), extended_denominator((~m))) &&
-#         intlinear((~a), (~b), (~c), (~d), (~m), (~n), (~x)) ?
-# With[{(~p) = Denominator[(~m)]}, (~p)⨸(~b)* int_and_subst((~x)^((~p)*((~m) + 1) - 1)*((~c) - (~a)*(~d)⨸(~b) + (~d)*(~x)^(~p)⨸(~b))^(~n), (~x), (~x), ((~a) + (~b)*(~x))^(1⨸(~p)), "1_1_1_2_32")] : nothing)
-# 
-# ("1_1_1_2_33",
-# @rule ∫(((~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
-#         !contains_var((~x), (~b), (~c), (~d), (~m), (~n)) &&
-#         !(extended_isinteger((~m))) &&
-#         (extended_isinteger((~n)) ||
-#         gt((~c), 0) &&
-#         !(eq((~n), -1/2) &&
-#         eq((~c)^2 - (~d)^2, 0) &&
-#         gt(-(~d)/((~b)*(~c)), 0))) ?
-# (~c)^(~n)*((~b)*(~x))^((~m) + 1)⨸((~b)*((~m) + 1))* Hypergeometric2F1[-(~n), (~m) + 1, (~m) + 2, -(~d)*(~x)⨸(~c)] : nothing)
-# 
-# ("1_1_1_2_34",
-# @rule ∫(((~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
-#         !contains_var((~x), (~b), (~c), (~d), (~m), (~n)) &&
-#         !(extended_isinteger((~n))) &&
-#         (extended_isinteger((~m)) ||
-#         gt(-(~d)/((~b)*(~c)), 0)) ?
-# ((~c) + (~d)*(~x))^((~n) + 1)⨸((~d)*((~n) + 1)*(-(~d)⨸((~b)*(~c)))^(~m))* Hypergeometric2F1[-(~m), (~n) + 1, (~n) + 2, 1 + (~d)*(~x)⨸(~c)] : nothing)
-# 
-# ("1_1_1_2_35",
-# @rule ∫(((~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
-#         !contains_var((~x), (~b), (~c), (~d), (~m), (~n)) &&
-#         !(extended_isinteger((~m))) &&
-#         !(extended_isinteger((~n))) &&
-#         !(gt((~c), 0)) &&
-#         !(gt(-(~d)/((~b)*(~c)), 0)) &&
-#         (RationalQ[(~m)] &&
-#         !(eq((~n), -1/2) &&
-#         eq((~c)^2 - (~d)^2, 0)) ||
-#         !(RationalQ[(~n))]) ?
-# (~c)^intpart((~n))*((~c) + (~d)*(~x))^fracpart((~n))⨸(1 + (~d)*(~x)⨸(~c))^fracpart((~n))* ∫(((~b)*(~x))^(~m)*(1 + (~d)*(~x)⨸(~c))^(~n), (~x)) : nothing)
-# 
-# ("1_1_1_2_36",
-# @rule ∫(((~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
-#         !contains_var((~x), (~b), (~c), (~d), (~m), (~n)) &&
-#         !(extended_isinteger((~m))) &&
-#         !(extended_isinteger((~n))) &&
-#         !(gt((~c), 0)) &&
-#         !(gt(-(~d)/((~b)*(~c)), 0)) ?
-# (-(~b)*(~c)⨸(~d))^intpart((~m))*((~b)*(~x))^fracpart((~m))⨸(-(~d)*(~x)⨸(~c))^fracpart((~m))* ∫((-(~d)*(~x)⨸(~c))^(~m)*((~c) + (~d)*(~x))^(~n), (~x)) : nothing)
-# 
-# ("1_1_1_2_37",
-# @rule ∫(((~a) + (~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
-#         !contains_var((~x), (~a), (~b), (~c), (~d), (~m)) &&
-#         !eq((~b)*(~c) - (~a)*(~d), 0) &&
-#         !(extended_isinteger((~m))) &&
-#         extended_isinteger((~n)) ?
-# ((~b)*(~c) - (~a)*(~d))^(~n)*((~a) + (~b)*(~x))^((~m) + 1)⨸((~b)^((~n) + 1)*((~m) + 1))* Hypergeometric2F1[-(~n), (~m) + 1, (~m) + 2, -(~d)*((~a) + (~b)*(~x))⨸((~b)*(~c) - (~a)*(~d))] : nothing)
-# 
-# ("1_1_1_2_38",
-# @rule ∫(((~a) + (~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
-#         !contains_var((~x), (~a), (~b), (~c), (~d), (~m), (~n)) &&
-#         !eq((~b)*(~c) - (~a)*(~d), 0) &&
-#         !(extended_isinteger((~m))) &&
-#         !(extended_isinteger((~n))) &&
-#         gt((~b)/((~b)*(~c) - (~a)*(~d)), 0) &&
-#         (RationalQ[(~m)] ||
-#         !(RationalQ[(~n)) &&
-#         gt(-(~d)/((~b)*(~c) - (~a)*(~d)), 0)]) ?
-# ((~a) + (~b)*(~x))^((~m) + 1)⨸((~b)*((~m) + 1)*((~b)⨸((~b)*(~c) - (~a)*(~d)))^(~n))* Hypergeometric2F1[-(~n), (~m) + 1, (~m) + 2, -(~d)*((~a) + (~b)*(~x))⨸((~b)*(~c) - (~a)*(~d))] : nothing)
-# 
-# ("1_1_1_2_39",
-# @rule ∫(((~a) + (~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
-#         !contains_var((~x), (~a), (~b), (~c), (~d), (~m), (~n)) &&
-#         !eq((~b)*(~c) - (~a)*(~d), 0) &&
-#         !(extended_isinteger((~m))) &&
-#         !(extended_isinteger((~n))) &&
-#         (RationalQ[(~m)] ||
-#         !(simpler((~n) + 1, (~m) + 1))) ?
-# ((~c) + (~d)*(~x))^ fracpart( (~n))⨸(((~b)⨸((~b)*(~c) - (~a)*(~d)))^intpart((~n))*((~b)*((~c) + (~d)*(~x))⨸((~b)*(~c) - (~a)*(~d)))^ fracpart((~n)))* ∫(((~a) + (~b)*(~x))^(~m)*Simp[(~b)*(~c)⨸((~b)*(~c) - (~a)*(~d)) + (~b)*(~d)*(~x)⨸((~b)*(~c) - (~a)*(~d)), (~x))^(~n), (~x)] : nothing)
-# 
-# ("1_1_1_2_40",
-# @rule ∫(((~!a) + (~!b)*(~u))^(~!m)*((~!c) + (~!d)*(~u))^(~!n),(~x)) =>
-#         !contains_var((~x), (~a), (~b), (~c), (~d), (~m), (~n)) &&
-#         Symbolics.linear_expansion((~u), (~x))[3] &&
-#         !eq(Coefficient[(~u), (~x), 0), 0] ?
-# 1⨸Symbolics.coeff((~u), (~x) ^ 1)* int_and_subst(((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~n), (~x), (~x), (~u), "1_1_1_2_40") : nothing)
-# 
-# # (* IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is  integrable wrt x in terms of non-hypergeometric functions. *) IntLinearQ[a_, b_, c_, d_, m_, n_, x_] := IGtQ[m, 0] || IGtQ[n, 0] || IntegersQ[3*m, 3*n] || IntegersQ[4*m, 4*n] || IntegersQ[2*m, 6*n] || IntegersQ[6*m, 2*n] || ILtQ[m + n, -1] || IntegerQ[m + n] && RationalQ[m] 
-]
+("1_1_1_2_32",
+@rule ∫(((~!a) + (~!b)*(~x))^(~m)*((~!c) + (~!d)*(~x))^(~n),(~x)) =>
+        !contains_var((~x), (~a), (~b), (~c), (~d)) &&
+        !eq((~b)*(~c) - (~a)*(~d), 0) &&
+        lt(-1, (~m), 0) &&
+        le(-1, (~n), 0) &&
+        le(ext_den((~n)), ext_den((~m))) &&
+        intlinear((~a), (~b), (~c), (~d), (~m), (~n), (~x)) ?
+ext_den((~m))⨸(~b)* int_and_subst((~x)^(ext_den((~m))*((~m) + 1) - 1)*((~c) - (~a)*(~d)⨸(~b) + (~d)*(~x)^ext_den((~m))⨸(~b))^(~n), (~x), (~x), ((~a) + (~b)*(~x))^(1⨸ext_den((~m))), "1_1_1_2_32") : nothing)
 
+("1_1_1_2_33",
+@rule ∫(((~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
+        !contains_var((~x), (~b), (~c), (~d), (~m), (~n)) &&
+        !(ext_isinteger((~m))) &&
+        (ext_isinteger((~n)) ||
+        gt((~c), 0) &&
+        !(eq((~n), -1/2) &&
+        eq((~c)^2 - (~d)^2, 0) &&
+        gt(-(~d)/((~b)*(~c)), 0))) ?
+(~c)^(~n)*((~b)*(~x))^((~m) + 1)⨸((~b)*((~m) + 1))* Hypergeometric2F1[-(~n), (~m) + 1, (~m) + 2, -(~d)*(~x)⨸(~c)] : nothing)
+
+("1_1_1_2_34",
+@rule ∫(((~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
+        !contains_var((~x), (~b), (~c), (~d), (~m), (~n)) &&
+        !(ext_isinteger((~n))) &&
+        (ext_isinteger((~m)) ||
+        gt(-(~d)/((~b)*(~c)), 0)) ?
+((~c) + (~d)*(~x))^((~n) + 1)⨸((~d)*((~n) + 1)*(-(~d)⨸((~b)*(~c)))^(~m))* Hypergeometric2F1[-(~m), (~n) + 1, (~n) + 2, 1 + (~d)*(~x)⨸(~c)] : nothing)
+
+("1_1_1_2_35",
+@rule ∫(((~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
+        !contains_var((~x), (~b), (~c), (~d), (~m), (~n)) &&
+        !(ext_isinteger((~m))) &&
+        !(ext_isinteger((~n))) &&
+        !(gt((~c), 0)) &&
+        !(gt(-(~d)/((~b)*(~c)), 0)) &&
+        (rational((~m)) &&
+        !(eq((~n), -1/2) &&
+        eq((~c)^2 - (~d)^2, 0)) ||
+        !(rational((~n)))) ?
+(~c)^intpart((~n))*((~c) + (~d)*(~x))^fracpart((~n))⨸(1 + (~d)*(~x)⨸(~c))^fracpart((~n))* ∫(((~b)*(~x))^(~m)*(1 + (~d)*(~x)⨸(~c))^(~n), (~x)) : nothing)
+
+("1_1_1_2_36",
+@rule ∫(((~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
+        !contains_var((~x), (~b), (~c), (~d), (~m), (~n)) &&
+        !(ext_isinteger((~m))) &&
+        !(ext_isinteger((~n))) &&
+        !(gt((~c), 0)) &&
+        !(gt(-(~d)/((~b)*(~c)), 0)) ?
+(-(~b)*(~c)⨸(~d))^intpart((~m))*((~b)*(~x))^fracpart((~m))⨸(-(~d)*(~x)⨸(~c))^fracpart((~m))* ∫((-(~d)*(~x)⨸(~c))^(~m)*((~c) + (~d)*(~x))^(~n), (~x)) : nothing)
+
+("1_1_1_2_37",
+@rule ∫(((~a) + (~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
+        !contains_var((~x), (~a), (~b), (~c), (~d), (~m)) &&
+        !eq((~b)*(~c) - (~a)*(~d), 0) &&
+        !(ext_isinteger((~m))) &&
+        ext_isinteger((~n)) ?
+((~b)*(~c) - (~a)*(~d))^(~n)*((~a) + (~b)*(~x))^((~m) + 1)⨸((~b)^((~n) + 1)*((~m) + 1))* Hypergeometric2F1[-(~n), (~m) + 1, (~m) + 2, -(~d)*((~a) + (~b)*(~x))⨸((~b)*(~c) - (~a)*(~d))] : nothing)
+
+("1_1_1_2_38",
+@rule ∫(((~a) + (~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
+        !contains_var((~x), (~a), (~b), (~c), (~d), (~m), (~n)) &&
+        !eq((~b)*(~c) - (~a)*(~d), 0) &&
+        !(ext_isinteger((~m))) &&
+        !(ext_isinteger((~n))) &&
+        gt((~b)/((~b)*(~c) - (~a)*(~d)), 0) &&
+        (rational((~m)) ||
+        !(rational((~n)) &&
+        gt(-(~d)/((~b)*(~c) - (~a)*(~d)), 0))) ?
+((~a) + (~b)*(~x))^((~m) + 1)⨸((~b)*((~m) + 1)*((~b)⨸((~b)*(~c) - (~a)*(~d)))^(~n))* Hypergeometric2F1[-(~n), (~m) + 1, (~m) + 2, -(~d)*((~a) + (~b)*(~x))⨸((~b)*(~c) - (~a)*(~d))] : nothing)
+
+("1_1_1_2_39",
+@rule ∫(((~a) + (~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
+        !contains_var((~x), (~a), (~b), (~c), (~d), (~m), (~n)) &&
+        !eq((~b)*(~c) - (~a)*(~d), 0) &&
+        !(ext_isinteger((~m))) &&
+        !(ext_isinteger((~n))) &&
+        (rational((~m)) ||
+        !(simpler((~n) + 1, (~m) + 1))) ?
+((~c) + (~d)*(~x))^ fracpart( (~n))⨸(((~b)⨸((~b)*(~c) - (~a)*(~d)))^intpart((~n))*((~b)*((~c) + (~d)*(~x))⨸((~b)*(~c) - (~a)*(~d)))^ fracpart((~n)))* ∫(((~a) + (~b)*(~x))^(~m)*simplify((~b)*(~c)⨸((~b)*(~c) - (~a)*(~d)) + (~b)*(~d)*(~x)⨸((~b)*(~c) - (~a)*(~d)), (~x))^(~n), (~x)) : nothing)
+
+("1_1_1_2_40",
+@rule ∫(((~!a) + (~!b)*(~u))^(~!m)*((~!c) + (~!d)*(~u))^(~!n),(~x)) =>
+        !contains_var((~x), (~a), (~b), (~c), (~d), (~m), (~n)) &&
+        Symbolics.linear_expansion((~u), (~x))[3] &&
+        !eq(Symbolics.coeff((~u), (~x), 0), 0) ?
+1⨸Symbolics.coeff((~u), (~x), 1)* int_and_subst(((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~n), (~x), (~x), (~u), "1_1_1_2_40") : nothing)
+
+]
