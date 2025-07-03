@@ -34,6 +34,8 @@ data = [
     (integrand = 1/((1-2x)^(1//3)*(3+4x)^(2//3)), result = -(sqrt(3)*atan(1/sqrt(3) + (2*2^(1//3)*(1 + 2x)^(1//3))/(sqrt(3)*(3 + 4x)^(1//3))))/(2*2^(2//3)) - log(3 + 4x)/(4*2^(2//3)) - (3log(-1 + (2^(1//3)*(1 + 2x)^(1//3))/(3 + 4x)^(1//3)))/(4*2^(2//3)), integration_var = x) # 29
     # 1_1_1_3
     (integrand = (1+2x)^2*(3-6x)^2*x, result = -(3//8)*(1 - 4x^2)^3, integration_var = x) # 1
+    (integrand = sqrt(2+4x)/(sqrt(-5x)*sqrt(1+3x)), result = -2*sqrt(2//15)*Elliptic.E(asin(sqrt(-3x)), 2//3), integration_var = x) # 38
+    (integrand = 1/(sqrt(2+4x)*sqrt(-5x)*sqrt(1+3x)), result = -sqrt(2//15)*Elliptic.E(asin(sqrt(-3x)), 2//3), integration_var = x) # 43
     # 1_1_3_1
     (integrand = 1 / sqrt(1 - 4(x^2)), result = (1//2)*asin(2x), integration_var = x) # 28
     # 2_1

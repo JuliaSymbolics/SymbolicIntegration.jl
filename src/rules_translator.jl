@@ -172,9 +172,9 @@ function translate_result(result, index)
         (r"Simp\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"Denominator\[(.*?)\]", s"ext_den(\1)"),
         
-        # (r"EllipticE\[(.*?), (.*?)\]", s"elliptic_e(\1, \2)"),
-        # (r"EllipticF\[(.*?), (.*?)\]", s"elliptic_f(\1, \2)"),
-        # (r"Hypergeometric2F1\[(.*?), (.*?)\]", s"elliptic_f(\1, \2)"),
+        (r"EllipticE\[(.*?)\]", s"elliptic_e(\1)"), # one or two arguments
+        (r"EllipticF\[(.*?), (.*?)\]", s"elliptic_f(\1, \2)"),
+        # (r"Hypergeometric2F1\[(.*?), (.*?)\]", s""),
 
         # not yet solved integrals
         (r"Int\[(.*?), x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
@@ -202,7 +202,7 @@ function translate_conditions(conditions)
         (r"LinearQ\[(.*?), (.*?)\]", s"Symbolics.linear_expansion(\1, x)[3]"), # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
         
         (r"IGtQ\[(.*?), (.*?)\]", s"igt(\1, \2)"), # IGtQ = Integer Greater than Question
-        (r"IGeQ\[(.*?), (.*?)\]", s"ige(\1, \2)"), # IGeQ = Integer Greater than or equal Question
+        (r"IGeQ\[(.*?), (.*?)\]", s"ige(\1, \2)"),
         (r"ILtQ\[(.*?), (.*?)\]", s"ilt(\1, \2)"),
         (r"ILeQ\[(.*?), (.*?)\]", s"ile(\1, \2)"),
 
@@ -211,12 +211,11 @@ function translate_conditions(conditions)
         (r"LtQ\[(.*?), (.*?)\]", s"lt(\1, \2)"), (r"LtQ\[(.*?), (.*?), (.*?)\]", s"lt(\1, \2, \3)"),
         (r"LeQ\[(.*?), (.*?)\]", s"le(\1, \2)"), (r"LeQ\[(.*?), (.*?), (.*?)\]", s"le(\1, \2, \3)"),
 
-        (r"IntegerQ\[(.*?)\]", s"ext_isinteger(\1)"),
-        (r"IntegersQ\[(.*?), (.*?)\]", s"ext_isinteger(\1, \2)"), # TODO IntegersQ with three or more arguments?
-        (r"FractionQ\[(.*?)\]", s"fraction(\1)"), 
-        (r"FractionQ\[(.*?), (.*?)\]", s"fraction(\1, \2)"), # TODO fractionQ with three or more arguments?
+        (r"IntegerQ\[(.*?)\]", s"ext_isinteger(\1)"), # called with only one argument
+        (r"IntegersQ\[(.*?)\]", s"ext_isinteger(\1)"), # called with only multiple arguments
+        (r"FractionQ\[(.*?)\]", s"fraction(\1)"), #called with one or more arguments
         (r"RationalQ\[(.*?)\]", s"rational(\1)"), 
-        (r"RationalQ\[(.*?), (.*?)\]", s"rational(\1, \2)"), # TODO fractionQ with three or more arguments?
+        (r"RationalQ\[(.*?), (.*?)\]", s"rational(\1, \2)"),
 
 
         (r"Not\[(.*?)\]", s"!(\1)"),

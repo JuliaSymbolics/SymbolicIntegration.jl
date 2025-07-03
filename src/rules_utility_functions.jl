@@ -203,3 +203,8 @@ function atom(expr)
     # If expr is a call, check if it has any arguments
     return isempty(SymbolicUtils.arguments(expr))
 end
+
+elliptic_e(m) = Elliptic.E(m)
+elliptic_e(phi, m) = Elliptic.E(phi, m)
+
+elliptic_f(phi, m) = Elliptic.F(phi, m)

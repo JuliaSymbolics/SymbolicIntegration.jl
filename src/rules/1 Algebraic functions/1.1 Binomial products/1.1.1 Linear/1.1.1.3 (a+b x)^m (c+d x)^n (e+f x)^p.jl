@@ -309,15 +309,15 @@ file_rules = [
 #         !contains_var((~x), (~a), (~b), (~c), (~d), (~e), (~f)) &&
 #         !(gt(-(~f)/((~d)*(~e) - (~c)*(~f)), 0)) ?
 # sqrt(-(~f)*((~c) + (~d)*(~x))⨸((~d)*(~e) - (~c)*(~f)))⨸sqrt((~c) + (~d)*(~x))* ∫(1⨸(((~a) + (~b)*(~x))* sqrt(-(~c)*(~f)⨸((~d)*(~e) - (~c)*(~f)) - (~d)*(~f)*(~x)⨸((~d)*(~e) - (~c)*(~f)))*((~e) + (~f)*(~x))^(3⨸4)), (~x)) : nothing)
-# 
-# ("1_1_1_3_38",
-# @rule ∫(sqrt((~e) + (~!f)*(~x))/(sqrt((~!b)*(~x))*sqrt((~c) + (~!d)*(~x))),(~x)) =>
-#         !contains_var((~x), (~b), (~c), (~d), (~e), (~f)) &&
-#         !eq((~d)*(~e) - (~c)*(~f), 0) &&
-#         gt((~c), 0) &&
-#         gt((~e), 0) &&
-#         !(lt(-(~b)/(~d), 0)) ?
-# 2*sqrt((~e))⨸(~b)*rt(-(~b)⨸(~d), 2)* EllipticE[asin(sqrt((~b)*(~x))⨸(sqrt((~c))*rt(-(~b)⨸(~d), 2))), (~c)*(~f)⨸((~d)*(~e))] : nothing)
+
+("1_1_1_3_38",
+@rule ∫(sqrt((~e) + (~!f)*(~x))/(sqrt((~!b)*(~x))*sqrt((~c) + (~!d)*(~x))),(~x)) =>
+        !contains_var((~x), (~b), (~c), (~d), (~e), (~f)) &&
+        !eq((~d)*(~e) - (~c)*(~f), 0) &&
+        gt((~c), 0) &&
+        gt((~e), 0) &&
+        !(lt(-(~b)/(~d), 0)) ?
+2*sqrt((~e))⨸(~b)*rt(-(~b)⨸(~d), 2)* elliptic_e(asin(sqrt((~b)*(~x))⨸(sqrt((~c))*rt(-(~b)⨸(~d), 2))), (~c)*(~f)⨸((~d)*(~e))) : nothing)
 # 
 # ("1_1_1_3_39",
 # @rule ∫(sqrt((~e) + (~!f)*(~x))/(sqrt((~!b)*(~x))*sqrt((~c) + (~!d)*(~x))),(~x)) =>
@@ -348,7 +348,7 @@ file_rules = [
 #         gt(-(~d)/((~b)*(~c) - (~a)*(~d)), 0) &&
 #         gt((~d)/((~d)*(~e) - (~c)*(~f)), 0) &&
 #         !(lt(((~b)*(~c) - (~a)*(~d))/(~b), 0))) ?
-# 2⨸(~b)*rt(-((~b)*(~e) - (~a)*(~f))⨸(~d), 2)* EllipticE[asin(sqrt((~a) + (~b)*(~x))⨸rt(-((~b)*(~c) - (~a)*(~d))⨸(~d), 2)), (~f)*((~b)*(~c) - (~a)*(~d))⨸((~d)*((~b)*(~e) - (~a)*(~f)))] : nothing)
+# 2⨸(~b)*rt(-((~b)*(~e) - (~a)*(~f))⨸(~d), 2)* elliptic_e(asin(sqrt((~a) + (~b)*(~x))⨸rt(-((~b)*(~c) - (~a)*(~d))⨸(~d), 2)), (~f)*((~b)*(~c) - (~a)*(~d))⨸((~d)*((~b)*(~e) - (~a)*(~f)))) : nothing)
 # 
 # ("1_1_1_3_42",
 # @rule ∫(sqrt((~!e) + (~!f)*(~x))/(sqrt((~a) + (~!b)*(~x))*sqrt((~c) + (~!d)*(~x))),(~x)) =>
@@ -357,16 +357,16 @@ file_rules = [
 #         gt((~b)/((~b)*(~e) - (~a)*(~f)), 0)) &&
 #         !(lt(-((~b)*(~c) - (~a)*(~d))/(~d), 0)) ?
 # sqrt((~e) + (~f)*(~x))* sqrt((~b)*((~c) + (~d)*(~x))⨸((~b)*(~c) - (~a)*(~d)))⨸(sqrt((~c) + (~d)*(~x))* sqrt((~b)*((~e) + (~f)*(~x))⨸((~b)*(~e) - (~a)*(~f))))* ∫( sqrt((~b)*(~e)⨸((~b)*(~e) - (~a)*(~f)) + (~b)*(~f)*(~x)⨸((~b)*(~e) - (~a)*(~f)))⨸(sqrt((~a) + (~b)*(~x))* sqrt((~b)*(~c)⨸((~b)*(~c) - (~a)*(~d)) + (~b)*(~d)*(~x)⨸((~b)*(~c) - (~a)*(~d)))), (~x)) : nothing)
-# 
-# ("1_1_1_3_43",
-# @rule ∫(1/(sqrt((~!b)*(~x))*sqrt((~c) + (~!d)*(~x))*sqrt((~e) + (~!f)*(~x))),(~x)) =>
-#         !contains_var((~x), (~b), (~c), (~d), (~e), (~f)) &&
-#         gt((~c), 0) &&
-#         gt((~e), 0) &&
-#         (gt(-(~b)/(~d), 0) ||
-#         lt(-(~b)/(~f), 0)) ?
-# 2⨸((~b)*sqrt((~e)))*rt(-(~b)⨸(~d), 2)* EllipticF[asin(sqrt((~b)*(~x))⨸(sqrt((~c))*rt(-(~b)⨸(~d), 2))), (~c)*(~f)⨸((~d)*(~e))] : nothing)
-# 
+
+("1_1_1_3_43",
+@rule ∫(1/(sqrt((~!b)*(~x))*sqrt((~c) + (~!d)*(~x))*sqrt((~e) + (~!f)*(~x))),(~x)) =>
+        !contains_var((~x), (~b), (~c), (~d), (~e), (~f)) &&
+        gt((~c), 0) &&
+        gt((~e), 0) &&
+        (gt(-(~b)/(~d), 0) ||
+        lt(-(~b)/(~f), 0)) ?
+2⨸((~b)*sqrt((~e)))*rt(-(~b)⨸(~d), 2)* elliptic_f(asin(sqrt((~b)*(~x))⨸(sqrt((~c))*rt(-(~b)⨸(~d), 2))), (~c)*(~f)⨸((~d)*(~e))) : nothing)
+
 # ("1_1_1_3_44",
 # @rule ∫(1/(sqrt((~!b)*(~x))*sqrt((~c) + (~!d)*(~x))*sqrt((~e) + (~!f)*(~x))),(~x)) =>
 #         !contains_var((~x), (~b), (~c), (~d), (~e), (~f)) &&
@@ -374,7 +374,7 @@ file_rules = [
 #         gt((~e), 0) &&
 #         (pos(-(~b)/(~d)) ||
 #         neg(-(~b)/(~f))) ?
-# 2⨸((~b)*sqrt((~e)))*rt(-(~b)⨸(~d), 2)* EllipticF[asin(sqrt((~b)*(~x))⨸(sqrt((~c))*rt(-(~b)⨸(~d), 2))), (~c)*(~f)⨸((~d)*(~e))] : nothing)
+# 2⨸((~b)*sqrt((~e)))*rt(-(~b)⨸(~d), 2)* elliptic_f(asin(sqrt((~b)*(~x))⨸(sqrt((~c))*rt(-(~b)⨸(~d), 2))), (~c)*(~f)⨸((~d)*(~e))) : nothing)
 # 
 # ("1_1_1_3_45",
 # @rule ∫(1/(sqrt((~!b)*(~x))*sqrt((~c) + (~!d)*(~x))*sqrt((~e) + (~!f)*(~x))),(~x)) =>
@@ -390,7 +390,7 @@ file_rules = [
 #         gt((~f)/(~b), 0) &&
 #         le((~c), (~a)*(~d)/(~b)) &&
 #         le((~e), (~a)*(~f)/(~b)) ?
-# -2*sqrt((~d)⨸(~f))⨸((~d)*rt(-((~b)*(~e) - (~a)*(~f))⨸(~f), 2))* EllipticF[asin(rt(-((~b)*(~e) - (~a)*(~f))⨸(~f), 2)⨸sqrt((~a) + (~b)*(~x))), (~f)*((~b)*(~c) - (~a)*(~d))⨸((~d)*((~b)*(~e) - (~a)*(~f)))] : nothing)
+# -2*sqrt((~d)⨸(~f))⨸((~d)*rt(-((~b)*(~e) - (~a)*(~f))⨸(~f), 2))* elliptic_f(asin(rt(-((~b)*(~e) - (~a)*(~f))⨸(~f), 2)⨸sqrt((~a) + (~b)*(~x))), (~f)*((~b)*(~c) - (~a)*(~d))⨸((~d)*((~b)*(~e) - (~a)*(~f)))) : nothing)
 # 
 # # (* Int[1/(Sqrt[a_+b_.*x_]*Sqrt[c_+d_.*x_]*Sqrt[e_+f_.*x_]),x_Symbol] := -2*Sqrt[c+d*x]*Sqrt[b*(e+f*x)/(f*(a+b*x))]/(d*Rt[-(b*e-a*f)/f,2]* Sqrt[e+f*x]*Sqrt[b*(c+d*x)/(d*(a+b*x))])* EllipticF[ArcSin[Rt[-(b*e-a*f)/f,2]/Sqrt[a+b*x]],f*(b*c-a*d)/(d*( b*e-a*f))] /; FreeQ[{a,b,c,d,e,f},x] && PosQ[-(b*e-a*f)/f] && (*  (LtQ[-a/b,-c/d,-e/f] || GtQ[-a/b,-c/d,-e/f]) *) Not[SimplerQ[c+d*x,a+b*x] && (PosQ[(-d*e+c*f)/f] ||  PosQ[(b*e-a*f)/b])] && Not[SimplerQ[e+f*x,a+b*x] && (PosQ[(b*e-a*f)/b] ||  PosQ[(b*c-a*d)/b])] *) 
 # ("1_1_1_3_47",
@@ -410,7 +410,7 @@ file_rules = [
 #         gt((-(~b)*(~e) + (~a)*(~f))/(~f), 0) &&
 #         (pos(-(~f)/(~d)) ||
 #         pos(-(~f)/(~b)))) ?
-# 2*rt(-(~b)⨸(~d), 2)⨸((~b)*sqrt(((~b)*(~e) - (~a)*(~f))⨸(~b)))* EllipticF[asin(sqrt((~a) + (~b)*(~x))⨸(rt(-(~b)⨸(~d), 2)*sqrt(((~b)*(~c) - (~a)*(~d))⨸(~b)))), (~f)*((~b)*(~c) - (~a)*(~d))⨸((~d)*((~b)*(~e) - (~a)*(~f)))] : nothing)
+# 2*rt(-(~b)⨸(~d), 2)⨸((~b)*sqrt(((~b)*(~e) - (~a)*(~f))⨸(~b)))* elliptic_f(asin(sqrt((~a) + (~b)*(~x))⨸(rt(-(~b)⨸(~d), 2)*sqrt(((~b)*(~c) - (~a)*(~d))⨸(~b)))), (~f)*((~b)*(~c) - (~a)*(~d))⨸((~d)*((~b)*(~e) - (~a)*(~f)))) : nothing)
 # 
 # ("1_1_1_3_48",
 # @rule ∫(1/(sqrt((~a) + (~!b)*(~x))*sqrt((~c) + (~!d)*(~x))*sqrt((~e) + (~!f)*(~x))),(~x)) =>
@@ -422,7 +422,7 @@ file_rules = [
 #         (pos(-((~b)*(~c) - (~a)*(~d))/(~d)) ||
 #         neg(-((~b)*(~e) - (~a)*(~f))/(~f))) (* &&
 #         pos(-(~b)/(~d)) *) ?
-# 2*rt(-(~b)⨸(~d), 2)⨸((~b)*sqrt(((~b)*(~e) - (~a)*(~f))⨸(~b)))* EllipticF[asin(sqrt((~a) + (~b)*(~x))⨸(rt(-(~b)⨸(~d), 2)*sqrt(((~b)*(~c) - (~a)*(~d))⨸(~b)))), (~f)*((~b)*(~c) - (~a)*(~d))⨸((~d)*((~b)*(~e) - (~a)*(~f)))] : nothing)
+# 2*rt(-(~b)⨸(~d), 2)⨸((~b)*sqrt(((~b)*(~e) - (~a)*(~f))⨸(~b)))* elliptic_f(asin(sqrt((~a) + (~b)*(~x))⨸(rt(-(~b)⨸(~d), 2)*sqrt(((~b)*(~c) - (~a)*(~d))⨸(~b)))), (~f)*((~b)*(~c) - (~a)*(~d))⨸((~d)*((~b)*(~e) - (~a)*(~f)))) : nothing)
 # 
 # ("1_1_1_3_49",
 # @rule ∫(1/(sqrt((~a) + (~!b)*(~x))*sqrt((~c) + (~!d)*(~x))*sqrt((~e) + (~!f)*(~x))),(~x)) =>
@@ -650,5 +650,5 @@ file_rules = [
 #         Symbolics.linear_expansion((~u), (~x))[3] &&
 #         !eq((~u), (~x)) ?
 # 1⨸Symbolics.coeff((~u), (~x), 1)* int_and_subst(((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~n)*((~e) + (~f)*(~x))^(~p), (~x), (~x), (~u), "1_1_1_3_73") : nothing)
-# 
+
 ]
