@@ -2,6 +2,8 @@ using Test
 using SymbolicIntegration
 using Symbolics
 using SymbolicIntegration
+using Elliptic # TODO how can we not import this two?
+using HypergeometricFunctions 
 
 @testset "SymbolicIntegration.jl" begin
     @testset "Package Loading" begin
