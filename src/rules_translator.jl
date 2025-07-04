@@ -57,7 +57,7 @@ function translate_line(line, index)
     if conditions == ""
         return "$julia_integrand => $julia_result"
     else
-        return "$julia_integrand =>\n        $conditions ?\n$julia_result : nothing"
+        return "$julia_integrand =>\n$conditions ?\n$julia_result : nothing"
     end
 end
 
@@ -103,24 +103,25 @@ function split_outside_brackets(s, brakets, delimiter)
 end
 
 # find_closing_braket(
-#    "1+3*Subst[Int[1/Sqrt[b*c - a*d + d*x^2], x], x, Sqrt[a + b*x]+Log[x]]+44",
+#    "1+Log[x]+3*Subst[Int[1/Sqrt[b*c], x], x, Sqrt[a + b*x]+Log[x]]+44+Log[x]",
 #    "Subst[Int[", "[]")
 # returns
-# Subst[Int[1/Sqrt[b*c - a*d + d*x^2], x], x, Sqrt[a + b*x]+Log[x]]
-# Note, string must contain closing brakets
-function find_closing_braket(string, start_pattern, brakets)
+# Subst[Int[1/Sqrt[b*c], x], x, Sqrt[a + b*x]+Log[x]]
+# Note, start_pattern must not contain closing brakets
+function find_closing_braket(full_string, start_pattern, brakets)
     depth = count(c -> c == brakets[1], start_pattern)
-    start_index = findfirst(start_pattern, string)
+    start_index = findfirst(start_pattern, full_string)
     if start_index === nothing
         return ""
     end
-    for i in start_index[end]+1:length(string)
-        if string[i] == brakets[1]
+
+    for i in start_index[end]+1:length(full_string)
+        if full_string[i] == brakets[1]
             depth += 1
-        elseif string[i] == brakets[2]
+        elseif full_string[i] == brakets[2]
             depth -= 1
             if depth == 0
-                return string[start_index[1]:i]
+                return full_string[start_index[1]:i]
             end
         end
     end
@@ -193,6 +194,15 @@ function translate_result(result, index)
 end
 
 function translate_conditions(conditions)
+    # since a lot of times Not has inside other functions, better to use find_closing_braket
+    m = match(r"Not\[", conditions)
+    while m !== nothing
+        full_str = find_closing_braket(conditions, "Not[", "[]")
+        inside = full_str[5:end-1] # remove "Not[" and "]"
+        conditions = replace(conditions, full_str => "!($inside)")
+        m = match(r"Not\[", conditions)
+    end
+
     associations = [
         # TODO change in regex * (zero or more charchters) with + (one or more charchters) ???
         (r"FreeQ\[(.*?), x\]", s"!contains_var(x, \1)"), ("{", ""), ("}", ""), # from FreeQ[{a, b, c, d, m}, x] to !contains_var((~x), (~a), (~b), (~c), (~d), (~m))
@@ -217,8 +227,6 @@ function translate_conditions(conditions)
         (r"RationalQ\[(.*?)\]", s"rational(\1)"), 
         (r"RationalQ\[(.*?), (.*?)\]", s"rational(\1, \2)"),
 
-
-        (r"Not\[(.*?)\]", s"!(\1)"),
         (r"PosQ\[(.*?)\]", s"pos(\1)"),
         (r"NegQ\[(.*?)\]", s"neg(\1)"),
         (r"Numerator\[(.*?)\]", s"ext_num(\1)"),
@@ -233,17 +241,72 @@ function translate_conditions(conditions)
         (r"Simp\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"AtomQ\[(.*?)\]", s"atom(\1)"),
 
-        # improve readibility
-        ("&&", "&&\n       "),
-        ("||", "||\n       "),
-
         # convert conditions variables
         (r"(?<!\w)([a-zA-Z])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
     ]
+
     for (mathematica, julia) in associations
         conditions = replace(conditions, mathematica => julia)
     end
+
+    conditions = pretty_indentation(conditions) # improve readibility
+    
     return conditions
+end
+
+function pretty_indentation(conditions)
+    if isempty(strip(conditions)) || length(conditions)<=2
+        return conditions
+    end
+    
+    result = conditions[1]
+    depth = 1
+    indent = "    "
+    i = 2
+    remove_next_spaces = false
+    groups_depths = []
+    
+    while i <= length(conditions)
+        if remove_next_spaces
+            if conditions[i]==' '
+                i+=1
+                continue
+            else
+                remove_next_spaces=false
+            end
+        end
+        if conditions[i] == '('
+            depth += 1
+        elseif conditions[i] == ')'
+            depth -= 1
+        end
+
+        if conditions[i-1:i] == "&&"
+            result = result * "&\n" * indent^depth
+            remove_next_spaces=true
+        elseif conditions[i-1:i] == "||"
+            remove_next_spaces=true
+            result = result * "|\n" * indent^depth
+        elseif (conditions[i-1:i]==" (" || conditions[i-1:i]=="!(") && i<length(conditions) && conditions[i+1]!='~'
+            # if there are more than one arguments in the parenthesis
+            tmp = find_closing_braket(conditions[i-1:end], conditions[i-1:i], "()")
+            if occursin("||", tmp) || occursin("&&", tmp)
+                result = result * "(\n" * indent^depth
+                remove_next_spaces=true
+                push!(groups_depths, depth)
+            else
+                result *= conditions[i]
+            end
+        elseif conditions[i]==')' && in(depth+1, groups_depths)
+            result *= "\n" * indent^depth * ")"
+            pop!(groups_depths)
+        else
+            result *= conditions[i]
+        end
+        i+=1
+    end
+    
+    return indent^depth * result
 end
 
 
