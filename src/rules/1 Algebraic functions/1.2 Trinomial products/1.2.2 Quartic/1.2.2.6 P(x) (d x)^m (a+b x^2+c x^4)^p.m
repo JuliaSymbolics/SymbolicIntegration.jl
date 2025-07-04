@@ -2,7 +2,7 @@
 (* ::Subsection::Closed:: *)
 (* 1.2.2.6 P(x) (d x)^m (a+b x^2+c x^4)^p *)
 Int[(d_.*x_)^m_.*Pq_*(a_ + b_.*x_^2 + c_.*x_^4)^p_, x_Symbol] := Module[{q = Expon[Pq, x], k}, Int[(d*x)^m* Sum[Coeff[Pq, x, 2*k]*x^(2*k), {k, 0, q/2 + 1}]*(a + b*x^2 + c*x^4)^p, x] + 1/d* Int[(d*x)^(m + 1)* Sum[Coeff[Pq, x, 2*k + 1]*x^(2*k), {k, 0, (q - 1)/2 + 1}]*(a + b*x^2 + c*x^4)^p, x]] /; FreeQ[{a, b, c, d, m, p}, x] && PolyQ[Pq, x] && Not[PolyQ[Pq, x^2]]
-Int[x_^m_.*Pq_*(a_ + b_.*x_^2 + c_.*x_^4)^p_, x_Symbol] := 1/2*Subst[ Int[x^((m - 1)/2)*SubstFor[x^2, Pq, x]*(a + b*x + c*x^2)^p, x], x, x^2] /; FreeQ[{a, b, c, p}, x] && PolyQ[Pq, x^2] && IntegerQ[(m - 1)/2]
+Int[x_^m_.*Pq_*(a_ + b_.*x_^2 + c_.*x_^4)^p_, x_Symbol] := 1/2*Subst[Int[x^((m - 1)/2)*SubstFor[x^2, Pq, x]*(a + b*x + c*x^2)^p, x], x, x^2] /; FreeQ[{a, b, c, p}, x] && PolyQ[Pq, x^2] && IntegerQ[(m - 1)/2]
 Int[(d_.*x_)^m_.*Pq_*(a_ + b_.*x_^2 + c_.*x_^4)^p_., x_Symbol] := Int[ExpandIntegrand[(d*x)^m*Pq*(a + b*x^2 + c*x^4)^p, x], x] /; FreeQ[{a, b, c, d, m}, x] && PolyQ[Pq, x^2] && IGtQ[p, -2]
 Int[(d_.*x_)^m_.*Pq_*(a_ + b_.*x_^2 + c_.*x_^4)^p_, x_Symbol] := 1/d^2* Int[(d*x)^(m + 2)*ExpandToSum[Pq/x^2, x]*(a + b*x^2 + c*x^4)^p, x] /; FreeQ[{a, b, c, d, m, p}, x] && PolyQ[Pq, x^2] && EqQ[Coeff[Pq, x, 0], 0]
 Int[(d_.*x_)^m_.*Pq_*(a_ + b_.*x_^2 + c_.*x_^4)^p_., x_Symbol] := With[{e = Coeff[Pq, x, 0], f = Coeff[Pq, x, 2], g = Coeff[Pq, x, 4]}, e*(d*x)^(m + 1)*(a + b*x^2 + c*x^4)^(p + 1)/(a*d*(m + 1)) /; EqQ[a*f*(m + 1) - b*e*(m + 2*p + 3), 0] && EqQ[a*g*(m + 1) - c*e*(m + 4*p + 5), 0] && NeQ[m, -1]] /; FreeQ[{a, b, c, d, m, p}, x] && PolyQ[Pq, x^2] && EqQ[Expon[Pq, x], 4]
