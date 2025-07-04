@@ -175,7 +175,8 @@ function translate_result(result, index)
         
         (r"EllipticE\[(.*?)\]", s"elliptic_e(\1)"), # one or two arguments
         (r"EllipticF\[(.*?), (.*?)\]", s"elliptic_f(\1, \2)"),
-        # (r"Hypergeometric2F1\[(.*?), (.*?)\]", s""),
+        (r"Hypergeometric2F1\[(.*?), (.*?), (.*?), (.*?)\]", s"hypergeometric2f1(\1, \2, \3, \4)"),
+        (r"AppellF1\[(.*?), (.*?), (.*?), (.*?), (.*?), (.*?)\]", s"appell_f1(\1, \2, \3, \4, \5, \6)"),
 
         # not yet solved integrals
         (r"Int\[(.*?), x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
