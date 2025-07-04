@@ -208,3 +208,13 @@ elliptic_e(m) = Elliptic.E(m)
 elliptic_e(phi, m) = Elliptic.E(phi, m)
 
 elliptic_f(phi, m) = Elliptic.F(phi, m)
+
+
+ # TODO is this enough?
+function ext_expand(u, n)
+    expand(u)
+end
+
+function ext_expand(u, n, m)
+    #???
+end

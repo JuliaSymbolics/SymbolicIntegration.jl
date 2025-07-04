@@ -166,8 +166,8 @@ function translate_result(result, index)
         # custom functions
         (r"FracPart\[(.*?)\]", s"fracpart(\1)"), # TODO fracpart with two arguments is ever present?
         (r"IntPart\[(.*?)\]", s"intpart(\1)"),
-        (r"ExpandIntegrand\[(.*?), (.*?)\]", s"expand(\1)"), # TODO is this enough?
-        # (r"ExpandIntegrand\[(.*?), (.*?), (.*?)\]", s"???"),
+        (r"ExpandIntegrand\[(.*?), (.*?), (.*?)\]", s"ext_expand(\1, \2, \3)"),
+        (r"ExpandIntegrand\[(.*?), (.*?)\]", s"ext_expand(\1, \2)"),
         (r"Rt\[(.*?), (.*?)\]", s"rt(\1, \2)"),
         (r"Simplify\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"Simp\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
