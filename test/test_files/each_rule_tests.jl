@@ -1,7 +1,7 @@
 data = [
     # 9_1
     (integrand = 2/x, result = 2log(x), integration_var = x) # 9_1_12_1
-    (integrand = 2((1 + x^3)^4.1)*((2 + 2((1 / x)^3))^5), result = 666, integration_var = x) # 9_1_24 TODO result is missing bc of Hypergeometric functions
+    (integrand = 2((1 + x^3)^4.1)*((2 + 2((1 / x)^3))^5), result = -((4.57143*HypergeometricFunctions._₂F₁(-9.1, -(14//3)+0im, -(11//3), -x^3))/x^14), integration_var = x) # 9_1_24
     # 1_1_1_1
     (integrand = 1/x, result = log(x), integration_var = x)
     (integrand = a^-3, result = (-1//2) / (a^2), integration_var = a)
@@ -18,8 +18,8 @@ data = [
     (integrand = (-1+2x)^(-5//2)*(3+6x)^(-5//2), result = -(x/(27sqrt(3)*(-1 + 2x)^(3/2) *(1 + 2x)^(3/2))) + (2x)/(27*sqrt(3)*sqrt(-1 + 2x)*sqrt(1 + 2x)), integration_var = x) # 7 TODO this doesnt get applied bc to be applied the exponent need to be <= -3/2, and 1/((...)*(...)) is not supported by current pattern matching
     (integrand = (-1+2x)^2*(3+6x)^2, result = 9x - 24x^3 + (144x^5)/5, integration_var = x)
     (integrand = (1+2x)^2*(3-6x)^2, result = 9x - 24x^3 + (144x^5)/5, integration_var = x)
-    (integrand = (-1+2x)^(0.1)*(3+6x)^(0.1), result = 666, integration_var = x) # 9 TODO result missing bc of Hypergeometric functions
-    (integrand = (1/(-1+2x))^2*(3+6x)^(1.1), result = 666, integration_var = x) # 10 TODO result missing bc of Hypergeometric functions
+    (integrand = (-1+2x)^(0.1)*(3+6x)^(0.1), result = (x*(-3 + 12x^2)^0.1*HypergeometricFunctions._₂F₁(-0.1, 1//2, 3//2, 4x^2))/(1 - 4x^2)^0.1, integration_var = x) # 9
+    (integrand = (1/(-1+2x))^2*(3+6x)^(1.1), result = (3 + 6x)^1.1/(2*(1 - 2x)) -  0.25*(3 + 6x)^1.1*HypergeometricFunctions._₂F₁(1, 1.1+0im, 2.1, (1//2)*(1 + 2x)), integration_var = x) # 10
     (integrand = (1/(-1+2x))^2*(3+6x)^(-1.1), result = 666, integration_var = x) # 11 TODO doesnt work bc of patterm matching 1/((...)*(...))
     (integrand = (-1 + 2x)^2*(3 + 6x)^(2.1), result = 0.215054(3 + 6x)^3.1 - 0.0542005(3 + 6x)^4.1 +  0.00363108(3 + 6x)^5.1, integration_var = x) # 12
     (integrand = (1+2x)^(1//2)*(3-6x)^(3//2), result = (3//2)sqrt(3)*sqrt(1 - 2x)*x*sqrt(1 + 2x) + (1//2)sqrt(3)*(1 - 2x)^(3//2)*(1 + 2x)^(3//2) + (3//4)sqrt(3)*asin(2x), integration_var = x) # 18 TODO rule 1_1_1_2_8 doenst get applied bc of pattern matching 1/((...)*(...))
