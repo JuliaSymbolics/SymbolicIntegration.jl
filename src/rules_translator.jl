@@ -248,11 +248,12 @@ function translate_conditions(conditions)
     for (mathematica, julia) in associations
         conditions = replace(conditions, mathematica => julia)
     end
-
+ 
     conditions = pretty_indentation(conditions) # improve readibility
-    
+   
     return conditions
 end
+
 
 function pretty_indentation(conditions)
     if isempty(strip(conditions)) || length(conditions)<=2
@@ -308,7 +309,6 @@ function pretty_indentation(conditions)
     
     return indent^depth * result
 end
-
 
 
 
