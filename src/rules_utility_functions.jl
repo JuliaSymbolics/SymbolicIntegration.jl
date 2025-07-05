@@ -220,3 +220,13 @@ end
 function ext_expand(u, n, m)
     #???
 end
+
+# ExpandToSum[u,x] returns u expanded into a sum of monomials of x.*
+function expand_to_sum(u, x)
+    expand(u)
+end
+
+# ExpandToSum[u,v,x] returns v expanded into a sum of monomials of x and distributes u over v.
+function expand_to_sum(u, v, x)
+    expand(u * v)
+end
