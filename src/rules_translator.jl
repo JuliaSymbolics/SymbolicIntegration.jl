@@ -213,8 +213,10 @@ function translate_conditions(conditions)
         (r"FreeQ\[(.*?), x\]", s"!contains_var(x, \1)"), ("{", ""), ("}", ""), # from FreeQ[{a, b, c, d, m}, x] to !contains_var((~x), (~a), (~b), (~c), (~d), (~m))
         (r"NeQ\[(.*?), (.*?)\]", s"!eq(\1, \2)"),
         (r"EqQ\[(.*?), (.*?)\]", s"eq(\1, \2)"),
+        (r"LinearQ\[(.*?), (.*?)\]", s"linear(\1, \2)"),
+        (r"LinearMatchQ\[(.*?), (.*?)\]", s"linear_without_simplify(\1, \2)"),
+
         (r"IntLinearQ\[(.*?), (.*?), (.*?), (.*?), (.*?), (.*?), (.*?)\]", s"intlinear(\1, \2, \3, \4, \5, \6, \7)"),
-        (r"LinearQ\[(.*?), (.*?)\]", s"Symbolics.linear_expansion(\1, x)[3]"), # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
         
         (r"IGtQ\[(.*?), (.*?)\]", s"igt(\1, \2)"), # IGtQ = Integer Greater than Question
         (r"IGeQ\[(.*?), (.*?)\]", s"ige(\1, \2)"),

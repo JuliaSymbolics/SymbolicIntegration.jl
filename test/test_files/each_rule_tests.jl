@@ -36,6 +36,8 @@ data = [
     (integrand = (1+2x)^2*(3-6x)^2*x, result = -(3//8)*(1 - 4x^2)^3, integration_var = x) # 1
     (integrand = sqrt(2+4x)/(sqrt(-5x)*sqrt(1+3x)), result = -2*sqrt(2//15)*Elliptic.E(asin(sqrt(-3x)), 2//3), integration_var = x) # 38
     (integrand = 1/(sqrt(2+4x)*sqrt(-5x)*sqrt(1+3x)), result = -sqrt(2//15)*Elliptic.E(asin(sqrt(-3x)), 2//3), integration_var = x) # 43
+    # 1_1_1_4
+    (integrand = (1+2x)^2*(3+4x)^3*(5+6x)*(7+8x), result = 945x + 4887x^2 + 14316x^3 + 25994x^4 + (149856//5)*x^5 + 21440x^6 + 8704x^7 + 1536x^8, integration_var = x) # 1
     # 1_1_3_1
     (integrand = 1 / sqrt(1 - 4(x^2)), result = (1//2)*asin(2x), integration_var = x) # 28
     # 2_1

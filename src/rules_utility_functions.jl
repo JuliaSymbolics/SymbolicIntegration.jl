@@ -230,3 +230,15 @@ end
 function expand_to_sum(u, v, x)
     expand(u * v)
 end
+
+# linear((x+1)^2 - x^2 - 1,x) true
+function linear(u,x)
+    # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
+    Symbolics.linear_expansion(simplify(u; expand = true), x)[3]
+end
+
+# linear_without_simplify((x+1)^2 - x^2 - 1,x) false
+# linear_without_simplify(a+3x,x) true
+function linear_without_simplify(u, x)
+    Symbolics.linear_expansion(u, x)[3]
+end
