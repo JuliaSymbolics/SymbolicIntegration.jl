@@ -67,8 +67,7 @@ function transalte_integrand(integrand)
         ("Int[", "∫(") # Handle common Int[...] integrands
         (", x_Symbol]", ",(~x))")
         (r"([a-wyzA-WYZ])_\.", s"(~!\1)") # default slot
-        (r"([a-wyzA-WYZ])_", s"(~\1)") # slot
-        (r"x_", s"(~x)")
+        (r"(?<!\w)([a-zA-Z]{1,2})_(?!\w)", s"(~\1)") # slot
         (r"(?<=\d)/(?=\d)", "//")
         (r"Sqrt\[(.*?)\]", s"sqrt(\1)")
     ]
@@ -188,7 +187,7 @@ function translate_result(result, index)
         ("/", "⨸"), # custom division
 
         # slots and defslots
-        (r"(?<!\w)([a-zA-Z])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
+        (r"(?<!\w)([a-zA-Z]{1,2})(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
     ]
 
     for (mathematica, julia) in associations
@@ -247,9 +246,11 @@ function translate_conditions(conditions)
         (r"Simplify\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"Simp\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"AtomQ\[(.*?)\]", s"atom(\1)"),
+        
+        (r"PolyQ\[(.*?), (.*?)\]", s"poly(\1, \2)"),
 
         # convert conditions variables
-        (r"(?<!\w)([a-zA-Z])(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
+        (r"(?<!\w)([a-zA-Z]{1,2})(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
     ]
 
     for (mathematica, julia) in associations

@@ -242,3 +242,53 @@ end
 function linear_without_simplify(u, x)
     Symbolics.linear_expansion(u, x)[3]
 end
+
+
+# If u is a monomial in x, monomial(u,x) returns the degree of u in x; else it returns nothing.
+function monomial(u, x)
+    x = Symbolics.unwrap(x)
+    u = Symbolics.unwrap(u)
+    # if u is a constant or a variable, it is a monomial
+    !(u isa Symbolics.Symbolic) && return true
+    # if u is a call, check if it is a monomial
+    degree = (@rule (~!b::(b -> !contains_var(x, b)))*(~var::(var->var===x))^(~!m::(m->!contains_var(x,m)))=>~m)(u) 
+    degree !== nothing && return degree
+    degree = (@rule ((~!b::(b -> !contains_var(x, b)))*(~var::(var->var===x)))^(~!m::(m->!contains_var(x,m)))=>~m)(u)
+    degree !== nothing && return degree
+    return nothing
+end
+
+# If u is a polynomial in x, PolyQ[u,x] returns True; else it returns False.
+# If u is a polynomial in x of degree n, PolyQ[u,x,n] returns True; else it returns False.
+function poly(u, x)
+    x = Symbolics.unwrap(x)
+    u = Symbolics.unwrap(u)
+
+    # if u is a sum call monomial on each term
+    if issum(u)
+        return all(monomial(term, x)!==nothing for term in SymbolicUtils.arguments(u))
+    else
+        return monomial(u, x)!==nothing
+    end
+end
+
+function poly(u, x, n)
+    x = Symbolics.unwrap(x)
+    u = Symbolics.unwrap(u)
+
+    
+    if issum(u)
+        max_degree = 0
+        for term in SymbolicUtils.arguments(u)
+            degree = monomial(term, x)
+            if degree === nothing
+                return false
+            elseif degree > max_degree
+                max_degree = degree
+            end
+        end
+        return max_degree === n
+    else
+        return monomial(u, x) === n
+    end
+end
