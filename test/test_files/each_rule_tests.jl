@@ -27,7 +27,7 @@ data = [
     (integrand = 1/(sqrt(1+2x)*sqrt(1-2x)), result = (1//2)*asin(2x), integration_var = x) # 22
     (integrand = 1/(sqrt(1+2x)*sqrt(3+4x)), result = asinh(sqrt(2)*sqrt(1+2x))/sqrt(2), integration_var = x) # 23
     (integrand = 1/((1+2x)*(3+4x)^(1//3)), result = (1//2)*sqrt(3)*atan((1 + 2(3 + 4x)^(1//3))/sqrt(3)) -  (1//4)*log(1 + 2x) + (3//4)*log(1 - (3 + 4x)^(1//3)), integration_var = x) # 24
-    (integrand = 1/((1+2x)*(2+6x)^(1//3)), result = 666, integration_var = x) # 25 TODO add resutl
+    (integrand = 1/((1+2x)*(2+6x)^(1//3)), result = 666, integration_var = x) # 25 TODO add result
     (integrand = 1/((1+2x)*(3+4x)^(2//3)), result = 666, integration_var = x) # 26
     (integrand = 1/((1+2x)*(2+6x)^(2//3)), result = 666, integration_var = x) # 27
     (integrand = 1/((1+2x)^(1//3)*(3+4x)^(2//3)), result = -(sqrt(3)*atan(1/sqrt(3) + (2*2^(1//3)*(1 + 2x)^(1//3))/(sqrt(3)*(3 + 4x)^(1//3))))/(2*2^(2//3)) - log(3 + 4x)/(4*2^(2//3)) - (3log(-1 + (2^(1//3)*(1 + 2x)^(1//3))/(3 + 4x)^(1//3)))/(4*2^(2//3)), integration_var = x) # 28
@@ -39,7 +39,9 @@ data = [
     # 1_1_1_4
     (integrand = (1+2x)^2*(3+4x)^3*(5+6x)*(7+8x), result = 945x + 4887x^2 + 14316x^3 + 25994x^4 + (149856//5)*x^5 + 21440x^6 + 8704x^7 + 1536x^8, integration_var = x) # 1
     # 1_1_1_5
-    (integrand = (1+x+x^2+x^3)*(1+2x)^9*(2-4x)^9, result = 945x + 4887x^2 + 14316x^3 + 25994x^4 + (149856//5)*x^5 + 21440x^6 + 8704x^7 + 1536x^8, integration_var = x) # 1
+    (integrand = (1+x+x^2+x^3)*(1+2x)^9*(2-4x)^9, result = 666, integration_var = x) # 1 TODO add result 
+    # 1_1_2_1
+    (integrand = 1/(1+5x^2)^(3//2), result = x / sqrt(1 + 5(x^2)), integration_var = x) # 1
     # 1_1_3_1
     (integrand = 1 / sqrt(1 - 4(x^2)), result = (1//2)*asin(2x), integration_var = x) # 28
     # 2_1

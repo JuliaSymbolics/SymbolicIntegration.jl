@@ -148,7 +148,7 @@ function translate_result(result, index)
     while m !== nothing
         full_str = find_closing_braket(result, "Subst[Int[", "[]")
         int, from, to = split_outside_brackets(full_str[7:end-1] , "[]", ',') # remove "Subst[" and "]"
-        integrand, intvar = split(int[5:end-1], ", ", limit=2) # remove "Int[" and "]"
+        integrand, intvar = split(int[5:end-1], ",", limit=2) # remove "Int[" and "]"
         result = replace(result, full_str => "int_and_subst($integrand, $intvar, $from, $to, \"$index\")")
         m = match(r"Subst\[Int\[", result)
     end
@@ -159,6 +159,7 @@ function translate_result(result, index)
         (r"Sqrt\[(.*?)\]", s"sqrt(\1)"),
         (r"ArcTan\[(.*?)\]", s"atan(\1)"),
         (r"ArcSin\[(.*?)\]", s"asin(\1)"),
+        (r"ArcSinh\[(.*?)\]", s"asinh(\1)"),
         (r"ArcTanh\[(.*?)\]", s"atanh(\1)"),
         (r"ArcCosh\[(.*?)\]", s"acosh(\1)"),
         (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
