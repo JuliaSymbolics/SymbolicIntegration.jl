@@ -13,6 +13,7 @@ function translate_file(input_filename, output_filename)
 
     rules_big_string = "file_rules = [\n"
     for line in lines
+        println("Translating line: $line")
         if startswith(line, "(*")
             rules_big_string *= "# $line \n"
         elseif startswith(line, "Int[")
@@ -160,8 +161,8 @@ function translate_result(result, index)
         (r"ArcSin\[(.*?)\]", s"asin(\1)"),
         (r"ArcTanh\[(.*?)\]", s"atanh(\1)"),
         (r"ArcCosh\[(.*?)\]", s"acosh(\1)"),
-        (r"Coefficient\[(.*?), (.*?)\]", s"Symbolics.coeff(\1, \2)"),
         (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
+        (r"Coefficient\[(.*?), (.*?)\]", s"Symbolics.coeff(\1, \2)"),
         # custom functions
         (r"FracPart\[(.*?)\]", s"fracpart(\1)"), # TODO fracpart with two arguments is ever present?
         (r"IntPart\[(.*?)\]", s"intpart(\1)"),
@@ -181,13 +182,17 @@ function translate_result(result, index)
         (r"Hypergeometric2F1\[(.*?), (.*?), (.*?), (.*?)\]", s"hypergeometric2f1(\1, \2, \3, \4)"),
         (r"AppellF1\[(.*?), (.*?), (.*?), (.*?), (.*?), (.*?)\]", s"appell_f1(\1, \2, \3, \4, \5, \6)"),
 
+        (r"Expon\[(.*?), (.*?)\]", s"exponent_of(\1, \2)"),
+        (r"PolynomialRemainder\[(.*?), (.*?)\]", s"poly_remainder(\1, \2)"),
+        (r"PolynomialQuotient\[(.*?), (.*?)\]", s"poly_quotient(\1, \2)"),
+
         # not yet solved integrals
         (r"Int\[(.*?), x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
 
         ("/", "⨸"), # custom division
 
         # slots and defslots
-        (r"(?<!\w)([a-zA-Z]{1,2})(?!\w)", s"(~\1)"), # negative lookbehind and lookahead
+        (r"(?<!\w)([a-zA-Z]{1,2})(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
     ]
 
     for (mathematica, julia) in associations
@@ -208,11 +213,14 @@ function translate_conditions(conditions)
     end
 
     associations = [
-        # TODO change in regex * (zero or more charchters) with + (one or more charchters) ???
-        (r"FreeQ\[(.*?), x\]", s"!contains_var(x, \1)"), ("{", ""), ("}", ""), # from FreeQ[{a, b, c, d, m}, x] to !contains_var((~x), (~a), (~b), (~c), (~d), (~m))
+        # TODO maybe change in regex * (zero or more charchters) with + (one or more charchters)
+        (r"FreeQ\[{(.*?)}, (.*?)\]", s"!contains_var(\1, \2)"), # from FreeQ[{a, b, c, d, m}, x] to !contains_var(a, b, c, d, m, x)
+        (r"FreeQ\[(.*?), (.*?)\]", s"!contains_var(\1, \2)"),
         (r"NeQ\[(.*?), (.*?)\]", s"!eq(\1, \2)"),
         (r"EqQ\[(.*?), (.*?)\]", s"eq(\1, \2)"),
+        (r"LinearQ\[{(.*?)}, (.*?)\]", s"linear(\1, \2)"),
         (r"LinearQ\[(.*?), (.*?)\]", s"linear(\1, \2)"),
+        (r"LinearMatchQ\[{(.*?)}, (.*?)\]", s"linear_without_simplify(\1, \2)"),
         (r"LinearMatchQ\[(.*?), (.*?)\]", s"linear_without_simplify(\1, \2)"),
 
         (r"IntLinearQ\[(.*?), (.*?), (.*?), (.*?), (.*?), (.*?), (.*?)\]", s"intlinear(\1, \2, \3, \4, \5, \6, \7)"),
@@ -248,6 +256,9 @@ function translate_conditions(conditions)
         (r"AtomQ\[(.*?)\]", s"atom(\1)"),
         
         (r"PolyQ\[(.*?), (.*?)\]", s"poly(\1, \2)"),
+        (r"PolynomialRemainder\[(.*?), (.*?)\]", s"poly_remainder(\1, \2)"),
+        (r"PolynomialQuotient\[(.*?), (.*?)\]", s"poly_quotient(\1, \2)"),
+        (r"Expon\[(.*?), (.*?)\]", s"exponent_of(\1, \2)"),
 
         # convert conditions variables
         (r"(?<!\w)([a-zA-Z]{1,2})(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead

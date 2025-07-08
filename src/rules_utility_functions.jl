@@ -5,15 +5,17 @@
 ⨸(x::Union{Rational, Integer}, y::Union{Rational, Integer}) = x // y
 ⨸(x, y) = x / y
 
-# if node contains variable `var` return true
-function contains_var(var, node)
-    if node === var
+# if expr contains variable var return true
+function contains_var(expr, var)
+    expr = Symbolics.unwrap(expr)
+    var = Symbolics.unwrap(var)
+    if expr === var
         return true
     end
     
-    if SymbolicUtils.iscall(node)
-        for arg in SymbolicUtils.arguments(node)
-            if contains_var(var, arg)
+    if SymbolicUtils.iscall(expr)
+        for arg in SymbolicUtils.arguments(expr)
+            if contains_var(arg, var)
                 return true
             end
         end
@@ -21,8 +23,9 @@ function contains_var(var, node)
     return false
 end
 
-function contains_var(var, args...)
-    return any(contains_var(var, arg) for arg in args)
+function contains_var(args...)
+    var = args[end]
+    return any(contains_var(expr, var) for expr in args[1:end-1])
 end
 
 function eq(a, b)
@@ -231,16 +234,18 @@ function expand_to_sum(u, v, x)
     expand(u * v)
 end
 
+# linear(a+3x,x) true
 # linear((x+1)^2 - x^2 - 1,x) true
-function linear(u,x)
+function linear(args...)
+    var = args[end]
     # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
-    Symbolics.linear_expansion(simplify(u; expand = true), x)[3]
+    all(Symbolics.linear_expansion(simplify(u; expand = true), var)[3] for u in args[1:end-1])
 end
 
 # linear_without_simplify((x+1)^2 - x^2 - 1,x) false
-# linear_without_simplify(a+3x,x) true
-function linear_without_simplify(u, x)
-    Symbolics.linear_expansion(u, x)[3]
+function linear_without_simplify(args...)
+    var = args[end]
+    all( Symbolics.linear_expansion(u, var)[3] for u in args[1:end-1] )
 end
 
 
