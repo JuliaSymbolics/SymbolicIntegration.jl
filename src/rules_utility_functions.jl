@@ -258,21 +258,8 @@ function monomial(u, x)
     return nothing
 end
 
-# If u is a polynomial in x, PolyQ[u,x] returns True; else it returns False.
-# If u is a polynomial in x of degree n, PolyQ[u,x,n] returns True; else it returns False.
-function poly(u, x)
-    x = Symbolics.unwrap(x)
-    u = Symbolics.unwrap(u)
-
-    # if u is a sum call monomial on each term
-    if issum(u)
-        return all(monomial(term, x)!==nothing for term in SymbolicUtils.arguments(u))
-    else
-        return monomial(u, x)!==nothing
-    end
-end
-
-function poly(u, x, n)
+# If u is a polynomial in x of degree n, poly_degreee(u,x) returns n, else nothing
+function poly_degreee(u, x)
     x = Symbolics.unwrap(x)
     u = Symbolics.unwrap(u)
 
@@ -287,8 +274,97 @@ function poly(u, x, n)
                 max_degree = degree
             end
         end
-        return max_degree === n
+        # no monomial returned nothing, so its a polynomial
+        return max_degree
     else
-        return monomial(u, x) === n
+        return monomial(u, x)
     end
+end
+
+# If u is a polynomial in x, Poly[u,x] returns True; else it returns False.
+# If u is a polynomial in x of degree n, Poly[u,x,n] returns True; else it returns False.
+function poly(u, x)
+    x = Symbolics.unwrap(x)
+    u = Symbolics.unwrap(u)
+
+    # if u is a sum call monomial on each term
+    if issum(u)
+        return all(monomial(term, x)!==nothing for term in SymbolicUtils.arguments(u))
+    else
+        return monomial(u, x)!==nothing
+    end
+end
+
+function poly(u, x, n)
+    poly_degreee(u, x) === n
+end
+
+# gives the maximum power with which form appears in the expanded form of expr. 
+# TODO for now works only with polynomials
+function exponent_of(expr, form)
+    res = poly_degreee(expr, form)
+
+    if res === nothing
+        throw("exponent_of is implemented only for polynomials in form")
+    end
+    return res
+end
+
+function poly_coefficients(p, x)
+    deg = poly_degreee(p, x)
+    deg===nothing && throw("first argument is not a polynomial")
+    coeffs = Num[]
+    for i in 0:deg
+        push!(coeffs, Symbolics.coeff(p, x^i))
+    end
+    return coeffs
+end
+
+# gives the quotient of p / q, treated as polynomials in x, with any remainder dropped
+# TODO maybe do this without Polynomials.jl for speed?
+function poly_quotient(p, q, x)
+    p = Symbolics.unwrap(p)
+    q = Symbolics.unwrap(q)
+    x = Symbolics.unwrap(x)
+
+    deg_p = poly_degreee(p, x)
+    deg_q = poly_degreee(q, x)
+
+    (deg_p === nothing || deg_q === nothing) && throw("poly_quotient called with non-polynomials")
+
+    # find coefficients
+    p_coeffs = poly_coefficients(p, x)
+    q_coeffs = poly_coefficients(q, x)
+    
+    quotient_coeffs = Polynomials.coeffs(Polynomials.div(Polynomial(p_coeffs),Polynomial(q_coeffs)))
+
+    quotient = 0
+    for i in 0:(deg_p - deg_q)
+        quotient += quotient_coeffs[i+1]*x^i
+    end
+    return quotient
+end
+
+# gives the remainder of p and q, treated as polynomials in x
+function poly_remainder(p, q, x)
+    p = Symbolics.unwrap(p)
+    q = Symbolics.unwrap(q)
+    x = Symbolics.unwrap(x)
+
+    deg_p = poly_degreee(p, x)
+    deg_q = poly_degreee(q, x)
+
+    (deg_p === nothing || deg_q === nothing) && throw("poly_reminder called with non-polynomials")
+
+    # find coefficients
+    p_coeffs = poly_coefficients(p, x)
+    q_coeffs = poly_coefficients(q, x)
+    
+    reminder_coeffs = Polynomials.coeffs(Polynomials.rem(Polynomial(p_coeffs),Polynomial(q_coeffs)))
+
+    quotient = 0
+    for i in 0:length(reminder_coeffs)-1
+        quotient += reminder_coeffs[i+1]*x^i
+    end
+    return quotient
 end
