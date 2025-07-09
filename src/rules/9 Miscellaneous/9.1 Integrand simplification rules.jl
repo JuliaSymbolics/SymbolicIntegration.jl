@@ -32,7 +32,7 @@ file_rules = [
 # TODO if pattern matching was better 9_1_12_1 would be handled by 9_1_12 
 ("9_1_12_1",
 @rule ∫((~a)/(~u),(~x)) =>
-    !contains_var(~x, ~a) &&
+    !contains_var(~a, ~x) &&
     !eq(~a,1) ?
 (~a)*∫(1/(~u), ~x) : nothing)
 
