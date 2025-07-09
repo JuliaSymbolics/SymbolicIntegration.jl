@@ -127,6 +127,22 @@ function find_closing_braket(full_string, start_pattern, brakets)
     end
 end
 
+
+# Replaces (counting open and closing brakets) functions with [] passed in
+# `from`, to functions with () passed in `to`.
+# smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
+# = "atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
+function smart_replace(str, from, to)
+    m = findfirst(from, str)
+    while m !== nothing
+        full_str = find_closing_braket(str, from, "[]")
+        inside = full_str[length(from)+2:end-1] # remove "Not[" and "]"
+        str = replace(str, full_str => "$to($inside)")
+        m = findfirst(from, str)
+    end
+    return str
+end
+
 function translate_result(result, index)
     # Remove trailing symbol if present
     if endswith(result, "/;") || endswith(result, "//;")
@@ -153,15 +169,22 @@ function translate_result(result, index)
         m = match(r"Subst\[Int\[", result)
     end
 
+    one_argument_associations = [
+        ("Sqrt", "sqrt"),
+        ("ArcTanh", "atanh"),
+        ("ArcTan", "atan"),
+        ("ArcSinh", "asinh"),
+        ("ArcSin", "asin"),
+        ("ArcCosh", "acosh"),
+    ]
+
+    for (mathematica, julia) in one_argument_associations
+        result = smart_replace(result, mathematica, julia)
+    end
+
     associations = [
         # common functions
         (r"RemoveContent\[(.*?),\s*x\]", s"\1"), (r"Log\[(.*?)\]", s"log(\1)"),
-        (r"Sqrt\[(.*?)\]", s"sqrt(\1)"),
-        (r"ArcTan\[(.*?)\]", s"atan(\1)"),
-        (r"ArcSin\[(.*?)\]", s"asin(\1)"),
-        (r"ArcSinh\[(.*?)\]", s"asinh(\1)"),
-        (r"ArcTanh\[(.*?)\]", s"atanh(\1)"),
-        (r"ArcCosh\[(.*?)\]", s"acosh(\1)"),
         (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
         (r"Coefficient\[(.*?), (.*?)\]", s"Symbolics.coeff(\1, \2)"),
         # custom functions
