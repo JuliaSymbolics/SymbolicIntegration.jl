@@ -47,12 +47,12 @@ function translate_line(line, index)
 
     # Extract conditions if present
     conditions = ""
-    if occursin(" /; ", result)
-        cond_parts = split(result, " /; ")
+    if occursin("/;", result)
+        cond_parts = split(result, "/;")
         result = cond_parts[1]
         conditions = translate_conditions(cond_parts[2])
     end
-      
+
     julia_result = translate_result(result, index)
     
     if conditions == ""
@@ -66,7 +66,7 @@ end
 function transalte_integrand(integrand)
     associations = [
         ("Int[", "∫(") # Handle common Int[...] integrands
-        (", x_Symbol]", ",(~x))")
+        (r",\s?x_Symbol\]", ",(~x))")
         (r"([a-wyzA-WYZ])_\.", s"(~!\1)") # default slot
         (r"(?<!\w)([a-zA-Z]{1,2})_(?!\w)", s"(~\1)") # slot
         (r"(?<=\d)/(?=\d)", "//")
@@ -151,7 +151,7 @@ function translate_result(result, index)
 
     # variable definition with "With" keyword
     # With[{q = Rt[(b*c - a*d)/b, 3]}, -Log[RemoveContent[a + b*x, x]]/(2*b*q) - 3/(2*b*q)*Subst[Int[1/(q - x), x], x, (c + d*x)^(1/3)] + 3/(2*b)* Subst[Int[1/(q^2 + q*x + x^2), x], x, (c + d*x)^(1/3)]]
-    m = match(r"With\[\{(?<varname>[a-zA-Z]{1,2}) = (?<vardef>.*?)\}, (?<body>.*)\]", result)
+    m = match(r"With\[\{(?<varname>[a-zA-Z]{1,2})\s*=\s*(?<vardef>.*?)\}, (?<body>.*)\]", result)
     if m !== nothing
         result = m[:body]
         result = replace(result, Regex("(?<!\\w)$(m[:varname])(?!\\w)") => m[:vardef])
@@ -185,33 +185,34 @@ function translate_result(result, index)
     associations = [
         # common functions
         (r"RemoveContent\[(.*?),\s*x\]", s"\1"), (r"Log\[(.*?)\]", s"log(\1)"),
-        (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
-        (r"Coefficient\[(.*?), (.*?)\]", s"Symbolics.coeff(\1, \2)"),
+        (r"Coefficient\[(.*?),(.*?),(.*?)\]", s"Symbolics.coeff(\1,\2^\3)"),
+        (r"Coefficient\[(.*?),(.*?)\]", s"Symbolics.coeff(\1,\2)"),
         # custom functions
         (r"FracPart\[(.*?)\]", s"fracpart(\1)"), # TODO fracpart with two arguments is ever present?
         (r"IntPart\[(.*?)\]", s"intpart(\1)"),
 
-        (r"ExpandIntegrand\[(.*?), (.*?), (.*?)\]", s"ext_expand(\1, \2, \3)"),
-        (r"ExpandIntegrand\[(.*?), (.*?)\]", s"ext_expand(\1, \2)"),
-        (r"ExpandToSum\[(.*?), (.*?), (.*?)\]", s"expand_to_sum(\1, \2, \3)"),
-        (r"ExpandToSum\[(.*?), (.*?)\]", s"expand_to_sum(\1, \2)"),
+        (r"ExpandIntegrand\[(.*?),(.*?),(.*?)\]", s"ext_expand(\1,\2,\3)"),
+        (r"ExpandIntegrand\[(.*?),(.*?)\]", s"ext_expand(\1,\2)"),
+        (r"ExpandToSum\[(.*?),(.*?),(.*?)\]", s"expand_to_sum(\1,\2,\3)"),
+        (r"ExpandToSum\[(.*?),(.*?)\]", s"expand_to_sum(\1,\2)"),
 
-        (r"Rt\[(.*?), (.*?)\]", s"rt(\1, \2)"),
+        (r"Rt\[(.*?),(.*?)\]", s"rt(\1,\2)"),
         (r"Simplify\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"Simp\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"Denominator\[(.*?)\]", s"ext_den(\1)"),
         
         (r"EllipticE\[(.*?)\]", s"elliptic_e(\1)"), # one or two arguments
-        (r"EllipticF\[(.*?), (.*?)\]", s"elliptic_f(\1, \2)"),
-        (r"Hypergeometric2F1\[(.*?), (.*?), (.*?), (.*?)\]", s"hypergeometric2f1(\1, \2, \3, \4)"),
-        (r"AppellF1\[(.*?), (.*?), (.*?), (.*?), (.*?), (.*?)\]", s"appell_f1(\1, \2, \3, \4, \5, \6)"),
+        (r"EllipticF\[(.*?),(.*?)\]", s"elliptic_f(\1,\2)"),
+        (r"Hypergeometric2F1\[(.*?),(.*?),(.*?),(.*?)\]", s"hypergeometric2f1(\1,\2,\3,\4)"),
+        (r"AppellF1\[(.*?),(.*?),(.*?),(.*?),(.*?),(.*?)\]", s"appell_f1(\1,\2,\3,\4,\5,\6)"),
 
-        (r"Expon\[(.*?), (.*?)\]", s"exponent_of(\1, \2)"),
-        (r"PolynomialRemainder\[(.*?), (.*?)\]", s"poly_remainder(\1, \2)"),
-        (r"PolynomialQuotient\[(.*?), (.*?)\]", s"poly_quotient(\1, \2)"),
+        (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
+        (r"PolynomialRemainder\[(.*?),(.*?)\]", s"poly_remainder(\1,\2)"),
+        (r"PolynomialQuotient\[(.*?),(.*?)\]", s"poly_quotient(\1,\2)"),
+        (r"PolynomialDivide\[(.*?),(.*?),(.*?)\]", s"polynomial_divide(\1,\2,\3)"),
 
         # not yet solved integrals
-        (r"Int\[(.*?), x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
+        (r"Int\[(.*?),\s*x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
 
         ("/", "⨸"), # custom division
 
@@ -223,10 +224,11 @@ function translate_result(result, index)
         result = replace(result, mathematica => julia)
     end
    
-    return result
+    return strip(result)
 end
 
 function translate_conditions(conditions)
+    conditions = strip(conditions)
     # since a lot of times Not has inside other functions, better to use find_closing_braket
     m = match(r"Not\[", conditions)
     while m !== nothing
@@ -238,51 +240,51 @@ function translate_conditions(conditions)
 
     associations = [
         # TODO maybe change in regex * (zero or more charchters) with + (one or more charchters)
-        (r"FreeQ\[{(.*?)}, (.*?)\]", s"!contains_var(\1, \2)"), # from FreeQ[{a, b, c, d, m}, x] to !contains_var(a, b, c, d, m, x)
-        (r"FreeQ\[(.*?), (.*?)\]", s"!contains_var(\1, \2)"),
-        (r"NeQ\[(.*?), (.*?)\]", s"!eq(\1, \2)"),
-        (r"EqQ\[(.*?), (.*?)\]", s"eq(\1, \2)"),
-        (r"LinearQ\[{(.*?)}, (.*?)\]", s"linear(\1, \2)"),
-        (r"LinearQ\[(.*?), (.*?)\]", s"linear(\1, \2)"),
-        (r"LinearMatchQ\[{(.*?)}, (.*?)\]", s"linear_without_simplify(\1, \2)"),
-        (r"LinearMatchQ\[(.*?), (.*?)\]", s"linear_without_simplify(\1, \2)"),
+        (r"FreeQ\[{(.*?)},(.*?)\]", s"!contains_var(\1,\2)"), # from FreeQ[{a, b, c, d, m}, x] to !contains_var(a, b, c, d, m, x)
+        (r"FreeQ\[(.*?),(.*?)\]", s"!contains_var(\1,\2)"),
+        (r"NeQ\[(.*?),(.*?)\]", s"!eq(\1,\2)"),
+        (r"EqQ\[(.*?),(.*?)\]", s"eq(\1,\2)"),
+        (r"LinearQ\[{(.*?)},(.*?)\]", s"linear(\1,\2)"),
+        (r"LinearQ\[(.*?),(.*?)\]", s"linear(\1,\2)"),
+        (r"LinearMatchQ\[{(.*?)},(.*?)\]", s"linear_without_simplify(\1,\2)"),
+        (r"LinearMatchQ\[(.*?),(.*?)\]", s"linear_without_simplify(\1,\2)"),
 
-        (r"IntLinearQ\[(.*?), (.*?), (.*?), (.*?), (.*?), (.*?), (.*?)\]", s"intlinear(\1, \2, \3, \4, \5, \6, \7)"),
+        (r"IntLinearQ\[(.*?),(.*?),(.*?),(.*?),(.*?),(.*?),(.*?)\]", s"intlinear(\1,\2,\3, \4, \5, \6, \7)"),
         
-        (r"IGtQ\[(.*?), (.*?)\]", s"igt(\1, \2)"), # IGtQ = Integer Greater than Question
-        (r"IGeQ\[(.*?), (.*?)\]", s"ige(\1, \2)"),
-        (r"ILtQ\[(.*?), (.*?)\]", s"ilt(\1, \2)"),
-        (r"ILeQ\[(.*?), (.*?)\]", s"ile(\1, \2)"),
+        (r"IGtQ\[(.*?),(.*?)\]", s"igt(\1,\2)"), # IGtQ = Integer Greater than Question
+        (r"IGeQ\[(.*?),(.*?)\]", s"ige(\1,\2)"),
+        (r"ILtQ\[(.*?),(.*?)\]", s"ilt(\1,\2)"),
+        (r"ILeQ\[(.*?),(.*?)\]", s"ile(\1,\2)"),
 
-        (r"GtQ\[(.*?), (.*?)\]", s"gt(\1, \2)"), (r"GtQ\[(.*?), (.*?), (.*?)\]", s"gt(\1, \2, \3)"),
-        (r"GeQ\[(.*?), (.*?)\]", s"ge(\1, \2)"), (r"GeQ\[(.*?), (.*?), (.*?)\]", s"ge(\1, \2, \3)"),
-        (r"LtQ\[(.*?), (.*?)\]", s"lt(\1, \2)"), (r"LtQ\[(.*?), (.*?), (.*?)\]", s"lt(\1, \2, \3)"),
-        (r"LeQ\[(.*?), (.*?)\]", s"le(\1, \2)"), (r"LeQ\[(.*?), (.*?), (.*?)\]", s"le(\1, \2, \3)"),
+        (r"GtQ\[(.*?),(.*?)\]", s"gt(\1,\2)"), (r"GtQ\[(.*?),(.*?),(.*?)\]", s"gt(\1,\2,\3)"),
+        (r"GeQ\[(.*?),(.*?)\]", s"ge(\1,\2)"), (r"GeQ\[(.*?),(.*?),(.*?)\]", s"ge(\1,\2,\3)"),
+        (r"LtQ\[(.*?),(.*?)\]", s"lt(\1,\2)"), (r"LtQ\[(.*?),(.*?),(.*?)\]", s"lt(\1,\2,\3)"),
+        (r"LeQ\[(.*?),(.*?)\]", s"le(\1,\2)"), (r"LeQ\[(.*?),(.*?),(.*?)\]", s"le(\1,\2,\3)"),
 
         (r"IntegerQ\[(.*?)\]", s"ext_isinteger(\1)"), # called with only one argument
         (r"IntegersQ\[(.*?)\]", s"ext_isinteger(\1)"), # called with only multiple arguments
         (r"FractionQ\[(.*?)\]", s"fraction(\1)"), #called with one or more arguments
         (r"RationalQ\[(.*?)\]", s"rational(\1)"), 
-        (r"RationalQ\[(.*?), (.*?)\]", s"rational(\1, \2)"),
+        (r"RationalQ\[(.*?),(.*?)\]", s"rational(\1,\2)"),
 
         (r"PosQ\[(.*?)\]", s"pos(\1)"),
         (r"NegQ\[(.*?)\]", s"neg(\1)"),
         (r"Numerator\[(.*?)\]", s"ext_num(\1)"),
         (r"Denominator\[(.*?)\]", s"ext_den(\1)"),
-        (r"Coefficient\[(.*?), (.*?)\]", s"Symbolics.coeff(\1, \2)"), # TODO is this enough?
-        (r"Coefficient\[(.*?), (.*?), (.*?)\]", s"Symbolics.coeff(\1, \2 ^ \3)"),
+        (r"Coefficient\[(.*?),(.*?)\]", s"Symbolics.coeff(\1,\2)"), # TODO is this enough?
+        (r"Coefficient\[(.*?),(.*?),(.*?)\]", s"Symbolics.coeff(\1,\2 ^\3)"),
         (r"SumQ\[(.*?)\]", s"issum(\1)"),
         (r"NonsumQ\[(.*?)\]", s"!issum(\1)"),
-        (r"SumSimplerQ\[(.*?), (.*?)\]", s"sumsimpler(\1, \2)"),
-        (r"SimplerQ\[(.*?), (.*?)\]", s"simpler(\1, \2)"),
+        (r"SumSimplerQ\[(.*?),(.*?)\]", s"sumsimpler(\1,\2)"),
+        (r"SimplerQ\[(.*?),(.*?)\]", s"simpler(\1,\2)"),
         (r"Simplify\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"Simp\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"AtomQ\[(.*?)\]", s"atom(\1)"),
         
-        (r"PolyQ\[(.*?), (.*?)\]", s"poly(\1, \2)"),
-        (r"PolynomialRemainder\[(.*?), (.*?)\]", s"poly_remainder(\1, \2)"),
-        (r"PolynomialQuotient\[(.*?), (.*?)\]", s"poly_quotient(\1, \2)"),
-        (r"Expon\[(.*?), (.*?)\]", s"exponent_of(\1, \2)"),
+        (r"PolyQ\[(.*?),(.*?)\]", s"poly(\1,\2)"),
+        (r"PolynomialRemainder\[(.*?),(.*?)\]", s"poly_remainder(\1,\2)"),
+        (r"PolynomialQuotient\[(.*?),(.*?)\]", s"poly_quotient(\1,\2)"),
+        (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
 
         # convert conditions variables
         (r"(?<!\w)([a-zA-Z]{1,2})(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
