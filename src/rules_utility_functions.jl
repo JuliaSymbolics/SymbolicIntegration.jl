@@ -376,3 +376,22 @@ function poly_remainder(p, q, x)
     end
     return quotient
 end
+
+# If u and v are polynomials in x, PolynomialDivide[u,v,x] returns the polynomial quotient of u and v plus the polynomial remainder divided by v.
+function polynomial_divide(u, v, x)
+    u = Symbolics.unwrap(u)
+    v = Symbolics.unwrap(v)
+    x = Symbolics.unwrap(x)
+
+    deg_u = poly_degreee(u, x)
+    deg_v = poly_degreee(v, x)
+
+    (deg_u === nothing || deg_v === nothing) && throw("polynomial_divide called with non-polynomials")
+
+    quotient = poly_quotient(u, v, x)
+    remainder = poly_remainder(u, v, x)
+
+    return quotient + remainder / v
+end
+
+# TODO are all this unwrap needed?
