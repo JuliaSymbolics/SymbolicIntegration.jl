@@ -13,7 +13,6 @@ function translate_file(input_filename, output_filename)
 
     rules_big_string = "file_rules = [\n"
     for line in lines
-        println("Translating line: $line")
         if startswith(line, "(*")
             rules_big_string *= "# $line \n"
         elseif startswith(line, "Int[")
@@ -34,6 +33,7 @@ function translate_file(input_filename, output_filename)
 end
 
 function translate_line(line, index)
+    println("-----translating:--------\n$line")
     # Separate the integrand and result
     parts = split(line, " := ")
     if length(parts) < 2
@@ -270,6 +270,10 @@ function translate_conditions(conditions)
     end
  
     conditions = pretty_indentation(conditions) # improve readibility
+ 
+    if conditions[end] == '\r' || conditions[end] == '\n'
+        conditions = conditions[1:end-1] # remove trailing newline
+    end
    
     return conditions
 end
