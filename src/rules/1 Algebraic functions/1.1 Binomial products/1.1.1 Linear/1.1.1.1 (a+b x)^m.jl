@@ -27,5 +27,5 @@ log((~a) + (~b)*(~x))⨸(~b) : nothing)
     linear((~u), (~x)) &&
     !eq((~u), (~x)) ?
 1⨸Symbolics.coeff((~u), (~x) ^ 1)*int_and_subst(((~a) + (~b)*(~x))^(~m), (~x), (~x), (~u), "1_1_1_1_5") : nothing)
-
+# 1_1_1_1_5 would be useless if u*b was calculated explicityly. TODO: calcualte explicitly everything before rule application?
 ]
