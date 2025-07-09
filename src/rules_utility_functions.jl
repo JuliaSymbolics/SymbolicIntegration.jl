@@ -29,8 +29,11 @@ function contains_var(args...)
 end
 
 function eq(a, b)
+    if !isa(a, Num) && !isa(b, Num)
+        return isequal(a, b)
+    end
     tmp =  SymbolicUtils.simplify(a - b)
-    return tmp === 0 || tmp === 0.0 || tmp ===  0//1 || tmp === 0.0+0.0im
+    return SymbolicUtils._iszero(tmp)
 end
 
 function ext_isinteger(u)
