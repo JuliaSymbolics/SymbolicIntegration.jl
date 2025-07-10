@@ -48,6 +48,8 @@ data = [
     (integrand = x*(1+x^2)^3, result = (1//8)*((1 + x^2)^4), integration_var = x) # 2
     # 1_1_2_3
     (integrand = sqrt(1+2x^2)/sqrt(1-2x^2), result = (1/sqrt(2))*Elliptic.E(asin(sqrt(2)*x), -1//1), integration_var = x) # 48
+    # 1_1_2_4
+    (integrand = x^3*(-1+2x^2)^3*(1+2x^2)^3, result = (1//64)*(1 - 4x^4)^4, integration_var = x) # 2
 
     # 1_1_3_1
     (integrand = 1 / sqrt(1 - 4(x^2)), result = (1//2)*asin(2x), integration_var = x) # 28
