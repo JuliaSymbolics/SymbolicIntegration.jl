@@ -176,6 +176,7 @@ function translate_result(result, index)
         ("ArcSinh", "asinh"),
         ("ArcSin", "asin"),
         ("ArcCosh", "acosh"),
+        ("ArcCos", "acos")
     ]
 
     for (mathematica, julia) in one_argument_associations
