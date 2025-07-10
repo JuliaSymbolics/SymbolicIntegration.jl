@@ -149,6 +149,7 @@ function translate_result(result, index)
         result = result[1:end-2]
     end
 
+    # TODO this but with more than one variable
     # variable definition with "With" keyword
     # With[{q = Rt[(b*c - a*d)/b, 3]}, -Log[RemoveContent[a + b*x, x]]/(2*b*q) - 3/(2*b*q)*Subst[Int[1/(q - x), x], x, (c + d*x)^(1/3)] + 3/(2*b)* Subst[Int[1/(q^2 + q*x + x^2), x], x, (c + d*x)^(1/3)]]
     m = match(r"With\[\{(?<varname>[a-zA-Z]{1,2})\s*=\s*(?<vardef>.*?)\}, (?<body>.*)\]", result)
@@ -180,7 +181,11 @@ function translate_result(result, index)
 
         ("FracPart", "fracpart"), # TODO fracpart with two arguments is ever present?
         ("IntPart", "intpart"),
-        ("Together", "together")
+        ("Together", "together"),
+        ("Denominator", "ext_den"),
+        ("Numerator", "ext_num"),
+        ("Denom", "ext_den"),
+        ("Numer", "ext_num"),
     ]
 
     for (mathematica, julia) in one_argument_associations
@@ -201,7 +206,6 @@ function translate_result(result, index)
         (r"Rt\[(.*?),(.*?)\]", s"rt(\1,\2)"),
         (r"Simplify\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"Simp\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
-        (r"Denominator\[(.*?)\]", s"ext_den(\1)"),
         
         (r"EllipticE\[(.*?)\]", s"elliptic_e(\1)"), # one or two arguments
         (r"EllipticF\[(.*?),(.*?)\]", s"elliptic_f(\1,\2)"),
@@ -289,7 +293,7 @@ function translate_conditions(conditions)
         (r"PolynomialQuotient\[(.*?),(.*?)\]", s"poly_quotient(\1,\2)"),
         (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
 
-        # convert conditions variables
+        # convert conditions variables. TODO add also match for a1 a2, variable names with numbers????
         (r"(?<!\w)([a-zA-Z]{1,2})(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
     ]
 
