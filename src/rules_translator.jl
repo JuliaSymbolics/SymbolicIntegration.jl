@@ -180,6 +180,7 @@ function translate_result(result, index)
 
         ("FracPart", "fracpart"), # TODO fracpart with two arguments is ever present?
         ("IntPart", "intpart"),
+        ("Together", "together")
     ]
 
     for (mathematica, julia) in one_argument_associations

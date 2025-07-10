@@ -395,3 +395,22 @@ function polynomial_divide(u, v, x)
 end
 
 # TODO are all this unwrap needed?
+
+# puts terms in a sum over a common denominator, and cancels factors in the result
+# together(a/b + c/d) = (a*d + b*c) / (b*d)
+function together(expr)
+    expr = Symbolics.unwrap(expr)
+    if !SymbolicUtils.iscall(expr) || SymbolicUtils.operation(expr) !== +
+        return expr
+    end
+
+    # Get the common denominator
+    terms = SymbolicUtils.arguments(expr)
+    denominators = [ext_den(term) for term in terms]
+    common_denominator = reduce(*, denominators)
+
+    # Combine the numerators
+    numerators = [ext_num(term) * (common_denominator // ext_den(term)) for term in terms]
+
+    Symbolics.simplify(sum(numerators) // common_denominator)
+end
