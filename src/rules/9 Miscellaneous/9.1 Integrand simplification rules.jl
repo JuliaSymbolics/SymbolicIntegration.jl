@@ -25,9 +25,9 @@ file_rules = [
 (~a)*(~x) : nothing)
 
 ("9_1_12",
-@rule ∫((~a)*(~u),(~x)) =>
+@rule ∫((~~a)*(~u),(~x)) =>
     !contains_var((~a), (~x)) ?
-(~a)*∫((~u), (~x)) : nothing)
+prod(~a)*∫((~u), (~x)) : nothing)
 
 # TODO if pattern matching was better 9_1_12_1 would be handled by 9_1_12 
 ("9_1_12_1",
