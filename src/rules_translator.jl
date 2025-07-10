@@ -176,7 +176,10 @@ function translate_result(result, index)
         ("ArcSinh", "asinh"),
         ("ArcSin", "asin"),
         ("ArcCosh", "acosh"),
-        ("ArcCos", "acos")
+        ("ArcCos", "acos"),
+
+        ("FracPart", "fracpart"), # TODO fracpart with two arguments is ever present?
+        ("IntPart", "intpart"),
     ]
 
     for (mathematica, julia) in one_argument_associations
@@ -188,9 +191,6 @@ function translate_result(result, index)
         (r"RemoveContent\[(.*?),\s*x\]", s"\1"), (r"Log\[(.*?)\]", s"log(\1)"),
         (r"Coefficient\[(.*?),(.*?),(.*?)\]", s"Symbolics.coeff(\1,\2^\3)"),
         (r"Coefficient\[(.*?),(.*?)\]", s"Symbolics.coeff(\1,\2)"),
-        # custom functions
-        (r"FracPart\[(.*?)\]", s"fracpart(\1)"), # TODO fracpart with two arguments is ever present?
-        (r"IntPart\[(.*?)\]", s"intpart(\1)"),
 
         (r"ExpandIntegrand\[(.*?),(.*?),(.*?)\]", s"ext_expand(\1,\2,\3)"),
         (r"ExpandIntegrand\[(.*?),(.*?)\]", s"ext_expand(\1,\2)"),
@@ -278,6 +278,7 @@ function translate_conditions(conditions)
         (r"NonsumQ\[(.*?)\]", s"!issum(\1)"),
         (r"SumSimplerQ\[(.*?),(.*?)\]", s"sumsimpler(\1,\2)"),
         (r"SimplerQ\[(.*?),(.*?)\]", s"simpler(\1,\2)"),
+        (r"SimplerSqrtQ\[(.*?),(.*?)\]", s"simpler(rt(\1,2),rt(\2,2))"),
         (r"Simplify\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"Simp\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"AtomQ\[(.*?)\]", s"atom(\1)"),
