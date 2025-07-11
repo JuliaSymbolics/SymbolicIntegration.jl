@@ -123,6 +123,15 @@ function intlinear(a, b, c, d, m, n, x)
            ilt(m + n, -1) || (ext_isinteger(m + n) && rational(m))
 end
 
+# IntBinomialQ[a,b,c,n,m,p,x] returns True iff (c*x)^m*(a+b*x^n)^p  is integrable wrt x in terms of non-hypergeometric functions.
+function int_binomial(a, b, c, n, m, p, x)
+    return igt(p, 0) || 
+           (rational(m) && ext_isinteger(n, 2*p)) || 
+           ext_isinteger((m + 1)⨸n + p) || 
+           (eq(n, 2) || eq(n, 4)) && ext_isinteger(2*m, 4*p) || 
+           eq(n, 2) && ext_isinteger(6*p) && (ext_isinteger(m) || ext_isinteger(m - p))
+end
+
 # If u is simpler than v, SimplerQ[u,v] returns True, else it returns False.  SimplerQ[u,u] returns False.
 function simpler(u, v)
     if ext_isinteger(u)
@@ -413,4 +422,15 @@ function together(expr)
     numerators = [ext_num(term) * (common_denominator // ext_den(term)) for term in terms]
 
     Symbolics.simplify(sum(numerators) // common_denominator)
+end
+
+
+# LinearPairQ[u,v,x] returns True iff u and v are linear not equal x but u/v is a constant wrt x.
+# LinearPairQ[u_,v_,x_Symbol] :=
+#   LinearQ[u,x] && LinearQ[v,x] && NeQ[u,x] && EqQ[Coefficient[u,x,0]*Coefficient[v,x,1]-Coefficient[u,x,1]*Coefficient[v,x,0],0]
+
+function linear_pair(u,v,x)
+    linear(u,x) && linear(v,x) &&
+    !eq(u, x) && !eq(v, x) &&
+    eq(Symbolics.coeff(u,x) * Symbolics.coeff(v,1) - Symbolics.coeff(u,1) * Symbolics.coeff(v,x), 0)
 end

@@ -47,10 +47,13 @@ function translate_line(line, index)
 
     # Extract conditions if present
     conditions = ""
-    if occursin("/;", result)
+    c = count("/;", result) 
+    if c==1
         cond_parts = split(result, "/;")
         result = cond_parts[1]
         conditions = translate_conditions(cond_parts[2])
+    elseif c==2
+        return "# Nested conditions found, not translating rule:\n$line"
     end
 
     julia_result = translate_result(result, index)
@@ -181,7 +184,7 @@ function translate_result(result, index)
         m = match(r"Subst\[Int\[", result)
     end
 
-    one_argument_associations = [
+    simple_substitutions = [
         ("Sqrt", "sqrt"),
         ("ArcTanh", "atanh"),
         ("ArcTan", "atan"),
@@ -197,9 +200,10 @@ function translate_result(result, index)
         ("Numerator", "ext_num"),
         ("Denom", "ext_den"),
         ("Numer", "ext_num"),
+        ("GCD", "gcd"),
     ]
 
-    for (mathematica, julia) in one_argument_associations
+    for (mathematica, julia) in simple_substitutions
         result = smart_replace(result, mathematica, julia)
     end
 
@@ -253,6 +257,16 @@ function translate_conditions(conditions)
         inside = full_str[5:end-1] # remove "Not[" and "]"
         conditions = replace(conditions, full_str => "!($inside)")
         m = match(r"Not\[", conditions)
+    end
+
+    simple_substitutions = [
+        ("GCD", "gcd"),
+        ("IntBinomialQ", "int_binomial"),
+        ("LinearPairQ", "linear_pair")
+    ]
+
+    for (mathematica, julia) in simple_substitutions
+        conditions = smart_replace(conditions, mathematica, julia)
     end
 
     associations = [

@@ -15,7 +15,8 @@ function load_all_rules()
     # 5, 6, 7, 8, 9
 
     "1 Algebraic functions/1.1 Binomial products/1.1.3 General/1.1.3.1 (a+b x^n)^p.jl"
-    # 2, 3, 4, 5, 6
+    "1 Algebraic functions/1.1 Binomial products/1.1.3 General/1.1.3.2 (c x)^m (a+b x^n)^p.jl"
+    # 3, 4, 5, 6
 
     # ...
 
