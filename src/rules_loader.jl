@@ -23,13 +23,13 @@ function load_all_rules()
     # 7, 6 5
     "1 Algebraic functions/1.1 Binomial products/1.1.1 Linear/1.1.1.5 P(x) (a+b x)^m (c+d x)^n.jl"
 
-#     "2 Exponentials/2.1 (c+d x)^m (a+b (F^(g (e+f x)))^n)^p.jl"
-#     "2 Exponentials/2.3 Miscellaneous exponentials.jl"
+    "2 Exponentials/2.1 (c+d x)^m (a+b (F^(g (e+f x)))^n)^p.jl"
     ]
 
     all_rules = []
     identifiers = []
     for file in rules_paths
+        # TODO add oading indicator
         include(joinpath(@__DIR__, "rules/" * file))
         file_identifiers = [x[1] for x in file_rules]
         rules = [x[2] for x in file_rules]

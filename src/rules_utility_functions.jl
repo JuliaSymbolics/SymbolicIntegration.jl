@@ -206,6 +206,7 @@ function int_and_subst(integrand, integration_var, from, to, rule_number)
     if !contains_op(∫, result)
         return substitute(result, from => to)
     end
+    println("Integral not solved")
     return subst(∫(integrand, integration_var),from, to)
 end
 

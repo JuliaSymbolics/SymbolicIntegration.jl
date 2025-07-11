@@ -57,8 +57,8 @@ data = [
 (integrand = x^2/(1+2x^3), result = (1//6)*log(1 + 2(x^3)), integration_var = x) # 2
 # 2_1
 (integrand = (1+x)^2*((2^x)^2), result = 2^(2x)/(4*log(2)^3) - (2^(2x)*(1 + x))/(2*log(2)^2) + (2^(2x)*(1 + x)^2)/(2*log(2)), integration_var = x) # 1
-(integrand = (1+x)^-2*((2^x)^2), result = 2^(2x)/(4*log(2)^3) - (2^(2x)*(1 + x))/(2*log(2)^2) + (2^(2x)*(1 + x)^2)/(2*log(2)), integration_var = x) # 2
-(integrand = 2^(2(2+x))/sqrt(1+2x), result = 2^(2x)/(4*log(2)^3) - (2^(2x)*(1 + x))/(2*log(2)^2) + (2^(2x)*(1 + x)^2)/(2*log(2)), integration_var = x) # 5 TODO the integral needs to be done before substitute
+(integrand = (1+x)^-2*((2^x)^2), result = (log(2)/2)*SpecialFunctions.expinti(2*log(2)(1 + x)) + (-(2^(2x))) / (1 + x), integration_var = x) # 2
+(integrand = 2^(2(2+x))/sqrt(1+2x), result = 666, integration_var = x) # 5
 # 2_3
 (integrand = 2^(1 + 2x), result = 1.4426950408889634*(2^(2x)), integration_var = x) # 1
 (integrand = exp(x), result = exp(x), integration_var = x) # 1 but with exp instead of ^

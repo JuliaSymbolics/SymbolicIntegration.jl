@@ -17,19 +17,20 @@ function translate_file(input_filename, output_filename)
             rules_big_string *= "# $line \n"
         elseif startswith(line, "Int[")
             rule_index = "$(file_index)_$n_rules"
+            
             julia_rule = translate_line(line, rule_index)
-            if !isnothing(julia_rule)
-                rules_big_string *= "(\"$rule_index\",\n@rule $julia_rule)\n\n"
-                n_rules += 1
-            end
+            julia_rule === nothing && continue # skip if translation failed
+            
+            rules_big_string *= "(\"$rule_index\",\n@rule $julia_rule)\n\n"
+            n_rules += 1
         end
     end
     rules_big_string *= "]\n"
-    # Open output file
+
     open(output_filename, "w") do f
         write(f, rules_big_string)
     end
-    println(n_rules-1, " translated\n")
+    println("\n", n_rules-1, " rules translated\n")
 end
 
 function translate_line(line, index)
@@ -131,6 +132,7 @@ function find_closing_braket(full_string, start_pattern, brakets)
 end
 
 
+# TODO move all possible functions to smart replace, both in result and conditions
 # Replaces (counting open and closing brakets) functions with [] passed in
 # `from`, to functions with () passed in `to`.
 # smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
@@ -192,6 +194,8 @@ function translate_result(result, index)
         ("ArcSin", "asin"),
         ("ArcCosh", "acosh"),
         ("ArcCos", "acos"),
+
+        ("ExpIntegralEi", "SymbolicUtils.expinti"), # definied in SpecialFunctions.jl
 
         ("FracPart", "fracpart"), # TODO fracpart with two arguments is ever present?
         ("IntPart", "intpart"),
