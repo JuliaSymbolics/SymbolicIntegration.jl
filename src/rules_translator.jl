@@ -67,8 +67,8 @@ function transalte_integrand(integrand)
     associations = [
         ("Int[", "∫(") # Handle common Int[...] integrands
         (r",\s?x_Symbol\]", ",(~x))")
-        (r"([a-wyzA-WYZ])_\.", s"(~!\1)") # default slot
-        (r"(?<!\w)([a-zA-Z]{1,2})_(?!\w)", s"(~\1)") # slot
+        (r"(?<!\w)([a-zA-Z]{1,2}\d*)_\.(?!\w)", s"(~!\1)") # default slot
+        (r"(?<!\w)([a-zA-Z]{1,2}\d*)_(?!\w)", s"(~\1)") # slot
         (r"(?<=\d)/(?=\d)", "//")
         (r"Sqrt\[(.*?)\]", s"sqrt(\1)")
     ]
@@ -149,8 +149,16 @@ function translate_result(result, index)
         result = result[1:end-2]
     end
 
-    # TODO this but with more than one variable
     # variable definition with "With" keyword
+    # \s* is zero or more spaces in regex
+    m = match(r"With\[\{(?<var1>[a-zA-Z]{1,2})\s*=\s*(?<var1def>.*?),\s*(?<var2>[a-zA-Z]{1,2})\s*=\s*(?<var2def>.*?)\},\s*(?<body>.*)\]", result)
+    if m !== nothing
+        println(m)
+        result = m[:body]
+        result = replace(result, Regex("(?<!\\w)$(m[:var1])(?!\\w)") => m[:var1def])
+        result = replace(result, Regex("(?<!\\w)$(m[:var2])(?!\\w)") => m[:var2def])
+    end
+
     # With[{q = Rt[(b*c - a*d)/b, 3]}, -Log[RemoveContent[a + b*x, x]]/(2*b*q) - 3/(2*b*q)*Subst[Int[1/(q - x), x], x, (c + d*x)^(1/3)] + 3/(2*b)* Subst[Int[1/(q^2 + q*x + x^2), x], x, (c + d*x)^(1/3)]]
     m = match(r"With\[\{(?<varname>[a-zA-Z]{1,2})\s*=\s*(?<vardef>.*?)\}, (?<body>.*)\]", result)
     if m !== nothing
@@ -164,6 +172,9 @@ function translate_result(result, index)
     m = match(r"Subst\[Int\[", result)
     while m !== nothing
         full_str = find_closing_braket(result, "Subst[Int[", "[]")
+        if full_str === ""
+            error("Could not find closing bracket for 'Subst[Int[' in: $result")
+        end
         int, from, to = split_outside_brackets(full_str[7:end-1] , "[]", ',') # remove "Subst[" and "]"
         integrand, intvar = split(int[5:end-1], ",", limit=2) # remove "Int[" and "]"
         result = replace(result, full_str => "int_and_subst($integrand, $intvar, $from, $to, \"$index\")")
@@ -223,7 +234,7 @@ function translate_result(result, index)
         ("/", "⨸"), # custom division
 
         # slots and defslots
-        (r"(?<!\w)([a-zA-Z]{1,2})(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
+        (r"(?<!\w)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
     ]
 
     for (mathematica, julia) in associations
@@ -293,8 +304,8 @@ function translate_conditions(conditions)
         (r"PolynomialQuotient\[(.*?),(.*?)\]", s"poly_quotient(\1,\2)"),
         (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
 
-        # convert conditions variables. TODO add also match for a1 a2, variable names with numbers????
-        (r"(?<!\w)([a-zA-Z]{1,2})(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
+        # convert conditions variables.
+        (r"(?<!\w)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
     ]
 
     for (mathematica, julia) in associations
