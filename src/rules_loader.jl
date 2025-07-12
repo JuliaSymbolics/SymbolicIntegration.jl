@@ -25,23 +25,37 @@ function load_all_rules()
 
     "2 Exponentials/2.1 (c+d x)^m (a+b (F^(g (e+f x)))^n)^p.jl"
     ]
-
+    tot = length(rules_paths)
+    
     all_rules = []
     identifiers = []
-    for file in rules_paths
-        # TODO add oading indicator
+    for (i, file) in enumerate(rules_paths)
+        n_of_equals = round(Int, i / tot * 60)
+        if i > 1
+            print("\e[2A")  # Move cursor up 2 lines
+        end
+        print("\e[2K")  # Clear current line
+        printstyled(" $i/$tot files"; color = :light_green, bold = true)
+        print(" [" * "="^n_of_equals *">"* " "^(60 - n_of_equals) * "] ")
+        printstyled("$(length(all_rules)) rules\n"; color = :light_green, bold = true)
+        printstyled(" Loading file: ", file, "\n"; color = :light_black)
+
         include(joinpath(@__DIR__, "rules/" * file))
         file_identifiers = [x[1] for x in file_rules]
         rules = [x[2] for x in file_rules]
         append!(all_rules, rules)
         append!(identifiers, file_identifiers)
     end
+    print("\e[1A")
+    print("\e[2K")
+    print("\e[1A")
+    print("\e[2K")
     
     return (all_rules, identifiers)
 end
 
 # Load all rules at module initialization
-rules, identifiers_dictionary = load_all_rules() # TODO make const when reloading rules for debug will no more be needed
+const rules, identifiers_dictionary = load_all_rules() # TODO make const when reloading rules for debug will no more be needed
 
 # TODO just for debug, remove later
 function reload_rules(;verbose = false)
