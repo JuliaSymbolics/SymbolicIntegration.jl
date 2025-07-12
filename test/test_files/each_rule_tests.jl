@@ -59,6 +59,8 @@ data = [
 (integrand = (1+x)^2*((2^x)^2), result = 2^(2x)/(4*log(2)^3) - (2^(2x)*(1 + x))/(2*log(2)^2) + (2^(2x)*(1 + x)^2)/(2*log(2)), integration_var = x) # 1
 (integrand = (1+x)^-2*((2^x)^2), result = (log(2)/2)*SpecialFunctions.expinti(2*log(2)(1 + x)) + (-(2^(2x))) / (1 + x), integration_var = x) # 2
 (integrand = 2^(2(2+x))/sqrt(1+2x), result = 666, integration_var = x) # 5
+# 2_2
+(integrand = (1 + 2x)^3*(2^(2*(1 + 2x)))^3/(1 + 7*(2^(2*(1 + 2x)))^3), result = 666, integration_var = x) # 2_2_1
 # 2_3
 (integrand = 2^(1 + 2x), result = 1.4426950408889634*(2^(2x)), integration_var = x) # 1
 (integrand = exp(x), result = exp(x), integration_var = x) # 1 but with exp instead of ^

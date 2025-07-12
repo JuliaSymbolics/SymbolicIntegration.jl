@@ -266,7 +266,10 @@ function translate_conditions(conditions)
     simple_substitutions = [
         ("GCD", "gcd"),
         ("IntBinomialQ", "int_binomial"),
-        ("LinearPairQ", "linear_pair")
+        ("LinearPairQ", "linear_pair"),
+        ("Log", "log"),
+        ("PolyQ", "poly"),
+        ("PolynomialQ", "poly"),
     ]
 
     for (mathematica, julia) in simple_substitutions
@@ -317,7 +320,6 @@ function translate_conditions(conditions)
         (r"Simp\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         (r"AtomQ\[(.*?)\]", s"atom(\1)"),
         
-        (r"PolyQ\[(.*?),(.*?)\]", s"poly(\1,\2)"),
         (r"PolynomialRemainder\[(.*?),(.*?)\]", s"poly_remainder(\1,\2)"),
         (r"PolynomialQuotient\[(.*?),(.*?)\]", s"poly_quotient(\1,\2)"),
         (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
