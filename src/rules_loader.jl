@@ -57,7 +57,7 @@ function load_all_rules()
 end
 
 # Load all rules at module initialization
-const rules, identifiers_dictionary = load_all_rules()
+rules, identifiers_dictionary = load_all_rules()
 
 # TODO just for debug, remove later
 function reload_rules(;verbose = false)
