@@ -25,6 +25,7 @@ function load_all_rules()
 
     "2 Exponentials/2.1 (c+d x)^m (a+b (F^(g (e+f x)))^n)^p.jl"
     "2 Exponentials/2.2 (c+d x)^m (F^(g (e+f x)))^n (a+b (F^(g (e+f x)))^n)^p.jl"
+    "2 Exponentials/2.3 Miscellaneous exponentials.jl"
     ]
     tot = length(rules_paths)
     
@@ -56,7 +57,7 @@ function load_all_rules()
 end
 
 # Load all rules at module initialization
-const rules, identifiers_dictionary = load_all_rules() # TODO make const when reloading rules for debug will no more be needed
+const rules, identifiers_dictionary = load_all_rules()
 
 # TODO just for debug, remove later
 function reload_rules(;verbose = false)
@@ -72,3 +73,5 @@ function reload_rules(;verbose = false)
         end
     end
 end
+
+# TODO add function reload specific file

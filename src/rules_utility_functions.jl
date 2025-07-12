@@ -427,11 +427,12 @@ end
 
 
 # LinearPairQ[u,v,x] returns True iff u and v are linear not equal x but u/v is a constant wrt x.
-# LinearPairQ[u_,v_,x_Symbol] :=
-#   LinearQ[u,x] && LinearQ[v,x] && NeQ[u,x] && EqQ[Coefficient[u,x,0]*Coefficient[v,x,1]-Coefficient[u,x,1]*Coefficient[v,x,0],0]
-
 function linear_pair(u,v,x)
     linear(u,x) && linear(v,x) &&
     !eq(u, x) && !eq(v, x) &&
     eq(Symbolics.coeff(u,x) * Symbolics.coeff(v,1) - Symbolics.coeff(u,1) * Symbolics.coeff(v,x), 0)
+end
+
+function use_gamma()
+    return USE_GAMMA
 end

@@ -68,6 +68,14 @@ end
 
 # assumes all integrals in the rules are in the x variable
 function transalte_integrand(integrand)
+        simple_substitutions = [
+        ("Log", "log"),
+    ]
+
+    for (mathematica, julia, n_args...) in simple_substitutions
+        intergand = smart_replace(integrand, mathematica, julia, n_args)
+    end
+
     associations = [
         ("Int[", "∫(") # Handle common Int[...] integrands
         (r",\s?x_Symbol\]", ",(~x))")
@@ -87,7 +95,7 @@ end
 #  "foo(1,2,3)"
 #  "dog"
 #  "foo2(4,5,hello)"
-function split_outside_brackets(s, brakets, delimiter)
+function split_outside_brackets(s, brakets, delimiter) # delimiter must be a ''
     parts = String[]
     bracket_level = 0
     last_pos = 1
@@ -137,11 +145,26 @@ end
 # `from`, to functions with () passed in `to`.
 # smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
 # = "atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
-function smart_replace(str, from, to)
+function smart_replace(str, from, to, n_args)
+    if isempty(n_args)
+        n_args = -1
+    else
+        n_args = n_args[1]
+    end
+
     m = findfirst(from, str)
     while m !== nothing
         full_str = find_closing_braket(str, from, "[]")
         inside = full_str[length(from)+2:end-1] # remove "Not[" and "]"
+        if inside == ""
+            error("Could not find closing bracket for '$from' in: $str")
+        end
+        if n_args != -1
+            inside_parts = split_outside_brackets(inside, "[]", ',')
+            if length(inside_parts) != n_args
+                error("Expected $n_args arguments in '$from', but found $(length(inside_parts)) in: $str")
+            end
+        end
         str = replace(str, full_str => "$to($inside)")
         m = findfirst(from, str)
     end
@@ -195,7 +218,12 @@ function translate_result(result, index)
         ("ArcCosh", "acosh"),
         ("ArcCos", "acos"),
 
-        ("ExpIntegralEi", "SymbolicUtils.expinti"), # definied in SpecialFunctions.jl
+        # definied in SpecialFunctions.jl
+        ("ExpIntegralEi", "SymbolicUtils.expinti", 1),
+        ("ExpIntegralE", "SymbolicUtils.expint", 2),
+        ("Gamma", "SymbolicUtils.gamma"),
+        ("Erfi", "SymbolicUtils.erfi"),
+        ("Erf", "SymbolicUtils.erf"),
 
         ("FracPart", "fracpart"), # TODO fracpart with two arguments is ever present?
         ("IntPart", "intpart"),
@@ -207,8 +235,8 @@ function translate_result(result, index)
         ("GCD", "gcd"),
     ]
 
-    for (mathematica, julia) in simple_substitutions
-        result = smart_replace(result, mathematica, julia)
+    for (mathematica, julia, n_args...) in simple_substitutions
+        result = smart_replace(result, mathematica, julia, n_args)
     end
 
     associations = [
@@ -240,6 +268,7 @@ function translate_result(result, index)
         (r"Int\[(.*?),\s*x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
 
         ("/", "⨸"), # custom division
+        ("Pi", "π"),
 
         # slots and defslots
         (r"(?<!\w)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
@@ -272,8 +301,8 @@ function translate_conditions(conditions)
         ("PolynomialQ", "poly"),
     ]
 
-    for (mathematica, julia) in simple_substitutions
-        conditions = smart_replace(conditions, mathematica, julia)
+    for (mathematica, julia, n_args...) in simple_substitutions
+        conditions = smart_replace(conditions, mathematica, julia, n_args)
     end
 
     associations = [
@@ -323,6 +352,8 @@ function translate_conditions(conditions)
         (r"PolynomialRemainder\[(.*?),(.*?)\]", s"poly_remainder(\1,\2)"),
         (r"PolynomialQuotient\[(.*?),(.*?)\]", s"poly_quotient(\1,\2)"),
         (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
+
+        ("TrueQ[\$UseGamma]", "use_gamma()"),
 
         # convert conditions variables.
         (r"(?<!\w)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
