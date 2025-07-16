@@ -11,7 +11,7 @@ file_rules = [
     !contains_var((~F), (~c), (~x)) &&
     poly((~u), (~x)) &&
     linear((~v), (~x)) &&
-    use_gamma() ?
+    USE_GAMMA ?
 ∫(ext_expand((~u)*(~F)^((~c)*expand_to_sum((~v), (~x))), (~x)), (~x)) : nothing)
 
 ("2_3_3",
@@ -19,7 +19,7 @@ file_rules = [
     !contains_var((~F), (~c), (~x)) &&
     poly((~u), (~x)) &&
     linear((~v), (~x)) &&
-    !(use_gamma()) ?
+    !(USE_GAMMA) ?
 ∫(ext_expand((~F)^((~c)*expand_to_sum((~v), (~x))), (~u), (~x)), (~x)) : nothing)
 
 # ("2_3_4",
@@ -36,7 +36,7 @@ file_rules = [
 #     linear((~v), (~x)) &&
 #     PowerOflinear((~u), (~x)) &&
 #     ext_isinteger((~m)) &&
-#     use_gamma() ?
+#     USE_GAMMA ?
 # ∫(ext_expand( (~w)*NormalizePowerOfLinear[(~u), (~x))^(~m)*(~F)^((~c)*expand_to_sum((~v), (~x))), (~x)), (~x)] : nothing)
 # 
 # ("2_3_6",
@@ -46,7 +46,7 @@ file_rules = [
 #     linear((~v), (~x)) &&
 #     PowerOflinear((~u), (~x)) &&
 #     ext_isinteger((~m)) &&
-#     !(use_gamma()) ?
+#     !(USE_GAMMA) ?
 # ∫(ext_expand((~F)^((~c)*expand_to_sum((~v), (~x))), (~w)*NormalizePowerOfLinear[(~u), (~x))^(~m), (~x)), (~x)] : nothing)
 
 # ("2_3_7",
@@ -197,7 +197,7 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*(~F)^((~
 #     igt(simplify(((~m) + 1)/(~n)), 0) &&
 #     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~m), (~n), (~x)) &&
 #     eq((~d)*(~e) - (~c)*(~f), 0) &&
-#     !(use_gamma()) ?
+#     !(USE_GAMMA) ?
 # -(~F)^(~a)*((~f)⨸(~d))^(~m)⨸((~d)*(~n)*(-(~b)*log((~F)))^simplify(((~m) + 1)⨸(~n)))* simplify(FunctionExpand[SymbolicUtils.gamma(Simplify[((~m) + 1)⨸(~n)), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))]] : nothing)
 
 ("2_3_26",

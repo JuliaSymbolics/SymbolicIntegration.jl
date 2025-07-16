@@ -432,7 +432,3 @@ function linear_pair(u,v,x)
     !eq(u, x) && !eq(v, x) &&
     eq(Symbolics.coeff(u,x) * Symbolics.coeff(v,1) - Symbolics.coeff(u,1) * Symbolics.coeff(v,x), 0)
 end
-
-function use_gamma()
-    return USE_GAMMA
-end

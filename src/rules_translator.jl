@@ -353,7 +353,7 @@ function translate_conditions(conditions)
         (r"PolynomialQuotient\[(.*?),(.*?)\]", s"poly_quotient(\1,\2)"),
         (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
 
-        ("TrueQ[\$UseGamma]", "use_gamma()"),
+        ("TrueQ[\$UseGamma]", "USE_GAMMA"),
 
         # convert conditions variables.
         (r"(?<!\w)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
