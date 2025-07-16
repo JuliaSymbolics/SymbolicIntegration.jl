@@ -6,7 +6,7 @@ function apply_rule(problem, verbose)
     for (i, rule) in enumerate(rules)
         result = rule(problem)
         if result !== nothing
-            verbose && printstyled("┌---Applied rule $(identifiers_dictionary[i]) on ", problem, "\n| ", join(split(string(rule), '\n'), "\n| "), "\n└---with result: "; color = :light_blue)
+            verbose && printstyled("┌---Applied rule $(identifiers[i]) on ", problem, "\n| ", join(split(string(rule), '\n'), "\n| "), "\n└---with result: "; color = :light_blue)
             verbose && printstyled( result, "\n"; color = :light_blue, reverse=true)
             return (result, true)
         end

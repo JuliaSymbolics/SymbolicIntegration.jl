@@ -1,4 +1,35 @@
-# Load all rules from the IntegrationRules directory
+# Load all rules from the paths in the given array.
+# the paths schould be relative to src/rules/
+function load_all_rules(rules_paths)
+    tot = length(rules_paths)
+    
+    loaded_rules = []
+    loaded_identifiers = []
+    for (i, file) in enumerate(rules_paths)
+        n_of_equals = round(Int, i / tot * 60)
+        if i > 1
+            print("\e[2A")  # Move cursor up 2 lines
+        end
+        print("\e[2K")  # Clear current line
+        printstyled(" $i/$tot files"; color = :light_green, bold = true)
+        print(" [" * "="^n_of_equals *">"* " "^(60 - n_of_equals) * "] ")
+        printstyled("$(length(loaded_rules)) rules\n"; color = :light_green, bold = true)
+        printstyled(" Loading file: ", file, "\n"; color = :light_black)
+
+        include(joinpath(@__DIR__, "rules/" * file))
+        file_identifiers = [x[1] for x in file_rules]
+        rules = [x[2] for x in file_rules]
+        append!(loaded_rules, rules)
+        append!(loaded_identifiers, file_identifiers)
+    end
+    print("\e[1A")
+    print("\e[2K")
+    print("\e[1A")
+    print("\e[2K")
+    
+    return (loaded_rules, loaded_identifiers)
+end
+
 function load_all_rules()
     rules_paths = [
     "9 Miscellaneous/9.1 Integrand simplification rules.jl"
@@ -27,51 +58,53 @@ function load_all_rules()
     "2 Exponentials/2.2 (c+d x)^m (F^(g (e+f x)))^n (a+b (F^(g (e+f x)))^n)^p.jl"
     "2 Exponentials/2.3 Miscellaneous exponentials.jl"
     ]
-    tot = length(rules_paths)
-    
-    all_rules = []
-    identifiers = []
-    for (i, file) in enumerate(rules_paths)
-        n_of_equals = round(Int, i / tot * 60)
-        if i > 1
-            print("\e[2A")  # Move cursor up 2 lines
-        end
-        print("\e[2K")  # Clear current line
-        printstyled(" $i/$tot files"; color = :light_green, bold = true)
-        print(" [" * "="^n_of_equals *">"* " "^(60 - n_of_equals) * "] ")
-        printstyled("$(length(all_rules)) rules\n"; color = :light_green, bold = true)
-        printstyled(" Loading file: ", file, "\n"; color = :light_black)
-
-        include(joinpath(@__DIR__, "rules/" * file))
-        file_identifiers = [x[1] for x in file_rules]
-        rules = [x[2] for x in file_rules]
-        append!(all_rules, rules)
-        append!(identifiers, file_identifiers)
-    end
-    print("\e[1A")
-    print("\e[2K")
-    print("\e[1A")
-    print("\e[2K")
-    
-    return (all_rules, identifiers)
+    return load_all_rules(rules_paths)
 end
 
 # Load all rules at module initialization
-rules, identifiers_dictionary = load_all_rules()
+rules, identifiers = load_all_rules()
 
 # TODO just for debug, remove later
 function reload_rules(;verbose = false)
     global rules
-    global identifiers_dictionary
-    rules, identifiers_dictionary = load_all_rules()
+    global identifiers
+    rules, identifiers = load_all_rules()
     println("Rules reloaded. Total rules: ", length(rules))
     if verbose
         println("Here they are in order:")
         for (i, rule) in enumerate(rules)
-            println("============ Rule $(identifiers_dictionary[i]): ")
+            println("============ Rule $(identifiers[i]): ")
             println(rule)
         end
     end
 end
 
-# TODO add function reload specific file
+# reads the rules from the given path.
+# for each one of them checks if in the global rules array there is a rule with the same identifier.
+# if so, it replaces the rule with the new one.
+# if not, it adds the new rule to the global rules array.
+function reload_rules(path; verbose = false)
+    global rules
+    global identifiers
+    
+    new_rules, new_identifiers = load_all_rules([path])
+    
+    for (i, identifier) in enumerate(new_identifiers)
+        idx = findfirst(x -> x == identifier, identifiers)
+        if idx !== nothing
+            rules[idx] = new_rules[i]
+        else
+            push!(rules, new_rules[i])
+            push!(identifiers, identifier)
+        end
+    end
+    
+    println("Rules reloaded from $path")
+    if verbose
+        println("Here they are in order:")
+        for (i, rule) in enumerate(new_rules)
+            println("============ Rule $(new_identifiers[i]): ")
+            println(rule)
+        end
+    end
+end
