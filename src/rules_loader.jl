@@ -57,12 +57,14 @@ function load_all_rules()
     "2 Exponentials/2.1 (c+d x)^m (a+b (F^(g (e+f x)))^n)^p.jl"
     "2 Exponentials/2.2 (c+d x)^m (F^(g (e+f x)))^n (a+b (F^(g (e+f x)))^n)^p.jl"
     "2 Exponentials/2.3 Miscellaneous exponentials.jl"
+
+    "3 Logarithms/3.1/3.1.1 (a+b log(c x^n))^p.jl"
     ]
     return load_all_rules(rules_paths)
 end
 
 # Load all rules at module initialization
-rules, identifiers = load_all_rules()
+rules, identifiers = [],[]#load_all_rules()
 
 # TODO just for debug, remove later
 function reload_rules(;verbose = false)

@@ -73,7 +73,7 @@ function transalte_integrand(integrand)
     ]
 
     for (mathematica, julia, n_args...) in simple_substitutions
-        intergand = smart_replace(integrand, mathematica, julia, n_args)
+        integrand = smart_replace(integrand, mathematica, julia, n_args)
     end
 
     associations = [
@@ -258,6 +258,7 @@ function translate_result(result, index)
         (r"EllipticF\[(.*?),(.*?)\]", s"elliptic_f(\1,\2)"),
         (r"Hypergeometric2F1\[(.*?),(.*?),(.*?),(.*?)\]", s"hypergeometric2f1(\1,\2,\3,\4)"),
         (r"AppellF1\[(.*?),(.*?),(.*?),(.*?),(.*?),(.*?)\]", s"appell_f1(\1,\2,\3,\4,\5,\6)"),
+        (r"LogIntegral\[(.*?)\]", s"SymbolicUtils.expinti(log(\1))"), # TODO use it from SpecialFunctions.jl once pr is merged
 
         (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
         (r"PolynomialRemainder\[(.*?),(.*?)\]", s"poly_remainder(\1,\2)"),

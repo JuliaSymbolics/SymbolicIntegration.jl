@@ -66,4 +66,8 @@ data = [
 # 2_3
 (integrand = 2^(1 + 2x), result = 1.4426950408889634*(2^(2x)), integration_var = x) # 1
 (integrand = exp(x), result = exp(x), integration_var = x) # 1 but with exp instead of ^
+# 3_1_1
+(integrand = log(x^2), result = x*log(x^2) - 2x, integration_var = x) # 3_1_1_1
+(integrand = log(x^2)^2, result = -4(-2x + x*log(x^2)) + x*(log(x^2)^2), integration_var = x) # 3_1_1_2
+(integrand = 1/log(x), result = SpecialFunctions.expinti(log(x)), integration_var = x) # 3_1_1_4
 ]
