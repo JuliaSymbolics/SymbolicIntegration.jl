@@ -6,8 +6,10 @@ function apply_rule(problem, verbose)
     for (i, rule) in enumerate(rules)
         result = rule(problem)
         if result !== nothing
-            verbose && printstyled("┌---Applied rule $(identifiers[i]) on ", problem, "\n| ", join(split(string(rule), '\n'), "\n| "), "\n└---with result: "; color = :light_blue)
-            verbose && printstyled( result, "\n"; color = :light_blue, reverse=true)
+            verbose && printstyled("┌---Applied rule $(identifiers[i]) on "; color = :white)
+            verbose && printstyled(problem; color = :light_red)
+            verbose && printstyled("\n| ", join(split(string(rule), '\n'), "\n| "), "\n└---with result: "; color = :white)
+            verbose && printstyled(result, "\n"; color = :light_blue)
             return (result, true)
         end
     end
@@ -18,7 +20,6 @@ end
 
 # TODO add threaded for speed?
 function repeated_prewalk(x, verbose)
-    verbose && println("Checking ", x, "...")
     !iscall(x) && return x
     
     if operation(x)===∫
