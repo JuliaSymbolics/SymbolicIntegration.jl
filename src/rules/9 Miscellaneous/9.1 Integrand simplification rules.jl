@@ -29,12 +29,24 @@ file_rules = [
     !contains_var(prod(~a), (~x)) ?
 prod(~a)*∫((~u), (~x)) : nothing)
 
-# TODO if pattern matching was better 9_1_12_1 would be handled by 9_1_12 
+# TODO if pattern matching was better 9_1_12_[1,2,3] would be handled by 9_1_12
 ("9_1_12_1",
 @rule ∫((~a)/(~u),(~x)) =>
     !contains_var(~a, ~x) &&
     !eq(~a,1) ?
 (~a)*∫(1/(~u), ~x) : nothing)
+
+("9_1_12_2",
+@rule ∫((~a * ~v)/(~u),(~x)) =>
+    !contains_var(~a, ~x) &&
+    !eq(~a,1) ?
+(~a)*∫((~v)/(~u), ~x) : nothing)
+
+("9_1_12_3",
+@rule ∫((~v)/(~a * ~u),(~x)) =>
+    !contains_var(~a, ~x) &&
+    !eq(~a,1) ?
+(1⨸(~a))*∫((~v)/(~u), ~x) : nothing)
 
 
 ("9_1_13",

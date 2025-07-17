@@ -1,6 +1,8 @@
 data = [
 # 9_1
 (integrand = 2/x, result = 2log(x), integration_var = x) # 9_1_12_1
+(integrand = 2x/(x^2 + 1), result = log(1 + x^2), integration_var = x) # 9_1_12_2
+(integrand = x/(3*(x^2 + 1)), result = (1//6)*log(1 + x^2), integration_var = x) # 9_1_12_3
 (integrand = 2((1 + x^3)^4.1)*((2 + 2((1 / x)^3))^5), result = -((4.57143*HypergeometricFunctions._₂F₁(-9.1, -(14//3)+0im, -(11//3), -x^3))/x^14), integration_var = x) # 9_1_24
 # 1_1_1_1
 (integrand = 1/x, result = log(x), integration_var = x)
