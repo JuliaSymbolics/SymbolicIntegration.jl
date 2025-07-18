@@ -6,12 +6,12 @@ function load_all_rules(rules_paths)
     loaded_rules = []
     loaded_identifiers = []
     for (i, file) in enumerate(rules_paths)
-        n_of_equals = round(Int, i / tot * 60)
+        n_of_equals = round(Int, (i-1) / tot * 60)
         if i > 1
             print("\e[2A")  # Move cursor up 2 lines
         end
         print("\e[2K")  # Clear current line
-        printstyled(" $i/$tot files"; color = :light_green, bold = true)
+        printstyled(" $(i-1)/$tot files"; color = :light_green, bold = true)
         print(" [" * "="^n_of_equals *">"* " "^(60 - n_of_equals) * "] ")
         printstyled("$(length(loaded_rules)) rules\n"; color = :light_green, bold = true)
         printstyled(" Loading file: ", file, "\n"; color = :light_black)
@@ -59,6 +59,8 @@ function load_all_rules()
     "2 Exponentials/2.3 Miscellaneous exponentials.jl"
 
     "3 Logarithms/3.1/3.1.1 (a+b log(c x^n))^p.jl"
+    "3 Logarithms/3.1/3.1.2 (d x)^m (a+b log(c x^n))^p.jl"
+    "3 Logarithms/3.1/3.1.3 (d+e x^r)^q (a+b log(c x^n))^p.jl"
     ]
     return load_all_rules(rules_paths)
 end
