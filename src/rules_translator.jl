@@ -146,27 +146,34 @@ end
 # smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
 # = "atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
 function smart_replace(str, from, to, n_args)
+    println("smart_replace: replacing '$from' with '$to' in '$str'")
     if isempty(n_args)
         n_args = -1
     else
         n_args = n_args[1]
     end
 
-    m = findfirst(from, str)
-    while m !== nothing
-        full_str = find_closing_braket(str, from, "[]")
-        inside = full_str[length(from)+2:end-1] # remove "Not[" and "]"
-        if inside == ""
-            error("Could not find closing bracket for '$from' in: $str")
+    processed = 1
+    substring_index = findfirst(from, str[processed:end])
+    while substring_index !== nothing
+        full_str = find_closing_braket(str[processed:end], from, "[]")
+        # if the match in string is not followed by a '['
+        if full_str[length(from)+1] !== '['
+            processed += substring_index[1] + length(full_str)
+            substring_index = findfirst(from, str[processed:end])
+            continue
         end
+
+        inside = full_str[length(from)+2:end-1] # remove "Not[" and "]"
+
         if n_args != -1
             inside_parts = split_outside_brackets(inside, "[]", ',')
-            if length(inside_parts) != n_args
-                error("Expected $n_args arguments in '$from', but found $(length(inside_parts)) in: $str")
-            end
+            length(inside_parts) != n_args && error("Function $from requres $n_args arguments, but $(length(inside_parts)) found in: $str")
         end
         str = replace(str, full_str => "$to($inside)")
-        m = findfirst(from, str)
+
+        processed += substring_index[1] + length("$to($inside)")
+        substring_index = findfirst(from, str[processed:end])
     end
     return str
 end
@@ -217,6 +224,7 @@ function translate_result(result, index)
         ("ArcSin", "asin"),
         ("ArcCosh", "acosh"),
         ("ArcCos", "acos"),
+        ("Exp", "exp"),
 
         # definied in SpecialFunctions.jl
         ("ExpIntegralEi", "SymbolicUtils.expinti", 1),

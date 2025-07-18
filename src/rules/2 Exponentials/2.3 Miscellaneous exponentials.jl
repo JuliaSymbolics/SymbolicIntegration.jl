@@ -206,7 +206,7 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*(~F)^((~
     eq((~d)*(~e) - (~c)*(~f), 0) ?
 -(~F)^(~a)*((~e) + (~f)*(~x))^((~m) + 1)⨸((~f)*(~n)*(-(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))^(((~m) + 1)⨸(~n)))* SymbolicUtils.gamma(((~m) + 1)⨸(~n), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F))) : nothing)
 
-# (* above integral : -F^a*(e+f*x)^(m+1)/(f*n)*ExpIntegralE[1-(m+1)/n,-b*(c+d*x)^n*log(F) ] *) 
+# (* above integral : -F^a*(e+f*x)^(m+1)/(f*n)*ExpIntegralE[1-(m+1)/n,-b*(c+d*x)^n*Log[F] ] *) 
 ("2_3_27",
 @rule ∫(((~!e) + (~!f)*(~x))^(~m)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^2),(~x)) =>
     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~x)) &&
@@ -243,22 +243,22 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*(~F)^((~
     ilt((~m), -1) ?
 ((~e) + (~f)*(~x))^((~m) + 1)*(~F)^((~a) + (~b)⨸((~c) + (~d)*(~x)))⨸((~f)*((~m) + 1)) + (~b)*(~d)*log((~F))⨸((~f)*((~m) + 1))* ∫(((~e) + (~f)*(~x))^((~m) + 1)*(~F)^((~a) + (~b)⨸((~c) + (~d)*(~x)))⨸((~c) + (~d)*(~x))^2, (~x)) : nothing)
 
-("2_3_32",
-@rule ∫((~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n))/((~!e) + (~!f)*(~x)),(~x)) =>
-    !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~n), (~x)) &&
-    !eq((~d)*(~e) - (~c)*(~f), 0) ?
-Unintegrable[(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n))⨸((~e) + (~f)*(~x)), (~x)] : nothing)
+# ("2_3_32",
+# @rule ∫((~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n))/((~!e) + (~!f)*(~x)),(~x)) =>
+#     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~n), (~x)) &&
+#     !eq((~d)*(~e) - (~c)*(~f), 0) ?
+# Unintegrable[(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n))⨸((~e) + (~f)*(~x)), (~x)] : nothing)
 
-("2_3_33",
-@rule ∫((~u)^(~!m)*(~F)^(~v),(~x)) =>
-    !contains_var((~F), (~m), (~x)) &&
-    linear((~u), (~x)) &&
-    BinomialQ[(~v), (~x)] &&
-    !(
-        linear_without_simplify((~u), (~x)) &&
-        BinomialMatchQ[(~v), (~x)]
-    ) ?
-∫(expand_to_sum((~u), (~x))^(~m)*(~F)^expand_to_sum((~v), (~x)), (~x)) : nothing)
+# ("2_3_33",
+# @rule ∫((~u)^(~!m)*(~F)^(~v),(~x)) =>
+#     !contains_var((~F), (~m), (~x)) &&
+#     linear((~u), (~x)) &&
+#     BinomialQ[(~v), (~x)] &&
+#     !(
+#         linear_without_simplify((~u), (~x)) &&
+#         BinomialMatchQ[(~v), (~x)]
+#     ) ?
+# ∫(expand_to_sum((~u), (~x))^(~m)*(~F)^expand_to_sum((~v), (~x)), (~x)) : nothing)
 
 # not translating this, is used in just this one rule
 # ("2_3_34",
@@ -572,7 +572,7 @@ Unintegrable[((~d) + (~e)*(~x))^(~m)*(~F)^((~a) + (~b)*(~x) + (~c)*(~x)^2), (~x)
 ("2_3_80",
 @rule ∫((~F)^(((~!a) + (~!b)*(~x)^4)/(~x)^2),(~x)) =>
     !contains_var((~F), (~a), (~b), (~x)) ?
-sqrt(π)*Exp[2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F)))]* SymbolicUtils.erf((sqrt(-(~a)*log((~F))) + sqrt(-(~b)*log((~F)))*(~x)^2)⨸(~x))⨸ (4*sqrt(-(~b)*log((~F)))) - sqrt(π)*Exp[-2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F)))]* SymbolicUtils.erf((sqrt(-(~a)*log((~F))) - sqrt(-(~b)*log((~F)))*(~x)^2)⨸(~x))⨸ (4*sqrt(-(~b)*log((~F)))) : nothing)
+sqrt(π)*exp(2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F))))* SymbolicUtils.erf((sqrt(-(~a)*log((~F))) + sqrt(-(~b)*log((~F)))*(~x)^2)⨸(~x))⨸ (4*sqrt(-(~b)*log((~F)))) - sqrt(π)*exp(-2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F))))* SymbolicUtils.erf((sqrt(-(~a)*log((~F))) - sqrt(-(~b)*log((~F)))*(~x)^2)⨸(~x))⨸ (4*sqrt(-(~b)*log((~F)))) : nothing)
 
 ("2_3_81",
 @rule ∫((~x)^(~!m)*(E^(~x) + (~x)^(~!m))^(~n),(~x)) =>
@@ -580,7 +580,7 @@ sqrt(π)*Exp[2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F)))]* SymbolicUtils.erf((
     gt((~m), 0) &&
     lt((~n), 0) &&
     !eq((~n), -1) ?
--((~E)^(~x) + (~x)^(~m))^((~n) + 1)⨸((~n) + 1) + ∫(((~E)^(~x) + (~x)^(~m))^((~n) + 1), (~x)) + (~m)*∫((~x)^((~m) - 1)*((~E)^(~x) + (~x)^(~m))^(~n), (~x)) : nothing)
+-(ℯ^(~x) + (~x)^(~m))^((~n) + 1)⨸((~n) + 1) + ∫((ℯ^(~x) + (~x)^(~m))^((~n) + 1), (~x)) + (~m)*∫((~x)^((~m) - 1)*(ℯ^(~x) + (~x)^(~m))^(~n), (~x)) : nothing)
 
 ("2_3_82",
 @rule ∫((~!u)*(~F)^((~!a)*((~!v) + (~!b)*log((~z)))),(~x)) =>
@@ -590,13 +590,13 @@ sqrt(π)*Exp[2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F)))]* SymbolicUtils.erf((
 ("2_3_83",
 @rule ∫((~F)^((~!f)*((~!a) + (~!b)*log((~!c)*((~!d) + (~!e)*(~x))^(~!n))^2)),(~x)) =>
     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~n), (~x)) ?
-((~d) + (~e)*(~x))⨸((~e)*(~n)*((~c)*((~d) + (~e)*(~x))^(~n))^(1⨸(~n)))* int_and_subst((~E)^((~a)*(~f)*log((~F)) + (~x)⨸(~n) + (~b)*(~f)*log((~F))*(~x)^2),  (~x), (~x), log((~c)*((~d) + (~e)*(~x))^(~n)), "2_3_83") : nothing)
+((~d) + (~e)*(~x))⨸((~e)*(~n)*((~c)*((~d) + (~e)*(~x))^(~n))^(1⨸(~n)))* int_and_subst(ℯ^((~a)*(~f)*log((~F)) + (~x)⨸(~n) + (~b)*(~f)*log((~F))*(~x)^2),  (~x), (~x), log((~c)*((~d) + (~e)*(~x))^(~n)), "2_3_83") : nothing)
 
 ("2_3_84",
 @rule ∫(((~!g) + (~!h)*(~x))^(~!m)* (~F)^((~!f)*((~!a) + (~!b)*log((~!c)*((~!d) + (~!e)*(~x))^(~!n))^2)),(~x)) =>
     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~m), (~n), (~x)) &&
     eq((~e)*(~g) - (~d)*(~h), 0) ?
-((~g) + (~h)*(~x))^((~m) + 1)⨸((~h)*(~n)*((~c)*((~d) + (~e)*(~x))^(~n))^(((~m) + 1)⨸(~n)))* int_and_subst((~E)^((~a)*(~f)*log((~F)) + (((~m) + 1)*(~x))⨸(~n) + (~b)*(~f)*log((~F))*(~x)^2),  (~x), (~x), log((~c)*((~d) + (~e)*(~x))^(~n)), "2_3_84") : nothing)
+((~g) + (~h)*(~x))^((~m) + 1)⨸((~h)*(~n)*((~c)*((~d) + (~e)*(~x))^(~n))^(((~m) + 1)⨸(~n)))* int_and_subst(ℯ^((~a)*(~f)*log((~F)) + (((~m) + 1)*(~x))⨸(~n) + (~b)*(~f)*log((~F))*(~x)^2),  (~x), (~x), log((~c)*((~d) + (~e)*(~x))^(~n)), "2_3_84") : nothing)
 
 ("2_3_85",
 @rule ∫(((~!g) + (~!h)*(~x))^(~!m)* (~F)^((~!f)*((~!a) + (~!b)*log((~!c)*((~!d) + (~!e)*(~x))^(~!n))^2)),(~x)) =>
@@ -604,10 +604,10 @@ sqrt(π)*Exp[2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F)))]* SymbolicUtils.erf((
     igt((~m), 0) ?
 1⨸(~e)^((~m) + 1)* int_and_subst( ext_expand((~F)^((~f)*((~a) + (~b)*log((~c)*(~x)^(~n))^2)),  ((~e)*(~g) - (~d)*(~h) + (~h)*(~x))^(~m), (~x)), (~x), (~x), (~d) + (~e)*(~x), "2_3_85") : nothing)
 
-("2_3_86",
-@rule ∫(((~!g) + (~!h)*(~x))^(~!m)* (~F)^((~!f)*((~!a) + (~!b)*log((~!c)*((~!d) + (~!e)*(~x))^(~!n))^2)),(~x)) =>
-    !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~m), (~n), (~x)) ?
-Unintegrable[((~g) + (~h)*(~x))^(~m)*(~F)^((~f)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x))^(~n))^2)), (~x)] : nothing)
+# ("2_3_86",
+# @rule ∫(((~!g) + (~!h)*(~x))^(~!m)* (~F)^((~!f)*((~!a) + (~!b)*log((~!c)*((~!d) + (~!e)*(~x))^(~!n))^2)),(~x)) =>
+#     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~m), (~n), (~x)) ?
+# Unintegrable[((~g) + (~h)*(~x))^(~m)*(~F)^((~f)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x))^(~n))^2)), (~x)] : nothing)
 
 ("2_3_87",
 @rule ∫((~F)^((~!f)*((~!a) + (~!b)*log((~!c)*((~!d) + (~!e)*(~x))^(~!n)))^2),(~x)) =>
@@ -683,7 +683,7 @@ Unintegrable[((~g) + (~h)*(~x))^(~m)*(~F)^((~f)*((~a) + (~b)*log((~c)*((~d) + (~
     !contains_var((~F), (~G), (~a), (~b), (~n), (~x)) &&
     ilt((~n), 0) &&
     linear((~v), (~w), (~x)) ?
-∫((~u)*(~F)^((~n)*(~v))*((~a) + (~b)*(~E)^expand_to_sum(log((~G))*(~w) - log((~F))*(~v), (~x)))^(~n), (~x)) : nothing)
+∫((~u)*(~F)^((~n)*(~v))*((~a) + (~b)*ℯ^expand_to_sum(log((~G))*(~w) - log((~F))*(~v), (~x)))^(~n), (~x)) : nothing)
 
 # ("2_3_99",
 # @rule ∫((~!u)*((~!a)*(~F)^(~v) + (~!b)*(~F)^(~w))^(~n),(~x)) =>
