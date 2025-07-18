@@ -1,31 +1,49 @@
 using Printf
 
 function translate_file(input_filename, output_filename)
-    if !isfile(input_filename)
-        error("Input file '$input_filename' not found!")
-    end
-    println("Translating $input_filename ...")
+    !isfile(input_filename) && error("Input file '$input_filename' not found!")
 
     file_index = replace(split(replace(basename(input_filename), r"\.m$" => ""), " ")[1], r"\." => "_")
-    
     lines = split(read(input_filename, String), "\n")
     n_rules = 1
-
     rules_big_string = "file_rules = [\n"
+
     for line in lines
         if startswith(line, "(*")
-            rules_big_string *= "# $line \n"
-        elseif startswith(line, "Int[")
-            rule_index = "$(file_index)_$n_rules"
-            
-            julia_rule = translate_line(line, rule_index)
-            julia_rule === nothing && continue # skip if translation failed
-            
-            rules_big_string *= "(\"$rule_index\",\n@rule $julia_rule)\n\n"
-            n_rules += 1
+            rules_big_string *= "#$line\n"
+            continue
         end
+        !startswith(line, "Int[") && continue
+        
+        rule_index = "$(file_index)_$n_rules"
+        (int, cond, res) = translate_line(line, rule_index)
+
+        tmp = ""
+        if cond === nothing
+            tmp *= 
+            """
+            (\"$rule_index\",
+            @rule $int =>
+            $res)
+            
+            """
+        else
+            tmp *= 
+            """
+            (\"$rule_index\",
+            @rule $int =>
+            $cond ?
+            $res : nothing)
+            
+            """
+        end
+        if findfirst("Unintegrable", res) !== nothing
+            tmp = "# "*replace(tmp, "\n"=>"\n# ")
+        end
+        rules_big_string *= tmp
+        n_rules += 1
     end
-    rules_big_string *= "]\n"
+    rules_big_string *= "\n]\n"
 
     open(output_filename, "w") do f
         write(f, rules_big_string)
@@ -33,6 +51,7 @@ function translate_file(input_filename, output_filename)
     println("\n", n_rules-1, " rules translated\n")
 end
 
+# gets as input a line and returns  integrand, conditions and result
 function translate_line(line, index)
     println("-----translating:--------\n$line")
     # Separate the integrand and result
@@ -43,27 +62,23 @@ function translate_line(line, index)
     
     integral = parts[1]
     result = parts[2]
-
-    julia_integrand = transalte_integrand(integral)
-
+    
     # Extract conditions if present
-    conditions = ""
     c = count("/;", result) 
     if c==1
-        cond_parts = split(result, "/;")
-        result = cond_parts[1]
-        conditions = translate_conditions(cond_parts[2])
+        tmp = split(result, "/;")
+        result = tmp[1]
+        julia_conditions = translate_conditions(tmp[2])
     elseif c==2
         return "# Nested conditions found, not translating rule:\n$line"
+    else
+        julia_conditions = nothing
     end
-
+    
+    julia_integrand = transalte_integrand(integral)
     julia_result = translate_result(result, index)
     
-    if conditions == ""
-        return "$julia_integrand => $julia_result"
-    else
-        return "$julia_integrand =>\n$conditions ?\n$julia_result : nothing"
-    end
+    return (julia_integrand, julia_conditions, julia_result)
 end
 
 # assumes all integrals in the rules are in the x variable
@@ -146,7 +161,6 @@ end
 # smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
 # = "atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
 function smart_replace(str, from, to, n_args)
-    println("smart_replace: replacing '$from' with '$to' in '$str'")
     if isempty(n_args)
         n_args = -1
     else
