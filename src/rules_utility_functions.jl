@@ -23,6 +23,7 @@ function contains_var(expr, var)
     return false
 end
 
+# the last argument is the variable to check the other expr against
 function contains_var(args...)
     var = args[end]
     return any(contains_var(expr, var) for expr in args[1:end-1])

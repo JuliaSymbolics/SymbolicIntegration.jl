@@ -101,7 +101,7 @@ function reload_rules(path; verbose = false)
         end
     end
     
-    println("Rules reloaded from $path")
+    println("$(length(new_rules)) rules reloaded from $path, $(length(rules)) total rules.")
     if verbose
         println("Here they are in order:")
         for (i, rule) in enumerate(new_rules)

@@ -270,6 +270,7 @@ function translate_result(result, index)
 
         ("/", "⨸"), # custom division
         ("Pi", "π"),
+        (r"(?<!\w)E\^", "ℯ^"), # this works only for E^, not E used in other contexts like multiplications.
 
         # slots and defslots
         (r"(?<!\w)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead

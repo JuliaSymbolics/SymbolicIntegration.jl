@@ -70,4 +70,8 @@ data = [
 (integrand = log(x^2), result = x*log(x^2) - 2x, integration_var = x) # 3_1_1_1
 (integrand = log(x^2)^2, result = -4(-2x + x*log(x^2)) + x*(log(x^2)^2), integration_var = x) # 3_1_1_2
 (integrand = 1/log(x), result = SpecialFunctions.expinti(log(x)), integration_var = x) # 3_1_1_4
+# 3_1_2
+(integrand = log(x)/x, result = (1//2)*(log(x)^2), integration_var = x) # 3_1_2_1
+(integrand = (1+2log(x))^3/x, result = (1//8)*((1 + 2log(x))^4), integration_var = x) # 3_1_2_2
+(integrand = x^5*(1 + 3log(x^2)), result = (1//2)*(x^6)*log(x^2), integration_var = x) # 3_1_2_3
 ]
