@@ -8,7 +8,8 @@ function translate_file(input_filename, output_filename)
     n_rules = 1
     rules_big_string = "file_rules = [\n"
 
-    for line in lines
+    for (i, line) in enumerate(lines)
+        println("-----------------Translating line $i:----------------\n$line")
         if startswith(line, "(*")
             rules_big_string *= "#$line\n"
             continue
@@ -53,7 +54,6 @@ end
 
 # gets as input a line and returns  integrand, conditions and result
 function translate_line(line, index)
-    println("-----translating:--------\n$line")
     # Separate the integrand and result
     parts = split(line, " := ")
     if length(parts) < 2
@@ -70,7 +70,7 @@ function translate_line(line, index)
         result = tmp[1]
         julia_conditions = translate_conditions(tmp[2])
     elseif c==2
-        return "# Nested conditions found, not translating rule:\n$line"
+        julia_conditions = "# Nested conditions found, not translating rule:\n$line"
     else
         julia_conditions = nothing
     end
@@ -246,6 +246,7 @@ function translate_result(result, index)
         ("Gamma", "SymbolicUtils.gamma"),
         ("Erfi", "SymbolicUtils.erfi"),
         ("Erf", "SymbolicUtils.erf"),
+        ("PolyLog", "PolyLog.reli", 2),
 
         ("FracPart", "fracpart"), # TODO fracpart with two arguments is ever present?
         ("IntPart", "intpart"),
@@ -302,6 +303,7 @@ function translate_result(result, index)
         result = replace(result, mathematica => julia)
     end
    
+    println("Result after translation: $result")
     return strip(result)
 end
 
