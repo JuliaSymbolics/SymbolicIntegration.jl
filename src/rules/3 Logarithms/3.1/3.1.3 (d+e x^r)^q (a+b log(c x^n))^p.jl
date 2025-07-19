@@ -1,17 +1,17 @@
 file_rules = [
 #(* ::Subsection::Closed:: *)
 #(* 3.1.3 (d+e x^r)^q (a+b log(c x^n))^p *)
-# ("3_1_3_1",
-# @rule ∫(((~d) + (~!e)*(~x)^(~!r))^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n))),(~x)) =>
-#     !contains_var((~a), (~b), (~c), (~d), (~e), (~n), (~r), (~x)) &&
-#     igt((~q), 0) ?
-# IntHide[((~d) + (~e)*(~x)^(~r))^(~q), (~x)]*((~a) + (~b)*log((~c)*(~x)^(~n))) - (~b)*(~n)*∫(SimplifyIntegrand[IntHide[((~d) + (~e)*(~x)^(~r))^(~q), (~x))⨸(~x), (~x)], (~x)] : nothing)
-# 
-# ("3_1_3_2",
-# @rule ∫(((~d) + (~!e)*(~x)^(~!r))^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n))),(~x)) =>
-#     !contains_var((~a), (~b), (~c), (~d), (~e), (~n), (~r), (~x)) &&
-#     igt((~q), 0) ?
-# Dist[((~a) + (~b)*log((~c)*(~x)^(~n))), IntHide[((~d) + (~e)*(~x)^(~r))^(~q), (~x)]] - (~b)*(~n)*∫(SimplifyIntegrand[IntHide[((~d) + (~e)*(~x)^(~r))^(~q), (~x))⨸(~x), (~x)], (~x)] : nothing)
+("3_1_3_1",
+@rule ∫(((~d) + (~!e)*(~x)^(~!r))^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n))),(~x)) =>
+    !contains_var((~a), (~b), (~c), (~d), (~e), (~n), (~r), (~x)) &&
+    igt((~q), 0) ?
+∫(((~d) + (~e)*(~x)^(~r))^(~q), (~x))*((~a) + (~b)*log((~c)*(~x)^(~n))) - (~b)*(~n)*∫(simplify(∫(((~d) + (~e)*(~x)^(~r))^(~q), (~x))⨸(~x), (~x)), (~x)) : nothing)
+
+("3_1_3_2",
+@rule ∫(((~d) + (~!e)*(~x)^(~!r))^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n))),(~x)) =>
+    !contains_var((~a), (~b), (~c), (~d), (~e), (~n), (~r), (~x)) &&
+    igt((~q), 0) ?
+dist(((~a) + (~b)*log((~c)*(~x)^(~n))), ∫(((~d) + (~e)*(~x)^(~r))^(~q), (~x))) - (~b)*(~n)*∫(simplify(∫(((~d) + (~e)*(~x)^(~r))^(~q), (~x))⨸(~x), (~x)), (~x)) : nothing)
 
 ("3_1_3_3",
 @rule ∫(((~d) + (~!e)*(~x)^(~!r))^(~q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n))),(~x)) =>
@@ -82,10 +82,10 @@ log(1 + (~e)*(~x)⨸(~d))*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p)⨸(~e) - (~b)*(
     lt((~q), -1) ?
 -(~x)*((~d) + (~e)*(~x)^2)^((~q) + 1)*((~a) + (~b)*log((~c)*(~x)^(~n)))⨸(2*(~d)*((~q) + 1)) + (~b)*(~n)⨸(2*(~d)*((~q) + 1))*∫(((~d) + (~e)*(~x)^2)^((~q) + 1), (~x)) + (2*(~q) + 3)⨸(2*(~d)*((~q) + 1))* ∫(((~d) + (~e)*(~x)^2)^((~q) + 1)*((~a) + (~b)*log((~c)*(~x)^(~n))), (~x)) : nothing)
 
-# ("3_1_3_13",
-# @rule ∫(((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))/((~d) + (~!e)*(~x)^2),(~x)) =>
-#     !contains_var((~a), (~b), (~c), (~d), (~e), (~n), (~x)) ?
-# IntHide[1⨸((~d) + (~e)*(~x)^2), (~x)]*((~a) + (~b)*log((~c)*(~x)^(~n))) - (~b)*(~n)*∫(IntHide[1⨸((~d) + (~e)*(~x)^2), (~x))⨸(~x), (~x)] : nothing)
+("3_1_3_13",
+@rule ∫(((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))/((~d) + (~!e)*(~x)^2),(~x)) =>
+    !contains_var((~a), (~b), (~c), (~d), (~e), (~n), (~x)) ?
+∫(1⨸((~d) + (~e)*(~x)^2), (~x))*((~a) + (~b)*log((~c)*(~x)^(~n))) - (~b)*(~n)*∫(∫(1⨸((~d) + (~e)*(~x)^2), (~x))⨸(~x), (~x)) : nothing)
 
 ("3_1_3_14",
 @rule ∫(((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))/sqrt((~d) + (~!e)*(~x)^2),(~x)) =>
@@ -113,35 +113,42 @@ sqrt(1 + (~e)⨸(~d)*(~x)^2)⨸sqrt((~d) + (~e)*(~x)^2)* ∫(((~a) + (~b)*log((~
     eq((~d2)*(~e1) + (~d1)*(~e2), 0) ?
 sqrt(1 + (~e1)*(~e2)⨸((~d1)*(~d2))*(~x)^2)⨸(sqrt((~d1) + (~e1)*(~x))*sqrt((~d2) + (~e2)*(~x)))* ∫(((~a) + (~b)*log((~c)*(~x)^(~n)))⨸sqrt(1 + (~e1)*(~e2)⨸((~d1)*(~d2))*(~x)^2), (~x)) : nothing)
 
-# ("3_1_3_18",
-# @rule ∫(((~d) + (~!e)*(~x)^(~!r))^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n))),(~x)) =>
-#     !contains_var((~a), (~b), (~c), (~d), (~e), (~n), (~q), (~r), (~x)) &&
-#     ext_isinteger(2*(~q)) &&
-#     ext_isinteger((~r)) &&
-#     eq((~r), 1) &&
-#     ext_isinteger((~q) - 1/2) ||
-#     eq((~r), 2) &&
-#     eq((~q), -1) ||
-#     InverseFunction!contains_var((~u), (~x))] ?
-# Dist[((~a) + (~b)*log((~c)*(~x)^(~n))), IntHide[((~d) + (~e)*(~x)^(~r))^(~q), (~x)], (~x)] - (~b)*(~n)*∫(SimplifyIntegrand[IntHide[((~d) + (~e)*(~x)^(~r))^(~q), (~x))⨸(~x), (~x)], (~x) : nothing)
-# 
-# ("3_1_3_19",
+("3_1_3_18",
+@rule ∫(((~d) + (~!e)*(~x)^(~!r))^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n))),(~x)) =>
+    !contains_var((~a), (~b), (~c), (~d), (~e), (~n), (~q), (~r), (~x)) &&
+    ext_isinteger(2*(~q)) &&
+    ext_isinteger((~r)) &&
+    eq((~r), 1) &&
+    ext_isinteger((~q) - 1/2) ||
+    eq((~r), 2) &&
+    eq((~q), -1) ||
+    !contains_inverse_function((~u), (~x)) ?
+dist(((~a) + (~b)*log((~c)*(~x)^(~n))), ∫(((~d) + (~e)*(~x)^(~r))^(~q), (~x)), (~x)) - (~b)*(~n)*∫(simplify(∫(((~d) + (~e)*(~x)^(~r))^(~q), (~x))⨸(~x), (~x)), (~x)) : nothing)
+
+("3_1_3_19",
+@rule ∫(((~d) + (~!e)*(~x)^(~!r))^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) =>
+    !contains_var((~a), (~b), (~c), (~d), (~e), (~n), (~p), (~q), (~r), (~x)) &&
+    ext_isinteger((~q)) &&
+    (
+        gt((~q), 0) ||
+        igt((~p), 0) &&
+        ext_isinteger((~r))
+    ) &&
+    issum(ext_expand(((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p))) ?
+∫(ext_expand(((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), ((~d) + (~e)*(~x)^(~r))^(~q), (~x)), (~x)) : nothing)
+
+# ("3_1_3_20",
 # @rule ∫(((~d) + (~!e)*(~x)^(~!r))^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) =>
-# # Nested conditions found, not translating rule:
-# Int[(d_ + e_.*x_^r_.)^q_.*(a_. + b_.*Log[c_.*x_^n_.])^p_., x_Symbol] := With[{u = ExpandIntegrand[(a + b*Log[c*x^n])^p, (d + e*x^r)^q, x]}, Int[u, x] /; SumQ[u]] /; FreeQ[{a, b, c, d, e, n, p, q, r}, x] && IntegerQ[q] && (GtQ[q, 0] || IGtQ[p, 0] && IntegerQ[r]) ?
-# ∫(ext_expand(((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), ((~d) + (~e)*(~x)^(~r))^(~q), (~x)), (~x)) ⨸; SumQ[ext_expand(((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), ((~d) + (~e)*(~x)^(~r))^(~q), (~x))]] ⨸; FreeQ[{(~a), (~b), (~c), (~d), (~e), (~n), (~p), (~q), (~r)}, (~x)] && IntegerQ[(~q)] && (GtQ[(~q), 0] || IGtQ[(~p), 0] && IntegerQ[(~r) : nothing)
+#     !contains_var((~a), (~b), (~c), (~d), (~e), (~n), (~p), (~q), (~r), (~x)) ?
+# Unintegrable[((~d) + (~e)*(~x)^(~r))^(~q)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)] : nothing)
 # 
-# # ("3_1_3_20",
-# # @rule ∫(((~d) + (~!e)*(~x)^(~!r))^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) =>
-# #     !contains_var((~a), (~b), (~c), (~d), (~e), (~n), (~p), (~q), (~r), (~x)) ?
-# # Unintegrable[((~d) + (~e)*(~x)^(~r))^(~q)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)] : nothing)
-# # 
-# # ("3_1_3_21",
-# @rule ∫((~u)^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) =>
-#     !contains_var((~a), (~b), (~c), (~n), (~p), (~q), (~x)) &&
-#     BinomialQ[(~u), (~x)] &&
-#     !(BinomialMatchQ[(~u), (~x)]) ?
-# ∫(expand_to_sum((~u), (~x))^(~q)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)) : nothing)
+# 
+("3_1_3_21",
+@rule ∫((~u)^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) =>
+    !contains_var((~a), (~b), (~c), (~n), (~p), (~q), (~x)) &&
+    binomial((~u), (~x)) &&
+    !(binomial_without_simplify((~u), (~x))) ?
+∫(expand_to_sum((~u), (~x))^(~q)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)) : nothing)
 
 
 ]

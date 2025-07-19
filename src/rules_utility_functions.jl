@@ -185,7 +185,7 @@ end
 # If u+v is simpler than u, SumSimplerQ[u,v] returns True, else it returns False.
 sumsimpler(u, v) = simpler(u + v, u) && !eq(u + v, u) && !eq(v, 0)
 
-# contains_op(∫, expr) is the same as checking is the integral has been comletely solved
+# contains_op(∫, expr) is the same as checking if the integral has been comletely solved
 function contains_op(op, expr)
     expr = Symbolics.unwrap(expr)
     if iscall(expr)
@@ -195,6 +195,16 @@ function contains_op(op, expr)
         return any(contains_op(op, a) for a in arguments(expr))
     end
     return false
+end
+
+# If u is free of inverse, calculus and hypergeometric functions involving x, returns true; else it returns False
+const inverse_functions = [
+    asin, acos, atan, acot, asec, acsc,
+    asinh, acosh, atanh, acoth, asech, acsch,
+    HypergeometricFunctions._₂F₁, appell_f1
+]
+function contains_inverse_function(expr,x)
+    any(contains_op(op, expr) for op in inverse_functions)
 end
 
 # also putting directly substitute(integrate(...), ... => ...) in the rules works
@@ -248,6 +258,17 @@ function expand_to_sum(u, v, x)
     expand(u * v)
 end
 
+# distributes exp1 over exp2
+function dist(exp1, exp2, x)
+    exp1 = Symbolics.unwrap(exp1)
+    exp2 = Symbolics.unwrap(exp2)
+    if iscall(exp2) && operation(exp2) === +
+        return sum(exp1*t for t in arguments(exp2))
+    else
+        return exp1*exp2
+    end
+end
+
 # linear(a+3x,x) true
 # linear((x+1)^2 - x^2 - 1,x) true
 function linear(args...)
@@ -275,6 +296,21 @@ function monomial(u, x)
     degree = (@rule ((~!b::(b -> !contains_var(x, b)))*(~var::(var->var===x)))^(~!m::(m->!contains_var(x,m)))=>~m)(u)
     degree !== nothing && return degree
     return nothing
+end
+
+function binomial_without_simplify(u, x)
+    (@rule (~a::(a -> !contains_var(a, x))) + (~!b::(b -> !contains_var(b, x)))*x^(~!n::(n -> !contains_var(n, x))) => 1)(u) !== nothing
+end
+function binomial_without_simplify(u, x, pow)
+    (@rule (~a::(a -> !contains_var(a, x))) + (~!b::(b -> !contains_var(b,x)))*x^(~!n::(n -> !contains_var(n,x) && n===pow)) => 1)(u) !== nothing
+end
+# if u is an expression equivalent to a+bx^n with a,b,n constants,
+# b and n != 0, returns true
+function binomial(u, x)
+    binomial_without_simplify(simplify(u; expand = true),x)
+end
+function binomial(u, x, n)
+    binomial_without_simplify(simplify(u; expand = true), x, n)
 end
 
 # If u is a polynomial in x of degree n, poly_degreee(u,x) returns n, else nothing

@@ -39,7 +39,7 @@ function translate_file(input_filename, output_filename)
             """
         end
         if findfirst("Unintegrable", res) !== nothing
-            tmp = "# "*replace(tmp, "\n"=>"\n# ")
+            tmp = "# "*replace(tmp, "\n"=>"\n# ")*"\n"
         end
         rules_big_string *= tmp
         n_rules += 1
@@ -256,6 +256,13 @@ function translate_result(result, index)
         ("Denom", "ext_den"),
         ("Numer", "ext_num"),
         ("GCD", "gcd"),
+
+        ("Dist", "dist"),
+        ("SimplifyIntegrand", "simplify"), # TODO is this enough?
+        ("Simplify", "simplify"),
+        ("Simp", "simplify"),
+
+        ("IntHide", "∫"),
     ]
 
     for (mathematica, julia, n_args...) in simple_substitutions
@@ -274,8 +281,6 @@ function translate_result(result, index)
         (r"ExpandToSum\[(.*?),(.*?)\]", s"expand_to_sum(\1,\2)"),
 
         (r"Rt\[(.*?),(.*?)\]", s"rt(\1,\2)"),
-        (r"Simplify\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
-        (r"Simp\[(.*?)\]", s"simplify(\1)"), # TODO is this enough?
         
         (r"EllipticE\[(.*?)\]", s"elliptic_e(\1)"), # one or two arguments
         (r"EllipticF\[(.*?),(.*?)\]", s"elliptic_f(\1,\2)"),
@@ -290,6 +295,7 @@ function translate_result(result, index)
 
         # not yet solved integrals
         (r"Int\[(.*?),\s*x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
+        (r"IntHide\[(.*?),\s*x\]", s"∫(\1, x)"),
 
         ("/", "⨸"), # custom division
         ("Pi", "π"),
@@ -310,21 +316,18 @@ end
 function translate_conditions(conditions)
     conditions = strip(conditions)
     # since a lot of times Not has inside other functions, better to use find_closing_braket
-    m = match(r"Not\[", conditions)
-    while m !== nothing
-        full_str = find_closing_braket(conditions, "Not[", "[]")
-        inside = full_str[5:end-1] # remove "Not[" and "]"
-        conditions = replace(conditions, full_str => "!($inside)")
-        m = match(r"Not\[", conditions)
-    end
-
     simple_substitutions = [
+        ("Not", "!"),
         ("GCD", "gcd"),
         ("IntBinomialQ", "int_binomial"),
         ("LinearPairQ", "linear_pair"),
         ("Log", "log"),
         ("PolyQ", "poly"),
         ("PolynomialQ", "poly"),
+        ("InverseFunctionFreeQ", "!contains_inverse_function"),
+        ("ExpandIntegrand", "ext_expand"),
+        ("BinomialQ", "binomial"),
+        ("BinomialMatchQ", "binomial_without_simplify"),
     ]
 
     for (mathematica, julia, n_args...) in simple_substitutions
