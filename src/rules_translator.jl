@@ -171,8 +171,8 @@ function smart_replace(str, from, to, n_args)
     substring_index = findfirst(from, str[processed:end])
     while substring_index !== nothing
         full_str = find_closing_braket(str[processed:end], from, "[]")
-        # if the match in string is not followed by a '['
-        if full_str[length(from)+1] !== '['
+        # if the match in string is not followed by a '[' or is preceeded by a letter, continue
+        if full_str[length(from)+1] !== '[' || isletter(str[processed + substring_index[1] - 2])
             processed += substring_index[1] + length(full_str)
             substring_index = findfirst(from, str[processed:end])
             continue
@@ -298,7 +298,7 @@ function translate_result(result, index)
         (r"IntHide\[(.*?),\s*x\]", s"∫(\1, x)"),
 
         ("/", "⨸"), # custom division
-        ("Pi", "π"),
+        (r"(?<!\w)Pi(?!\w)", "π"),
         (r"(?<!\w)E\^", "ℯ^"), # this works only for E^, not E used in other contexts like multiplications.
 
         # slots and defslots
@@ -464,6 +464,7 @@ end
 if length(ARGS) < 1
     println("Usage: julia rules_translator.jl intput_file.m [output_file.jl]")
     println("If output_file is not specified, it will be input_file with .jl extension")
+    exit(1)
 end
 
 input_file = ARGS[1]
