@@ -152,6 +152,7 @@ function find_closing_braket(full_string, start_pattern, brakets)
             end
         end
     end
+    error("Could not find closing bracket for '$start_pattern' in: $full_string")
 end
 
 
@@ -161,6 +162,7 @@ end
 # smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
 # = "atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
 function smart_replace(str, from, to, n_args)
+    # println("smart_replace: replacing $from with $to in $str")
     if isempty(n_args)
         n_args = -1
     else
@@ -172,7 +174,7 @@ function smart_replace(str, from, to, n_args)
     while substring_index !== nothing
         full_str = find_closing_braket(str[processed:end], from, "[]")
         # if the match in string is not followed by a '[' or is preceeded by a letter, continue
-        if full_str[length(from)+1] !== '[' || isletter(str[processed + substring_index[1] - 2])
+        if full_str[length(from)+1] !== '[' || processed + substring_index[1] > 2 && isletter(str[processed + substring_index[1] - 2])
             processed += substring_index[1] + length(full_str)
             substring_index = findfirst(from, str[processed:end])
             continue
@@ -182,7 +184,11 @@ function smart_replace(str, from, to, n_args)
 
         if n_args != -1
             inside_parts = split_outside_brackets(inside, "[]", ',')
-            length(inside_parts) != n_args && error("Function $from requres $n_args arguments, but $(length(inside_parts)) found in: $str")
+            if length(inside_parts) != n_args
+                processed += substring_index[1] + length(full_str)
+                substring_index = findfirst(from, str[processed:end])
+                continue
+            end
         end
         str = replace(str, full_str => "$to($inside)")
 
@@ -263,6 +269,14 @@ function translate_result(result, index)
         ("Simp", "simplify"),
 
         ("IntHide", "∫"),
+        ("Int", "∫"),
+        ("Coefficient", "Symbolics.coeff", 2),
+        
+        ("ExpandIntegrand", "ext_expand", 3),
+        ("ExpandIntegrand", "ext_expand", 2),
+        ("ExpandToSum", "expand_to_sum", 3),
+        ("ExpandToSum", "expand_to_sum", 2),
+        ("Expand", "ext_expand")
     ]
 
     for (mathematica, julia, n_args...) in simple_substitutions
@@ -273,12 +287,7 @@ function translate_result(result, index)
         # common functions
         (r"RemoveContent\[(.*?),\s*x\]", s"\1"), (r"Log\[(.*?)\]", s"log(\1)"),
         (r"Coefficient\[(.*?),(.*?),(.*?)\]", s"Symbolics.coeff(\1,\2^\3)"),
-        (r"Coefficient\[(.*?),(.*?)\]", s"Symbolics.coeff(\1,\2)"),
 
-        (r"ExpandIntegrand\[(.*?),(.*?),(.*?)\]", s"ext_expand(\1,\2,\3)"),
-        (r"ExpandIntegrand\[(.*?),(.*?)\]", s"ext_expand(\1,\2)"),
-        (r"ExpandToSum\[(.*?),(.*?),(.*?)\]", s"expand_to_sum(\1,\2,\3)"),
-        (r"ExpandToSum\[(.*?),(.*?)\]", s"expand_to_sum(\1,\2)"),
 
         (r"Rt\[(.*?),(.*?)\]", s"rt(\1,\2)"),
         
@@ -294,8 +303,8 @@ function translate_result(result, index)
         (r"PolynomialDivide\[(.*?),(.*?),(.*?)\]", s"polynomial_divide(\1,\2,\3)"),
 
         # not yet solved integrals
-        (r"Int\[(.*?),\s*x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
-        (r"IntHide\[(.*?),\s*x\]", s"∫(\1, x)"),
+        # (r"Int\[(.*?),\s*x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
+        # (r"IntHide\[(.*?),\s*x\]", s"∫(\1, x)"),
 
         ("/", "⨸"), # custom division
         (r"(?<!\w)Pi(?!\w)", "π"),
@@ -328,6 +337,9 @@ function translate_conditions(conditions)
         ("ExpandIntegrand", "ext_expand"),
         ("BinomialQ", "binomial"),
         ("BinomialMatchQ", "binomial_without_simplify"),
+        ("Coefficient", "Symbolics.coeff", 2),
+        ("If", "ifelse", 3),
+        ("LeafCount", "leaf_count"),
     ]
 
     for (mathematica, julia, n_args...) in simple_substitutions
