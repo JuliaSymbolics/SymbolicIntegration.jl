@@ -87,6 +87,7 @@ end
 function transalte_integrand(integrand)
     simple_substitutions = [
         ("Log", "log"),
+        ("PolyLog", "PolyLog.reli", 2),
     ]
 
     for (mathematica, julia, n_args...) in simple_substitutions
@@ -272,13 +273,14 @@ function translate_result(result, index)
         ("GCD", "gcd"),
 
         ("Dist", "dist"),
-        ("SimplifyIntegrand", "simplify"), # TODO is this enough?
-        ("Simplify", "simplify"),
-        ("Simp", "simplify"),
+        ("SimplifyIntegrand", "ext_simplify", 2), # TODO is this enough?
+        ("Simplify", "simplify", 1),
+        ("Simp", "simplify", 1),
 
         ("IntHide", "∫"),
         ("Int", "∫"),
         ("Coefficient", "ext_coeff", (2,3)),
+        ("Coeff", "ext_coeff", (2,3)),
         
         ("ExpandIntegrand", "ext_expand", (2,3)),
         ("ExpandToSum", "expand_to_sum", (2,3)),
@@ -333,11 +335,11 @@ function translate_conditions(conditions)
     conditions = strip(conditions)
     # since a lot of times Not has inside other functions, better to use find_closing_braket
     simple_substitutions = [
-        ("Not", "!"),
+        ("Log", "log"),
+
         ("GCD", "gcd"),
         ("IntBinomialQ", "int_binomial"),
         ("LinearPairQ", "linear_pair"),
-        ("Log", "log"),
         ("PolyQ", "poly"),
         ("PolynomialQ", "poly"),
         ("InverseFunctionFreeQ", "!contains_inverse_function"),
@@ -345,8 +347,11 @@ function translate_conditions(conditions)
         ("BinomialQ", "binomial"),
         ("BinomialMatchQ", "binomial_without_simplify"),
         ("Coefficient", "ext_coeff", (2,3)),
-        ("If", "ifelse", 3),
+        ("Coeff", "ext_coeff", (2,3)),
         ("LeafCount", "leaf_count"),
+
+        ("If", "ifelse", 3),
+        ("Not", "!"),
     ]
 
     for (mathematica, julia, n_args...) in simple_substitutions
@@ -376,6 +381,15 @@ function translate_conditions(conditions)
         (r"LtQ\[(.*?),(.*?)\]", s"lt(\1,\2)"), (r"LtQ\[(.*?),(.*?),(.*?)\]", s"lt(\1,\2,\3)"),
         (r"LeQ\[(.*?),(.*?)\]", s"le(\1,\2)"), (r"LeQ\[(.*?),(.*?),(.*?)\]", s"le(\1,\2,\3)"),
 
+        ("ArcSinh", "asinh"), # not function call, just word. for rule 3_1_5_58
+        ("ArcSin", "asin"),
+        ("ArcCosh", "acosh"),
+        ("ArcCos", "acos"),
+        ("ArcTanh", "atanh"),
+        ("ArcTan", "atan"),
+        ("ArcCot", "acot"),
+        ("ArcCoth", "acoth"),
+
         (r"IntegerQ\[(.*?)\]", s"ext_isinteger(\1)"), # called with only one argument
         (r"IntegersQ\[(.*?)\]", s"ext_isinteger(\1)"), # called with only multiple arguments
         (r"FractionQ\[(.*?)\]", s"fraction(\1)"), #called with one or more arguments
@@ -400,6 +414,7 @@ function translate_conditions(conditions)
         (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
 
         ("TrueQ[\$UseGamma]", "USE_GAMMA"),
+        (r"MemberQ\[{(.*?)},(.*?)\]", s"in(\2, [\1])"),
 
         # convert conditions variables.
         (r"(?<!\w)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
