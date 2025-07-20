@@ -79,4 +79,7 @@ data = [
 (integrand = 2*log(x)/(2-2x), result = PolyLog.reli(2, 1 - x), integration_var = x) # 3_1_3_4
 # 3_1_4
 (integrand = x^3*(1+2/x)^3*(1+2*log(3x^4))^3, result = 666, integration_var = x) # 3_1_3_4
+# 3_1_5
+(integrand = x^5*(1+2x^3)^4*log(2x^3), result = 666, integration_var = x) # 3_1_5_3
+(integrand = (1+2x+3x^2)*(1+2log(3x^4))^4, result = 666, integration_var = x) # 3_1_5_27
 ]

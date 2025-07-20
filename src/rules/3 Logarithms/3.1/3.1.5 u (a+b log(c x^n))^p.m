@@ -2,7 +2,7 @@
 (* ::Subsection::Closed:: *)
 (* 3.1.5 u (a+b log(c x^n))^p *)
 Int[(A_. + B_.*Log[c_.*(d_. + e_.*x_)^n_.])/ Sqrt[a_ + b_.*Log[c_.*(d_. + e_.*x_)^n_.]], x_Symbol] := B*(d + e*x)*Sqrt[a + b*Log[c*(d + e*x)^n]]/(b*e) + (2*A*b - B*(2*a + b*n))/(2*b)* Int[1/Sqrt[a + b*Log[c*(d + e*x)^n]], x] /; FreeQ[{a, b, c, d, e, A, B, n}, x]
-Int[x_^m_.*(d_ + e_./x_)^q_.*(a_. + b_.*Log[c_.*x_^n_.])^p_., x_Symbol] := Int[(e + d*x)^q*(a + b*Log[c*x^n])^p, x] /; FreeQ[{a, b, c, d, e, m, n, p}, x] && EqQ[m, q] && IntegerQ[q]
+Int[x_^m_.*(d_ + e_/x_)^q_.*(a_. + b_.*Log[c_.*x_^n_.])^p_., x_Symbol] := Int[(e + d*x)^q*(a + b*Log[c*x^n])^p, x] /; FreeQ[{a, b, c, d, e, m, n, p}, x] && EqQ[m, q] && IntegerQ[q]
 Int[x_^m_.*(d_ + e_.*x_^r_.)^q_.*Log[c_.*x_^n_.], x_Symbol] := With[{u = IntHide[x^m*(d + e*x^r)^q, x]}, Dist[Log[c*x^n], u, x] - n*Int[SimplifyIntegrand[u/x, x], x]] /; FreeQ[{c, d, e, n, r}, x] && IGtQ[q, 0] && IntegerQ[m] && Not[EqQ[q, 1] && EqQ[m, -1]]
 Int[x_^m_.*(d_ + e_.*x_^r_.)^q_.*(a_ + b_.*Log[c_.*x_^n_.]), x_Symbol] := With[{u = IntHide[x^m*(d + e*x^r)^q, x]}, u*(a + b*Log[c*x^n]) - b*n*Int[SimplifyIntegrand[u/x, x], x]] /; FreeQ[{a, b, c, d, e, n, r}, x] && IGtQ[q, 0] && IntegerQ[m] && Not[EqQ[q, 1] && EqQ[m, -1]]
 Int[(f_.*x_)^m_.*(d_ + e_.*x_^r_.)^q_*(a_. + b_.*Log[c_.*x_^n_.]), x_Symbol] := (f*x)^(m + 1)*(d + e*x^r)^(q + 1)*(a + b*Log[c*x^n])/(d* f*(m + 1)) - b*n/(d*(m + 1))*Int[(f*x)^m*(d + e*x^r)^(q + 1), x] /; FreeQ[{a, b, c, d, e, f, m, n, q, r}, x] && EqQ[m + r*(q + 1) + 1, 0] && NeQ[m, -1]
@@ -28,7 +28,7 @@ Int[x_^m_.*(d_ + e_.*x_^r_.)^q_.*(a_. + b_.*Log[c_.*x_^n_])^p_., x_Symbol] := 1/
 Int[(f_.*x_)^m_.*(d_ + e_.*x_^r_.)^q_.*(a_. + b_.*Log[c_.*x_^n_.])^ p_., x_Symbol] := With[{u = ExpandIntegrand[(a + b*Log[c*x^n])^p, (f*x)^m*(d + e*x^r)^q, x]}, Int[u, x] /; SumQ[u]] /; FreeQ[{a, b, c, d, e, f, m, n, p, q, r}, x] && IntegerQ[ q] && (GtQ[q, 0] || IGtQ[p, 0] && IntegerQ[m] && IntegerQ[r])
 Int[(f_.*x_)^m_.*(d_ + e_.*x_^r_.)^q_.*(a_. + b_.*Log[c_.*x_^n_.])^ p_., x_Symbol] := Unintegrable[(f*x)^m*(d + e*x^r)^q*(a + b*Log[c*x^n])^p, x] /; FreeQ[{a, b, c, d, e, f, m, n, p, q, r}, x]
 Int[(f_.*x_)^m_.*u_^q_.*(a_. + b_.*Log[c_.*x_^n_.])^p_., x_Symbol] := Int[(f*x)^m*ExpandToSum[u, x]^q*(a + b*Log[c*x^n])^p, x] /; FreeQ[{a, b, c, f, m, n, p, q}, x] && BinomialQ[u, x] && Not[BinomialMatchQ[u, x]]
-Int[Polyx_*(a_. + b_.*Log[c_.*x_^n_.])^p_., x_Symbol] := Int[ExpandIntegrand[Polyx*(a + b*Log[c*x^n])^p, x], x] /; FreeQ[{a, b, c, n, p}, x] && PolynomialQ[Polyx, x]
+Int[P_*(a_. + b_.*Log[c_.*x_^n_.])^p_., x_Symbol] := Int[ExpandIntegrand[P*(a + b*Log[c*x^n])^p, x], x] /; FreeQ[{a, b, c, n, p}, x] && PolynomialQ[P, x]
 Int[RFx_*(a_. + b_.*Log[c_.*x_^n_.])^p_., x_Symbol] := With[{u = ExpandIntegrand[(a + b*Log[c*x^n])^p, RFx, x]}, Int[u, x] /; SumQ[u]] /; FreeQ[{a, b, c, n}, x] && RationalFunctionQ[RFx, x] && IGtQ[p, 0]
 Int[RFx_*(a_. + b_.*Log[c_.*x_^n_.])^p_., x_Symbol] := With[{u = ExpandIntegrand[RFx*(a + b*Log[c*x^n])^p, x]}, Int[u, x] /; SumQ[u]] /; FreeQ[{a, b, c, n}, x] && RationalFunctionQ[RFx, x] && IGtQ[p, 0]
 Int[AFx_*(a_. + b_.*Log[c_.*x_^n_.])^p_., x_Symbol] := Unintegrable[AFx*(a + b*Log[c*x^n])^p, x] /; FreeQ[{a, b, c, n, p}, x] && AlgebraicFunctionQ[AFx, x, True]

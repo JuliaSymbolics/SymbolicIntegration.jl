@@ -69,6 +69,11 @@ function ext_coeff(u, x, n)
     ext_coeff(u, x^n)
 end
 
+# SimplifyIntegrand[u,x] simplifies u and returns the result in a standard form recognizable by integration rules
+function ext_simplify(u, x)
+    simplify(u)
+end
+
 # FracPart[u] returns the sum of the non-integer terms of u.
 # fracpart(3//2 + x) = (1//2) + x, fracpart(2.4) = 2.4
 function fracpart(a)

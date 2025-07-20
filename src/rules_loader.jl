@@ -1,5 +1,5 @@
 # Load all rules from the paths in the given array.
-# the paths schould be relative to src/rules/
+# the paths schould be relative to src/
 function load_all_rules(rules_paths)
     tot = length(rules_paths)
     
@@ -16,7 +16,7 @@ function load_all_rules(rules_paths)
         printstyled("$(length(loaded_rules)) rules\n"; color = :light_green, bold = true)
         printstyled(" Loading file: ", file, "\n"; color = :light_black)
 
-        include(joinpath(@__DIR__, "rules/" * file))
+        include(file)
         file_identifiers = [x[1] for x in file_rules]
         rules = [x[2] for x in file_rules]
         append!(loaded_rules, rules)
@@ -61,8 +61,10 @@ function load_all_rules()
     "3 Logarithms/3.1/3.1.1 (a+b log(c x^n))^p.jl"
     "3 Logarithms/3.1/3.1.2 (d x)^m (a+b log(c x^n))^p.jl"
     "3 Logarithms/3.1/3.1.3 (d+e x^r)^q (a+b log(c x^n))^p.jl"
+    "3 Logarithms/3.1/3.1.4 (f x)^m (d+e x^r)^q (a+b log(c x^n))^p.jl"
+    "3 Logarithms/3.1/3.1.5 u (a+b log(c x^n))^p.jl"
     ]
-    return load_all_rules(rules_paths)
+    return load_all_rules([joinpath(@__DIR__, "rules/" * file) for file in rules_paths])
 end
 
 # Load all rules at module initialization
