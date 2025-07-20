@@ -278,7 +278,8 @@ function translate_result(result, index)
 
         ("IntHide", "∫"),
         ("Int", "∫"),
-        ("Coefficient", "Symbolics.coeff", 2),
+        ("Coefficient", "ext_coeff", 2),
+        ("Coefficient", "ext_coeff", 3),
         
         ("ExpandIntegrand", "ext_expand", 3),
         ("ExpandIntegrand", "ext_expand", 2),
@@ -294,7 +295,6 @@ function translate_result(result, index)
     associations = [
         # common functions
         (r"RemoveContent\[(.*?),\s*x\]", s"\1"), (r"Log\[(.*?)\]", s"log(\1)"),
-        (r"Coefficient\[(.*?),(.*?),(.*?)\]", s"Symbolics.coeff(\1,\2^\3)"),
 
 
         (r"Rt\[(.*?),(.*?)\]", s"rt(\1,\2)"),
@@ -347,7 +347,8 @@ function translate_conditions(conditions)
         ("ExpandIntegrand", "ext_expand"),
         ("BinomialQ", "binomial"),
         ("BinomialMatchQ", "binomial_without_simplify"),
-        ("Coefficient", "Symbolics.coeff", 2),
+        ("Coefficient", "ext_coeff", 2),
+        ("Coefficient", "ext_coeff", 3),
         ("If", "ifelse", 3),
         ("LeafCount", "leaf_count"),
     ]
@@ -389,8 +390,6 @@ function translate_conditions(conditions)
         (r"NegQ\[(.*?)\]", s"neg(\1)"),
         (r"Numerator\[(.*?)\]", s"ext_num(\1)"),
         (r"Denominator\[(.*?)\]", s"ext_den(\1)"),
-        (r"Coefficient\[(.*?),(.*?)\]", s"Symbolics.coeff(\1,\2)"), # TODO is this enough?
-        (r"Coefficient\[(.*?),(.*?),(.*?)\]", s"Symbolics.coeff(\1,\2 ^\3)"),
         (r"SumQ\[(.*?)\]", s"issum(\1)"),
         (r"NonsumQ\[(.*?)\]", s"!issum(\1)"),
         (r"SumSimplerQ\[(.*?),(.*?)\]", s"sumsimpler(\1,\2)"),

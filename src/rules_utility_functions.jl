@@ -56,6 +56,19 @@ function issum(u)
     return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === +
 end
 
+function ext_coeff(u, x)
+    try 
+        return Symbolics.coeff(u, x)
+    catch e
+        println("Error in ext_coeff: ", e)
+        return 0
+    end
+end
+
+function ext_coeff(u, x, n)
+    ext_coeff(u, x^n)
+end
+
 # FracPart[u] returns the sum of the non-integer terms of u.
 # fracpart(3//2 + x) = (1//2) + x, fracpart(2.4) = 2.4
 function fracpart(a)

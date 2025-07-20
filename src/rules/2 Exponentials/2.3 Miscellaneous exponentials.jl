@@ -24,10 +24,10 @@ file_rules = [
 
 ("2_3_4",
 @rule ∫((~u)^(~!m)*(~F)^((~!c)*(~v))*(~w),(~x)) =>
-    eq(Symbolics.coeff((~u), (~x))*Symbolics.coeff((~w), (~x))*((~m) + 1) - Symbolics.coeff((~v), (~x))*(~c)*(Symbolics.coeff((~u), (~x))*Symbolics.coeff((~w), 1) - Symbolics.coeff((~u), 1)*Symbolics.coeff((~w), (~x)))*log((~F)), 0) &&
+    eq(ext_coeff((~u), (~x))*ext_coeff((~w), (~x))*((~m) + 1) - ext_coeff((~v), (~x))*(~c)*(ext_coeff((~u), (~x))*ext_coeff((~w), 1) - ext_coeff((~u), 1)*ext_coeff((~w), (~x)))*log((~F)), 0) &&
     !contains_var((~F), (~c), (~m), (~x)) &&
     linear((~u), (~v), (~w), (~x)) ?
-Symbolics.coeff((~w), (~x))*(~u)^((~m) + 1)*(~F)^((~c)*(~v))⨸(Symbolics.coeff((~v), (~x))*(~c)*Symbolics.coeff((~u), (~x))*log((~F))) : nothing)
+ext_coeff((~w), (~x))*(~u)^((~m) + 1)*(~F)^((~c)*(~v))⨸(ext_coeff((~v), (~x))*(~c)*ext_coeff((~u), (~x))*log((~F))) : nothing)
 
 # ("2_3_5",
 # @rule ∫((~w)*(~u)^(~!m)*(~F)^((~!c)*(~v)),(~x)) =>
