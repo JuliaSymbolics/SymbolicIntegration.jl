@@ -134,7 +134,7 @@ dist(((~a) + (~b)*log((~c)*(~x)^(~n))), ∫(((~d) + (~e)*(~x)^(~r))^(~q), (~x)),
         igt((~p), 0) &&
         ext_isinteger((~r))
     ) &&
-    issum(ext_expand(((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p))) ?
+    issum(ext_expand(((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p),(~x))) ?
 ∫(ext_expand(((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), ((~d) + (~e)*(~x)^(~r))^(~q), (~x)), (~x)) : nothing)
 
 # ("3_1_3_20",

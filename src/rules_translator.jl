@@ -162,24 +162,24 @@ function find_closing_braket(full_string, start_pattern, brakets)
 end
 
 
-# TODO move all possible functions to smart replace, both in result and conditions
 # Replaces (counting open and closing brakets) functions with [] passed in
 # `from`, to functions with () passed in `to`.
 # smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
 # = "atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
 function smart_replace(str, from, to, n_args)
-    # println("smart_replace: replacing $from with $to in $str")
     if isempty(n_args)
         n_args = -1
-    else
+    elseif isa(n_args[1],Tuple)
+        # ((1,2),) to (1,2)
         n_args = n_args[1]
     end
+    # else n args is already a tuple
+    # println("smart_replace: replacing $from with $to in $str (n_args=$n_args)")
 
     processed = 1
     substring_index = findfirst(from, str[processed:end])
     while substring_index !== nothing
         full_str = find_closing_braket(str[processed:end], from, "[]")
-        println("full_str is $full_str")
         # if the match in string is not followed by a '[' or is preceeded by a letter, continue
         if full_str[length(from)+1] !== '[' || processed + substring_index[1] > 2 && isletter(str[processed + substring_index[1] - 2])
             processed += substring_index[1] + length(full_str)
@@ -191,7 +191,8 @@ function smart_replace(str, from, to, n_args)
 
         if n_args != -1
             inside_parts = split_outside_brackets(inside, "[]", ',')
-            if length(inside_parts) != n_args
+            if !(length(inside_parts) in n_args )
+                error("Expected $n_args arguments in '$from', but got $(length(inside_parts)) in: $str")
                 processed += substring_index[1] + length(full_str)
                 substring_index = findfirst(from, str[processed:end])
                 continue
@@ -255,8 +256,7 @@ function translate_result(result, index)
         ("Exp", "exp"),
 
         # definied in SpecialFunctions.jl
-        ("ExpIntegralEi", "SymbolicUtils.expinti", 1),
-        ("ExpIntegralE", "SymbolicUtils.expint", 2),
+        ("ExpIntegralEi", "SymbolicUtils.expinti", (1,2)),
         ("Gamma", "SymbolicUtils.gamma"),
         ("Erfi", "SymbolicUtils.erfi"),
         ("Erf", "SymbolicUtils.erf"),
@@ -278,13 +278,10 @@ function translate_result(result, index)
 
         ("IntHide", "∫"),
         ("Int", "∫"),
-        ("Coefficient", "ext_coeff", 2),
-        ("Coefficient", "ext_coeff", 3),
+        ("Coefficient", "ext_coeff", (2,3)),
         
-        ("ExpandIntegrand", "ext_expand", 3),
-        ("ExpandIntegrand", "ext_expand", 2),
-        ("ExpandToSum", "expand_to_sum", 3),
-        ("ExpandToSum", "expand_to_sum", 2),
+        ("ExpandIntegrand", "ext_expand", (2,3)),
+        ("ExpandToSum", "expand_to_sum", (2,3)),
         ("Expand", "ext_expand")
     ]
 
@@ -344,11 +341,10 @@ function translate_conditions(conditions)
         ("PolyQ", "poly"),
         ("PolynomialQ", "poly"),
         ("InverseFunctionFreeQ", "!contains_inverse_function"),
-        ("ExpandIntegrand", "ext_expand"),
+        ("ExpandIntegrand", "ext_expand", (2,3)),
         ("BinomialQ", "binomial"),
         ("BinomialMatchQ", "binomial_without_simplify"),
-        ("Coefficient", "ext_coeff", 2),
-        ("Coefficient", "ext_coeff", 3),
+        ("Coefficient", "ext_coeff", (2,3)),
         ("If", "ifelse", 3),
         ("LeafCount", "leaf_count"),
     ]
