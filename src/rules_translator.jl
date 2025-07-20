@@ -168,6 +168,7 @@ end
 # smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
 # = "atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
 function smart_replace(str, from, to, n_args)
+    verbose = from=="Sqrt"
     if isempty(n_args)
         n_args = -1
     elseif isa(n_args[1],Tuple)
@@ -175,15 +176,20 @@ function smart_replace(str, from, to, n_args)
         n_args = n_args[1]
     end
     # else n args is already a tuple
-    # println("smart_replace: replacing $from with $to in $str (n_args=$n_args)")
+    println("smart_replace: replacing $from with $to in $str (n_args=$n_args)")
 
     processed = 1
     substring_index = findfirst(from, str[processed:end])
     while substring_index !== nothing
+        verbose && printstyled(str[processed:end][1:substring_index[1]-1], color=:blue)
+        verbose && printstyled(str[processed:end][substring_index[1]:substring_index[end]], color=:green)
+        verbose && printstyled(str[processed:end][substring_index[end]+1:end], color=:blue)
+        println()
+
         full_str = find_closing_braket(str[processed:end], from, "[]")
         # if the match in string is not followed by a '[' or is preceeded by a letter, continue
         if full_str[length(from)+1] !== '[' || processed + substring_index[1] > 2 && isletter(str[processed + substring_index[1] - 2])
-            processed += substring_index[1] + length(full_str)
+            processed += substring_index[1] + length(from)
             substring_index = findfirst(from, str[processed:end])
             continue
         end
@@ -194,21 +200,20 @@ function smart_replace(str, from, to, n_args)
             inside_parts = split_outside_brackets(inside, "[]", ',')
             if !(length(inside_parts) in n_args )
                 error("Expected $n_args arguments in '$from', but got $(length(inside_parts)) in: $str")
-                processed += substring_index[1] + length(full_str)
-                substring_index = findfirst(from, str[processed:end])
-                continue
+                # processed += substring_index[1] + length(from)
+                # substring_index = findfirst(from, str[processed:end])
+                # continue
             end
         end
         str = replace(str, full_str => "$to($inside)")
 
-        processed += substring_index[1] + length("$to($inside)")
+        processed += substring_index[1] + length(to)
         substring_index = findfirst(from, str[processed:end])
     end
     return str
 end
 
 function translate_result(result, index)
-    println("----------------transalting result----------------")
     # Remove trailing symbol if present
     if endswith(result, "/;") || endswith(result, "//;")
         result = result[1:end-2]
@@ -218,7 +223,6 @@ function translate_result(result, index)
     # \s* is zero or more spaces in regex
     m = match(r"With\[\{(?<var1>[a-zA-Z]{1,2})\s*=\s*(?<var1def>.*?),\s*(?<var2>[a-zA-Z]{1,2})\s*=\s*(?<var2def>.*?)\},\s*(?<body>.*)\]", result)
     if m !== nothing
-        println(m)
         result = m[:body]
         result = replace(result, Regex("(?<!\\w)$(m[:var1])(?!\\w)") => m[:var1def])
         result = replace(result, Regex("(?<!\\w)$(m[:var2])(?!\\w)") => m[:var2def])
@@ -325,13 +329,10 @@ function translate_result(result, index)
         result = replace(result, mathematica => julia)
     end
    
-    println("Result after translation: $result")
     return strip(result)
 end
 
 function translate_conditions(conditions)
-    println("----------------transalting coinditions----------------")
-    println(conditions)
     conditions = strip(conditions)
     # since a lot of times Not has inside other functions, better to use find_closing_braket
     simple_substitutions = [

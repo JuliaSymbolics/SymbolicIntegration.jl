@@ -1,6 +1,6 @@
 file_rules = [
-# (* ::Subsection::Closed:: *) 
-# (* 1.1.3.2 (c x)^m (a+b x^n)^p *) 
+#(* ::Subsection::Closed:: *)
+#(* 1.1.3.2 (c x)^m (a+b x^n)^p *)
 ("1_1_3_2_1",
 @rule ∫(((~!c)*(~x))^(~!m)*((~a1) + (~!b1)*(~x)^(~n))^(~p)*((~a2) + (~!b2)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a1), (~b1), (~a2), (~b2), (~c), (~m), (~n), (~p), (~x)) &&
@@ -232,7 +232,7 @@ sqrt((~c)*(~x))*(1 + (~a)⨸((~b)*(~x)^2))^(1⨸4)⨸((~b)*((~a) + (~b)*(~x)^2)^
     int_binomial((~a), (~b), (~c), (~n), (~m), (~p), (~x)) ?
 (~c)^((~n) - 1)*((~c)*(~x))^((~m) - (~n) + 1)*((~a) + (~b)*(~x)^(~n))^((~p) + 1)⨸((~b)*(~n)*((~p) + 1)) - (~c)^(~n)*((~m) - (~n) + 1)⨸((~b)*(~n)*((~p) + 1))* ∫(((~c)*(~x))^((~m) - (~n))*((~a) + (~b)*(~x)^(~n))^((~p) + 1), (~x)) : nothing)
 
-# (* Int[(c_.*x_)^m_.*u_^p_*v_^p_,x_Symbol] := With[{a=BinomialParts[u,x][[1]],b=BinomialParts[u,x][[2]],n= BinomialParts[u,x][[3]]}, c^(n-1)*(c*x)^(m-n+1)*u^(p+1)*v^(p+1)/(b*n*(p+1)) - c^n*(m-n+1)/(b*n*(p+1))*Int[(c*x)^(m-n)*u^(p+1)*v^(p+1),x] /; IGtQ[n,0] && m+1>n && Not[ILtQ[(m+n*(p+1)+1)/n,0]] && IntBinomialQ[a,b,c,n,m,p,x]] /; FreeQ[c,x] && BinomialQ[u*v,x] && LtQ[p,-1] *) 
+#(* Int[(c_.*x_)^m_.*u_^p_*v_^p_,x_Symbol] := With[{a=BinomialParts[u,x][[1]],b=BinomialParts[u,x][[2]],n= BinomialParts[u,x][[3]]}, c^(n-1)*(c*x)^(m-n+1)*u^(p+1)*v^(p+1)/(b*n*(p+1)) - c^n*(m-n+1)/(b*n*(p+1))*Int[(c*x)^(m-n)*u^(p+1)*v^(p+1),x] /; IGtQ[n,0] && m+1>n && Not[ILtQ[(m+n*(p+1)+1)/n,0]] && IntBinomialQ[a,b,c,n,m,p,x]] /; FreeQ[c,x] && BinomialQ[u*v,x] && LtQ[p,-1] *)
 ("1_1_3_2_31",
 @rule ∫(((~!c)*(~x))^(~!m)*((~a1) + (~!b1)*(~x)^(~n))^(~p)*((~a2) + (~!b2)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a1), (~b1), (~a2), (~b2), (~c), (~x)) &&
@@ -393,7 +393,7 @@ ext_den(rt(-(~a)⨸(~b), 2))⨸(2*(~b))*∫((~x)^((~m) - (~n)⨸2)⨸(ext_num(rt
     !contains_var((~a), (~b), (~x)) ?
 (sqrt(3) - 1)*ext_den(rt((~b)⨸(~a), 3))^2⨸(2*ext_num(rt((~b)⨸(~a), 3))^2)*∫(1⨸sqrt((~a) + (~b)*(~x)^6), (~x)) - 1⨸(2*ext_num(rt((~b)⨸(~a), 3))^2)* ∫(((sqrt(3) - 1)*ext_den(rt((~b)⨸(~a), 3))^2 - 2*ext_num(rt((~b)⨸(~a), 3))^2*(~x)^4)⨸sqrt((~a) + (~b)*(~x)^6), (~x)) : nothing)
 
-# (* Int[x_^4/Sqrt[a_+b_.*x_^6],x_Symbol] := With[{r=Numer[Rt[b/a,3]], s=Denom[Rt[b/a,3]]}, (1+Sqrt[3])*r*x*Sqrt[a+b*x^6]/(2*b*(s+(1+Sqrt[3])*r*x^2)) - 3^(1/4)*s*x*(s+r*x^2)*Sqrt[(s^2-r*s*x^2+r^2*x^4)/(s+(1+Sqrt[3])*r*x^ 2)^2]/ (2*r^2*Sqrt[a+b*x^6]*Sqrt[r*x^2*(s+r*x^2)/(s+(1+Sqrt[3])*r*x^2)^2] )* EllipticE[ArcCos[(s+(1-Sqrt[3])*r*x^2)/(s+(1+Sqrt[3])*r*x^2)],(2+ Sqrt[3])/4] - (1-Sqrt[3])*s*x*(s+r*x^2)*Sqrt[(s^2-r*s*x^2+r^2*x^4)/(s+(1+Sqrt[3])* r*x^2)^2]/ (4*3^(1/4)*r^2*Sqrt[a+b*x^6]*Sqrt[r*x^2*(s+r*x^2)/(s+(1+Sqrt[3])* r*x^2)^2])* EllipticF[ArcCos[(s+(1-Sqrt[3])*r*x^2)/(s+(1+Sqrt[3])*r*x^2)],(2+ Sqrt[3])/4]] /; FreeQ[{a,b},x] *) 
+#(* Int[x_^4/Sqrt[a_+b_.*x_^6],x_Symbol] := With[{r=Numer[Rt[b/a,3]], s=Denom[Rt[b/a,3]]}, (1+Sqrt[3])*r*x*Sqrt[a+b*x^6]/(2*b*(s+(1+Sqrt[3])*r*x^2)) - 3^(1/4)*s*x*(s+r*x^2)*Sqrt[(s^2-r*s*x^2+r^2*x^4)/(s+(1+Sqrt[3])*r*x^ 2)^2]/ (2*r^2*Sqrt[a+b*x^6]*Sqrt[r*x^2*(s+r*x^2)/(s+(1+Sqrt[3])*r*x^2)^2] )* EllipticE[ArcCos[(s+(1-Sqrt[3])*r*x^2)/(s+(1+Sqrt[3])*r*x^2)],(2+ Sqrt[3])/4] - (1-Sqrt[3])*s*x*(s+r*x^2)*Sqrt[(s^2-r*s*x^2+r^2*x^4)/(s+(1+Sqrt[3])* r*x^2)^2]/ (4*3^(1/4)*r^2*Sqrt[a+b*x^6]*Sqrt[r*x^2*(s+r*x^2)/(s+(1+Sqrt[3])* r*x^2)^2])* EllipticF[ArcCos[(s+(1-Sqrt[3])*r*x^2)/(s+(1+Sqrt[3])*r*x^2)],(2+ Sqrt[3])/4]] /; FreeQ[{a,b},x] *)
 ("1_1_3_2_51",
 @rule ∫((~x)^2/sqrt((~a) + (~!b)*(~x)^8),(~x)) =>
     !contains_var((~a), (~b), (~x)) ?
@@ -467,7 +467,7 @@ sqrt(1 + (~b)*(~x)^2⨸(~a))⨸sqrt((~a) + (~b)*(~x)^2)* ∫(sqrt((~x))⨸sqrt(1
     gt(-(~b)/(~a), 0) ?
 sqrt((~c)*(~x))⨸sqrt((~x))*∫(sqrt((~x))⨸sqrt((~a) + (~b)*(~x)^2), (~x)) : nothing)
 
-# (* Int[(c_.*x_)^m_*(a_ + b_.*x_^n_)^p_, x_Symbol] := c^(n - 1)*(c*x)^(m - n + 1)*(a + b*x^n)^(p + 1)/(b*(m + n*p + 1)) - a*c^n*(m - n + 1)/(b*(m + n*p + 1))* Int[(c*x)^(m - n)*(a + b*x^n)^p, x] /; FreeQ[{a, b, c, p}, x] && IGtQ[n, 0] && GtQ[m, n - 1] && NeQ[m + n*p + 1, 0] && IntBinomialQ[a, b, c, n, m, p, x] *) 
+#(* Int[(c_.*x_)^m_*(a_ + b_.*x_^n_)^p_, x_Symbol] := c^(n - 1)*(c*x)^(m - n + 1)*(a + b*x^n)^(p + 1)/(b*(m + n*p + 1)) - a*c^n*(m - n + 1)/(b*(m + n*p + 1))* Int[(c*x)^(m - n)*(a + b*x^n)^p, x] /; FreeQ[{a, b, c, p}, x] && IGtQ[n, 0] && GtQ[m, n - 1] && NeQ[m + n*p + 1, 0] && IntBinomialQ[a, b, c, n, m, p, x] *)
 ("1_1_3_2_63",
 @rule ∫(((~!c)*(~x))^(~m)*((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~m), (~p), (~x)) &&
@@ -497,7 +497,7 @@ sqrt((~c)*(~x))⨸sqrt((~x))*∫(sqrt((~x))⨸sqrt((~a) + (~b)*(~x)^2), (~x)) : 
     ilt(simplify(((~m) + 1)/(2*(~n)) + (~p)), 0) ?
 (~c)^(2*(~n) - 1)*((~c)*(~x))^((~m) - 2*(~n) + 1)*((~a1) + (~b1)*(~x)^(~n))^((~p) + 1)*((~a2) + (~b2)*(~x)^(~n))^((~p) + 1)⨸((~b1)*(~b2)*((~m) + 2*(~n)*(~p) + 1)) - (~a1)*(~a2)*(~c)^(2*(~n))*((~m) - 2*(~n) + 1)⨸((~b1)*(~b2)*((~m) + 2*(~n)*(~p) + 1))* ∫(((~c)*(~x))^((~m) - 2*(~n))*((~a1) + (~b1)*(~x)^(~n))^(~p)*((~a2) + (~b2)*(~x)^(~n))^(~p), (~x)) : nothing)
 
-# (* Int[(c_.*x_)^m_*(a_ + b_.*x_^n_)^p_, x_Symbol] := (c*x)^(m + 1)*(a + b*x^n)^(p + 1)/(a*c*(m + 1)) - b*(m + n*(p + 1) + 1)/(a*c^n*(m + 1))* Int[(c*x)^(m + n)*(a + b*x^n)^p, x] /; FreeQ[{a, b, c, p}, x] && IGtQ[n, 0] && LtQ[m, -1] && IntBinomialQ[a, b, c, n, m, p, x] *) 
+#(* Int[(c_.*x_)^m_*(a_ + b_.*x_^n_)^p_, x_Symbol] := (c*x)^(m + 1)*(a + b*x^n)^(p + 1)/(a*c*(m + 1)) - b*(m + n*(p + 1) + 1)/(a*c^n*(m + 1))* Int[(c*x)^(m + n)*(a + b*x^n)^p, x] /; FreeQ[{a, b, c, p}, x] && IGtQ[n, 0] && LtQ[m, -1] && IntBinomialQ[a, b, c, n, m, p, x] *)
 ("1_1_3_2_66",
 @rule ∫(((~!c)*(~x))^(~m)*((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~m), (~p), (~x)) &&
@@ -813,7 +813,7 @@ ext_den((~p))*((~a1)*(~a2))^((~p) + simplify(((~m) + 1)⨸(2*(~n))))⨸(2*(~n))*
     ) ?
 (~a)^(~p)*((~c)*(~x))^((~m) + 1)⨸((~c)*((~m) + 1))* hypergeometric2f1(-(~p), ((~m) + 1)⨸(~n), ((~m) + 1)⨸(~n) + 1, -(~b)*(~x)^(~n)⨸(~a)) : nothing)
 
-# (* Int[(c_.*x_)^m_.*(a_+b_.*x_^n_)^p_,x_Symbol] := (c*x)^(m+1)*(a+b*x^n)^(p+1)/(a*c*(m+1))*Hypergeometric2F1[1,(m+1)/n+ p+1,(m+1)/n+1,-b*x^n/a] /; FreeQ[{a,b,c,m,n,p},x] && Not[IGtQ[p,0]] && Not[ILtQ[p,0] ||  GtQ[a,0]] *) 
+#(* Int[(c_.*x_)^m_.*(a_+b_.*x_^n_)^p_,x_Symbol] := (c*x)^(m+1)*(a+b*x^n)^(p+1)/(a*c*(m+1))*Hypergeometric2F1[1,(m+1)/n+ p+1,(m+1)/n+1,-b*x^n/a] /; FreeQ[{a,b,c,m,n,p},x] && Not[IGtQ[p,0]] && Not[ILtQ[p,0] ||  GtQ[a,0]] *)
 ("1_1_3_2_106",
 @rule ∫(((~!c)*(~x))^(~!m)*((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~m), (~n), (~p), (~x)) &&
@@ -861,12 +861,13 @@ int_and_subst(((~d)*(~x))^(~m)*((~a) + (~b)*(~c)^(~n)*(~x)^((~n)*(~q)))^(~p),  (
     linear((~v), (~x)) &&
     ext_isinteger((~m)) &&
     !eq((~c), 0) ?
-1⨸Symbolics.coeff((~v), (~x)^ 1)^((~m) + 1)* int_and_subst(SimplifyIntegrand[((~x) - Symbolics.coeff((~v),  (~x)^ 0))^(~m)*((~a) + (~b)*(~x)^(~n))^(~p), (~x)], (~x), (~x), (~v), "1_1_3_2_112") : nothing)
+1⨸ext_coeff((~v), (~x), 1)^((~m) + 1)* int_and_subst(ext_simplify(((~x) - ext_coeff((~v),  (~x), 0))^(~m)*((~a) + (~b)*(~x)^(~n))^(~p), (~x)), (~x), (~x), (~v), "1_1_3_2_112") : nothing)
 
 ("1_1_3_2_113",
 @rule ∫((~u)^(~!m)*((~a) + (~!b)*(~v)^(~n))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~m), (~n), (~p), (~x)) &&
     linear_pair((~u), (~v), (~x)) ?
-(~u)^(~m)⨸(Symbolics.coeff((~v), (~x)^ 1)*(~v)^(~m))* int_and_subst((~x)^(~m)*((~a) + (~b)*(~x)^(~n))^(~p),  (~x), (~x), (~v), "1_1_3_2_113") : nothing)
+(~u)^(~m)⨸(ext_coeff((~v), (~x), 1)*(~v)^(~m))* int_and_subst((~x)^(~m)*((~a) + (~b)*(~x)^(~n))^(~p),  (~x), (~x), (~v), "1_1_3_2_113") : nothing)
+
 
 ]
