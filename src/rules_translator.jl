@@ -28,6 +28,8 @@ function translate_file(input_filename, output_filename)
             $res)
             
             """
+        elseif cond == "nested"
+            tmp*="# Nested conditions found, not translating rule:\n#$line\n\n"
         else
             tmp *= 
             """
@@ -64,13 +66,13 @@ function translate_line(line, index)
     result = parts[2]
     
     # Extract conditions if present
-    c = count("/;", result) 
+    c = count("/;", result)
     if c==1
         tmp = split(result, "/;")
         result = tmp[1]
         julia_conditions = translate_conditions(tmp[2])
     elseif c==2
-        julia_conditions = "# Nested conditions found, not translating rule:\n$line"
+        return ("","nested","")
     else
         julia_conditions = nothing
     end
@@ -83,7 +85,7 @@ end
 
 # assumes all integrals in the rules are in the x variable
 function transalte_integrand(integrand)
-        simple_substitutions = [
+    simple_substitutions = [
         ("Log", "log"),
     ]
 
@@ -129,6 +131,8 @@ function split_outside_brackets(s, brakets, delimiter) # delimiter must be a ''
     return parts
 end
 
+str_to_chr_index(string, index) = length(string[1:index])
+
 # find_closing_braket(
 #    "1+Log[x]+3*Subst[Int[1/Sqrt[b*c], x], x, Sqrt[a + b*x]+Log[x]]+44+Log[x]",
 #    "Subst[Int[", "[]")
@@ -138,21 +142,23 @@ end
 function find_closing_braket(full_string, start_pattern, brakets)
     depth = count(c -> c == brakets[1], start_pattern)
     start_index = findfirst(start_pattern, full_string)
-    if start_index === nothing
-        return ""
-    end
-
-    for i in start_index[end]+1:length(full_string)
-        if full_string[i] == brakets[1]
+    start_index === nothing && error("Could not find '$start_pattern' in: $full_string")
+    
+    i = 0
+    for c in full_string[start_index[end]+1:end]
+        i+=1
+        if c == brakets[1]
             depth += 1
-        elseif full_string[i] == brakets[2]
+        elseif c == brakets[2]
             depth -= 1
             if depth == 0
-                return full_string[start_index[1]:i]
+                i1 = str_to_chr_index(full_string, start_index[1]) - 1
+                i2 = length(full_string) - i - i1 - length(start_pattern)
+                return chop(full_string, head=i1, tail=i2)
             end
         end
     end
-    error("Could not find closing bracket for '$start_pattern' in: $full_string")
+    error("Could not find closing bracket for '$start_pattern' in: $(join(full_string))")
 end
 
 
@@ -173,6 +179,7 @@ function smart_replace(str, from, to, n_args)
     substring_index = findfirst(from, str[processed:end])
     while substring_index !== nothing
         full_str = find_closing_braket(str[processed:end], from, "[]")
+        println("full_str is $full_str")
         # if the match in string is not followed by a '[' or is preceeded by a letter, continue
         if full_str[length(from)+1] !== '[' || processed + substring_index[1] > 2 && isletter(str[processed + substring_index[1] - 2])
             processed += substring_index[1] + length(full_str)
@@ -199,6 +206,7 @@ function smart_replace(str, from, to, n_args)
 end
 
 function translate_result(result, index)
+    println("----------------transalting result----------------")
     # Remove trailing symbol if present
     if endswith(result, "/;") || endswith(result, "//;")
         result = result[1:end-2]
@@ -323,6 +331,8 @@ function translate_result(result, index)
 end
 
 function translate_conditions(conditions)
+    println("----------------transalting coinditions----------------")
+    println(conditions)
     conditions = strip(conditions)
     # since a lot of times Not has inside other functions, better to use find_closing_braket
     simple_substitutions = [
