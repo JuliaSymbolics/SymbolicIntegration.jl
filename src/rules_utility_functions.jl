@@ -253,12 +253,12 @@ hypergeometric2f1(a, b, c, z) = HypergeometricFunctions._₂F₁(Complex(a), Com
 appell_f1(a, b, c, d, e, z) = throw("AppellF1 function is not implemented yet")
 
  # TODO is this enough?
-function ext_expand(u, n)
+function ext_expand(u, x)
     expand(u)
 end
 
-function ext_expand(u, n, m)
-    #???
+function ext_expand(u, v, x)
+    expand(u * v)
 end
 
 # ExpandToSum[u,x] returns u expanded into a sum of monomials of x.*
