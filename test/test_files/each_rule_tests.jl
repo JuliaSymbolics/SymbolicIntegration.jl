@@ -85,4 +85,6 @@ data = [
 # 3_2_1
 (integrand = (1+2log(2*((1+x)/((1+x)^2-x^2))^3))^3, result = 666, integration_var = x) # 1,5
 (integrand = (1+2log(2*((1+x)/((1+x)^2-x^2))^3))^3*(1+x)^2, result = 666, integration_var = x) # 23,15
+# 3_2_2
+(integrand = (1+3x)^2*(1+2x)*(1+2log(((1+3x)/(1+2x))^2)), result = 666, integration_var = x) # 23,15
 ]
