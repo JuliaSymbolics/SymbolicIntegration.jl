@@ -23,6 +23,20 @@ function contains_var(expr, var)
     return false
 end
 
+# contains_op(∫, expr) is the same as checking if the integral has been comletely solved
+function contains_op(op, expr)
+    expr = Symbolics.unwrap(expr)
+    if iscall(expr)
+        if nameof(operation(expr))=== nameof(op)
+            return true
+        end
+        return any(contains_op(op, a) for a in arguments(expr))
+    end
+    return false
+end
+
+contains_int(expr) = contains_op(∫, expr)
+
 # the last argument is the variable to check the other expr against
 function contains_var(args...)
     var = args[end]
@@ -203,18 +217,6 @@ end
 # If u+v is simpler than u, SumSimplerQ[u,v] returns True, else it returns False.
 sumsimpler(u, v) = simpler(u + v, u) && !eq(u + v, u) && !eq(v, 0)
 
-# contains_op(∫, expr) is the same as checking if the integral has been comletely solved
-function contains_op(op, expr)
-    expr = Symbolics.unwrap(expr)
-    if iscall(expr)
-        if nameof(operation(expr))=== nameof(op)
-            return true
-        end
-        return any(contains_op(op, a) for a in arguments(expr))
-    end
-    return false
-end
-
 # If u is free of inverse, calculus and hypergeometric functions involving x, returns true; else it returns False
 const inverse_functions = [
     asin, acos, atan, acot, asec, acsc,
@@ -232,7 +234,7 @@ end
 function int_and_subst(integrand, integration_var, from, to, rule_number)
     printstyled("Applied rule $rule_number with result $integrand\n\n"; color=:light_blue)
     result = integrate(integrand, integration_var)
-    if !contains_op(∫, result)
+    if !contains_int(result)
         return substitute(result, from => to)
     end
     println("Integral not solved")

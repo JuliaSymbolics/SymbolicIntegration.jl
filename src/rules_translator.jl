@@ -168,7 +168,7 @@ end
 # smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
 # = "atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
 function smart_replace(str, from, to, n_args)
-    # verbose = false
+    # verbose = from=="Log"
     if isempty(n_args)
         n_args = -1
     elseif isa(n_args[1],Tuple)
@@ -181,10 +181,10 @@ function smart_replace(str, from, to, n_args)
     processed = 1
     substring_index = findfirst(from, str[processed:end])
     while substring_index !== nothing
-#         verbose && printstyled(str[processed:end][1:substring_index[1]-1], color=:blue)
-#         verbose && printstyled(str[processed:end][substring_index[1]:substring_index[end]], color=:green)
-#         verbose && printstyled(str[processed:end][substring_index[end]+1:end], color=:blue)
-#         verbose && println()
+        # verbose && printstyled(str[processed:end][1:substring_index[1]-1], color=:blue)
+        # verbose && printstyled(str[processed:end][substring_index[1]:substring_index[end]], color=:green)
+        # verbose && printstyled(str[processed:end][substring_index[end]+1:end], color=:blue)
+        # verbose && println()
 
         full_str = find_closing_braket(str[processed:end], from, "[]")
         # if the match in string is not followed by a '[' or is preceeded by a letter, continue
@@ -204,7 +204,7 @@ function smart_replace(str, from, to, n_args)
         end
         str = replace(str, full_str => "$to($inside)")
 
-        processed += substring_index[1] + sizeof(length(to))
+        processed += substring_index[1] + sizeof(to)
         substring_index = findfirst(from, str[processed:end])
     end
     return str
@@ -356,7 +356,8 @@ function translate_conditions(conditions)
         ("Coeff", "ext_coeff", (2,3)),
         ("LeafCount", "leaf_count"),
 
-        ("AlgebraicFunctionQ", "algebraic_function", 2),
+        ("AlgebraicFunctionQ", "algebraic_function", (2,3)),
+        ("IntegralFreeQ", "contains_int", 1),
 
         ("If", "ifelse", 3),
         ("Not", "!"),
