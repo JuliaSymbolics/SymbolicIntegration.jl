@@ -67,12 +67,41 @@ function translate_line(line, index)
     
     # Extract conditions if present
     c = count("/;", result)
+    if c==2
+        m = match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)/;(?<wconds>.+?)\]\s*/;(?<conds>.+)", result)
+        if m !== nothing
+            result = replace(result, m.match => "With[{$(m[:vardefs])},$(m[:body])] /; $(m[:conds]) && $(m[:wconds])")
+        end
+        # variable definition with "With" keyword
+        # \s* is zero or more spaces in regex
+        m = match(r"With\[\{(?<var1>[a-zA-Z]{1,2})\s*=\s*(?<var1def>.*?),\s*(?<var2>[a-zA-Z]{1,2})\s*=\s*(?<var2def>.*?),\s*(?<var3>[a-zA-Z]{1,2})\s*=\s*(?<var3def>.*?)\},\s*(?<body>.*)", result)
+        if m !== nothing
+            result = m[:body]
+            result = replace(result, Regex("(?<!\\w)$(m[:var1])(?!\\w)") => m[:var1def])
+            result = replace(result, Regex("(?<!\\w)$(m[:var2])(?!\\w)") => m[:var2def])
+            result = replace(result, Regex("(?<!\\w)$(m[:var3])(?!\\w)") => m[:var3def])
+        end
+
+        m = match(r"With\[\{(?<var1>[a-zA-Z]{1,2})\s*=\s*(?<var1def>.*?),\s*(?<var2>[a-zA-Z]{1,2})\s*=\s*(?<var2def>.*?)\},\s*(?<body>.*)", result)
+        if m !== nothing
+            result = m[:body]
+            result = replace(result, Regex("(?<!\\w)$(m[:var1])(?!\\w)") => m[:var1def])
+            result = replace(result, Regex("(?<!\\w)$(m[:var2])(?!\\w)") => m[:var2def])
+        end
+
+        # With[{q = Rt[(b*c - a*d)/b, 3]}, -Log[RemoveContent[a + b*x, x]]/(2*b*q) - 3/(2*b*q)*Subst[Int[1/(q - x), x], x, (c + d*x)^(1/3)] + 3/(2*b)* Subst[Int[1/(q^2 + q*x + x^2), x], x, (c + d*x)^(1/3)]]
+        m = match(r"With\[\{(?<varname>[a-zA-Z]{1,2})\s*=\s*(?<vardef>.*?)\},(?<body>.*)", result)
+        if m !== nothing
+            result = m[:body]
+            result = replace(result, Regex("(?<!\\w)$(m[:varname])(?!\\w)") => m[:vardef])
+        end
+
+        c=1 # fall back to normal case
+    end
     if c==1
         tmp = split(result, "/;")
         result = tmp[1]
         julia_conditions = translate_conditions(tmp[2])
-    elseif c==2
-        return ("","nested","")
     else
         julia_conditions = nothing
     end
@@ -119,9 +148,9 @@ function split_outside_brackets(s, brakets, delimiter) # delimiter must be a ''
     last_pos = 1
 
     for (i, c) in enumerate(s)
-        if c == brakets[1]
+        if c in "[("
             bracket_level += 1
-        elseif c == brakets[2]
+        elseif c in "])"
             bracket_level -= 1
         elseif c == delimiter && bracket_level == 0
             push!(parts, strip(s[last_pos:i-1]))
@@ -159,7 +188,8 @@ function find_closing_braket(full_string, start_pattern, brakets)
             end
         end
     end
-    error("Could not find closing bracket for '$start_pattern' in: $(join(full_string))")
+    println("Could not find closing bracket for '$start_pattern' in: $(full_string)")
+    return -1
 end
 
 
@@ -176,7 +206,8 @@ function smart_replace(str, from, to, n_args)
         n_args = n_args[1]
     end
     # else n args is already a tuple
-    println("smart_replace: replacing $from with $to in $str (n_args=$n_args)")
+
+    # println("smart_replace: replacing $from with $to in $str (n_args=$n_args)")
 
     processed = 1
     substring_index = findfirst(from, str[processed:end])
@@ -186,7 +217,13 @@ function smart_replace(str, from, to, n_args)
         # verbose && printstyled(str[processed:end][substring_index[end]+1:end], color=:blue)
         # verbose && println()
 
-        full_str = find_closing_braket(str[processed:end], from, "[]")
+        full_str = find_closing_braket(str[processed:end], from, "[]") 
+        # if cannot find closing brakets
+        if full_str == -1
+            processed += substring_index[1] + length(from)
+            substring_index = findfirst(from, str[processed:end])
+            continue
+        end
         # if the match in string is not followed by a '[' or is preceeded by a letter, continue
         if full_str[length(from)+1] !== '[' || processed + substring_index[1] > 2 && isletter(str[processed + substring_index[1] - 2])
             processed += substring_index[1] + length(from)
@@ -195,7 +232,6 @@ function smart_replace(str, from, to, n_args)
         end
 
         inside = full_str[length(from)+2:end-1] # remove "Not[" and "]"
-
         if n_args != -1
             inside_parts = split_outside_brackets(inside, "[]", ',')
             if !(length(inside_parts) in n_args )
@@ -203,7 +239,7 @@ function smart_replace(str, from, to, n_args)
             end
         end
         str = replace(str, full_str => "$to($inside)")
-
+        
         processed += substring_index[1] + sizeof(to)
         substring_index = findfirst(from, str[processed:end])
     end
@@ -214,30 +250,6 @@ function translate_result(result, index)
     # Remove trailing symbol if present
     if endswith(result, "/;") || endswith(result, "//;")
         result = result[1:end-2]
-    end
-
-    # variable definition with "With" keyword
-    # \s* is zero or more spaces in regex
-    m = match(r"With\[\{(?<var1>[a-zA-Z]{1,2})\s*=\s*(?<var1def>.*?),\s*(?<var2>[a-zA-Z]{1,2})\s*=\s*(?<var2def>.*?),\s*(?<var3>[a-zA-Z]{1,2})\s*=\s*(?<var3def>.*?)\},\s*(?<body>.*)\]", result)
-    if m !== nothing
-        result = m[:body]
-        result = replace(result, Regex("(?<!\\w)$(m[:var1])(?!\\w)") => m[:var1def])
-        result = replace(result, Regex("(?<!\\w)$(m[:var2])(?!\\w)") => m[:var2def])
-        result = replace(result, Regex("(?<!\\w)$(m[:var3])(?!\\w)") => m[:var3def])
-    end
-
-    m = match(r"With\[\{(?<var1>[a-zA-Z]{1,2})\s*=\s*(?<var1def>.*?),\s*(?<var2>[a-zA-Z]{1,2})\s*=\s*(?<var2def>.*?)\},\s*(?<body>.*)\]", result)
-    if m !== nothing
-        result = m[:body]
-        result = replace(result, Regex("(?<!\\w)$(m[:var1])(?!\\w)") => m[:var1def])
-        result = replace(result, Regex("(?<!\\w)$(m[:var2])(?!\\w)") => m[:var2def])
-    end
-
-    # With[{q = Rt[(b*c - a*d)/b, 3]}, -Log[RemoveContent[a + b*x, x]]/(2*b*q) - 3/(2*b*q)*Subst[Int[1/(q - x), x], x, (c + d*x)^(1/3)] + 3/(2*b)* Subst[Int[1/(q^2 + q*x + x^2), x], x, (c + d*x)^(1/3)]]
-    m = match(r"With\[\{(?<varname>[a-zA-Z]{1,2})\s*=\s*(?<vardef>.*?)\}, (?<body>.*)\]", result)
-    if m !== nothing
-        result = m[:body]
-        result = replace(result, Regex("(?<!\\w)$(m[:varname])(?!\\w)") => m[:vardef])
     end
     
     # substitution with integral inside
