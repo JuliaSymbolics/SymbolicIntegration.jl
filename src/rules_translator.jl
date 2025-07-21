@@ -218,6 +218,14 @@ function translate_result(result, index)
 
     # variable definition with "With" keyword
     # \s* is zero or more spaces in regex
+    m = match(r"With\[\{(?<var1>[a-zA-Z]{1,2})\s*=\s*(?<var1def>.*?),\s*(?<var2>[a-zA-Z]{1,2})\s*=\s*(?<var2def>.*?),\s*(?<var3>[a-zA-Z]{1,2})\s*=\s*(?<var3def>.*?)\},\s*(?<body>.*)\]", result)
+    if m !== nothing
+        result = m[:body]
+        result = replace(result, Regex("(?<!\\w)$(m[:var1])(?!\\w)") => m[:var1def])
+        result = replace(result, Regex("(?<!\\w)$(m[:var2])(?!\\w)") => m[:var2def])
+        result = replace(result, Regex("(?<!\\w)$(m[:var3])(?!\\w)") => m[:var3def])
+    end
+
     m = match(r"With\[\{(?<var1>[a-zA-Z]{1,2})\s*=\s*(?<var1def>.*?),\s*(?<var2>[a-zA-Z]{1,2})\s*=\s*(?<var2def>.*?)\},\s*(?<body>.*)\]", result)
     if m !== nothing
         result = m[:body]
@@ -347,6 +355,8 @@ function translate_conditions(conditions)
         ("Coefficient", "ext_coeff", (2,3)),
         ("Coeff", "ext_coeff", (2,3)),
         ("LeafCount", "leaf_count"),
+
+        ("AlgebraicFunctionQ", "algebraic_function", 2),
 
         ("If", "ifelse", 3),
         ("Not", "!"),
