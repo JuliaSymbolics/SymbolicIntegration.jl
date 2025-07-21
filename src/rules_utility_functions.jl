@@ -318,20 +318,18 @@ function monomial(u, x)
     return nothing
 end
 
+# if u is an expression equivalent to a+bx^n with a,b,n constants,
+# b and n != 0, returns true
 function binomial_without_simplify(u, x)
     (@rule (~a::(a -> !contains_var(a, x))) + (~!b::(b -> !contains_var(b, x)))*x^(~!n::(n -> !contains_var(n, x))) => 1)(u) !== nothing
 end
 function binomial_without_simplify(u, x, pow)
     (@rule (~a::(a -> !contains_var(a, x))) + (~!b::(b -> !contains_var(b,x)))*x^(~!n::(n -> !contains_var(n,x) && n===pow)) => 1)(u) !== nothing
 end
-# if u is an expression equivalent to a+bx^n with a,b,n constants,
-# b and n != 0, returns true
-function binomial(u, x)
-    binomial_without_simplify(simplify(u; expand = true),x)
-end
-function binomial(u, x, n)
-    binomial_without_simplify(simplify(u; expand = true), x, n)
-end
+binomial(u, x) = binomial_without_simplify(simplify(u; expand = true),x)
+binomial(u::Vector,x) = all(binomial(e,x) for e in u)
+binomial(u, x, n) = binomial_without_simplify(simplify(u; expand = true), x, n)
+binomial(u::Vector,x,n) = all(binomial(e,x,n) for e in u)
 
 # If u is a polynomial in x of degree n, poly_degreee(u,x) returns n, else nothing
 function poly_degreee(u, x)

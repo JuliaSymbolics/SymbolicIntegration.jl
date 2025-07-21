@@ -91,4 +91,7 @@ data = [
 (integrand = (1+2log(3*sqrt(1+x)/sqrt(1-x)))^2/(1-x^2), result = (1//6)*((1 + 2log((3sqrt(1 + x)) / sqrt(1 - x)))^3), integration_var = x) # 15
 # 3_3
 (integrand = log(1+2x)*log(1+3x)/x, result = -PolyLog.reli(3, 1 + 2x) + PolyLog.reli(3, (1 + 2x) / (1 + 3x)) - PolyLog.reli(3, 1 + 3x) - PolyLog.reli(3, (3(1 + 2x)) / (2(1 + 3x))) + PolyLog.reli(2, (1 + 2x) / (1 + 3x))*log((1 + 3x) / (1 + 2x)) + PolyLog.reli(2, 1 + 3x)*(log((1 + 3x) / (1 + 2x)) + log(1 + 2x)) - PolyLog.reli(2, (3(1 + 2x)) / (2(1 + 3x)))*log((1 + 3x) / (1 + 2x)) + (log(1 + 3x) - log((1 + 3x) / (1 + 2x)))*PolyLog.reli(2, 1 + 2x) - (1//2)*(-log(-3x) + log(-2x))*((log((1 + 3x) / (1 + 2x)) + log(1 + 2x))^2) + log(-2x)*log(1 + 3x)*log(1 + 2x) + (1//2)*(log(-2x) + log(-1 / (2(1 + 3x))) - log(x / (1 + 3x)))*(log((1 + 3x) / (1 + 2x))^2), integration_var = x) # 50 this is really suspicious but aslo Mathematica confirms it
+# 3_4
+(integrand = log(3*(1+2x^6)^3), result = 666, integration_var = x) # 2
+(integrand = (1+2log(2*(1+1/x)^3))^3, result = 666, integration_var = x) # 3
 ]

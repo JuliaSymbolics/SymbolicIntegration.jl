@@ -3,7 +3,7 @@
 (* 3.4 u (a+b log(c (d+e x^m)^n))^p *)
 Int[Pq_^m_.*Log[u_], x_Symbol] := With[{C = FullSimplify[Pq^m*(1 - u)/D[u, x]]}, C*PolyLog[2, 1 - u] /; FreeQ[C, x]] /; IntegerQ[m] && PolyQ[Pq, x] && RationalFunctionQ[u, x] && LeQ[RationalFunctionExponents[u, x][[2]], Expon[Pq, x]]
 Int[Log[c_.*(d_ + e_.*x_^n_)^p_.], x_Symbol] := x*Log[c*(d + e*x^n)^p] - e*n*p*Int[x^n/(d + e*x^n), x] /; FreeQ[{c, d, e, n, p}, x]
-Int[(a_. + b_.*Log[c_.*(d_ + e_./x_)^p_.])^q_, x_Symbol] := (e + d*x)*(a + b*Log[c*(d + e/x)^p])^q/d + b*e*p*q/d*Int[(a + b*Log[c*(d + e/x)^p])^(q - 1)/x, x] /; FreeQ[{a, b, c, d, e, p}, x] && IGtQ[q, 0]
+Int[(a_. + b_.*Log[c_.*(d_ + e_/x_)^p_.])^q_, x_Symbol] := (e + d*x)*(a + b*Log[c*(d + e/x)^p])^q/d + b*e*p*q/d*Int[(a + b*Log[c*(d + e/x)^p])^(q - 1)/x, x] /; FreeQ[{a, b, c, d, e, p}, x] && IGtQ[q, 0]
 Int[(a_. + b_.*Log[c_.*(d_ + e_.*x_^n_)^p_.])^q_, x_Symbol] := x*(a + b*Log[c*(d + e*x^n)^p])^q - b*e*n*p*q* Int[x^n*(a + b*Log[c*(d + e*x^n)^p])^(q - 1)/(d + e*x^n), x] /; FreeQ[{a, b, c, d, e, n, p}, x] && IGtQ[q, 0] && (EqQ[q, 1] || IntegerQ[n])
 (* Int[(a_.+b_.*Log[c_.*(d_+e_.*x_^n_)^p_.])^q_,x_Symbol] := With[{k=Denominator[n]}, k*Subst[Int[x^(k-1)*(a+b*Log[c*(d+e*x^(k*n))^p])^q,x],x,x^(1/k)]] /; FreeQ[{a,b,c,d,e,p,q},x] && LtQ[-1,n,1] && (GtQ[n,0] || IGtQ[q,0]) *)
 Int[(a_. + b_.*Log[c_.*(d_ + e_.*x_^n_)^p_.])^q_, x_Symbol] := With[{k = Denominator[n]}, k*Subst[Int[x^(k - 1)*(a + b*Log[c*(d + e*x^(k*n))^p])^q, x], x, x^(1/k)]] /; FreeQ[{a, b, c, d, e, p, q}, x] && FractionQ[n]

@@ -425,6 +425,9 @@ function translate_conditions(conditions)
         ("TrueQ[\$UseGamma]", "USE_GAMMA"),
         (r"MemberQ\[{(.*?)},(.*?)\]", s"in(\2, [\1])"),
 
+        ("{", "["), # to transform lists syntax
+        ("}", "]"),
+
         # convert conditions variables.
         (r"(?<!\w)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
     ]

@@ -66,6 +66,8 @@ function load_all_rules()
     "3 Logarithms/3.2/3.2.1 (f+g x)^m (A+B log(e ((a+b x) over (c+d x))^n))^p.jl"
     "3 Logarithms/3.2/3.2.2 (f+g x)^m (h+i x)^q (A+B log(e ((a+b x) over (c+d x))^n))^p.jl"
     "3 Logarithms/3.2/3.2.3 u log(e (f (a+b x)^p (c+d x)^q)^r)^s.jl"
+    "3 Logarithms/3.3 u (a+b log(c (d+e x)^n))^p.jl"
+    "3 Logarithms/3.4 u (a+b log(c (d+e x^m)^n))^p.jl"
     ]
     return load_all_rules([joinpath(@__DIR__, "rules/" * file) for file in rules_paths])
 end
