@@ -63,11 +63,13 @@ function load_all_rules()
     "3 Logarithms/3.1/3.1.3 (d+e x^r)^q (a+b log(c x^n))^p.jl"
     "3 Logarithms/3.1/3.1.4 (f x)^m (d+e x^r)^q (a+b log(c x^n))^p.jl"
     "3 Logarithms/3.1/3.1.5 u (a+b log(c x^n))^p.jl"
+    "3 Logarithms/3.2/3.2.1 (f+g x)^m (A+B log(e ((a+b x) over (c+d x))^n))^p.jl"
     ]
     return load_all_rules([joinpath(@__DIR__, "rules/" * file) for file in rules_paths])
 end
 
 # Load all rules at module initialization
+# TODO make const? vector of rules? some other type? faster???
 rules, identifiers = [],[]#load_all_rules()
 
 # TODO just for debug, remove later
