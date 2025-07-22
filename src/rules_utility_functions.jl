@@ -70,6 +70,11 @@ function issum(u)
     return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === +
 end
 
+function isprod(u)
+    u = Symbolics.unwrap(u)
+    return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === *
+end
+
 function ext_coeff(u, x)
     try 
         return Symbolics.coeff(u, x)
