@@ -198,7 +198,7 @@ end
 # smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
 # = "atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
 function smart_replace(str, from, to, n_args)
-    # verbose = from=="Log"
+    verbose = from=="Log"
     if isempty(n_args)
         n_args = -1
     elseif isa(n_args[1],Tuple)
@@ -212,10 +212,10 @@ function smart_replace(str, from, to, n_args)
     processed = 1
     substring_index = findfirst(from, str[processed:end])
     while substring_index !== nothing
-        # verbose && printstyled(str[processed:end][1:substring_index[1]-1], color=:blue)
-        # verbose && printstyled(str[processed:end][substring_index[1]:substring_index[end]], color=:green)
-        # verbose && printstyled(str[processed:end][substring_index[end]+1:end], color=:blue)
-        # verbose && println()
+        verbose && printstyled(str[processed:end][1:substring_index[1]-1], color=:blue)
+        verbose && printstyled(str[processed:end][substring_index[1]:substring_index[end]], color=:green)
+        verbose && printstyled(str[processed:end][substring_index[end]+1:end], color=:blue)
+        verbose && println()
 
         full_str = find_closing_braket(str[processed:end], from, "[]") 
         # if cannot find closing brakets
@@ -239,8 +239,11 @@ function smart_replace(str, from, to, n_args)
             end
         end
         str = replace(str, full_str => "$to($inside)")
-        
+        println(substring_index[1]," ", sizeof(to))
+        println("processed: $processed")
         processed += substring_index[1] + sizeof(to)
+        println("processed: $processed")
+        println(str[processed:end])
         substring_index = findfirst(from, str[processed:end])
     end
     return str
@@ -276,6 +279,7 @@ function translate_result(result, index)
         ("ArcCosh", "acosh"),
         ("ArcCos", "acos"),
         ("Exp", "exp"),
+        ("Log", "log"),
 
         # definied in SpecialFunctions.jl
         ("ExpIntegralEi", "SymbolicUtils.expinti", (1,2)),
