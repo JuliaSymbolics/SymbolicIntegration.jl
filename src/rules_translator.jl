@@ -199,7 +199,7 @@ end
 # smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
 # = "atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
 function smart_replace(str, from, to, n_args)
-    # verbose = from=="Log"
+    # verbose = from=="Gamma"
     if isempty(n_args)
         n_args = -1
     elseif isa(n_args[1],Tuple)
@@ -239,7 +239,9 @@ function smart_replace(str, from, to, n_args)
                 error("Expected $n_args arguments in '$from', but got $(length(inside_parts)) in: $str")
             end
         end
-        str = replace(str, full_str => "$to($inside)")
+
+        # replace without using the replace function
+        str = str[1:substring_index[1]-2+processed] * "$to($inside)" * str[substring_index[1]+length(full_str)+processed-1:end]
         processed += substring_index[1] + sizeof(to)
         substring_index = findfirst(from, str[processed:end])
     end
