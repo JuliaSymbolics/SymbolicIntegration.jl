@@ -283,6 +283,7 @@ function translate_result(result, index)
         # definied in SpecialFunctions.jl
         ("ExpIntegralEi", "SymbolicUtils.expinti", (1,2)),
         ("Gamma", "SymbolicUtils.gamma"),
+        ("LogGamma", "SymbolicUtils.loggamma"),
         ("Erfi", "SymbolicUtils.erfi"),
         ("Erf", "SymbolicUtils.erf"),
         ("PolyLog", "PolyLog.reli", 2),

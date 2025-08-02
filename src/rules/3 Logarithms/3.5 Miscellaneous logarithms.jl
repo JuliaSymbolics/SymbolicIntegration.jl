@@ -285,7 +285,7 @@ log((~a)*(~x)^(~m) + (~b)*log((~c)*(~x)^(~n))^(~q))⨸((~b)*(~n)*(~q)) - (~a)*(~
 #(* If[TrueQ[$LoadShowSteps], Int[u_/x_,x_Symbol] := With[{lst=FunctionOfLog[u,x]}, ShowStep["","Int[F[Log[a*x^n]]/x,x]","Subst[Int[F[x],x],x,Log[a*x^n] ]/n",Hold[ 1/lst[[3]]*Subst[Int[lst[[1]],x],x,Log[lst[[2]]]]]] /; Not[FalseQ[lst]]] /; SimplifyFlag && NonsumQ[u], Int[u_/x_,x_Symbol] := With[{lst=FunctionOfLog[u,x]}, 1/lst[[3]]*Subst[Int[lst[[1]],x],x,Log[lst[[2]]]] /; Not[FalseQ[lst]]] /; NonsumQ[u]] *)
 ("3_5_41",
 @rule ∫((~!u)*log(SymbolicUtils.gamma((~v))),(~x)) =>
-(log(SymbolicUtils.gamma((~v))) - LogSymbolicUtils.gamma((~v)))*∫((~u), (~x)) + ∫((~u)*LogSymbolicUtils.gamma((~v)), (~x)))
+(log(SymbolicUtils.gamma((~v))) - SymbolicUtils.loggamma((~v)))*∫((~u), (~x)) + ∫((~u)*SymbolicUtils.loggamma((~v)), (~x)))
 
 ("3_5_42",
 @rule ∫((~!u)*((~!a)*(~x)^(~!m) + (~!b)*(~x)^(~!r)*log((~!c)*(~x)^(~!n))^(~!q))^(~!p),(~x)) =>
