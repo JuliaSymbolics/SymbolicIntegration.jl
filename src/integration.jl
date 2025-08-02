@@ -30,8 +30,6 @@ function repeated_prewalk(x, verbose)
             else
                 verbose && println("Infinite cycle detected for ", x, ", aborting.")
             end
-        else
-            return x
         end
     end
 
