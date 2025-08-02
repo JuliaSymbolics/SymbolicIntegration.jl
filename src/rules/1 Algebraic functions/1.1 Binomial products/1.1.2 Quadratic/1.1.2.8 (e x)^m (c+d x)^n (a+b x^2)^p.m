@@ -517,7 +517,8 @@ FreeQ[{a,b,c,d,p},x] && EqQ[b*c^2+a*d^2,0] && IntegerQ[2*p] && IntegerQ[m] && IL
 (* ::Code:: *)
 Int[(e_.*x_)^m_*(c_+d_.*x_)^n_*(a_+b_.*x_^2)^p_,x_Symbol] :=
   c^(2*n)/a^n \[Star] Int[(e*x)^m*(a+b*x^2)^(n+p)/(c-d*x)^n,x] /;
-FreeQ[{a,b,c,d,e,m,p},x] && EqQ[b*c^2+a*d^2,0] && ILtQ[n,0] (* && Not[IGtQ[m,0] && ILtQ[m+n,0] && Not[GtQ[p,1]]] *)
+FreeQ[{a,b,c,d,e,m,p},x] && EqQ[b*c^2+a*d^2,0] && ILtQ[n,0]
+(* && Not[IGtQ[m,0] && ILtQ[m+n,0] && Not[GtQ[p,1]]] *)
 
 
 (* ::Code:: *)

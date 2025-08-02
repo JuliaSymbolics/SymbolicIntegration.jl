@@ -3,7 +3,8 @@
 (* 4.1.1.1 (a+b sin)^n *)
 Int[sin[c_. + d_.*x_]^n_, x_Symbol] := -1/d*Subst[Int[Expand[(1 - x^2)^((n - 1)/2), x], x], x, Cos[c + d*x]] /; FreeQ[{c, d}, x] && IGtQ[(n - 1)/2, 0]
 Int[sin[c_. + d_.*x_/2]^2, x_Symbol] := x/2 - Sin[2*c + d*x]/(2*d) /; FreeQ[{c, d}, x]
-Int[(b_.*sin[c_. + d_.*x_])^n_, x_Symbol] := (* -Cot[c+d*x]*(c*Sin[c+d*x])^n/(d*n) +  b^2*(n-1)/n*Int[(b*Sin[c+d*x])^(n-2),x] *) -b*Cos[c + d*x]*(b*Sin[c + d*x])^(n - 1)/(d*n) + b^2*(n - 1)/n*Int[(b*Sin[c + d*x])^(n - 2), x] /; FreeQ[{b, c, d}, x] && GtQ[n, 1] && IntegerQ[2*n]
+(* original line: Int[(b_.*sin[c_. + d_.*x_])^n_, x_Symbol] := (* -Cot[c+d*x]*(c*Sin[c+d*x])^n/(d*n) +  b^2*(n-1)/n*Int[(b*Sin[c+d*x])^(n-2),x] *) -b*Cos[c + d*x]*(b*Sin[c + d*x])^(n - 1)/(d*n) + b^2*(n - 1)/n*Int[(b*Sin[c + d*x])^(n - 2), x] /; FreeQ[{b, c, d}, x] && GtQ[n, 1] && IntegerQ[2*n] *)
+Int[(b_.*sin[c_. + d_.*x_])^n_, x_Symbol] :=  -b*Cos[c + d*x]*(b*Sin[c + d*x])^(n - 1)/(d*n) + b^2*(n - 1)/n*Int[(b*Sin[c + d*x])^(n - 2), x] /; FreeQ[{b, c, d}, x] && GtQ[n, 1] && IntegerQ[2*n]
 Int[(b_.*sin[c_. + d_.*x_])^n_, x_Symbol] := Cos[c + d*x]*(b*Sin[c + d*x])^(n + 1)/(b*d*(n + 1)) + (n + 2)/(b^2*(n + 1))*Int[(b*Sin[c + d*x])^(n + 2), x] /; FreeQ[{b, c, d}, x] && LtQ[n, -1] && IntegerQ[2*n]
 Int[sin[c_. + Pi/2 + d_.*x_], x_Symbol] := Sin[c + d*x]/d /; FreeQ[{c, d}, x]
 Int[sin[c_. + d_.*x_], x_Symbol] := -Cos[c + d*x]/d /; FreeQ[{c, d}, x]

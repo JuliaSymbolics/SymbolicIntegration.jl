@@ -34,7 +34,8 @@ Int[(d_ + e_.*Log[c_.*x_^n_.])/(a_.*x_ + b_.*Log[c_.*x_^n_.]^q_)^2, x_Symbol] :=
 Int[Log[u_], x_Symbol] := x*Log[u] - Int[SimplifyIntegrand[x*D[u, x]/u, x], x] /; InverseFunctionFreeQ[u, x]
 Int[Log[u_], x_Symbol] := x*Log[u] - Int[SimplifyIntegrand[x*Simplify[D[u, x]/u], x], x] /; ProductQ[u]
 Int[Log[u_]/(a_. + b_.*x_), x_Symbol] := Log[a + b*x]*Log[u]/b - 1/b*Int[SimplifyIntegrand[Log[a + b*x]*D[u, x]/u, x], x] /; FreeQ[{a, b}, x] && RationalFunctionQ[D[u, x]/u, x] && (NeQ[a, 0] || Not[BinomialQ[u, x] && EqQ[BinomialDegree[u, x]^2, 1]])
-Int[(a_. + b_.*x_)^m_.*Log[u_], x_Symbol] := (a + b*x)^(m + 1)*Log[u]/(b*(m + 1)) - 1/(b*(m + 1))* Int[SimplifyIntegrand[(a + b*x)^(m + 1)*D[u, x]/u, x], x] /; FreeQ[{a, b, m}, x] && InverseFunctionFreeQ[u, x] && NeQ[m, -1] (* && Not[FunctionOfQ[x^(m+1),u,x]] && FalseQ[PowerVariableExpn[u,m+1, x]] *)
+Int[(a_. + b_.*x_)^m_.*Log[u_], x_Symbol] := (a + b*x)^(m + 1)*Log[u]/(b*(m + 1)) - 1/(b*(m + 1))* Int[SimplifyIntegrand[(a + b*x)^(m + 1)*D[u, x]/u, x], x] /; FreeQ[{a, b, m}, x] && InverseFunctionFreeQ[u, x] && NeQ[m, -1]
+ (* && Not[FunctionOfQ[x^(m+1),u,x]] && FalseQ[PowerVariableExpn[u,m+1, x]] *)
 Int[Log[u_]/Qx_, x_Symbol] := With[{v = IntHide[1/Qx, x]}, v*Log[u] - Int[SimplifyIntegrand[v*D[u, x]/u, x], x]] /; QuadraticQ[Qx, x] && InverseFunctionFreeQ[u, x]
 Int[u_^(a_.*x_)*Log[u_], x_Symbol] := u^(a*x)/a - Int[SimplifyIntegrand[x*u^(a*x - 1)*D[u, x], x], x] /; FreeQ[a, x] && InverseFunctionFreeQ[u, x]
 Int[v_*Log[u_], x_Symbol] := With[{w = IntHide[v, x]}, Dist[Log[u], w, x] - Int[SimplifyIntegrand[w*D[u, x]/u, x], x] /; InverseFunctionFreeQ[w, x]] /; InverseFunctionFreeQ[u, x]

@@ -4,7 +4,8 @@
 Int[csc[c_. + d_.*x_]^n_, x_Symbol] := -1/d*Subst[Int[ExpandIntegrand[(1 + x^2)^(n/2 - 1), x], x], x, Cot[c + d*x]] /; FreeQ[{c, d}, x] && IGtQ[n/2, 0]
 Int[(b_.*csc[c_. + d_.*x_])^n_, x_Symbol] := -b*Cos[c + d*x]*(b*Csc[c + d*x])^(n - 1)/(d*(n - 1)) + b^2*(n - 2)/(n - 1)*Int[(b*Csc[c + d*x])^(n - 2), x] /; FreeQ[{b, c, d}, x] && GtQ[n, 1] && IntegerQ[2*n]
 Int[(b_.*csc[c_. + d_.*x_])^n_, x_Symbol] := Cos[c + d*x]*(b*Csc[c + d*x])^(n + 1)/(b*d*n) + (n + 1)/(b^2*n)*Int[(b*Csc[c + d*x])^(n + 2), x] /; FreeQ[{b, c, d}, x] && LtQ[n, -1] && IntegerQ[2*n]
-Int[csc[c_. + d_.*x_], x_Symbol] := (* -ArcCoth[Cos[c+d*x]]/d /; *) -ArcTanh[Cos[c + d*x]]/d /; FreeQ[{c, d}, x]
+(* original line: Int[csc[c_. + d_.*x_], x_Symbol] := (* -ArcCoth[Cos[c+d*x]]/d /; *) -ArcTanh[Cos[c + d*x]]/d /; FreeQ[{c, d}, x] *)
+Int[csc[c_. + d_.*x_], x_Symbol] := -ArcTanh[Cos[c + d*x]]/d /; FreeQ[{c, d}, x]
 (* Int[1/csc[c_.+d_.*x_],x_Symbol] := -Cos[c+d*x]/d /; FreeQ[{c,d},x] *)
 Int[(b_.*csc[c_. + d_.*x_])^n_, x_Symbol] := (b*Csc[c + d*x])^n*Sin[c + d*x]^n*Int[1/Sin[c + d*x]^n, x] /; FreeQ[{b, c, d}, x] && EqQ[n^2, 1/4]
 Int[(b_.*csc[c_. + d_.*x_])^n_, x_Symbol] := (b*Csc[c + d*x])^(n - 1)*((Sin[c + d*x]/b)^(n - 1)* Int[1/(Sin[c + d*x]/b)^n, x]) /; FreeQ[{b, c, d, n}, x] && Not[IntegerQ[n]]
