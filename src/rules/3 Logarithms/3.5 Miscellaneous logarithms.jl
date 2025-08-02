@@ -209,12 +209,12 @@ log((~a)*(~x)^(~m) + (~b)*log((~c)*(~x)^(~n))^(~q))⨸((~b)*(~n)*(~q)) - (~a)*(~
 ("3_5_30",
 @rule ∫(log((~u)),(~x)) =>
     !contains_inverse_function((~u), (~x)) ?
-(~x)*log((~u)) - ∫(ext_simplify((~x)*(~D)[(~u), (~x)]⨸(~u), (~x)), (~x)) : nothing)
+(~x)*log((~u)) - ∫(ext_simplify((~x)*Symbolics.derivative((~u), (~x))⨸(~u), (~x)), (~x)) : nothing)
 
 ("3_5_31",
 @rule ∫(log((~u)),(~x)) =>
-    ProductQ[(~u)] ?
-(~x)*log((~u)) - ∫(ext_simplify((~x)*simplify((~D)[(~u), (~x)]⨸(~u)), (~x)), (~x)) : nothing)
+    isprod((~u)) ?
+(~x)*log((~u)) - ∫(ext_simplify((~x)*simplify(Symbolics.derivative((~u), (~x))⨸(~u)), (~x)), (~x)) : nothing)
 
 # ("3_5_32",
 # @rule ∫(log((~u))/((~!a) + (~!b)*(~x)),(~x)) =>
@@ -250,7 +250,7 @@ log((~a)*(~x)^(~m) + (~b)*log((~c)*(~x)^(~n))^(~q))⨸((~b)*(~n)*(~q)) - (~a)*(~
 @rule ∫((~u)^((~!a)*(~x))*log((~u)),(~x)) =>
     !contains_var((~a), (~x)) &&
     !contains_inverse_function((~u), (~x)) ?
-(~u)^((~a)*(~x))⨸(~a) - ∫(ext_simplify((~x)*(~u)^((~a)*(~x) - 1)*(~D)[(~u), (~x)], (~x)), (~x)) : nothing)
+(~u)^((~a)*(~x))⨸(~a) - ∫(ext_simplify((~x)*(~u)^((~a)*(~x) - 1)*Symbolics.derivative((~u), (~x)), (~x)), (~x)) : nothing)
 
 # ("3_5_36",
 # @rule ∫((~v)*log((~u)),(~x)) =>
@@ -268,7 +268,7 @@ log((~a)*(~x)^(~m) + (~b)*log((~c)*(~x)^(~n))^(~q))⨸((~b)*(~n)*(~q)) - (~a)*(~
 @rule ∫(log((~v))*log((~w)),(~x)) =>
     !contains_inverse_function((~v), (~x)) &&
     !contains_inverse_function((~w), (~x)) ?
-(~x)*log((~v))*log((~w)) - ∫(ext_simplify((~x)*log((~w))*(~D)[(~v), (~x)]⨸(~v), (~x)), (~x)) - ∫(ext_simplify((~x)*log((~v))*(~D)[(~w), (~x)]⨸(~w), (~x)), (~x)) : nothing)
+(~x)*log((~v))*log((~w)) - ∫(ext_simplify((~x)*log((~w))*Symbolics.derivative((~v), (~x))⨸(~v), (~x)), (~x)) - ∫(ext_simplify((~x)*log((~v))*Symbolics.derivative((~w), (~x))⨸(~w), (~x)), (~x)) : nothing)
 
 # ("3_5_39",
 # @rule ∫((~u)*log((~v))*log((~w)),(~x)) =>

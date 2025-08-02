@@ -270,6 +270,8 @@ function translate_result(result, index)
     end
 
     simple_substitutions = [
+        ("D", "Symbolics.derivative"),
+
         ("Sqrt", "sqrt"),
         ("ArcTanh", "atanh"),
         ("ArcTan", "atan"),

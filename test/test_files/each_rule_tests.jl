@@ -94,4 +94,8 @@ data = [
 # 3_4
 (integrand = log(3*(1+2x^6)^3), result = 666, integration_var = x) # 2
 (integrand = (1+2log(2*(1+1/x)^3))^3, result = 666, integration_var = x) # 3
+# 3_5
+(integrand = log(sin(x)), result = 666, integration_var = x) # 30
+(integrand = log(2asin(x)), result = 666, integration_var = x) # 31
+(integrand = x*log(SymbolicUtils.gamma(x^2)), result = 666, integration_var = x) # 41
 ]
