@@ -497,10 +497,9 @@ end
 function algebraic_function(u, x)
     !iscall(u) && return true
     o = operation(u)
-    o in [*,+,/] && return all(algebraic_function(a,x) for a in arguments(u))
     ar = arguments(u)
-    # an alternative can be checking !contains_var(ar[2],x) instead of rational
-    (o===^) && return algebraic_function(ar[1],x) && rational(ar[2])
+    o in [*,+,/] && return all(algebraic_function(a,x) for a in ar)
+    (o===^) && return algebraic_function(ar[1],x) && rational(ar[2]) # an alternative can be !contains_var(ar[2],x) instead of rational(ar[2])
     (o===sqrt) && return algebraic_function(arguments(u)[1], x)
     return false
 end
@@ -510,3 +509,22 @@ function algebraic_function(u::Num, x::Num)
     x = Symbolics.unwrap(x)
     algebraic_function(u, x)
 end
+
+# returns true if u is a rational function of x
+function rational_function(u, x)
+    !iscall(u) && return true
+    o = operation(u)
+    ar = arguments(u)
+    o in [+,*,/] && return all(rational_function(a,x) for a in ar)
+    (o===^) && return ext_isinteger(ar[2]) && rational_function(ar[1],x)
+    # non integrer powers make it a non rational function
+    return false
+end
+
+function rational_function(u::Num, x::Num)
+    u = Symbolics.unwrap(u)
+    x = Symbolics.unwrap(x)
+    rational_function(u, x)
+end
+
+

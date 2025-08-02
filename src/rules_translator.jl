@@ -65,7 +65,12 @@ function translate_line(line, index)
     integral = parts[1]
     result = parts[2]
     
-    # deal with "With" Mathematica syntax
+    # the "With" Mathematica syntax allows to write expressions like
+    # With[{a = Sqrt[2], b = 2}, a + b + c /; a > 0 && b < 10] /; c < 1
+    # so the variables a and b are definied only inside the With block.
+    # whenever that happens in the rules we could define a custom function
+    # defining custom variables, or simply substitute the variables with
+    # their definitions. this second option is choosen
     if occursin("With", result)
         # move the conditions involving the newly definied variables to the end
         # remember that \s* is zero or more spaces in regex
@@ -371,6 +376,7 @@ function translate_conditions(conditions)
         ("LeafCount", "leaf_count"),
 
         ("AlgebraicFunctionQ", "algebraic_function", (2,3)),
+        ("RationalFunctionQ", "rational_function", 2),
         ("IntegralFreeQ", "contains_int", 1),
 
         ("EqQ", "eq"),
