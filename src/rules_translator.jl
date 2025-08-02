@@ -63,47 +63,14 @@ function translate_line(line, index)
     end
     
     integral = parts[1]
-    result = parts[2]
-    
-    # the "With" Mathematica syntax allows to write expressions like
-    # With[{a = Sqrt[2], b = 2}, a + b + c /; a > 0 && b < 10] /; c < 1
-    # so the variables a and b are definied only inside the With block.
-    # whenever that happens in the rules we could define a custom function
-    # defining custom variables, or simply substitute the variables with
-    # their definitions. this second option is choosen
-    if occursin("With", result)
-        # move the conditions involving the newly definied variables to the end
-        # remember that \s* is zero or more spaces in regex
-        m = match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)/;(?<wconds>.+?)\]\s*/;(?<conds>.+)", result)
-        if m !== nothing
-            result = replace(result, m.match => "With[{$(m[:vardefs])},$(m[:body])] /; $(m[:conds]) && $(m[:wconds])")
-        else
-            # address also the case in wich there are only conditions with newly definied varaibles
-            m = match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)/;(?<wconds>.+?)\]", result)
-            if m !== nothing
-                result = replace(result, m.match => "With[{$(m[:vardefs])},$(m[:body])] /; $(m[:wconds])")
-            end
-        end
-        
-        # replaces newly definied variables with their definitions
-        m = match(r"With\[\{(?<vardefs>.*?)\},\s*(?<body>.*)", result)
-        if m !== nothing
-            result = m[:body]
-            for a in split_outside_brackets(m[:vardefs], "[]", ',')
-                a = strip(a)
-                !occursin("=", a) && continue
-                var_match = match(r"^\s*(?<varname>[a-zA-Z]{1,2}\d*)\s*=\s*(?<vardef>.*)", a)
-                var_match === nothing && continue
-                result = replace(result, Regex("(?<!\\w)$(var_match[:varname])(?!\\w)") => var_match[:vardef])
-            end
-        end
-    end
+    result_and_conds = translate_With_syntax(parts[2])
 
-    if count("/;", result)==1
-        tmp = split(result, "/;")
+    if count("/;", result_and_conds)==1
+        tmp = split(result_and_conds, "/;")
         result = tmp[1]
         julia_conditions = translate_conditions(tmp[2])
     else
+        result = result_and_conds
         julia_conditions = nothing
     end
     
@@ -111,6 +78,47 @@ function translate_line(line, index)
     julia_result = translate_result(result, index)
     
     return (julia_integrand, julia_conditions, julia_result)
+end
+
+# the "With" Mathematica syntax allows to write expressions like
+# With[{a = Sqrt[2], b = 2}, a + b + c /; a > 0 && b < 10] /; c < 1
+# so the variables a and b are definied only inside the With block.
+# whenever that happens in the rules we could define a custom function
+# defining custom variables, or simply substitute the variables with
+# their definitions. this second option is choosen
+# remember that \s* is zero or more spaces in regex
+function translate_With_syntax(s)
+    !occursin("With", s) && return s
+    
+    # move the conditions involving the with-variables to the end
+    # if both conditions present
+    if match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)/;(?<wconds>.+?)\]\s*/;(?<conds>.+)", s) !== nothing
+        m = match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)/;(?<wconds>.+?)\]\s*/;(?<conds>.+)", s)
+        s = replace(s, m.match => "With[{$(m[:vardefs])},$(m[:body])] /; $(m[:conds]) && $(m[:wconds])")
+    # if only conditions with normal variables
+    elseif match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)\s*\]\s*/;(?<conds>.+)\s*$", s) !== nothing
+        # nothing to do here, just needs to match before the next case
+    # if only conditions with with-variables
+    elseif match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)/;(?<wconds>.+)\]\s*$", s) !== nothing
+        m = match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)/;(?<wconds>.+)\]\s*$", s)
+        count("[", m[:body]) != count("]", m[:body]) && error("error in transaltion of with module")
+        s = replace(s, m.match => "With[{$(m[:vardefs])},$(m[:body])] /; $(m[:wconds])")
+    end
+    
+    # replaces newly definied variables with their definitions
+    m = match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)\s*\]\s*/;(?<conds>.+)\s*$", s)
+    s = m[:body] * "/;" * m[:conds]
+    for a in split_outside_brackets(m[:vardefs], "[]", ',')
+        a = strip(a)
+        !occursin("=", a) && continue
+        var_match = match(r"^\s*(?<varname>[a-zA-Z]{1,2}\d*)\s*=\s*(?<vardef>.*)", a)
+        var_match === nothing && continue
+        s = replace(s, Regex("(?<!\\w)$(var_match[:varname])(?!\\w)") => var_match[:vardef])
+    end
+
+    println("with transofmed to")
+    println(s)
+    return s
 end
 
 # assumes all integrals in the rules are in the x variable
@@ -194,13 +202,12 @@ function find_closing_braket(full_string, start_pattern, brakets)
     return -1
 end
 
-
 # Replaces (counting open and closing brakets) functions with [] passed in
 # `from`, to functions with () passed in `to`.
 # smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
 # = "atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
 function smart_replace(str, from, to, n_args)
-    # verbose = from=="Gamma"
+    verbose = false#from=="Inttt"
     if isempty(n_args)
         n_args = -1
     elseif isa(n_args[1],Tuple)
@@ -214,10 +221,11 @@ function smart_replace(str, from, to, n_args)
     processed = 1
     substring_index = findfirst(from, str[processed:end])
     while substring_index !== nothing
-        # verbose && printstyled(str[processed:end][1:substring_index[1]-1], color=:blue)
-        # verbose && printstyled(str[processed:end][substring_index[1]:substring_index[end]], color=:green)
-        # verbose && printstyled(str[processed:end][substring_index[end]+1:end], color=:blue)
-        # verbose && println()
+        verbose && println("I found")
+        verbose && printstyled(str[processed:end][1:substring_index[1]-1], color=:blue)
+        verbose && printstyled(str[processed:end][substring_index[1]:substring_index[end]], color=:red)
+        verbose && printstyled(str[processed:end][substring_index[end]+1:end], color=:blue)
+        verbose && println()
 
         full_str = find_closing_braket(str[processed:end], from, "[]") 
         # if cannot find closing brakets
@@ -242,9 +250,12 @@ function smart_replace(str, from, to, n_args)
         end
 
         # replace without using the replace function
-        str = str[1:substring_index[1]-2+processed] * "$to($inside)" * str[substring_index[1]+length(full_str)+processed-1:end]
+        str = str[1:substring_index[1]-2+processed] * "$to($inside)" * str[substring_index[1]+sizeof(full_str)+processed-1:end]
         processed += substring_index[1] + sizeof(to)
         substring_index = findfirst(from, str[processed:end])
+        
+        verbose && println("and I replaced with")
+        verbose && printstyled(str*"\n";color=:red)
     end
     return str
 end

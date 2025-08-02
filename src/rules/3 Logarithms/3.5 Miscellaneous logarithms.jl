@@ -55,44 +55,44 @@ log((~d) + (~e)*(~x))*((~a) + (~b)*log((~c)*(~Rx)^(~p)))^(~n)⨸(~e) - (~b)*(~n)
     !eq((~m), -1) ?
 ((~d) + (~e)*(~x))^((~m) + 1)*((~a) + (~b)*log((~c)*(~Rx)^(~p)))^(~n)⨸((~e)*((~m) + 1)) - (~b)*(~n)*(~p)⨸((~e)*((~m) + 1))* ∫(ext_simplify(((~d) + (~e)*(~x))^((~m) + 1)*((~a) + (~b)*log((~c)*(~Rx)^(~p)))^((~n) - 1)*Symbolics.derivative((~Rx), (~x))⨸(~Rx), (~x)), (~x)) : nothing)
 
-# ("3_5_9",
-# @rule ∫(log((~!c)*(~Rx)^(~!n))/((~d) + (~!e)*(~x)^2),(~x)) =>
-#     !contains_var((~c), (~d), (~e), (~n), (~x)) &&
-#     RationalFunctionQ[(~Rx), (~x)] &&
-#     !(poly((~Rx), (~x))) ?
-# With[{(~u) = ∫(1⨸((~d) + (~e)*(~x)^2), (~x))}, (~u)*log((~c)*(~Rx)^(~n)) - (~n)*∫(ext_simplify((~u)*(~D)[(~Rx), (~x)]⨸(~Rx), (~x)), (~x))] : nothing)
-# 
+("3_5_9",
+@rule ∫(log((~!c)*(~Rx)^(~!n))/((~d) + (~!e)*(~x)^2),(~x)) =>
+    !contains_var((~c), (~d), (~e), (~n), (~x)) &&
+    rational_function((~Rx), (~x)) &&
+    !(poly((~Rx), (~x))) ?
+∫(1⨸((~d) + (~e)*(~x)^2), (~x))*log((~c)*(~Rx)^(~n)) - (~n)*∫(ext_simplify(∫(1⨸((~d) + (~e)*(~x)^2), (~x))*Symbolics.derivative((~Rx), (~x))⨸(~Rx), (~x)), (~x)) : nothing)
+
 # ("3_5_10",
 # @rule ∫(log((~!c)*(~Px)^(~!n))/(~Qx),(~x)) =>
 #     !contains_var((~c), (~n), (~x)) &&
 #     QuadraticQ[[(~Qx), (~Px)], (~x)] &&
-#     eq((~D)[(~Px)/(~Qx), (~x)), 0] ?
-# With[{(~u) = ∫(1⨸(~Qx), (~x))}, (~u)*log((~c)*(~Px)^(~n)) - (~n)*∫(ext_simplify((~u)*(~D)[(~Px), (~x)]⨸(~Px), (~x)), (~x))] : nothing)
-# 
-# ("3_5_11",
-# @rule ∫((~Gx)*((~!a) + (~!b)*log((~!c)*(~Rx)^(~!p)))^(~!n),(~x)) =>
-#     !contains_var((~a), (~b), (~c), (~p), (~x)) &&
-#     RationalFunctionQ[(~Rx), (~x)] &&
-#     RationalFunctionQ[(~Gx), (~x)] &&
-#     igt((~n), 0) &&
-#     issum(ext_expand(((~a) + (~b)*log((~c)*(~Rx)^(~p)))^(~n), (~Gx), (~x))) ?
-# ∫(ext_expand(((~a) + (~b)*log((~c)*(~Rx)^(~p)))^(~n), (~Gx), (~x)), (~x)) ] : nothing)
-# 
-# ("3_5_12",
-# @rule ∫((~Gx)*((~!a) + (~!b)*log((~!c)*(~Rx)^(~!p)))^(~!n),(~x)) =>
-#     !contains_var((~a), (~b), (~c), (~p), (~x)) &&
-#     RationalFunctionQ[(~Rx), (~x)] &&
-#     RationalFunctionQ[(~Gx), (~x)] &&
-#     igt((~n), 0) &&
-#     issum(ext_expand((~Gx)*((~a) + (~b)*log((~c)*(~Rx)^(~p)))^(~n), (~x))) ?
-# ∫(ext_expand((~Gx)*((~a) + (~b)*log((~c)*(~Rx)^(~p)))^(~n), (~x)), (~x)) ] : nothing)
-# 
+#     eq((~D)[(~Px)/(~Qx), (~x)], 0) ?
+# ∫(1⨸(~Qx), (~x))*log((~c)*(~Px)^(~n)) - (~n)*∫(ext_simplify(∫(1⨸(~Qx), (~x))*Symbolics.derivative((~Px), (~x))⨸(~Px), (~x)), (~x)) : nothing)
+
+("3_5_11",
+@rule ∫((~Gx)*((~!a) + (~!b)*log((~!c)*(~Rx)^(~!p)))^(~!n),(~x)) =>
+    !contains_var((~a), (~b), (~c), (~p), (~x)) &&
+    rational_function((~Rx), (~x)) &&
+    rational_function((~Gx), (~x)) &&
+    igt((~n), 0) &&
+    issum(ext_expand(((~a) + (~b)*log((~c)*(~Rx)^(~p)))^(~n), (~Gx), (~x))) ?
+∫(ext_expand(((~a) + (~b)*log((~c)*(~Rx)^(~p)))^(~n), (~Gx), (~x)), (~x)) : nothing)
+
+("3_5_12",
+@rule ∫((~Gx)*((~!a) + (~!b)*log((~!c)*(~Rx)^(~!p)))^(~!n),(~x)) =>
+    !contains_var((~a), (~b), (~c), (~p), (~x)) &&
+    rational_function((~Rx), (~x)) &&
+    rational_function((~Gx), (~x)) &&
+    igt((~n), 0) &&
+    issum(ext_expand((~Gx)*((~a) + (~b)*log((~c)*(~Rx)^(~p)))^(~n), (~x))) ?
+∫(ext_expand((~Gx)*((~a) + (~b)*log((~c)*(~Rx)^(~p)))^(~n), (~x)), (~x)) : nothing)
+
 # ("3_5_13",
 # @rule ∫((~Rx)*((~!a) + (~!b)*log((~u))),(~x)) =>
 #     !contains_var((~a), (~b), (~x)) &&
-#     RationalFunctionQ[(~Rx), (~x)] &&
+#     rational_function((~Rx), (~x)) &&
 #     !(FalseQ[lst]) ?
-# With[{lst = SubstForFractionalPowerOfLinear[(~Rx)*((~a) + (~b)*log((~u))), (~x)]}, lst[[2]]*lst[[4]]* int_and_subst(lst[[1]],  (~x), (~x), lst[[3]]^(1⨸lst[[2]]), "3_5_13") ] : nothing)
+# lst[[2]]*lst[[4]]* int_and_subst(lst[[1]],  (~x), (~x), lst[[3]]^(1⨸lst[[2]]), "3_5_13") : nothing)
 
 ("3_5_14",
 @rule ∫(((~!f) + (~!g)*(~x))^(~!m)*log(1 + (~!e)*((~F)^((~!c)*((~!a) + (~!b)*(~x))))^(~!n)),(~x)) =>
@@ -219,32 +219,28 @@ log((~a)*(~x)^(~m) + (~b)*log((~c)*(~x)^(~n))^(~q))⨸((~b)*(~n)*(~q)) - (~a)*(~
 # ("3_5_32",
 # @rule ∫(log((~u))/((~!a) + (~!b)*(~x)),(~x)) =>
 #     !contains_var((~a), (~b), (~x)) &&
-#     RationalFunctionQ[(~D)[(~u), (~x)]/(~u), (~x)] &&
+#     rational_function((~D)[(~u), (~x)]/(~u), (~x)) &&
 #     (
 #         !eq((~a), 0) ||
 #         !(
 #             binomial((~u), (~x)) &&
-#             eq(BinomialDegree[(~u), (~x))^2, 1]
+#             eq(BinomialDegree[(~u), (~x)]^2, 1)
 #         )
 #     ) ?
-# log((~a) + (~b)*(~x))*log((~u))⨸(~b) - 1⨸(~b)*∫(ext_simplify(log((~a) + (~b)*(~x))*(~D)[(~u), (~x)]⨸(~u), (~x)), (~x)) : nothing)
-# 
-# ("3_5_33",
-# @rule ∫(((~!a) + (~!b)*(~x))^(~!m)*log((~u)),(~x)) =>
-#     !contains_var((~a), (~b), (~m), (~x)) &&
-#     !contains_inverse_function((~u), (~x)) &&
-#     !eq((~m), -1) (
-#         * &&
-#         !(FunctionOfQ[(~x)^((~m)+1),(~u),(~x)]) &&
-#         FalseQ[PowerVariableExpn[(~u),(~m)+1, (~x)]] *
-#     ) ?
-# ((~a) + (~b)*(~x))^((~m) + 1)*log((~u))⨸((~b)*((~m) + 1)) - 1⨸((~b)*((~m) + 1))* ∫(ext_simplify(((~a) + (~b)*(~x))^((~m) + 1)*(~D)[(~u), (~x)]⨸(~u), (~x)), (~x)) : nothing)
-# 
+# log((~a) + (~b)*(~x))*log((~u))⨸(~b) - 1⨸(~b)*∫(ext_simplify(log((~a) + (~b)*(~x))*Symbolics.derivative((~u), (~x))⨸(~u), (~x)), (~x)) : nothing)
+
+("3_5_33",
+@rule ∫(((~!a) + (~!b)*(~x))^(~!m)*log((~u)),(~x)) =>
+    !contains_var((~a), (~b), (~m), (~x)) &&
+    !contains_inverse_function((~u), (~x)) &&
+    !eq((~m), -1) ?
+((~a) + (~b)*(~x))^((~m) + 1)*log((~u))⨸((~b)*((~m) + 1)) - 1⨸((~b)*((~m) + 1))* ∫(ext_simplify(((~a) + (~b)*(~x))^((~m) + 1)*Symbolics.derivative((~u), (~x))⨸(~u), (~x)), (~x)) : nothing)
+
 # ("3_5_34",
 # @rule ∫(log((~u))/(~Qx),(~x)) =>
 #     QuadraticQ[(~Qx), (~x)] &&
 #     !contains_inverse_function((~u), (~x)) ?
-# With[{(~v) = ∫(1⨸(~Qx), (~x))}, (~v)*log((~u)) - ∫(ext_simplify((~v)*(~D)[(~u), (~x)]⨸(~u), (~x)), (~x))] : nothing)
+# ∫(1⨸(~Qx), (~x))*log((~u)) - ∫(ext_simplify(∫(1⨸(~Qx), (~x))*Symbolics.derivative((~u), (~x))⨸(~u), (~x)), (~x)) : nothing)
 
 ("3_5_35",
 @rule ∫((~u)^((~!a)*(~x))*log((~u)),(~x)) =>

@@ -96,6 +96,7 @@ data = [
 (integrand = (1+2log(2*(1+1/x)^3))^3, result = 666, integration_var = x) # 3
 # 3_5
 (integrand = (1+2log(3*((x^2+1)/(x^4-x))^2))^2, result = 666, integration_var = x) # 6
+(integrand = log((x+x^2)/x)/(1+x^2), result = 666, integration_var = x) # 9
 (integrand = log(sin(x)), result = 666, integration_var = x) # 30
 (integrand = log(2asin(x)), result = 666, integration_var = x) # 31
 (integrand = x*log(SymbolicUtils.gamma(x^2)), result = 666, integration_var = x) # 41
