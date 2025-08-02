@@ -65,15 +65,21 @@ function translate_line(line, index)
     integral = parts[1]
     result = parts[2]
     
-    # Extract conditions if present
-    c = count("/;", result)
-    if c==2
+    # deal with "With" Mathematica syntax
+    if occursin("With", result)
+        # move the conditions involving the newly definied variables to the end
+        # remember that \s* is zero or more spaces in regex
         m = match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)/;(?<wconds>.+?)\]\s*/;(?<conds>.+)", result)
         if m !== nothing
             result = replace(result, m.match => "With[{$(m[:vardefs])},$(m[:body])] /; $(m[:conds]) && $(m[:wconds])")
         end
-        # variable definition with "With" keyword
-        # \s* is zero or more spaces in regex
+        # address also the case in wich there are only conditions with newly definied varaibles
+        m = match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)/;(?<wconds>.+?)\]", result)
+        if m !== nothing
+            result = replace(result, m.match => "With[{$(m[:vardefs])},$(m[:body])] /; $(m[:wconds])")
+        end
+        
+        # replaces definied variables with definitions
         m = match(r"With\[\{(?<var1>[a-zA-Z]{1,2})\s*=\s*(?<var1def>.*?),\s*(?<var2>[a-zA-Z]{1,2})\s*=\s*(?<var2def>.*?),\s*(?<var3>[a-zA-Z]{1,2})\s*=\s*(?<var3def>.*?)\},\s*(?<body>.*)", result)
         if m !== nothing
             result = m[:body]
@@ -81,24 +87,23 @@ function translate_line(line, index)
             result = replace(result, Regex("(?<!\\w)$(m[:var2])(?!\\w)") => m[:var2def])
             result = replace(result, Regex("(?<!\\w)$(m[:var3])(?!\\w)") => m[:var3def])
         end
-
+        
         m = match(r"With\[\{(?<var1>[a-zA-Z]{1,2})\s*=\s*(?<var1def>.*?),\s*(?<var2>[a-zA-Z]{1,2})\s*=\s*(?<var2def>.*?)\},\s*(?<body>.*)", result)
         if m !== nothing
             result = m[:body]
             result = replace(result, Regex("(?<!\\w)$(m[:var1])(?!\\w)") => m[:var1def])
             result = replace(result, Regex("(?<!\\w)$(m[:var2])(?!\\w)") => m[:var2def])
         end
-
+        
         # With[{q = Rt[(b*c - a*d)/b, 3]}, -Log[RemoveContent[a + b*x, x]]/(2*b*q) - 3/(2*b*q)*Subst[Int[1/(q - x), x], x, (c + d*x)^(1/3)] + 3/(2*b)* Subst[Int[1/(q^2 + q*x + x^2), x], x, (c + d*x)^(1/3)]]
         m = match(r"With\[\{(?<varname>[a-zA-Z]{1,2})\s*=\s*(?<vardef>.*?)\},(?<body>.*)", result)
         if m !== nothing
             result = m[:body]
             result = replace(result, Regex("(?<!\\w)$(m[:varname])(?!\\w)") => m[:vardef])
         end
-
-        c=1 # fall back to normal case
     end
-    if c==1
+
+    if count("/;", result)==1
         tmp = split(result, "/;")
         result = tmp[1]
         julia_conditions = translate_conditions(tmp[2])
