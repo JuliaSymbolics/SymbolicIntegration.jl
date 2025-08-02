@@ -309,6 +309,19 @@ function linear_without_simplify(args...)
 end
 
 
+# if u is an expression equivalent to a+bx^n with a,b,n constants,
+# b and n != 0, returns true
+function binomial_without_simplify(u, x)
+    (@rule (~a::(a -> !contains_var(a, x))) + (~!b::(b -> !contains_var(b, x)))*x^(~!n::(n -> !contains_var(n, x))) => 1)(u) !== nothing
+end
+function binomial_without_simplify(u, x, pow)
+    (@rule (~a::(a -> !contains_var(a, x))) + (~!b::(b -> !contains_var(b,x)))*x^(~!n::(n -> !contains_var(n,x) && n===pow)) => 1)(u) !== nothing
+end
+binomial(u, x) = binomial_without_simplify(simplify(u; expand = true),x)
+binomial(u::Vector,x) = all(binomial(e,x) for e in u)
+binomial(u, x, n) = binomial_without_simplify(simplify(u; expand = true), x, n)
+binomial(u::Vector,x,n) = all(binomial(e,x,n) for e in u)
+
 # If u is a monomial in x, monomial(u,x) returns the degree of u in x; else it returns nothing.
 function monomial(u, x)
     x = Symbolics.unwrap(x)
@@ -322,19 +335,6 @@ function monomial(u, x)
     degree !== nothing && return degree
     return nothing
 end
-
-# if u is an expression equivalent to a+bx^n with a,b,n constants,
-# b and n != 0, returns true
-function binomial_without_simplify(u, x)
-    (@rule (~a::(a -> !contains_var(a, x))) + (~!b::(b -> !contains_var(b, x)))*x^(~!n::(n -> !contains_var(n, x))) => 1)(u) !== nothing
-end
-function binomial_without_simplify(u, x, pow)
-    (@rule (~a::(a -> !contains_var(a, x))) + (~!b::(b -> !contains_var(b,x)))*x^(~!n::(n -> !contains_var(n,x) && n===pow)) => 1)(u) !== nothing
-end
-binomial(u, x) = binomial_without_simplify(simplify(u; expand = true),x)
-binomial(u::Vector,x) = all(binomial(e,x) for e in u)
-binomial(u, x, n) = binomial_without_simplify(simplify(u; expand = true), x, n)
-binomial(u::Vector,x,n) = all(binomial(e,x,n) for e in u)
 
 # If u is a polynomial in x of degree n, poly_degreee(u,x) returns n, else nothing
 function poly_degreee(u, x)
@@ -359,6 +359,11 @@ function poly_degreee(u, x)
     end
 end
 
+# QuadraticQ[u,x] returns True iff u is a polynomial of degree 2 and not a monomial of the form x^2
+function quadratic(u,x)
+   poly_degreee(u,x)==2 && !(monomial(u,x)==2)
+end
+
 # If u is a polynomial in x, Poly[u,x] returns True; else it returns False.
 # If u is a polynomial in x of degree n, Poly[u,x,n] returns True; else it returns False.
 function poly(u, x)
@@ -375,17 +380,6 @@ end
 
 function poly(u, x, n)
     poly_degreee(u, x) === n
-end
-
-# gives the maximum power with which form appears in the expanded form of expr. 
-# TODO for now works only with polynomials
-function exponent_of(expr, form)
-    res = poly_degreee(expr, form)
-
-    if res === nothing
-        throw("exponent_of is implemented only for polynomials in form")
-    end
-    return res
 end
 
 function poly_coefficients(p, x)
@@ -466,6 +460,17 @@ end
 
 # TODO are all this unwrap needed?
 
+# gives the maximum power with which form appears in the expanded form of expr. 
+# TODO for now works only with polynomials
+function exponent_of(expr, form)
+    res = poly_degreee(expr, form)
+
+    if res === nothing
+        throw("exponent_of is implemented only for polynomials in form")
+    end
+    return res
+end
+
 # puts terms in a sum over a common denominator, and cancels factors in the result
 # together(a/b + c/d) = (a*d + b*c) / (b*d)
 function together(expr)
@@ -526,5 +531,3 @@ function rational_function(u::Num, x::Num)
     x = Symbolics.unwrap(x)
     rational_function(u, x)
 end
-
-

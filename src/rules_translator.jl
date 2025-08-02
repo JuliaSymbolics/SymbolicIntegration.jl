@@ -388,6 +388,7 @@ function translate_conditions(conditions)
 
         ("AlgebraicFunctionQ", "algebraic_function", (2,3)),
         ("RationalFunctionQ", "rational_function", 2),
+        ("QuadraticQ", "quadratic", 2),
         ("IntegralFreeQ", "contains_int", 1),
 
         ("EqQ", "eq"),
