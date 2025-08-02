@@ -2,7 +2,10 @@
 # - rationals if called with integers
 # - floats if called with floats
 # it's also a infix operator with the same precedence of /
-⨸(x::Union{Rational, Integer}, y::Union{Rational, Integer}) = x // y
+function ⨸(x::Union{Rational, Integer}, y::Union{Rational, Integer})
+    res = x // y
+    ext_isinteger(res) ? Int(res) : res
+end
 ⨸(x, y) = x / y
 
 # if expr contains variable var return true
@@ -94,6 +97,26 @@ end
 function ext_simplify(u, x)
     simplify(u)
 end
+
+# TODO is this enough?
+function ext_expand(u, x)
+    expand(u)
+end
+
+function ext_expand(u, v, x)
+    expand(u * v)
+end
+
+# ExpandToSum[u,x] returns u expanded into a sum of monomials of x.*
+function expand_to_sum(u, x)
+    expand(u)
+end
+
+# ExpandToSum[u,v,x] returns v expanded into a sum of monomials of x and distributes u over v.
+function expand_to_sum(u, v, x)
+    expand(u * v)
+end
+
 
 # FracPart[u] returns the sum of the non-integer terms of u.
 # fracpart(3//2 + x) = (1//2) + x, fracpart(2.4) = 2.4
@@ -265,25 +288,6 @@ elliptic_f(phi, m) = Elliptic.F(phi, m)
 hypergeometric2f1(a, b, c, z) = HypergeometricFunctions._₂F₁(Complex(a), Complex(b), Complex(c), Complex(z))
 
 appell_f1(a, b, c, d, e, z) = throw("AppellF1 function is not implemented yet")
-
- # TODO is this enough?
-function ext_expand(u, x)
-    expand(u)
-end
-
-function ext_expand(u, v, x)
-    expand(u * v)
-end
-
-# ExpandToSum[u,x] returns u expanded into a sum of monomials of x.*
-function expand_to_sum(u, x)
-    expand(u)
-end
-
-# ExpandToSum[u,v,x] returns v expanded into a sum of monomials of x and distributes u over v.
-function expand_to_sum(u, v, x)
-    expand(u * v)
-end
 
 # distributes exp1 over exp2
 function dist(exp1, exp2, x)
