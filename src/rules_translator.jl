@@ -377,6 +377,8 @@ function translate_conditions(conditions)
         ("AlgebraicFunctionQ", "algebraic_function", (2,3)),
         ("IntegralFreeQ", "contains_int", 1),
 
+        ("EqQ", "eq"),
+        ("NqQ", "!eq"),
         ("If", "ifelse", 3),
         ("Not", "!"),
 
@@ -393,8 +395,6 @@ function translate_conditions(conditions)
         # TODO maybe change in regex * (zero or more charchters) with + (one or more charchters)
         (r"FreeQ\[{(.*?)},(.*?)\]", s"!contains_var(\1,\2)"), # from FreeQ[{a, b, c, d, m}, x] to !contains_var(a, b, c, d, m, x)
         (r"FreeQ\[(.*?),(.*?)\]", s"!contains_var(\1,\2)"),
-        (r"NeQ\[(.*?),(.*?)\]", s"!eq(\1,\2)"),
-        (r"EqQ\[(.*?),(.*?)\]", s"eq(\1,\2)"),
         (r"LinearQ\[{(.*?)},(.*?)\]", s"linear(\1,\2)"),
         (r"LinearQ\[(.*?),(.*?)\]", s"linear(\1,\2)"),
         (r"LinearMatchQ\[{(.*?)},(.*?)\]", s"linear_without_simplify(\1,\2)"),
