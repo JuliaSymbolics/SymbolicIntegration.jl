@@ -23,6 +23,14 @@ function contains_var(expr, var)
     return false
 end
 
+# the last argument is the variable to check the other expr against
+function contains_var(args...)
+    var = args[end]
+    return any(contains_var(expr, var) for expr in args[1:end-1])
+end
+
+
+
 # contains_op(∫, expr) is the same as checking if the integral has been comletely solved
 function contains_op(op, expr)
     expr = Symbolics.unwrap(expr)
@@ -36,12 +44,6 @@ function contains_op(op, expr)
 end
 
 contains_int(expr) = contains_op(∫, expr)
-
-# the last argument is the variable to check the other expr against
-function contains_var(args...)
-    var = args[end]
-    return any(contains_var(expr, var) for expr in args[1:end-1])
-end
 
 function eq(a, b)
     if !isa(a, Num) && !isa(b, Num)
@@ -530,4 +532,35 @@ function rational_function(u::Num, x::Num)
     u = Symbolics.unwrap(u)
     x = Symbolics.unwrap(x)
     rational_function(u, x)
+end
+
+# returns the product of the factors of u free of x
+function free_factors(u, x)
+    u = Symbolics.unwrap(u)
+    x = Symbolics.unwrap(x)
+    isprod(u) && return prod(contains_var(f, x) ? 1 : f for f in arguments(u))
+    return contains_var(u, x) ? 1 : u
+end
+
+# returns the product of the factors of u not free of x
+function nonfree_factors(u, x)
+    u = Symbolics.unwrap(u)
+    x = Symbolics.unwrap(x)
+    isprod(u) && return prod(contains_var(f, x) ? f : 1 for f in arguments(u))
+    return contains_var(u, x) ? 1 : u
+end
+# returns the product of the addends of u free of x
+function free_addednds(u, x)
+    u = Symbolics.unwrap(u)
+    x = Symbolics.unwrap(x)
+    issum(u) && return sum(contains_var(a, x) ? 0 : a for a in arguments(u))
+    return contains_var(u, x) ? 1 : u
+end
+
+# returns the product of the addends of u not free of x
+function nonfree_addends(u, x)
+    u = Symbolics.unwrap(u)
+    x = Symbolics.unwrap(x)
+    issum(u) && return prod(contains_var(a, x) ? a : 0 for a in arguments(u))
+    return contains_var(u, x) ? 1 : u
 end

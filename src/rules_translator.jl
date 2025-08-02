@@ -88,6 +88,9 @@ end
 function transalte_integrand(integrand)
     simple_substitutions = [
         ("Log", "log"),
+        ("sin", "sin"), ("Sin", "sin"),
+        ("cos", "cos"), ("Cos", "cos"),
+        ("tan", "tan"), ("Tan", "tan"),
         ("PolyLog", "PolyLog.reli", 2),
         ("Gamma", "SymbolicUtils.gamma"),
     ]
@@ -136,14 +139,17 @@ function translate_result(result, index)
         ("D", "Symbolics.derivative"),
 
         ("Sqrt", "sqrt"),
+        ("Exp", "exp"),
+        ("Log", "log"),
+        ("sin", "sin"), ("Sin", "sin"),
+        ("cos", "cos"), ("Cos", "cos"),
+        ("tan", "tan"), ("Tan", "tan"),
         ("ArcTanh", "atanh"),
         ("ArcTan", "atan"),
         ("ArcSinh", "asinh"),
         ("ArcSin", "asin"),
         ("ArcCosh", "acosh"),
         ("ArcCos", "acos"),
-        ("Exp", "exp"),
-        ("Log", "log"),
 
         # definied in SpecialFunctions.jl
         ("ExpIntegralEi", "SymbolicUtils.expinti", (1,2)),
@@ -153,6 +159,10 @@ function translate_result(result, index)
         ("Erf", "SymbolicUtils.erf"),
         ("PolyLog", "PolyLog.reli", 2),
 
+        ("FreeFactors", "free_factors"),
+        ("NonfreeFactors", "non_free_factors"),
+        ("FreeTerms", "free_terms"),
+        ("NonfreeTerms", "non_free_terms"),
         ("FracPart", "fracpart"), # TODO fracpart with two arguments is ever present?
         ("IntPart", "intpart"),
         ("Together", "together"),
@@ -172,6 +182,7 @@ function translate_result(result, index)
         ("Coefficient", "ext_coeff", (2,3)),
         ("Coeff", "ext_coeff", (2,3)),
         
+        ("ExpandTrig", "ext_expand", (2,3)),
         ("ExpandIntegrand", "ext_expand", (2,3)),
         ("ExpandToSum", "expand_to_sum", (2,3)),
         ("Expand", "ext_expand")

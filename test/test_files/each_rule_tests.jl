@@ -100,4 +100,6 @@ data = [
 (integrand = log(sin(x)), result = 666, integration_var = x) # 30
 (integrand = log(2asin(x)), result = 666, integration_var = x) # 31
 (integrand = x*log(SymbolicUtils.gamma(x^2)), result = 666, integration_var = x) # 41
+# 4_1_1_1
+(integrand = sin(x), result = cos(x), integration_var = x) # 6
 ]
