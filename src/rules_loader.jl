@@ -69,6 +69,10 @@ function load_all_rules()
     "3 Logarithms/3.3 u (a+b log(c (d+e x)^n))^p.jl"
     "3 Logarithms/3.4 u (a+b log(c (d+e x^m)^n))^p.jl"
     "3 Logarithms/3.5 Miscellaneous logarithms.jl"
+
+    "4 Trig functions/4.1 Sine/4.1.1/4.1.1.1 (a+b sin)^n.jl"
+    "4 Trig functions/4.1 Sine/4.1.1/4.1.1.2 (g cos)^p (a+b sin)^m.jl"
+    "4 Trig functions/4.1 Sine/4.1.1/4.1.1.3 (g tan)^p (a+b sin)^m.jl"
     ]
     return load_all_rules([joinpath(@__DIR__, "rules/" * file) for file in rules_paths])
 end

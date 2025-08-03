@@ -102,4 +102,7 @@ data = [
 (integrand = x*log(SymbolicUtils.gamma(x^2)), result = 666, integration_var = x) # 41
 # 4_1_1_1
 (integrand = sin(x), result = cos(x), integration_var = x) # 6
+# 4_1_1_2
+(integrand = (1/(cos(x)))^2*(2+2sin(x))^4, result = 666, integration_var = x) # 4
+
 ]

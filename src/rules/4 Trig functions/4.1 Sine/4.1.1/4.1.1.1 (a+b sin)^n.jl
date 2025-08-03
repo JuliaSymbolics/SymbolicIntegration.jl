@@ -37,6 +37,11 @@ sin((~c) + (~d)*(~x))⨸(~d) : nothing)
     !contains_var((~c), (~d), (~x)) ?
 -cos((~c) + (~d)*(~x))⨸(~d) : nothing)
 
+("4_1_1_1_6_1",
+@rule ∫(cos((~!c) + (~!d)*(~x)),(~x)) =>
+    !contains_var((~c), (~d), (~x)) ?
+sin((~c) + (~d)*(~x))⨸(~d) : nothing)
+
 #(* Int[1/sin[c_.+d_.*x_],x_Symbol] := Int[Csc[c+d*x],x] /; FreeQ[{c,d},x] *)
 ("4_1_1_1_7",
 @rule ∫(sqrt(sin((~!c) + (~!d)*(~x))),(~x)) =>
