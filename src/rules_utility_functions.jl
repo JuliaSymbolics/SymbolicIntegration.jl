@@ -14,10 +14,14 @@ function contains_var(expr, var)
     var = Symbolics.unwrap(var)
     expr === var && return true
     
-    !SymbolicUtils.iscall(expr) && return false
-    for arg in SymbolicUtils.arguments(expr)
-        contains_var(arg, var) && return true
+    if SymbolicUtils.iscall(expr)
+        for arg in SymbolicUtils.arguments(expr)
+            if contains_var(arg, var)
+                return true
+            end
+        end
     end
+    return false
 end
 
 # the last argument is the variable to check the other expr against
