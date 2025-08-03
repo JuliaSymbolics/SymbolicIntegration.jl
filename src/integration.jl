@@ -19,28 +19,28 @@ function apply_rule(problem, verbose)
 end
 
 # TODO add threaded for speed?
-function repeated_prewalk(x, verbose)
-    !iscall(x) && return x
+function repeated_prewalk(expr, verbose)
+    !iscall(expr) && return expr
     
-    if operation(x)===∫
-        (new_x,success) = apply_rule(x, verbose)
+    if operation(expr)===∫
+        (new_expr,success) = apply_rule(expr, verbose)
         if success
-            if new_x !== x
-                return repeated_prewalk(new_x, verbose)
+            if new_expr !== expr
+                return repeated_prewalk(new_expr, verbose)
             else
-                verbose && println("Infinite cycle detected for ", x, ", aborting.")
+                verbose && println("Infinite cycle detected for ", expr, ", aborting.")
             end
         end
     end
 
-    x = SymbolicUtils.maketerm(
-        typeof(x), 
-        operation(x), 
-        map(in -> repeated_prewalk(in, verbose),arguments(x)), 
-        SymbolicUtils.metadata(x)
+    expr = SymbolicUtils.maketerm(
+        typeof(expr), 
+        operation(expr), 
+        map(in -> repeated_prewalk(in, verbose),arguments(expr)), 
+        SymbolicUtils.metadata(expr)
     )
 
-    return x
+    return expr
 end
 
 function integrate(integrand, int_var; verbose = true) # TODO change default verbose to false
@@ -56,10 +56,7 @@ function integrate(integrand; verbose = true) # TODO change default verbose to f
     elseif length(vars) == 1
         integration_variable = vars[1]
     else
-        # this is used just to integrate numbers
-        @warn "No integration variable provided. Assuming x"
-        @variables x
-        integration_variable = x
+        error("No integration variable provided")
     end
 
     integrate(integrand, integration_variable; verbose=verbose)

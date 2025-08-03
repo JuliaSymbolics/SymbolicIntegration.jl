@@ -12,18 +12,12 @@ end
 function contains_var(expr, var)
     expr = Symbolics.unwrap(expr)
     var = Symbolics.unwrap(var)
-    if expr === var
-        return true
-    end
+    expr === var && return true
     
-    if SymbolicUtils.iscall(expr)
-        for arg in SymbolicUtils.arguments(expr)
-            if contains_var(arg, var)
-                return true
-            end
-        end
+    !SymbolicUtils.iscall(expr) && return false
+    for arg in SymbolicUtils.arguments(expr)
+        contains_var(arg, var) && return true
     end
-    return false
 end
 
 # the last argument is the variable to check the other expr against
@@ -31,8 +25,6 @@ function contains_var(args...)
     var = args[end]
     return any(contains_var(expr, var) for expr in args[1:end-1])
 end
-
-
 
 # contains_op(∫, expr) is the same as checking if the integral has been comletely solved
 function contains_op(op, expr)
@@ -52,8 +44,7 @@ function eq(a, b)
     if !isa(a, Num) && !isa(b, Num)
         return isequal(a, b)
     end
-    tmp =  SymbolicUtils.simplify(a - b)
-    return SymbolicUtils._iszero(tmp)
+    return SymbolicUtils._iszero(SymbolicUtils.simplify(a - b))
 end
 
 function ext_isinteger(u)
@@ -65,7 +56,6 @@ ext_isinteger(args...) = all(ext_isinteger(arg) for arg in args)
 
 # If m, n, ... are explicit fractions, FractionQ[m,n,...] returns True; else it returns False.
 fraction(args...) = all(isa(arg, Rational) for arg in args)
-
 # If m, n, ... are explicit integers or fractions, rationalQ(m,n,...) returns true; else it returns false.
 rational(args...) = all(isa(arg, Rational) || isa(arg, Integer) for arg in args)
 
@@ -244,6 +234,16 @@ function leaf_count(expr)
     end
 end
 
+# yields True if expr is an expression which cannot be divided into subexpressions, and yields False otherwise. 
+function atom(expr)
+    expr = Symbolics.unwrap(expr)
+    if !SymbolicUtils.iscall(expr)
+        return true
+    end
+    # If expr is a call, check if it has any arguments
+    return isempty(SymbolicUtils.arguments(expr))
+end
+
 # If u+v is simpler than u, SumSimplerQ[u,v] returns True, else it returns False.
 sumsimpler(u, v) = simpler(u + v, u) && !eq(u + v, u) && !eq(v, 0)
 
@@ -269,16 +269,6 @@ function int_and_subst(integrand, integration_var, from, to, rule_number)
     end
     println("Integral not solved")
     return subst(∫(integrand, integration_var),from, to)
-end
-
-# yields True if expr is an expression which cannot be divided into subexpressions, and yields False otherwise. 
-function atom(expr)
-    expr = Symbolics.unwrap(expr)
-    if !SymbolicUtils.iscall(expr)
-        return true
-    end
-    # If expr is a call, check if it has any arguments
-    return isempty(SymbolicUtils.arguments(expr))
 end
 
 elliptic_e(m) = Elliptic.E(m)
@@ -464,8 +454,6 @@ function polynomial_divide(u, v, x)
     return quotient + remainder / v
 end
 
-# TODO are all this unwrap needed?
-
 # gives the maximum power with which form appears in the expanded form of expr. 
 # TODO for now works only with polynomials
 function exponent_of(expr, form)
@@ -568,3 +556,5 @@ function nonfree_addends(u, x)
     issum(u) && return prod(contains_var(a, x) ? a : 0 for a in arguments(u))
     return contains_var(u, x) ? 1 : u
 end
+
+# TODO are all this unwrap needed?
