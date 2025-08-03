@@ -1,11 +1,12 @@
 # Load all rules from the paths in the given array.
 # the paths schould be relative to src/
 function load_all_rules(rules_paths)
-    tot = length(rules_paths)
+    global rules
+    global identifiers
     
-    loaded_rules = []
-    loaded_identifiers = []
+    tot = length(rules_paths)
     for (i, file) in enumerate(rules_paths)
+        # cool print
         n_of_equals = round(Int, (i-1) / tot * 60)
         if i > 1
             print("\e[2A")  # Move cursor up 2 lines
@@ -13,21 +14,19 @@ function load_all_rules(rules_paths)
         print("\e[2K")  # Clear current line
         printstyled(" $(i-1)/$tot files"; color = :light_green, bold = true)
         print(" [" * "="^n_of_equals *">"* " "^(60 - n_of_equals) * "] ")
-        printstyled("$(length(loaded_rules)) rules\n"; color = :light_green, bold = true)
-        printstyled(" Loading file: ", file, "\n"; color = :light_black)
+        printstyled("$(length(rules)) rules\n"; color = :light_green, bold = true)
+        print("\e[2K")  # Clear current line
+        printstyled(" Loading file: ", split(file,"/")[end], "\n"; color = :light_black)
 
+        # add rules
         include(file)
-        file_identifiers = [x[1] for x in file_rules]
-        rules = [x[2] for x in file_rules]
-        append!(loaded_rules, rules)
-        append!(loaded_identifiers, file_identifiers)
+        append!(rules, [x[2] for x in file_rules])
+        append!(identifiers, [x[1] for x in file_rules])
     end
     print("\e[1A")
     print("\e[2K")
     print("\e[1A")
     print("\e[2K")
-    
-    return (loaded_rules, loaded_identifiers)
 end
 
 function load_all_rules()
@@ -51,7 +50,7 @@ function load_all_rules()
 
     # ...
 
-    # 7, 6 5
+    # 7, 6, 5
     "1 Algebraic functions/1.1 Binomial products/1.1.1 Linear/1.1.1.5 P(x) (a+b x)^m (c+d x)^n.jl"
 
     "2 Exponentials/2.1 (c+d x)^m (a+b (F^(g (e+f x)))^n)^p.jl"
@@ -74,28 +73,11 @@ function load_all_rules()
     "4 Trig functions/4.1 Sine/4.1.1/4.1.1.2 (g cos)^p (a+b sin)^m.jl"
     "4 Trig functions/4.1 Sine/4.1.1/4.1.1.3 (g tan)^p (a+b sin)^m.jl"
     ]
-    return load_all_rules([joinpath(@__DIR__, "rules/" * file) for file in rules_paths])
+    load_all_rules([joinpath(@__DIR__, "rules/" * file) for file in rules_paths])
 end
 
-# Load all rules at module initialization
-# TODO make const? vector of rules? some other type? faster???
-rules, identifiers = [],[]#load_all_rules()
 
-# TODO just for debug, remove later
-function reload_rules(;verbose = false)
-    global rules
-    global identifiers
-    rules, identifiers = load_all_rules()
-    println("Rules reloaded. Total rules: ", length(rules))
-    if verbose
-        println("Here they are in order:")
-        for (i, rule) in enumerate(rules)
-            println("============ Rule $(identifiers[i]): ")
-            println(rule)
-        end
-    end
-end
-
+# function useful in developing the package
 # reads the rules from the given path.
 # for each one of them checks if in the global rules array there is a rule with the same identifier.
 # if so, it replaces the rule with the new one.
@@ -104,23 +86,43 @@ function reload_rules(path; verbose = false)
     global rules
     global identifiers
     
-    new_rules, new_identifiers = load_all_rules([path])
+    include(path)
     
-    for (i, identifier) in enumerate(new_identifiers)
-        idx = findfirst(x -> x == identifier, identifiers)
+    for r in file_rules
+        idx = findfirst(x -> x == r[1], identifiers)
         if idx !== nothing
-            rules[idx] = new_rules[i]
+            rules[idx] = r[2]
         else
-            push!(rules, new_rules[i])
+            # add at the end
+            push!(rules, r[2])
             push!(identifiers, identifier)
         end
     end
     
-    println("$(length(new_rules)) rules reloaded from $path, $(length(rules)) total rules.")
+    println("$(length(file_rules)) rules reloaded from $path, $(length(rules)) total rules.")
     if verbose
         println("Here they are in order:")
-        for (i, rule) in enumerate(new_rules)
-            println("============ Rule $(new_identifiers[i]): ")
+        for r in file_rules
+            println("============ Rule $(r[1]): ")
+            println(r[2])
+        end
+    end
+end
+
+function reload_rules(;verbose = false)
+    global rules
+    global identifiers
+    
+    empty!(rules)
+    empty!(identifiers)
+
+    load_all_rules()
+    
+    println("Rules reloaded. Total rules: ", length(rules))
+    if verbose
+        println("Here they are in order:")
+        for (i, rule) in enumerate(rules)
+            println("============ Rule $(identifiers[i]): ")
             println(rule)
         end
     end
