@@ -23,10 +23,7 @@ function load_all_rules(rules_paths)
         append!(rules, [x[2] for x in file_rules])
         append!(identifiers, [x[1] for x in file_rules])
     end
-    print("\e[1A")
-    print("\e[2K")
-    print("\e[1A")
-    print("\e[2K")
+    print("\e[1A\e[2K\e[1A\e[2K")
 end
 
 function load_all_rules()
@@ -74,6 +71,7 @@ function load_all_rules()
     "4 Trig functions/4.1 Sine/4.1.1/4.1.1.3 (g tan)^p (a+b sin)^m.jl"
     ]
     load_all_rules([joinpath(@__DIR__, "rules/" * file) for file in rules_paths])
+    println("Loaded all rules")
 end
 
 
