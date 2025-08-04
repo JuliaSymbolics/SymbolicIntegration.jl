@@ -299,13 +299,25 @@ end
 function linear(args...)
     var = args[end]
     # Symbolics.linear_expansion(a + bx, x) = (b, a, true)
-    all(Symbolics.linear_expansion(simplify(u; expand = true), var)[3] for u in args[1:end-1])
+    for u in args[1:end-1]
+        tmp = Symbolics.linear_expansion(simplify(u; expand = true), var)
+        if !tmp[3] || eq(tmp[1], 0)
+            return false
+        end
+    end
+    return true
 end
 
 # linear_without_simplify((x+1)^2 - x^2 - 1,x) false
 function linear_without_simplify(args...)
     var = args[end]
-    all( Symbolics.linear_expansion(u, var)[3] for u in args[1:end-1] )
+    for u in args[1:end-1]
+        tmp = Symbolics.linear_expansion(u, var)
+        if !tmp[3] || tmp[1] === 0
+            return false
+        end
+    end
+    return true
 end
 
 
@@ -322,7 +334,7 @@ binomial(u::Vector,x) = all(binomial(e,x) for e in u)
 binomial(u, x, n) = binomial_without_simplify(simplify(u; expand = true), x, n)
 binomial(u::Vector,x,n) = all(binomial(e,x,n) for e in u)
 
-# If u is a monomial in x, monomial(u,x) returns the degree of u in x; else it returns nothing.
+# If u is a monomial in x (either b(x^m) or (bx)^m), monomial(u,x) returns the degree of u in x; else it returns nothing.
 function monomial(u, x)
     x = Symbolics.unwrap(x)
     u = Symbolics.unwrap(u)
@@ -336,8 +348,8 @@ function monomial(u, x)
     return nothing
 end
 
-# If u is a polynomial in x of degree n, poly_degreee(u,x) returns n, else nothing
-function poly_degreee(u, x)
+# If u is a polynomial in x of degree n, poly_degree(u,x) returns n, else nothing
+function poly_degree(u, x)
     x = Symbolics.unwrap(x)
     u = Symbolics.unwrap(u)
 
@@ -361,7 +373,7 @@ end
 
 # QuadraticQ[u,x] returns True iff u is a polynomial of degree 2 and not a monomial of the form x^2
 function quadratic(u,x)
-   poly_degreee(u,x)==2 && !(monomial(u,x)==2)
+   poly_degree(u,x)==2 && !(monomial(u,x)==2)
 end
 
 # If u is a polynomial in x, Poly[u,x] returns True; else it returns False.
@@ -379,11 +391,11 @@ function poly(u, x)
 end
 
 function poly(u, x, n)
-    poly_degreee(u, x) === n
+    poly_degree(u, x) === n
 end
 
 function poly_coefficients(p, x)
-    deg = poly_degreee(p, x)
+    deg = poly_degree(p, x)
     deg===nothing && throw("first argument is not a polynomial")
     coeffs = Num[]
     for i in 0:deg
@@ -399,8 +411,8 @@ function poly_quotient(p, q, x)
     q = Symbolics.unwrap(q)
     x = Symbolics.unwrap(x)
 
-    deg_p = poly_degreee(p, x)
-    deg_q = poly_degreee(q, x)
+    deg_p = poly_degree(p, x)
+    deg_q = poly_degree(q, x)
 
     (deg_p === nothing || deg_q === nothing) && throw("poly_quotient called with non-polynomials")
 
@@ -423,8 +435,8 @@ function poly_remainder(p, q, x)
     q = Symbolics.unwrap(q)
     x = Symbolics.unwrap(x)
 
-    deg_p = poly_degreee(p, x)
-    deg_q = poly_degreee(q, x)
+    deg_p = poly_degree(p, x)
+    deg_q = poly_degree(q, x)
 
     (deg_p === nothing || deg_q === nothing) && throw("poly_reminder called with non-polynomials")
 
@@ -447,8 +459,8 @@ function polynomial_divide(u, v, x)
     v = Symbolics.unwrap(v)
     x = Symbolics.unwrap(x)
 
-    deg_u = poly_degreee(u, x)
-    deg_v = poly_degreee(v, x)
+    deg_u = poly_degree(u, x)
+    deg_v = poly_degree(v, x)
 
     (deg_u === nothing || deg_v === nothing) && throw("polynomial_divide called with non-polynomials")
 
@@ -461,7 +473,7 @@ end
 # gives the maximum power with which form appears in the expanded form of expr. 
 # TODO for now works only with polynomials
 function exponent_of(expr, form)
-    res = poly_degreee(expr, form)
+    res = poly_degree(expr, form)
 
     if res === nothing
         throw("exponent_of is implemented only for polynomials in form")
