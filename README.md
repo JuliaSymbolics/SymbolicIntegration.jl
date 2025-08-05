@@ -99,6 +99,16 @@ RischMethod(use_algebraic_closure=true, catch_errors=true)
 # Performance configuration (faster, simpler)
 RischMethod(use_algebraic_closure=false, catch_errors=true)
 ```
+or in a Repl:
+```
+(@v1.11) pkg> activate .
+  Activating project at `~/.julia/dev/SymbolicIntegration.jl`
+
+julia> using Symbolics, SymbolicIntegration
+
+julia> include("test/runtests.jl")
+
+```
 
 ### Extensibility
 The framework is designed for easy extension with additional integration methods. The abstract type `AbstractIntegrationMethod` provides the foundation for implementing new algorithms.
