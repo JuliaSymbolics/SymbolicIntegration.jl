@@ -275,14 +275,6 @@ function int_and_subst(integrand, integration_var, from, to, rule_number)
     return subst(∫(integrand, integration_var),from, to)
 end
 
-elliptic_e(m) = Elliptic.E(m)
-elliptic_e(phi, m) = Elliptic.E(phi, m)
-elliptic_f(phi, m) = Elliptic.F(phi, m)
-
-hypergeometric2f1(a, b, c, z) = HypergeometricFunctions._₂F₁(Complex(a), Complex(b), Complex(c), Complex(z))
-
-appell_f1(a, b, c, d, e, z) = throw("AppellF1 function is not implemented yet")
-
 # distributes exp1 over exp2
 function dist(exp1, exp2, x)
     exp1 = Symbolics.unwrap(exp1)

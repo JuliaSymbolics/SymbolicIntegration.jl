@@ -1,7 +1,8 @@
 using Printf
+include("../src/string_manipulation_helpers.jl")
 
+# Convert Mathematica syntax to Julia syntax
 function translate_mathematica_to_julia(expr::String)
-    # Convert Mathematica syntax to Julia syntax
     # Remove leading/trailing whitespace
     expr = strip(expr)
 
@@ -34,84 +35,39 @@ function translate_mathematica_to_julia(expr::String)
         (r"\bArcCoth\[", "acoth("),
         (r"\bExp\[", "exp("),
         (r"\bAbs\[", "abs("),
+
+        (r"EllipticE\[", s"SymbolicIntegration.elliptic_e("), # one or two arguments
+        (r"EllipticF\[", s"SymbolicIntegration.elliptic_f("),
+        (r"Hypergeometric2F1\[", s"SymbolicIntegration.hypergeometric2f1("),
+        (r"AppellF1\[", s"SymbolicIntegration.appell_f1("),
+        (r"LogIntegral\[", s"SymbolicUtils.expinti(log("), # TODO use it from SpecialFunctions.jl once pr is merged
+
         (r"(?<=\d)/(?=\d)", "//"), # to make fractions and not divisions
         (r"\bPi\b", "π"),
         (r"\bE\b", "ℯ"),
+
         ("]", ")"),  # Close brackets
         ("[", "("),  # Open brackets
     ]
-
-    # Hypergeometric2F1 ???
 
     for (mathematica_func, julia_func) in associations
         expr = replace(expr, mathematica_func => julia_func)
     end
     
-    # Power notation: convert a^b to a^b (same in Julia)
-    # Mathematica uses both x^2 and Power[x, 2], we'll handle Power if needed
-    expr = replace(expr, r"Power\[([^,]+),\s*([^\]]+)\]" => s"(\1)^(\2)")
-    
-    # Handle fractions better - Mathematica sometimes uses different notation
-    # This is already mostly compatible
-    
-    # Handle special cases for very nested expressions
-    # We might need to handle nested brackets recursively, but for now this should work
-    
     return expr
 end
 
+# Parse a line containing a Mathematica integral in the format:
+# {integrand, result, variable, number}
 function parse_mathematica_line(line::String)
-    #=
-    Parse a line containing a Mathematica integral in the format:
-    {integrand, result, variable, number}
-    =#
     line = strip(line)
-    
     # Skip empty lines and comments
-    if isempty(line) || startswith(line, "(*") || startswith(line, "//") || !startswith(line, "{")
-        return nothing
-    end
-    
-    # Check if this is a proper integral line
-    if !startswith(line, "{") || !endswith(line, "}")
-        return nothing
-    end
-    
-    # Remove the outer braces
-    content = line[2:end-1]
-    
-    parts = String[]
-    depth = 0
-    current_part = ""
-    i = 1
-    
-    while i <= length(content)
-        char = content[i]
-        if char == '{' || char == '[' || char == '('
-            depth += 1
-            current_part *= char
-        elseif char == '}' || char == ']' || char == ')'
-            depth -= 1
-            current_part *= char
-        elseif char == ',' && depth == 0
-            push!(parts, strip(current_part))
-            current_part = ""
-        else
-            current_part *= char
-        end
-        i += 1
-    end
-    
-    # Add the last part
-    if !isempty(current_part)
-        push!(parts, strip(current_part))
-    end
-    
+    (isempty(line) || startswith(line, "(*") || startswith(line, "//") || !startswith(line, "{") || !startswith(line, "{") || !endswith(line, "}")) && return nothing
+    content = line[2:end-1] # Remove the outer braces
+    parts = split_outside_brackets(content, ',')
     # We expect exactly 4 parts: integrand, result, variable, number
-    if length(parts) != 4
-        return nothing
-    end
-    
+    length(parts) != 4 && return nothing
+
     return parts
 end
 
@@ -127,8 +83,7 @@ function translate_integral_file(input_filename::String, output_filename::String
 
     open(output_filename, "w") do outfile
         # Write header
-        write(outfile, "# Julia syntax integrals translated from Mathematica\n")
-        write(outfile, "# Original file: $input_filename\n")
+        write(outfile, "# Each tuple is (integrand, result, integration variable, mistery value)\n")
         write(outfile, "data = [\n")
         
         
@@ -148,7 +103,7 @@ function translate_integral_file(input_filename::String, output_filename::String
                         
                         # Write the translated integral
                         # TODO what si mistery val?
-                        julia_line = "    (integrand = $integrand_julia, result = $result_julia, integration_var = $variable_julia, mistery_val = $number_julia),\n"
+                        julia_line = "($integrand_julia, $result_julia, $variable_julia, $number_julia),\n"
                         write(outfile, julia_line)
                     catch e
                         println("Error translating line $line_num: $line")
@@ -180,33 +135,27 @@ function translate_integral_file(input_filename::String, output_filename::String
     println("Output written to: $output_filename")
 end
 
-function main()
-    if length(ARGS) < 1
-        println("Usage: julia traduttore_testset.jl input_file.m [output_file.jl]")
-        println("If output_file is not specified, it will be input_file with .jl extension")
-        exit(1)
-    end
-    
-    input_file = ARGS[1]
-    
-    # Generate output filename
-    if length(ARGS) >= 2
-        output_file = ARGS[2]
-    else
-        # Replace extension with .jl
-        base_name = splitext(input_file)[1]
-        output_file = base_name * ".jl"
-    end
-    
-    try
-        translate_integral_file(input_file, output_file)
-    catch e
-        println("Error during translation: $e")
-        exit(1)
-    end
+if length(ARGS) < 1
+    println("Usage: julia traduttore_testset.jl input_file.m [output_file.jl]")
+    println("If output_file is not specified, it will be input_file with .jl extension")
+    exit(1)
 end
 
-# Run main function if script is executed directly
-if abspath(PROGRAM_FILE) == @__FILE__
-    main()
+input_file = ARGS[1]
+
+# Generate output filename
+if length(ARGS) >= 2
+    output_file = ARGS[2]
+else
+    # Replace extension with .jl
+    base_name = splitext(input_file)[1]
+    output_file = base_name * ".jl"
 end
+
+try
+    translate_integral_file(input_file, output_file)
+catch e
+    println("Error during translation: $e")
+    exit(1)
+end
+
