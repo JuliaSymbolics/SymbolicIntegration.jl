@@ -1,7 +1,7 @@
 # This function splits a string `s` by `delimiter`, ignoring delimiters
 # that are inside brackets (either `[]` or `()`). It returns an array of
 # parts of the string that are outside of brackets.
-# Delimiter must be a single character.
+# Delimiter must be a single character definied with ''.
 # Example:
 # julia> split_outside_brackets("foo(1,2,3), dog, foo2(4,5,hellohello)", ',')
 # 3-element Vector{String}:

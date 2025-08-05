@@ -71,7 +71,7 @@ function load_all_rules()
     "4 Trig functions/4.1 Sine/4.1.1/4.1.1.3 (g tan)^p (a+b sin)^m.jl"
     ]
     load_all_rules([joinpath(@__DIR__, "rules/" * file) for file in rules_paths])
-    println("Loaded all rules")
+    println("Loaded all $(length(rules)) rules")
 end
 
 
