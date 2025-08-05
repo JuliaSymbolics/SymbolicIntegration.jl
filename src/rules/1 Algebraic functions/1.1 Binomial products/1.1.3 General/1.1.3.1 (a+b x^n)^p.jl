@@ -427,7 +427,7 @@ ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~a) + (~b)*(~x)^(ext_den(
 (~a)^intpart((~p))*((~a) + (~b)*(~x)^(~n))^fracpart((~p))⨸(1 + (~b)*(~x)^(~n)⨸(~a))^fracpart((~p))* ∫((1 + (~b)*(~x)^(~n)⨸(~a))^(~p), (~x)) : nothing)
 
 ("1_1_3_1_59",
-@rule ∫(((~!a) + (~!b)*(~v)^(~n))^(~p),(~x)) =>
+@rule ∫(((~a) + (~!b)*(~v)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~n), (~p), (~x)) &&
     linear((~v), (~x)) &&
     !eq((~v), (~x)) ?
