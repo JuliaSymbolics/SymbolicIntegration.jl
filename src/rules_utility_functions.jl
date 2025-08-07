@@ -92,9 +92,38 @@ function ext_simplify(u, x)
     simplify(u)
 end
 
+# If u is a polynomial in x, expand_linear_product(v, u, a, b, x) expands v*u
+# into a sum of terms of the form c*v*(a+b*x)^n where n is a non-negative integer
+# usally v = (a + bx)^(non integer number)
+# Example:
+# julia> SymbolicIntegration.expand_linear_product((3 + 6x)^(2.1),(-1 + 2x)^2, 3, 6, x)
+# (4//1)*((3 + 6x)^2.1) - (4//3)*((3 + 6x)^3.1) + (1//9)*((3 + 6x)^4.1)
+function expand_linear_product(v, u, a, b, x)
+    !poly(u, x) && throw(ArgumentError("u must be a polynomial in x"))
+    contains_var(a, b, x) && throw(ArgumentError("a and b must be constants (free of x)"))
+
+    u_transformed = expand(substitute(u, x => (x - a) / b))
+
+    # Extract coefficients of the transformed polynomial
+    coeffs = Num[]
+    for i in 0:poly_degree(u_transformed, x)
+        coeff = ext_coeff(u_transformed, x, i)
+        push!(coeffs, simp(coeff, x)) # Simplify each coefficient
+    end
+
+    # Build the sum: v * coeff[i] * (a+b*x)^(i-1) for all coeffs
+    return sum(v * c * (a + b*x)^(i-1) for (i,c) in enumerate(coeffs))
+end
+
 # TODO is this enough?
-function ext_expand(u, x)
-    expand(u)
+function ext_expand(expr, x)
+    f(p) = !contains_var(p, x) # f stands for free of x
+    case1 = @rule (~u::(p->poly(p,x)))*((~a::f) + (~!b::f)*(~x::(p->eq(p,x))))^(~m::f) => (a=~a, b=~b, m=~m, x=~x, u=~u)
+    t = case1(expr) # t stands for tmp
+    if t !== nothing
+        return expand_linear_product((t.a+t.b*t.x)^t.m,t.u, t.a, t.b, t.x)
+    end
+    return expand(expr)
 end
 
 function ext_expand(u, v, x)
@@ -111,6 +140,7 @@ function expand_to_sum(u, v, x)
     expand(u * v)
 end
 
+simp(u,x) = simplify(u)
 
 # FracPart[u] returns the sum of the non-integer terms of u.
 # fracpart(3//2 + x) = (1//2) + x, fracpart(2.4) = 2.4
@@ -328,7 +358,7 @@ binomial(u::Vector,x,n) = all(binomial(e,x,n) for e in u)
 
 # If u is a monomial in x (either b(x^m) or (bx)^m), monomial(u,x) returns the degree of u in x; else it returns nothing.
 function monomial(u, x)
-    x = Symbolics.unwrap(x)
+    x = Symbolics.unwrap(x)# TODO remove them
     u = Symbolics.unwrap(u)
     # if u is a constant or a variable, it is a monomial
     !(u isa Symbolics.Symbolic) && return true
@@ -345,6 +375,7 @@ function poly_degree(u, x)
     x = Symbolics.unwrap(x)
     u = Symbolics.unwrap(u)
 
+    u = expand(u)
     
     if issum(u)
         max_degree = 0
@@ -371,8 +402,11 @@ end
 # If u is a polynomial in x, Poly[u,x] returns True; else it returns False.
 # If u is a polynomial in x of degree n, Poly[u,x,n] returns True; else it returns False.
 function poly(u, x)
+    # could have been implemented as poly(u, x) = poly_degree(u, x) !== nothing but this is more efficient
     x = Symbolics.unwrap(x)
     u = Symbolics.unwrap(u)
+
+    u = expand(u)
 
     # if u is a sum call monomial on each term
     if issum(u)
