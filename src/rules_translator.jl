@@ -195,7 +195,8 @@ function translate_result(result, index)
         ("ExpandTrig", "ext_expand", (2,3)),
         ("ExpandIntegrand", "ext_expand", (2,3)),
         ("ExpandToSum", "expand_to_sum", (2,3)),
-        ("Expand", "ext_expand")
+        ("Expand", "ext_expand"),
+        ("ExpandLinearProduct", "expand_linear_product", 5),
     ]
 
     for (mathematica, julia, n_args...) in simple_substitutions
@@ -246,23 +247,30 @@ function translate_conditions(conditions)
         ("Log", "log"),
 
         ("GCD", "gcd"),
-        ("IntBinomialQ", "int_binomial"),
         ("LinearPairQ", "linear_pair"),
         ("PolyQ", "poly"),
         ("PolynomialQ", "poly"),
         ("InverseFunctionFreeQ", "!contains_inverse_function"),
         ("ExpandIntegrand", "ext_expand", (2,3)),
         ("BinomialQ", "binomial"),
+        ("PerfectSquareQ", "perfect_square"),
+        ("NiceSqrtQ", "nice_sqrt", 1),
         ("BinomialMatchQ", "binomial_without_simplify"),
         ("Coefficient", "ext_coeff", (2,3)),
         ("Coeff", "ext_coeff", (2,3)),
         ("LeafCount", "leaf_count"),
-
+        
         ("AlgebraicFunctionQ", "algebraic_function", (2,3)),
         ("RationalFunctionQ", "rational_function", 2),
         ("QuadraticQ", "quadratic", 2),
         ("IntegralFreeQ", "contains_int", 1),
-
+        
+        ("IntLinearQ", "int_linear", 7),
+        ("IntBinomialQ", "int_binomial", 7),
+        ("IntQuadraticQ", "int_quadratic", 8),
+        
+        ("OddQ", "ext_isodd", 1),
+        ("EvenQ", "ext_iseven", 1),
         ("EqQ", "eq"),
         ("NeQ", "!eq"),
         ("If", "ifelse", 3),
@@ -270,7 +278,8 @@ function translate_conditions(conditions)
 
         ("SumQ", "issum", 1),
         ("NonsumQ", "!issum", 1),
-        ("ProductQ", "isprod", 1)
+        ("ProductQ", "isprod", 1),
+        ("PowerQ", "ispow", 1),
     ]
 
     for (mathematica, julia, n_args...) in simple_substitutions
@@ -286,8 +295,6 @@ function translate_conditions(conditions)
         (r"LinearMatchQ\[{(.*?)},(.*?)\]", s"linear_without_simplify(\1,\2)"),
         (r"LinearMatchQ\[(.*?),(.*?)\]", s"linear_without_simplify(\1,\2)"),
 
-        (r"IntLinearQ\[(.*?),(.*?),(.*?),(.*?),(.*?),(.*?),(.*?)\]", s"intlinear(\1,\2,\3, \4, \5, \6, \7)"),
-        
         (r"IGtQ\[(.*?),(.*?)\]", s"igt(\1,\2)"), # IGtQ = Integer Greater than Question
         (r"IGeQ\[(.*?),(.*?)\]", s"ige(\1,\2)"),
         (r"ILtQ\[(.*?),(.*?)\]", s"ilt(\1,\2)"),

@@ -46,6 +46,9 @@ function load_all_rules()
     # 3, 4, 5, 6
 
     # ...
+    "1 Algebraic functions/1.2 Trinomial products/1.2.1 Quadratic/1.2.1.1 (a+b x+c x^2)^p.jl"
+    "1 Algebraic functions/1.2 Trinomial products/1.2.1 Quadratic/1.2.1.2 (d+e x)^m (a+b x+c x^2)^p.jl"
+    # ...
 
     # 7, 6, 5
     "1 Algebraic functions/1.1 Binomial products/1.1.1 Linear/1.1.1.5 P(x) (a+b x)^m (c+d x)^n.jl"
@@ -92,8 +95,8 @@ function reload_rules(path; verbose = false)
             rules[idx] = r[2]
         else
             # add at the end
+            push!(identifiers, r[1])
             push!(rules, r[2])
-            push!(identifiers, identifier)
         end
     end
     

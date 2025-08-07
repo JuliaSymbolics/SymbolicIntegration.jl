@@ -51,6 +51,7 @@ function eq(a, b)
     return SymbolicUtils._iszero(SymbolicUtils.simplify(a - b))
 end
 
+# TODO do with multiple dispatch?
 function ext_isinteger(u)
     isa(u, Num) && return false # for symbolic expressions
     isa(u, Number) && return isinteger(u) # for numeric types
@@ -58,6 +59,19 @@ function ext_isinteger(u)
 end
 ext_isinteger(args...) = all(ext_isinteger(arg) for arg in args)
 
+function ext_iseven(u)
+    isa(u, Num) && return false # for symbolic expressions
+    isa(u, Number) && return iseven(u) # for numeric types
+    return false    
+end
+
+function ext_isodd(u)
+    isa(u, Num) && return false # for symbolic expressions
+    isa(u, Number) && return isodd(u) # for numeric types
+    return false    
+end
+
+# TODO change name to isfractiona nd isrational
 # If m, n, ... are explicit fractions, FractionQ[m,n,...] returns True; else it returns False.
 fraction(args...) = all(isa(arg, Rational) for arg in args)
 # If m, n, ... are explicit integers or fractions, rationalQ(m,n,...) returns true; else it returns false.
@@ -72,6 +86,11 @@ end
 function isprod(u)
     u = Symbolics.unwrap(u)
     return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === *
+end
+
+function ispow(u)
+    u = Symbolics.unwrap(u)
+    return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === ^
 end
 
 function ext_coeff(u, x)
@@ -203,23 +222,50 @@ ext_den(u) = isa(u, Float64) ? 1 : denominator(u)
 ext_num(u) = isa(u, Float64) ? u : numerator(u)
 
 # IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is integrable wrt x in terms of non-hypergeometric functions.
-function intlinear(a, b, c, d, m, n, x)
-    return igt(m, 0) || igt(n, 0) || 
-           ext_isinteger(3*m, 3*n) || ext_isinteger(4*m, 4*n) || 
-           ext_isinteger(2*m, 6*n) || ext_isinteger(6*m, 2*n) || 
-           ilt(m + n, -1) || (ext_isinteger(m + n) && rational(m))
-end
+int_linear(a, b, c, d, m, n, x) =
+    igt(m, 0) || igt(n, 0) || 
+    ext_isinteger(3*m, 3*n) || ext_isinteger(4*m, 4*n) || 
+    ext_isinteger(2*m, 6*n) || ext_isinteger(6*m, 2*n) || 
+    ilt(m + n, -1) || (ext_isinteger(m + n) && rational(m))
 
 # IntBinomialQ[a,b,c,n,m,p,x] returns True iff (c*x)^m*(a+b*x^n)^p  is integrable wrt x in terms of non-hypergeometric functions.
-function int_binomial(a, b, c, n, m, p, x)
-    return igt(p, 0) || 
-           (rational(m) && ext_isinteger(n, 2*p)) || 
-           ext_isinteger((m + 1)⨸n + p) || 
-           (eq(n, 2) || eq(n, 4)) && ext_isinteger(2*m, 4*p) || 
-           eq(n, 2) && ext_isinteger(6*p) && (ext_isinteger(m) || ext_isinteger(m - p))
+int_binomial(a, b, c, n, m, p, x) =
+    igt(p, 0) || (rational(m) && ext_isinteger(n, 2*p)) || 
+    ext_isinteger((m + 1)⨸n + p) || 
+    (eq(n, 2) || eq(n, 4)) && ext_isinteger(2*m, 4*p) || 
+    eq(n, 2) && ext_isinteger(6*p) && (ext_isinteger(m) || ext_isinteger(m - p))
+
+
+# IntQuadraticQ[a,b,c,d,e,m,p,x] returns True iff  (d+e*x)^m*(a+b*x+c*x^2)^p is integrable wrt x in terms of non-Appell  functions.
+int_quadratic(a,b,c,d,e,m,p,x) = 
+    ext_isinteger(p) || igt(m, 0) ||
+    ext_isinteger(2*m, 2*p) || ext_isinteger(m, 4*p) ||
+    ext_isinteger(m, p + 1//3) &&
+    (eq(c^2*d^2 - b*c*d*e + b^2*e^2 - 3*a*c*e^2, 0) ||
+     eq(c^2*d^2 - b*c*d*e - 2*b^2*e^2 + 9*a*c*e^2, 0))
+
+# If u has a nice squareroot (e.g. a positive number or none of the degrees of 
+# the factors of the squareroot of u are fractions), return true
+function nice_sqrt(u)
+    rational(u) && return u>0
+    println(rt(u,2))
+    return !fractional_power_factor(rt(u,2))
 end
 
-# If u is simpler than v, SimplerQ[u,v] returns True, else it returns False.  SimplerQ[u,u] returns False.
+# If a factor of u is a complex constant or a fractional power returns true
+# julia> SymbolicIntegration.fractional_power_factor(((1+x)^(1//2))*x)
+# true
+function fractional_power_factor(expr)
+    expr = Symbolics.unwrap(expr)
+    atom(expr) && return false
+    !iscall(expr) && return false
+    ispow(expr) && return (!ext_isinteger(arguments(expr)[2]) && fraction(arguments(expr)[2]))
+    isprod(expr) && return any(fractional_power_factor(f) for f in arguments(expr))
+    return false
+end
+
+# If u is simpler than v, SimplerQ[u,v] returns True, else it 
+# returns False.  SimplerQ[u,u] returns False.
 function simpler(u, v)
     if ext_isinteger(u)
         if ext_isinteger(v)
@@ -268,7 +314,7 @@ function leaf_count(expr)
     end
 end
 
-# yields True if expr is an expression which cannot be divided into subexpressions, and yields False otherwise. 
+# True if expr is an expression which cannot be divided into subexpressions, false otherwise
 function atom(expr)
     expr = Symbolics.unwrap(expr)
     if !SymbolicUtils.iscall(expr)
@@ -505,6 +551,14 @@ function exponent_of(expr, form)
         throw("exponent_of is implemented only for polynomials in form")
     end
     return res
+end
+
+function perfect_square(expr)
+    expr = Symbolics.unwrap(expr)
+    !isa(expr, Symbolics.Symbolic) && return sqrt(expr) == floor(sqrt(expr))
+    !iscall(expr) && return false
+    (operation(expr) === ^) && iseven(arguments(expr)[2]) && return true
+    return false
 end
 
 # puts terms in a sum over a common denominator, and cancels factors in the result
