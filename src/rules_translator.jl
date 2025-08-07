@@ -185,7 +185,7 @@ function translate_result(result, index)
         ("Dist", "dist"),
         ("SimplifyIntegrand", "ext_simplify", 2), # TODO is this enough?
         ("Simplify", "simplify", 1),
-        ("Simp", "simplify", 1),
+        ("Simp", "simp", (1,2)),
 
         ("IntHide", "∫"),
         ("Int", "∫"),
