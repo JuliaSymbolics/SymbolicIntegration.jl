@@ -203,10 +203,10 @@ le(u, v) = (f(u) || f(v)) ? false : u <= v
 le(u, v, w) = le(u, v) && le(v, w)
 
 # If a is an integer and a>b, igtQ(a,b) returns true, else it returns false.
-igt(a, b) = isinteger(a) && gt(a, b)
-ige(a, b) = isinteger(a) && ge(a, b)
-ilt(a, b) = isinteger(a) && lt(a, b)
-ile(a, b) = isinteger(a) && le(a, b)
+igt(a, b) = ext_isinteger(a) && gt(a, b)
+ige(a, b) = ext_isinteger(a) && ge(a, b)
+ilt(a, b) = ext_isinteger(a) && lt(a, b)
+ile(a, b) = ext_isinteger(a) && le(a, b)
 
 # returns the simplest nth root of u
 # return SymbolicUtils.Pow{Real}(u, 1⨸n)
