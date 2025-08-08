@@ -169,6 +169,14 @@ function translate_result(result, index)
         ("Erf", "SymbolicUtils.erf"),
         ("PolyLog", "PolyLog.reli", 2),
 
+        # taken from other packages
+        ("EllipticE", "elliptic_e", (1,2)),
+        ("EllipticF", "elliptic_f", 2),
+        ("EllipticPi", "elliptic_pi", (2,3)),
+        ("Hypergeometric2F1", "hypergeometric2f1", 4),
+        ("AppellF1", "appell_f1", 6),
+
+
         ("FreeFactors", "free_factors"),
         ("NonfreeFactors", "non_free_factors"),
         ("FreeTerms", "free_terms"),
@@ -209,13 +217,9 @@ function translate_result(result, index)
 
 
         (r"Rt\[(.*?),(.*?)\]", s"rt(\1,\2)"),
-        
-        (r"EllipticE\[(.*?)\]", s"elliptic_e(\1)"), # one or two arguments
-        (r"EllipticF\[(.*?),(.*?)\]", s"elliptic_f(\1,\2)"),
-        (r"Hypergeometric2F1\[(.*?),(.*?),(.*?),(.*?)\]", s"hypergeometric2f1(\1,\2,\3,\4)"),
-        (r"AppellF1\[(.*?),(.*?),(.*?),(.*?),(.*?),(.*?)\]", s"appell_f1(\1,\2,\3,\4,\5,\6)"),
-        (r"LogIntegral\[(.*?)\]", s"SymbolicUtils.expinti(log(\1))"), # TODO use it from SpecialFunctions.jl once pr is merged
 
+        (r"LogIntegral\[(.*?)\]", s"SymbolicUtils.expinti(log(\1))"), # TODO use it from SpecialFunctions.jl once pr is merged
+        
         (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
         (r"PolynomialRemainder\[(.*?),(.*?)\]", s"poly_remainder(\1,\2)"),
         (r"PolynomialQuotient\[(.*?),(.*?)\]", s"poly_quotient(\1,\2)"),
