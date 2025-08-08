@@ -187,19 +187,13 @@ function intpart(a)
 end
 
 # Greater than
-# If u>v, GtQ[u,v] returns True; else it returns False
-# If u>v and v>w, GtQ[u,v,w] returns True; else it returns False.
-# TODO maybe change isa(u, Num) with Symbolics.unwrap(u) isa Symbolics.Symbolic
-gt(u, v) = (isa(u, Num) || isa(v, Num)) ? false : u > v
+gt(u, v) = (isa(u, Symbolics.Symbolic) || isa(v, Symbolics.Symbolic)) ? false : u > v
 gt(u, v, w) = gt(u, v) && gt(v, w)
-# Greater or equal than
-ge(u, v) = isa(u, Num) || isa(v, Num) ? false : u >= v
+ge(u, v) = isa(u, Symbolics.Symbolic) || isa(v, Symbolics.Symbolic) ? false : u >= v
 ge(u, v, w) = ge(u, v) && ge(v, w)
-# Lower than
-lt(u, v) = (isa(u, Num) || isa(v, Num)) ? false : u < v
+lt(u, v) = (isa(u, Symbolics.Symbolic) || isa(v, Symbolics.Symbolic)) ? false : u < v
 lt(u, v, w) = lt(u, v) && lt(v, w)
-# Lower or equal than
-le(u, v) = (isa(u, Num) || isa(v, Num)) ? false : u <= v
+le(u, v) = (isa(u, Symbolics.Symbolic) || isa(v, Symbolics.Symbolic)) ? false : u <= v
 le(u, v, w) = le(u, v) && le(v, w)
 
 # If a is an integer and a>b, igtQ(a,b) returns true, else it returns false.
