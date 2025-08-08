@@ -36,7 +36,8 @@ function translate_mathematica_to_julia(expr::String)
         (r"\bExp\[", "exp("),
         (r"\bAbs\[", "abs("),
 
-        (r"EllipticE\[", s"SymbolicIntegration.elliptic_e("), # one or two arguments
+        (r"EllipticPi\[", s"SymbolicIntegration.elliptic_pi("),
+        (r"EllipticE\[", s"SymbolicIntegration.elliptic_e("),
         (r"EllipticF\[", s"SymbolicIntegration.elliptic_f("),
         (r"Hypergeometric2F1\[", s"SymbolicIntegration.hypergeometric2f1("),
         (r"AppellF1\[", s"SymbolicIntegration.appell_f1("),
@@ -60,6 +61,7 @@ end
 # Parse a line containing a Mathematica integral in the format:
 # {integrand, result, variable, number}
 function parse_mathematica_line(line::String)
+    occursin("\$", line) && return nothing
     line = strip(line)
     # Skip empty lines and comments
     (isempty(line) || startswith(line, "(*") || startswith(line, "//") || !startswith(line, "{") || !startswith(line, "{") || !endswith(line, "}")) && return nothing
