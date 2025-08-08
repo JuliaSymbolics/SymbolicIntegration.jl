@@ -191,15 +191,15 @@ function intpart(a)
     end
 end
 
-f(u) = isa(Symbolics.unwrap(u), Symbolics.Symbolic)
+s(u) = isa(Symbolics.unwrap(u), Symbolics.Symbolic)
 # Greater than
-gt(u, v) = (f(u) || f(v)) ? false : u > v
+gt(u, v) = (s(u) || s(v)) ? false : u > v
 gt(u, v, w) = gt(u, v) && gt(v, w)
-ge(u, v) = (f(u) || f(v)) ? false : u >= v
+ge(u, v) = (s(u) || s(v)) ? false : u >= v
 ge(u, v, w) = ge(u, v) && ge(v, w)
-lt(u, v) = (f(u) || f(v)) ? false : u < v
+lt(u, v) = (s(u) || s(v)) ? false : u < v
 lt(u, v, w) = lt(u, v) && lt(v, w)
-le(u, v) = (f(u) || f(v)) ? false : u <= v
+le(u, v) = (s(u) || s(v)) ? false : u <= v
 le(u, v, w) = le(u, v) && le(v, w)
 
 # If a is an integer and a>b, igtQ(a,b) returns true, else it returns false.
@@ -216,7 +216,7 @@ rt(u, n::Integer) = u^(1⨸n)
 # If u is not 0 and has a positive form, posQ(u) returns True, else it returns False
 function pos(u)
     u = Symbolics.unwrap(u)
-    !f(u) && return !eq(u, 0) && (u>0)
+    !s(u) && return !eq(u, 0) && (u>0)
     u = simplify(u)
     atom(u) && return true
     (isprod(u) || isdiv(u)) && return all(pos(arg) for arg in Symbolics.arguments(u))
@@ -411,10 +411,10 @@ binomial(u::Vector,x,n) = all(binomial(e,x,n) for e in u)
 
 # If u is a monomial in x (either b(x^m) or (bx)^m), monomial(u,x) returns the degree of u in x; else it returns nothing.
 function monomial(u, x)
-    x = Symbolics.unwrap(x)# TODO remove them
-    u = Symbolics.unwrap(u)
+    x = Symbolics.unwrap(x)# TODO remove the unwrap?
     # if u is a constant or a variable, it is a monomial
-    !(u isa Symbolics.Symbolic) && return true
+    !(s(u)) && return true
+    u = Symbolics.unwrap(u)
     # if u is a call, check if it is a monomial
     degree = (@rule (~!b::(b -> !contains_var(x, b)))*(~var::(var->var===x))^(~!m::(m->!contains_var(x,m)))=>~m)(u) 
     degree !== nothing && return degree
@@ -447,9 +447,18 @@ function poly_degree(u, x)
     end
 end
 
-# QuadraticQ[u,x] returns True iff u is a polynomial of degree 2 and not a monomial of the form x^2
+# quadratic(u,x) returns True iff u is a polynomial of degree 2 and not a monomial of the form x^2
 function quadratic(u,x)
    poly_degree(u,x)==2 && !(monomial(u,x)==2)
+end
+
+# returns True iff u matches patterns of the form a+b x+c x^2 or a+c x^2 where a, b and c are free of x.
+function quadratic_without_simplify(u,x)
+    f(p) = !contains_var(p, x) # f stands for free of x
+    case1 = @rule (~!a::f) + (~!b::f)*x + (~!c::f)*x^2 => 1
+    case2 = @rule (~!a::f) + (~!c::f)*x^2 => 1
+    (case1(u) !== nothing || case2(u) !== nothing) && return true
+    return false
 end
 
 # If u is a polynomial in x, Poly[u,x] returns True; else it returns False.

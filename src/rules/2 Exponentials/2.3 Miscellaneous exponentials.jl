@@ -248,8 +248,7 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*(~F)^((~
 #     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~n), (~x)) &&
 #     !eq((~d)*(~e) - (~c)*(~f), 0) ?
 # Unintegrable[(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n))⨸((~e) + (~f)*(~x)), (~x)] : nothing)
-# 
-# 
+
 ("2_3_33",
 @rule ∫((~u)^(~!m)*(~F)^(~v),(~x)) =>
     !contains_var((~F), (~m), (~x)) &&
@@ -326,8 +325,8 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*(~F)^((~
 ("2_3_43",
 @rule ∫((~F)^(~v),(~x)) =>
     !contains_var((~F), (~x)) &&
-    QuadraticQ[(~v), (~x)] &&
-    !(QuadraticMatchQ[(~v), (~x)]) ?
+    quadratic((~v), (~x)) &&
+    !(quadratic_without_simplify((~v), (~x))) ?
 ∫((~F)^expand_to_sum((~v), (~x)), (~x)) : nothing)
 
 ("2_3_44",
@@ -380,16 +379,15 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*(~F)^((~
 # @rule ∫(((~!d) + (~!e)*(~x))^(~!m)*(~F)^((~!a) + (~!b)*(~x) + (~!c)*(~x)^2),(~x)) =>
 #     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~m), (~x)) ?
 # Unintegrable[((~d) + (~e)*(~x))^(~m)*(~F)^((~a) + (~b)*(~x) + (~c)*(~x)^2), (~x)] : nothing)
-# 
-# 
+
 ("2_3_52",
 @rule ∫((~u)^(~!m)*(~F)^(~v),(~x)) =>
     !contains_var((~F), (~m), (~x)) &&
     linear((~u), (~x)) &&
-    QuadraticQ[(~v), (~x)] &&
+    quadratic((~v), (~x)) &&
     !(
         linear_without_simplify((~u), (~x)) &&
-        QuadraticMatchQ[(~v), (~x)]
+        quadratic_without_simplify((~v), (~x))
     ) ?
 ∫(expand_to_sum((~u), (~x))^(~m)*(~F)^expand_to_sum((~v), (~x)), (~x)) : nothing)
 
@@ -552,7 +550,7 @@ dist((~x)^(~m), ∫((~F)^((~e)*((~c) + (~d)*(~x)))*((~a) + (~b)*(~F)^(~v))^(~p),
     !contains_var((~F), (~a), (~b), (~c), (~x)) &&
     eq((~w), -(~v)) &&
     linear((~v), (~x)) &&
-    ifelse(rational(Symbolics.coeff((~v), (~x), 1)), gt(Symbolics.coeff((~v), (~x), 1), 0), lt(leaf_count((~v)), leaf_count((~w)))) ?
+    ifelse(rational(ext_coeff((~v), (~x), 1)), gt(ext_coeff((~v), (~x), 1), 0), lt(leaf_count((~v)), leaf_count((~w)))) ?
 ∫((~u)*(~F)^(~v)⨸((~c) + (~a)*(~F)^(~v) + (~b)*(~F)^(2*(~v))), (~x)) : nothing)
 
 ("2_3_76",
@@ -618,8 +616,7 @@ sqrt(π)*exp(2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F))))* SymbolicUtils.erf((
 # @rule ∫(((~!g) + (~!h)*(~x))^(~!m)* (~F)^((~!f)*((~!a) + (~!b)*log((~!c)*((~!d) + (~!e)*(~x))^(~!n))^2)),(~x)) =>
 #     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~m), (~n), (~x)) ?
 # Unintegrable[((~g) + (~h)*(~x))^(~m)*(~F)^((~f)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x))^(~n))^2)), (~x)] : nothing)
-# 
-# 
+
 ("2_3_87",
 @rule ∫((~F)^((~!f)*((~!a) + (~!b)*log((~!c)*((~!d) + (~!e)*(~x))^(~!n)))^2),(~x)) =>
     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~n), (~x)) &&
@@ -659,8 +656,7 @@ sqrt(π)*exp(2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F))))* SymbolicUtils.erf((
 # @rule ∫(((~!g) + (~!h)*(~x))^(~!m)* (~F)^((~!f)*((~!a) + (~!b)*log((~!c)*((~!d) + (~!e)*(~x))^(~!n)))^2),(~x)) =>
 #     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~m), (~n), (~x)) ?
 # Unintegrable[((~g) + (~h)*(~x))^(~m)*(~F)^((~f)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x))^(~n)))^2), (~x)] : nothing)
-# 
-# 
+
 ("2_3_93",
 @rule ∫(log((~a) + (~!b)*((~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~!n)),(~x)) =>
     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~n), (~x)) &&
@@ -752,8 +748,7 @@ sqrt(π)*exp(2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F))))* SymbolicUtils.erf((
 #     eq((~B)*(~e)*(~g) - (~C)*((~e)*(~f) + (~d)*(~g)), 0) &&
 #     !(igt((~n), 0)) ?
 # Unintegrable[((~a) + (~b)*(~F)^((~c)*sqrt((~d) + (~e)*(~x))⨸sqrt((~f) + (~g)*(~x))))^ (~n)⨸((~A) + (~B)*(~x) + (~C)*(~x)^2), (~x)] : nothing)
-# 
-# 
+
 # ("2_3_107",
 # @rule ∫(((~!a) + (~!b)*(~F)^((~!c)*sqrt((~!d) + (~!e)*(~x))/sqrt((~!f) + (~!g)*(~x))))^ (~n)/((~A) + (~!C)*(~x)^2),(~x)) =>
 #     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~A), (~C), (~F), (~n), (~x)) &&
@@ -761,7 +756,6 @@ sqrt(π)*exp(2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F))))* SymbolicUtils.erf((
 #     eq((~e)*(~f) + (~d)*(~g), 0) &&
 #     !(igt((~n), 0)) ?
 # Unintegrable[((~a) + (~b)*(~F)^((~c)*sqrt((~d) + (~e)*(~x))⨸sqrt((~f) + (~g)*(~x))))^ (~n)⨸((~A) + (~C)*(~x)^2), (~x)] : nothing)
-# 
-# 
+
 
 ]

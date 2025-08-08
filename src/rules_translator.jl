@@ -246,6 +246,16 @@ function translate_conditions(conditions)
     simple_substitutions = [
         ("Log", "log"),
 
+        ("IGtQ", "igt", 2),
+        ("IGeQ", "ige", 2),
+        ("ILtQ", "ilt", 2),
+        ("ILeQ", "ile", 2),
+
+        ("GtQ", "gt", (2,3)),
+        ("GeQ", "ge", (2,3)),
+        ("LtQ", "lt", (2,3)),
+        ("LeQ", "le", (2,3)),
+
         ("GCD", "gcd"),
         ("LinearPairQ", "linear_pair"),
         ("PolyQ", "poly"),
@@ -263,6 +273,7 @@ function translate_conditions(conditions)
         ("AlgebraicFunctionQ", "algebraic_function", (2,3)),
         ("RationalFunctionQ", "rational_function", 2),
         ("QuadraticQ", "quadratic", 2),
+        ("QuadraticMatchQ", "quadratic_without_simplify", 2),
         ("IntegralFreeQ", "contains_int", 1),
         
         ("IntLinearQ", "int_linear", 7),
@@ -294,16 +305,6 @@ function translate_conditions(conditions)
         (r"LinearQ\[(.*?),(.*?)\]", s"linear(\1,\2)"),
         (r"LinearMatchQ\[{(.*?)},(.*?)\]", s"linear_without_simplify(\1,\2)"),
         (r"LinearMatchQ\[(.*?),(.*?)\]", s"linear_without_simplify(\1,\2)"),
-
-        (r"IGtQ\[(.*?),(.*?)\]", s"igt(\1,\2)"), # IGtQ = Integer Greater than Question
-        (r"IGeQ\[(.*?),(.*?)\]", s"ige(\1,\2)"),
-        (r"ILtQ\[(.*?),(.*?)\]", s"ilt(\1,\2)"),
-        (r"ILeQ\[(.*?),(.*?)\]", s"ile(\1,\2)"),
-
-        (r"GtQ\[(.*?),(.*?)\]", s"gt(\1,\2)"), (r"GtQ\[(.*?),(.*?),(.*?)\]", s"gt(\1,\2,\3)"),
-        (r"GeQ\[(.*?),(.*?)\]", s"ge(\1,\2)"), (r"GeQ\[(.*?),(.*?),(.*?)\]", s"ge(\1,\2,\3)"),
-        (r"LtQ\[(.*?),(.*?)\]", s"lt(\1,\2)"), (r"LtQ\[(.*?),(.*?),(.*?)\]", s"lt(\1,\2,\3)"),
-        (r"LeQ\[(.*?),(.*?)\]", s"le(\1,\2)"), (r"LeQ\[(.*?),(.*?),(.*?)\]", s"le(\1,\2,\3)"),
 
         ("ArcSinh", "asinh"), # not function call, just word. for rule 3_1_5_58
         ("ArcSin", "asin"),
