@@ -88,6 +88,11 @@ function isprod(u)
     return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === *
 end
 
+function isdiv(u)
+    u = Symbolics.unwrap(u)
+    return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === /
+end
+
 function ispow(u)
     u = Symbolics.unwrap(u)
     return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === ^
@@ -186,14 +191,15 @@ function intpart(a)
     end
 end
 
+f(u) = isa(Symbolics.unwrap(u), Symbolics.Symbolic)
 # Greater than
-gt(u, v) = (isa(u, Symbolics.Symbolic) || isa(v, Symbolics.Symbolic)) ? false : u > v
+gt(u, v) = (f(u) || f(v)) ? false : u > v
 gt(u, v, w) = gt(u, v) && gt(v, w)
-ge(u, v) = isa(u, Symbolics.Symbolic) || isa(v, Symbolics.Symbolic) ? false : u >= v
+ge(u, v) = (f(u) || f(v)) ? false : u >= v
 ge(u, v, w) = ge(u, v) && ge(v, w)
-lt(u, v) = (isa(u, Symbolics.Symbolic) || isa(v, Symbolics.Symbolic)) ? false : u < v
+lt(u, v) = (f(u) || f(v)) ? false : u < v
 lt(u, v, w) = lt(u, v) && lt(v, w)
-le(u, v) = (isa(u, Symbolics.Symbolic) || isa(v, Symbolics.Symbolic)) ? false : u <= v
+le(u, v) = (f(u) || f(v)) ? false : u <= v
 le(u, v, w) = le(u, v) && le(v, w)
 
 # If a is an integer and a>b, igtQ(a,b) returns true, else it returns false.
@@ -208,7 +214,14 @@ ile(a, b) = isinteger(a) && le(a, b)
 rt(u, n::Integer) = u^(1⨸n) 
 
 # If u is not 0 and has a positive form, posQ(u) returns True, else it returns False
-pos(u) = !eq(u, 0) && (u>0)
+function pos(u)
+    u = Symbolics.unwrap(u)
+    !f(u) && return !eq(u, 0) && (u>0)
+    u = simplify(u)
+    atom(u) && return true
+    (isprod(u) || isdiv(u)) && return all(pos(arg) for arg in Symbolics.arguments(u))
+    return true
+end
 neg(u) = !pos(u) && !eq(u, 0)
 
 # extended denominator
