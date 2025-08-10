@@ -19,7 +19,7 @@ function load_all_rules(rules_paths)
         printstyled(" Loading file: ", split(file,"/")[end], "\n"; color = :light_black)
 
         # add rules
-        include(file)
+        include(file) # most of the time is spent here
         append!(rules, [x[2] for x in file_rules])
         append!(identifiers, [x[1] for x in file_rules])
     end
@@ -50,6 +50,11 @@ function load_all_rules()
     "1 Algebraic functions/1.2 Trinomial products/1.2.1 Quadratic/1.2.1.2 (d+e x)^m (a+b x+c x^2)^p.jl"
     "1 Algebraic functions/1.2 Trinomial products/1.2.1 Quadratic/1.2.1.3 (d+e x)^m (f+g x) (a+b x+c x^2)^p.jl" # not most updated version?
     "1 Algebraic functions/1.2 Trinomial products/1.2.1 Quadratic/1.2.1.4 (d+e x)^m (f+g x)^n (a+b x+c x^2)^p.jl" # not most updated version?
+
+    "1 Algebraic functions/1.2 Trinomial products/1.2.2 Quartic/1.2.2.1 (a+b x^2+c x^4)^p.jl"
+    "1 Algebraic functions/1.2 Trinomial products/1.2.2 Quartic/1.2.2.3 (d+e x^2)^q (a+b x^2+c x^4)^p.jl"
+
+    "1 Algebraic functions/1.2 Trinomial products/1.2.3 General/1.2.3.1 (a+b x^n+c x^(2 n))^p.jl"
     # ...
 
     # 7, 6, 5
