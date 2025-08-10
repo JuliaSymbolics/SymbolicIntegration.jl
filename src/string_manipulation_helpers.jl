@@ -183,52 +183,121 @@ function pretty_indentation(conditions)
         return conditions
     end
     
-    result = conditions[1]
+    # Convert string to array of characters for safe indexing
+    chars = collect(conditions)
+    n_chars = length(chars)
+    
+    result = string(chars[1])
     depth = 1
-    indent = "    "
+    indent = " "^4
     i = 2
     remove_next_spaces = false
     groups_depths = []
     
-    while i <= length(conditions)
+    while i <= n_chars
         if remove_next_spaces
-            if conditions[i]==' '
-                i+=1
+            if chars[i] == ' '
+                i += 1
                 continue
             else
-                remove_next_spaces=false
+                remove_next_spaces = false
             end
         end
-        if conditions[i] == '('
+        
+        if chars[i] == '('
             depth += 1
-        elseif conditions[i] == ')'
+        elseif chars[i] == ')'
             depth -= 1
         end
 
-        if conditions[i-1:i] == "&&"
-            result = result * "&\n" * indent^depth
-            remove_next_spaces=true
-        elseif conditions[i-1:i] == "||"
-            remove_next_spaces=true
-            result = result * "|\n" * indent^depth
-        elseif (conditions[i-1:i]==" (" || conditions[i-1:i]=="!(") && i<length(conditions) && conditions[i+1]!='~'
-            # if there are more than one arguments in the parenthesis
-            tmp = find_closing_braket(conditions[i-1:end], conditions[i-1:i], "()")
-            if occursin("||", tmp) || occursin("&&", tmp)
-                result = result * "(\n" * indent^depth
-                remove_next_spaces=true
-                push!(groups_depths, depth)
+        # Check for two-character patterns
+        if i > 1 && i <= n_chars
+            two_char = string(chars[i-1], chars[i])
+            if two_char == "&&"
+                result = result * "&\n" * indent^depth
+                remove_next_spaces = true
+            elseif two_char == "||"
+                remove_next_spaces = true
+                result = result * "|\n" * indent^depth
+            elseif (two_char == " (" || two_char == "!(") && i < n_chars && chars[i+1] != '~'
+                # if there are more than one arguments in the parenthesis
+                # Reconstruct substring from current position for find_closing_braket
+                remaining_str = join(chars[i-1:end])
+                tmp = find_closing_braket(remaining_str, two_char, "()")
+                if occursin("||", tmp) || occursin("&&", tmp)
+                    result = result * "(\n" * indent^depth
+                    remove_next_spaces = true
+                    push!(groups_depths, depth)
+                else
+                    result *= chars[i]
+                end
+            elseif chars[i] == ')' && in(depth+1, groups_depths)
+                result *= "\n" * indent^depth * ")"
+                pop!(groups_depths)
             else
-                result *= conditions[i]
+                result *= chars[i]
             end
-        elseif conditions[i]==')' && in(depth+1, groups_depths)
-            result *= "\n" * indent^depth * ")"
-            pop!(groups_depths)
         else
-            result *= conditions[i]
+            result *= chars[i]
         end
-        i+=1
+        i += 1
     end
     
     return indent^depth * result
 end
+
+# old version that doesnt works with strange charachters
+# function pretty_indentation(conditions)
+#     if isempty(strip(conditions)) || length(conditions)<=2
+#         return conditions
+#     end
+#     
+#     result = conditions[1]
+#     depth = 1
+#     indent = " "^4
+#     i = 2
+#     remove_next_spaces = false
+#     groups_depths = []
+#     
+#     while i <= length(conditions)
+#         if remove_next_spaces
+#             if conditions[i]==' '
+#                 i+=1
+#                 continue
+#             else
+#                 remove_next_spaces=false
+#             end
+#         end
+#         if conditions[i] == '('
+#             depth += 1
+#         elseif conditions[i] == ')'
+#             depth -= 1
+#         end
+# 
+#         if conditions[i-1:i] == "&&"
+#             result = result * "&\n" * indent^depth
+#             remove_next_spaces=true
+#         elseif conditions[i-1:i] == "||"
+#             remove_next_spaces=true
+#             result = result * "|\n" * indent^depth
+#         elseif (conditions[i-1:i]==" (" || conditions[i-1:i]=="!(") && i<length(conditions) && conditions[i+1]!='~'
+#             # if there are more than one arguments in the parenthesis
+#             tmp = find_closing_braket(conditions[i-1:end], conditions[i-1:i], "()")
+#             if occursin("||", tmp) || occursin("&&", tmp)
+#                 result = result * "(\n" * indent^depth
+#                 remove_next_spaces=true
+#                 push!(groups_depths, depth)
+#             else
+#                 result *= conditions[i]
+#             end
+#         elseif conditions[i]==')' && in(depth+1, groups_depths)
+#             result *= "\n" * indent^depth * ")"
+#             pop!(groups_depths)
+#         else
+#             result *= conditions[i]
+#         end
+#         i+=1
+#     end
+#     
+#     return indent^depth * result
+# end
