@@ -272,15 +272,17 @@ ext_den((~p))*(~a)^((~p)+simplify(((~m)+1)⨸2))⨸2 * int_and_subst((~x)^(ext_d
     ) ?
  (~c)^intpart((~m))*((~c)*(~x))^fracpart((~m))⨸(~x)^fracpart((~m)) * ∫((~x)^(~m)⨸((~a)+(~b)*(~x)^2), (~x))  : nothing)
 
-("1_1_2_2_39",
-@rule ∫(((~!c)*(~x))^(~!m)*((~a)+(~!b)*(~x)^2)^(~p),(~x)) =>
-    !contains_var((~a),(~b),(~c),(~m),(~p), (~x)) &&
-    !(igt((~p), 0)) &&
-    (
-        ilt((~p), 0) ||
-        gt((~a), 0)
-    ) ?
- (~a)^(~p)*((~c)*(~x))^((~m)+1)⨸((~c)*((~m)+1))*hypergeometric2f1(-(~p), ((~m)+1)⨸2, ((~m)+1)⨸2+1, -(~b)*(~x)^2⨸(~a))  : nothing)
+# this is commented because otherwise triggers on x^2*(1/(1+x^2))^2
+# while rule 1_1_3_2_19 is more appropriate
+# ("1_1_2_2_39",
+# @rule ∫(((~!c)*(~x))^(~!m)*((~a)+(~!b)*(~x)^2)^(~p),(~x)) =>
+#     !contains_var((~a),(~b),(~c),(~m),(~p), (~x)) &&
+#     !(igt((~p), 0)) &&
+#     (
+#         ilt((~p), 0) ||
+#         gt((~a), 0)
+#     ) ?
+#  (~a)^(~p)*((~c)*(~x))^((~m)+1)⨸((~c)*((~m)+1))*hypergeometric2f1(-(~p), ((~m)+1)⨸2, ((~m)+1)⨸2+1, -(~b)*(~x)^2⨸(~a))  : nothing)
 
 ("1_1_2_2_40",
 @rule ∫(((~!c)*(~x))^(~!m)*((~a)+(~!b)*(~x)^2)^(~p),(~x)) =>
