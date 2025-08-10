@@ -105,12 +105,13 @@ function transalte_integrand(integrand)
     end
 
     associations = [
-        ("Int[", "∫(") # Handle common Int[...] integrands
-        (r",\s?x_Symbol\]", ",(~x))")
-        (r"(?<!\w)([a-zA-Z]{1,2}\d*)_\.(?!\w)", s"(~!\1)") # default slot
-        (r"(?<!\w)([a-zA-Z]{1,2}\d*)_(?!\w)", s"(~\1)") # slot
-        (r"(?<=\d)/(?=\d)", "//")
-        (r"Sqrt\[(.*?)\]", s"sqrt(\1)")
+        ("Int[", "∫("), # Handle common Int[...] integrands
+        (r",\s?x_Symbol\]", ",(~x))"),
+        (r"(?<!\w)([a-zA-Z]{1,2}\d*)_\.(?!\w)", s"(~!\1)"), # default slot
+        (r"(?<!\w)([a-zA-Z]{1,2}\d*)_(?!\w)", s"(~\1)"), # slot
+        (r"(?<!\w)Pi(?!\w)", "π"),
+        (r"(?<=\d)/(?=\d)", "//"),
+        (r"Sqrt\[(.*?)\]", s"sqrt(\1)"),
     ]
     for (mathematica, julia) in associations
         integrand = replace(integrand, mathematica => julia)
@@ -180,7 +181,6 @@ function translate_result(result, index)
         ("PolyLog", "PolyLog.reli", 2),
         ("FresnelC", "FresnelIntegrals.fresnelc", 1),
         ("FresnelS", "FresnelIntegrals.fresnels", 1),
-
 
         ("FreeFactors", "free_factors"),
         ("NonfreeFactors", "non_free_factors"),
@@ -289,6 +289,7 @@ function translate_conditions(conditions)
         ("IntBinomialQ", "int_binomial", 7),
         ("IntQuadraticQ", "int_quadratic", 8),
         
+        ("ComplexFreeQ", "complexfree", 1),
         ("FractionQ", "isfraction"), #called with one or more arguments
         ("RationalQ", "isrational"),
         ("IntegerQ", "ext_isinteger"),
@@ -328,6 +329,8 @@ function translate_conditions(conditions)
         ("ArcCot", "acot"),
         ("ArcCoth", "acoth"),
 
+        (r"(?<!\w)Pi(?!\w)", "π"),
+
         (r"PosQ\[(.*?)\]", s"pos(\1)"),
         (r"NegQ\[(.*?)\]", s"neg(\1)"),
         (r"Numerator\[(.*?)\]", s"ext_num(\1)"),
@@ -356,6 +359,7 @@ function translate_conditions(conditions)
     for (mathematica, julia) in associations
         conditions = replace(conditions, mathematica => julia)
     end
+    println("c")
  
     conditions = pretty_indentation(conditions) # improve readibility
  

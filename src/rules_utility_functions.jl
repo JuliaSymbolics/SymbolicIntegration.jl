@@ -44,6 +44,11 @@ end
 
 contains_int(expr) = contains_op(∫, expr)
 
+function complexfree(expr)
+    isa(expr, Complex) && !eq(imag(expr),0) && return true
+    return false
+end
+
 s(u) = isa(Symbolics.unwrap(u), Symbolics.Symbolic)
 
 function eq(a, b)
