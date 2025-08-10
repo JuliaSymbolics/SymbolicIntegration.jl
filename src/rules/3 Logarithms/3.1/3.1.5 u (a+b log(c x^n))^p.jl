@@ -292,10 +292,10 @@ dist(((~d) + (~e)*log((~f)*(~x)^(~r))), ∫(((~g)*(~x))^(~m)*((~a) + (~b)*log((~
 @rule ∫(log((~!d)*((~e) + (~!f)*(~x)^(~!m))^(~!r))*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~r), (~m), (~n), (~x)) &&
     igt((~p), 0) &&
-    rational( (~m)) &&
+    isrational( (~m)) &&
     (
         eq((~p), 1) ||
-        fraction((~m)) &&
+        isfraction((~m)) &&
         ext_isinteger(1/(~m)) ||
         eq((~r), 1) &&
         eq((~m), 1) &&
@@ -342,8 +342,8 @@ log((~d)*((~e) + (~f)*(~x)^(~m))^(~r))*((~a) + (~b)*log((~c)*(~x)^(~n)))^((~p) +
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~r), (~m), (~n), (~q), (~x)) &&
     (
         ext_isinteger(((~q) + 1)/(~m)) ||
-        rational((~m)) &&
-        rational((~q))
+        isrational((~m)) &&
+        isrational((~q))
     ) &&
     !eq((~q), -1) ?
 dist(((~a) + (~b)*log((~c)*(~x)^(~n))), ∫(((~g)*(~x))^(~q)*log((~d)*((~e) + (~f)*(~x)^(~m))^(~r)), (~x)), (~x)) - (~b)*(~n)*∫(dist(1⨸(~x), ∫(((~g)*(~x))^(~q)*log((~d)*((~e) + (~f)*(~x)^(~m))^(~r)), (~x)), (~x)), (~x)) : nothing)
@@ -352,12 +352,12 @@ dist(((~a) + (~b)*log((~c)*(~x)^(~n))), ∫(((~g)*(~x))^(~q)*log((~d)*((~e) + (~
 @rule ∫(((~!g)*(~x))^(~!q)* log((~!d)*((~e) + (~!f)*(~x)^(~!m)))*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~m), (~n), (~q), (~x)) &&
     igt((~p), 0) &&
-    rational((~m)) &&
-    rational((~q)) &&
+    isrational((~m)) &&
+    isrational((~q)) &&
     !eq((~q), -1) &&
     (
         eq((~p), 1) ||
-        fraction((~m)) &&
+        isfraction((~m)) &&
         ext_isinteger(((~q) + 1)/(~m)) ||
         igt((~q), 0) &&
         ext_isinteger(((~q) + 1)/(~m)) &&
@@ -369,8 +369,8 @@ dist(((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), ∫(((~g)*(~x))^(~q)*log((~d)*((~e)
 @rule ∫(((~!g)*(~x))^(~!q)* log((~!d)*((~e) + (~!f)*(~x)^(~!m))^(~!r))*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~r), (~m), (~n), (~q), (~x)) &&
     igt((~p), 0) &&
-    rational((~m)) &&
-    rational((~q)) ?
+    isrational((~m)) &&
+    isrational((~q)) ?
 dist(log((~d)*((~e) + (~f)*(~x)^(~m))^(~r)), ∫(((~g)*(~x))^(~q)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)), (~x)) - (~f)*(~m)*(~r)*∫(dist((~x)^((~m) - 1)⨸((~e) + (~f)*(~x)^(~m)), ∫(((~g)*(~x))^(~q)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)), (~x)), (~x)) : nothing)
 
 # ("3_1_5_50",

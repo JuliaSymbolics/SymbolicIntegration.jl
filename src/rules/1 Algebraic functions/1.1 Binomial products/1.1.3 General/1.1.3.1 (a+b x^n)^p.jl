@@ -9,7 +9,7 @@ file_rules = [
 ("1_1_3_1_2",
 @rule ∫(((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~p), (~x)) &&
-    fraction((~n)) &&
+    isfraction((~n)) &&
     ext_isinteger(1/(~n)) ?
 1⨸(~n)*int_and_subst((~x)^(1⨸(~n) - 1)*((~a) + (~b)*(~x))^(~p),  (~x), (~x), (~x)^(~n), "1_1_3_1_2") : nothing)
 
@@ -392,7 +392,7 @@ atan((1 + 2*rt((~b), 3)*(~x)⨸((~a) + (~b)*(~x)^3)^(1⨸3))⨸sqrt(3))⨸(sqrt(
 ("1_1_3_1_55",
 @rule ∫(((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~p), (~x)) &&
-    fraction((~n)) ?
+    isfraction((~n)) ?
 ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~a) + (~b)*(~x)^(ext_den((~n))*(~n)))^(~p),  (~x), (~x), (~x)^(1⨸ext_den((~n))), "1_1_3_1_55") : nothing)
 
 ("1_1_3_1_56",
@@ -479,7 +479,7 @@ ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~a) + (~b)*(~x)^(ext_den(
 # @rule ∫((a1_ + b1_.*(~x)^(~n))^(~p)*(a2_ + b2_.*(~x)^(~n))^(~p),(~x)) =>
 #     !contains_var(a1, b1, a2, b2, (~p), (~x)) &&
 #     eq(a2*b1 + a1*b2, 0) &&
-#     fraction(2*(~n)) ?
+#     isfraction(2*(~n)) ?
 # ext_den(2*(~n))*int_and_subst((~x)^(ext_den(2*(~n)) - 1)*(a1 + b1*(~x)^(ext_den(2*(~n))*(~n)))^(~p)*(a2 + b2*(~x)^(ext_den(2*(~n))*(~n)))^(~p),  (~x), (~x), (~x)^(1⨸ext_den(2*(~n))), "1_1_3_1_64") : nothing)
 # 
 # ("1_1_3_1_65",
@@ -499,13 +499,13 @@ ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~a) + (~b)*(~x)^(ext_den(
 ("1_1_3_1_67",
 @rule ∫(((~a) + (~!b)*((~!c)*(~x)^(~!q))^(~n))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~p), (~q), (~x)) &&
-    fraction((~n)) ?
+    isfraction((~n)) ?
 int_and_subst(((~a) + (~b)*(~c)^(~n)*(~x)^((~n)*(~q)))^(~p),  (~x), (~x)^(1⨸ext_den((~n))), ((~c)*(~x)^(~q))^(1⨸ext_den((~n)))⨸((~c)^(1⨸ext_den((~n)))*((~x)^(1⨸ext_den((~n))))^((~q) - 1)), "1_1_3_1_67") : nothing)
 
 ("1_1_3_1_68",
 @rule ∫(((~a) + (~!b)*((~!c)*(~x)^(~!q))^(~n))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~n), (~p), (~q), (~x)) &&
-    !(rational((~n))) ?
+    !(isrational((~n))) ?
 int_and_subst(((~a) + (~b)*(~c)^(~n)*(~x)^((~n)*(~q)))^(~p),  (~x), (~x)^((~n)*(~q)), ((~c)*(~x)^(~q))^(~n)⨸(~c)^(~n), "1_1_3_1_68") : nothing)
 
 ("1_1_3_1_69",
@@ -517,7 +517,7 @@ int_and_subst(((~a) + (~b)*(~c)^(~n)*(~x)^((~n)*(~q)))^(~p),  (~x), (~x)^((~n)*(
 ("1_1_3_1_70",
 @rule ∫(((~a) + (~!b)*((~!d)*(~x)^(~!q))^(~n))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~d), (~n), (~p), (~x)) &&
-    fraction((~q)) ?
+    isfraction((~q)) ?
 ext_den((~q))*int_and_subst((~x)^(ext_den((~q)) - 1)*((~a) + (~b)*((~d)*(~x)^((~q)*ext_den((~q))))^(~n))^(~p),  (~x), (~x), (~x)^(1⨸ext_den((~q))), "1_1_3_1_70") : nothing)
 
 # (* Int[(a_+b_.*(d_.*x_^q_.)^n_)^p_.,x_Symbol] := Subst[Int[(a+b*x^(n*q))^p,x],x^(n*q),(d*x^q)^n] /; FreeQ[{a,b,d,n,p,q},x] && Not[IntegerQ[n*q]] &&  NeQ[x^(n*q),(d*x^q)^n] *) 

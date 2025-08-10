@@ -147,7 +147,7 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n)) - 1)*(~F)^((~a) + (~b)*(
     !contains_var((~F), (~a), (~b), (~c), (~d), (~m), (~n), (~x)) &&
     ext_isinteger(2*simplify(((~m) + 1)/(~n))) &&
     lt(0, simplify(((~m) + 1)/(~n)), 5) &&
-    !(rational((~m))) &&
+    !(isrational((~m))) &&
     sumsimpler((~m), -(~n)) ?
 ((~c) + (~d)*(~x))^((~m) - (~n) + 1)*(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n))⨸((~b)*(~d)*(~n)*log((~F))) - ((~m) - (~n) + 1)⨸((~b)*(~n)*log((~F)))* ∫(((~c) + (~d)*(~x))^simplify((~m) - (~n))*(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n)), (~x)) : nothing)
 
@@ -170,7 +170,7 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n)) - 1)*(~F)^((~a) + (~b)*(
     !contains_var((~F), (~a), (~b), (~c), (~d), (~m), (~n), (~x)) &&
     ext_isinteger(2*simplify(((~m) + 1)/(~n))) &&
     lt(-4, simplify(((~m) + 1)/(~n)), 5) &&
-    !(rational((~m))) &&
+    !(isrational((~m))) &&
     sumsimpler((~m), (~n)) ?
 ((~c) + (~d)*(~x))^((~m) + 1)*(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n))⨸((~d)*((~m) + 1)) - (~b)*(~n)*log((~F))⨸((~m) + 1)* ∫(((~c) + (~d)*(~x))^simplify((~m) + (~n))*(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n)), (~x)) : nothing)
 
@@ -211,7 +211,7 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*(~F)^((~
 @rule ∫(((~!e) + (~!f)*(~x))^(~m)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^2),(~x)) =>
     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~x)) &&
     !eq((~d)*(~e) - (~c)*(~f), 0) &&
-    fraction((~m)) &&
+    isfraction((~m)) &&
     gt((~m), 1) ?
 (~f)*((~e) + (~f)*(~x))^((~m) - 1)*(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^2)⨸(2*(~b)*(~d)^2*log((~F))) + ((~d)*(~e) - (~c)*(~f))⨸(~d)*∫(((~e) + (~f)*(~x))^((~m) - 1)*(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^2), (~x)) - ((~m) - 1)*(~f)^2⨸(2*(~b)*(~d)^2*log((~F)))* ∫(((~e) + (~f)*(~x))^((~m) - 2)*(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^2), (~x)) : nothing)
 
@@ -550,7 +550,7 @@ dist((~x)^(~m), ∫((~F)^((~e)*((~c) + (~d)*(~x)))*((~a) + (~b)*(~F)^(~v))^(~p),
     !contains_var((~F), (~a), (~b), (~c), (~x)) &&
     eq((~w), -(~v)) &&
     linear((~v), (~x)) &&
-    ifelse(rational(ext_coeff((~v), (~x), 1)), gt(ext_coeff((~v), (~x), 1), 0), lt(leaf_count((~v)), leaf_count((~w)))) ?
+    ifelse(isrational(ext_coeff((~v), (~x), 1)), gt(ext_coeff((~v), (~x), 1), 0), lt(leaf_count((~v)), leaf_count((~w)))) ?
 ∫((~u)*(~F)^(~v)⨸((~c) + (~a)*(~F)^(~v) + (~b)*(~F)^(2*(~v))), (~x)) : nothing)
 
 ("2_3_76",
@@ -584,7 +584,7 @@ sqrt(π)*exp(2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F))))* SymbolicUtils.erf((
 
 ("2_3_81",
 @rule ∫((~x)^(~!m)*(E^(~x) + (~x)^(~!m))^(~n),(~x)) =>
-    rational((~m), (~n)) &&
+    isrational((~m), (~n)) &&
     gt((~m), 0) &&
     lt((~n), 0) &&
     !eq((~n), -1) ?

@@ -228,7 +228,7 @@ file_rules = [
     (
         !(ext_isinteger((~p)+1/2)) &&
         !eq((~p),-5/4) ||
-        !(rational((~m))) ||
+        !(isrational((~m))) ||
         ilt((~p)+1/2,0) &&
         le(-1,(~m),-2*((~p)+1))
     ) ?
@@ -249,7 +249,7 @@ file_rules = [
     (
         ext_isinteger((~m)) ||
         igt(2*((~m)+1),0) ||
-        !(rational((~m)))
+        !(isrational((~m)))
     ) ?
 ∫(ext_expand(((~e)*(~x))^(~m)*((~a)+(~b)*(~x)^2)^(~p)⨸((~c)+(~d)*(~x)^2), (~x)),(~x)) : nothing)
 
@@ -278,7 +278,7 @@ file_rules = [
 @rule ∫(((~!e)*(~x))^(~m)*((~a)+(~!b)*(~x)^2)^(~p)*((~c)+(~!d)*(~x)^2)^(~q),(~x)) =>
     !contains_var((~a),(~b),(~c),(~d),(~e),(~p),(~q),(~x)) &&
     !eq((~b)*(~c)-(~a)*(~d),0) &&
-    fraction((~m)) &&
+    isfraction((~m)) &&
     ext_isinteger((~p)) ?
 ext_den((~m))⨸(~e) * int_and_subst((~x)^(ext_den((~m))*((~m)+1)-1)*((~a)+(~b)*(~x)^(ext_den((~m))*2)⨸(~e)^2)^(~p)*((~c)+(~d)*(~x)^(ext_den((~m))*2)⨸(~e)^2)^(~q), (~x), (~x), ((~e)*(~x))^(1⨸ext_den((~m))), "1_1_2_4_34") : nothing)
 
@@ -463,7 +463,7 @@ ext_den((~m))⨸(~e) * int_and_subst((~x)^(ext_den((~m))*((~m)+1)-1)*((~a)+(~b)*
 ("1_1_2_4_56",
 @rule ∫((~x)^(~!m)*((~a)+(~!b)*(~x)^2)^(~p)*((~c)+(~!d)*(~x)^2)^(~!q),(~x)) =>
     !contains_var((~a),(~b),(~c),(~d),(~x)) &&
-    rational((~m),(~p)) &&
+    isrational((~m),(~p)) &&
     ext_isinteger((~p)+((~m)+1)/2,(~q)) &&
     lt(-1,(~p),0) ?
 ext_den((~p))*(~a)^((~p)+((~m)+1)⨸2)⨸2 *     int_and_subst((~x)^(ext_den((~p))*((~m)+1)⨸2-1)*((~c)-((~b)*(~c)-(~a)*(~d))*(~x)^ext_den((~p)))^(~q)⨸(1-(~b)*(~x)^ext_den((~p)))^((~p)+(~q)+((~m)+1)⨸2+1), (~x), (~x), (~x)^(2⨸ext_den((~p)))⨸((~a)+(~b)*(~x)^2)^(1⨸ext_den((~p))), "1_1_2_4_56") : nothing)

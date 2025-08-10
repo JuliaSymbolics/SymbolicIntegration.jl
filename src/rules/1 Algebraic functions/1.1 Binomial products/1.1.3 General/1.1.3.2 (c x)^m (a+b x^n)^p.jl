@@ -528,7 +528,7 @@ sqrt((~c)*(~x))⨸sqrt((~x))*∫(sqrt((~x))⨸sqrt((~a) + (~b)*(~x)^2), (~x)) : 
 @rule ∫(((~!c)*(~x))^(~m)*((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~p), (~x)) &&
     igt((~n), 0) &&
-    fraction((~m)) &&
+    isfraction((~m)) &&
     int_binomial((~a), (~b), (~c), (~n), (~m), (~p), (~x)) ?
 ext_den((~m))⨸(~c)* int_and_subst((~x)^(ext_den((~m))*((~m) + 1) - 1)*((~a) + (~b)*(~x)^(ext_den((~m))*(~n))⨸(~c)^(~n))^(~p),  (~x), (~x), ((~c)*(~x))^(1⨸ext_den((~m))), "1_1_3_2_69") : nothing)
 
@@ -537,7 +537,7 @@ ext_den((~m))⨸(~c)* int_and_subst((~x)^(ext_den((~m))*((~m) + 1) - 1)*((~a) + 
     !contains_var((~a1), (~b1), (~a2), (~b2), (~c), (~p), (~x)) &&
     eq((~a2)*(~b1) + (~a1)*(~b2), 0) &&
     igt(2*(~n), 0) &&
-    fraction((~m)) &&
+    isfraction((~m)) &&
     int_binomial((~a1)*(~a2), (~b1)*(~b2), (~c), 2*(~n), (~m), (~p), (~x)) ?
 ext_den((~m))⨸(~c)* int_and_subst( (~x)^(ext_den((~m))*((~m) + 1) - 1)*((~a1) + (~b1)*(~x)^(ext_den((~m))*(~n))⨸(~c)^(~n))^(~p)*((~a2) + (~b2)*(~x)^(ext_den((~m))*(~n))⨸(~c)^(~n))^ (~p),  (~x), (~x), ((~c)*(~x))^(1⨸ext_den((~m))), "1_1_3_2_70") : nothing)
 
@@ -605,7 +605,7 @@ ext_den((~m))⨸(~c)* int_and_subst( (~x)^(ext_den((~m))*((~m) + 1) - 1)*((~a1) 
 @rule ∫(((~!c)*(~x))^(~m)*((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~p), (~x)) &&
     ilt((~n), 0) &&
-    fraction((~m)) ?
+    isfraction((~m)) ?
 -ext_den((~m))⨸(~c)* int_and_subst(((~a) + (~b)*(~c)^(-(~n))*(~x)^(-ext_den((~m))*(~n)))^(~p)⨸(~x)^(ext_den((~m))*((~m) + 1) + 1),  (~x), (~x), 1⨸((~c)*(~x))^(1⨸ext_den((~m))), "1_1_3_2_78") : nothing)
 
 ("1_1_3_2_79",
@@ -613,14 +613,14 @@ ext_den((~m))⨸(~c)* int_and_subst( (~x)^(ext_den((~m))*((~m) + 1) - 1)*((~a1) 
     !contains_var((~a1), (~b1), (~a2), (~b2), (~c), (~p), (~x)) &&
     eq((~a2)*(~b1) + (~a1)*(~b2), 0) &&
     ilt(2*(~n), 0) &&
-    fraction((~m)) ?
+    isfraction((~m)) ?
 -ext_den((~m))⨸(~c)* int_and_subst(((~a1) + (~b1)*(~c)^(-(~n))*(~x)^(-ext_den((~m))*(~n)))^(~p)*((~a2) + (~b2)*(~c)^(-(~n))*(~x)^(-ext_den((~m))*(~n)))^(~p)⨸ (~x)^(ext_den((~m))*((~m) + 1) + 1),  (~x), (~x), 1⨸((~c)*(~x))^(1⨸ext_den((~m))), "1_1_3_2_79") : nothing)
 
 ("1_1_3_2_80",
 @rule ∫(((~!c)*(~x))^(~m)*((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~m), (~p), (~x)) &&
     ilt((~n), 0) &&
-    !(rational((~m))) ?
+    !(isrational((~m))) ?
 -1⨸(~c)*((~c)*(~x))^((~m) + 1)*(1⨸(~x))^((~m) + 1)* int_and_subst(((~a) + (~b)*(~x)^(-(~n)))^(~p)⨸(~x)^((~m) + 2),  (~x), (~x), 1⨸(~x), "1_1_3_2_80") : nothing)
 
 ("1_1_3_2_81",
@@ -628,33 +628,33 @@ ext_den((~m))⨸(~c)* int_and_subst( (~x)^(ext_den((~m))*((~m) + 1) - 1)*((~a1) 
     !contains_var((~a1), (~b1), (~a2), (~b2), (~c), (~m), (~p), (~x)) &&
     eq((~a2)*(~b1) + (~a1)*(~b2), 0) &&
     ilt(2*(~n), 0) &&
-    !(rational((~m))) ?
+    !(isrational((~m))) ?
 -1⨸(~c)*((~c)*(~x))^((~m) + 1)*(1⨸(~x))^((~m) + 1)* int_and_subst(((~a1) + (~b1)*(~x)^(-(~n)))^(~p)*((~a2) + (~b2)*(~x)^(-(~n)))^(~p)⨸(~x)^((~m) + 2),  (~x), (~x), 1⨸(~x), "1_1_3_2_81") : nothing)
 
 ("1_1_3_2_82",
 @rule ∫((~x)^(~!m)*((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~m), (~p), (~x)) &&
-    fraction((~n)) ?
+    isfraction((~n)) ?
 ext_den((~n))*int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*((~a) + (~b)*(~x)^(ext_den((~n))*(~n)))^(~p),  (~x), (~x), (~x)^(1⨸ext_den((~n))), "1_1_3_2_82") : nothing)
 
 ("1_1_3_2_83",
 @rule ∫((~x)^(~!m)*((~a1) + (~!b1)*(~x)^(~n))^(~p)*((~a2) + (~!b2)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a1), (~b1), (~a2), (~b2), (~m), (~p), (~x)) &&
     eq((~a2)*(~b1) + (~a1)*(~b2), 0) &&
-    fraction(2*(~n)) ?
+    isfraction(2*(~n)) ?
 ext_den(2*(~n))*int_and_subst((~x)^(ext_den(2*(~n))*((~m) + 1) - 1)*((~a1) + (~b1)*(~x)^(ext_den(2*(~n))*(~n)))^(~p)*((~a2) + (~b2)*(~x)^(ext_den(2*(~n))*(~n)))^(~p),  (~x), (~x), (~x)^(1⨸ext_den(2*(~n))), "1_1_3_2_83") : nothing)
 
 ("1_1_3_2_84",
 @rule ∫(((~c)*(~x))^(~m)*((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~m), (~p), (~x)) &&
-    fraction((~n)) ?
+    isfraction((~n)) ?
 (~c)^intpart((~m))*((~c)*(~x))^fracpart((~m))⨸(~x)^fracpart((~m))* ∫((~x)^(~m)*((~a) + (~b)*(~x)^(~n))^(~p), (~x)) : nothing)
 
 ("1_1_3_2_85",
 @rule ∫(((~c)*(~x))^(~m)*((~a1) + (~!b1)*(~x)^(~n))^(~p)*((~a2) + (~!b2)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a1), (~b1), (~a2), (~b2), (~c), (~m), (~p), (~x)) &&
     eq((~a2)*(~b1) + (~a1)*(~b2), 0) &&
-    fraction(2*(~n)) ?
+    isfraction(2*(~n)) ?
 (~c)^intpart((~m))*((~c)*(~x))^fracpart((~m))⨸(~x)^fracpart((~m))* ∫((~x)^(~m)*((~a1) + (~b1)*(~x)^(~n))^(~p)*((~a2) + (~b2)*(~x)^(~n))^(~p), (~x)) : nothing)
 
 ("1_1_3_2_86",
@@ -782,21 +782,21 @@ ext_den((~p))*((~a1)*(~a2))^((~p) + simplify(((~m) + 1)⨸(2*(~n))))⨸(2*(~n))*
 ("1_1_3_2_102",
 @rule ∫((~x)^(~!m)/((~a) + (~!b)*(~x)^(~n)),(~x)) =>
     !contains_var((~a), (~b), (~m), (~n), (~x)) &&
-    fraction(simplify(((~m) + 1)/(~n))) &&
+    isfraction(simplify(((~m) + 1)/(~n))) &&
     sumsimpler((~m), -(~n)) ?
 (~x)^(simplify((~m) - (~n)) + 1)⨸((~b)*(simplify((~m) - (~n)) + 1)) - (~a)⨸(~b)*∫((~x)^simplify((~m) - (~n))⨸((~a) + (~b)*(~x)^(~n)), (~x)) : nothing)
 
 ("1_1_3_2_103",
 @rule ∫((~x)^(~m)/((~a) + (~!b)*(~x)^(~n)),(~x)) =>
     !contains_var((~a), (~b), (~m), (~n), (~x)) &&
-    fraction(simplify(((~m) + 1)/(~n))) &&
+    isfraction(simplify(((~m) + 1)/(~n))) &&
     sumsimpler((~m), (~n)) ?
 (~x)^((~m) + 1)⨸((~a)*((~m) + 1)) - (~b)⨸(~a)*∫((~x)^simplify((~m) + (~n))⨸((~a) + (~b)*(~x)^(~n)), (~x)) : nothing)
 
 ("1_1_3_2_104",
 @rule ∫(((~c)*(~x))^(~m)/((~a) + (~!b)*(~x)^(~n)),(~x)) =>
     !contains_var((~a), (~b), (~c), (~m), (~n), (~x)) &&
-    fraction( simplify(((~m) + 1)/(~n))) &&
+    isfraction( simplify(((~m) + 1)/(~n))) &&
     (
         sumsimpler((~m), (~n)) ||
         sumsimpler((~m), -(~n))
@@ -846,13 +846,13 @@ ext_den((~p))*((~a1)*(~a2))^((~p) + simplify(((~m) + 1)⨸(2*(~n))))⨸(2*(~n))*
 ("1_1_3_2_110",
 @rule ∫(((~!d)*(~x))^(~!m)*((~a) + (~!b)*((~!c)*(~x)^(~q))^(~n))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~m), (~p), (~q), (~x)) &&
-    fraction((~n)) ?
+    isfraction((~n)) ?
 int_and_subst(((~d)*(~x))^(~m)*((~a) + (~b)*(~c)^(~n)*(~x)^((~n)*(~q)))^(~p),  (~x), (~x)^(1⨸ext_den((~n))), ((~c)*(~x)^(~q))^(1⨸ext_den((~n)))⨸((~c)^(1⨸ext_den((~n)))*((~x)^(1⨸ext_den((~n))))^((~q) - 1)), "1_1_3_2_110") : nothing)
 
 ("1_1_3_2_111",
 @rule ∫(((~!d)*(~x))^(~!m)*((~a) + (~!b)*((~!c)*(~x)^(~q))^(~n))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~m), (~n), (~p), (~q), (~x)) &&
-    !(rational((~n))) ?
+    !(isrational((~n))) ?
 int_and_subst(((~d)*(~x))^(~m)*((~a) + (~b)*(~c)^(~n)*(~x)^((~n)*(~q)))^(~p),  (~x), (~x)^((~n)*(~q)), ((~c)*(~x)^(~q))^(~n)⨸(~c)^(~n), "1_1_3_2_111") : nothing)
 
 ("1_1_3_2_112",

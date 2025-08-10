@@ -137,7 +137,7 @@ sqrt(1 + (~g1)*(~g2)⨸((~f1)*(~f2))*(~x)^2)⨸(sqrt((~f1) + (~g1)*(~x))*sqrt((~
 ("3_3_20",
 @rule ∫(((~!f) + (~!g)*(~x)^(~r))^(~!q)*((~!a) + (~!b)*log((~!c)*((~d) + (~!e)*(~x))^(~!n)))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~n), (~p), (~q), (~x)) &&
-    fraction((~r)) &&
+    isfraction((~r)) &&
     igt((~p), 0) ?
 ext_den((~r))*int_and_subst((~x)^(ext_den((~r)) - 1)*((~f) + (~g)*(~x)^(ext_den((~r))*(~r)))^(~q)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^ext_den((~r)))^(~n)))^(~p),  (~x), (~x), (~x)^(1⨸ext_den((~r))), "3_3_20") : nothing)
 
@@ -193,7 +193,7 @@ ext_den((~r))*int_and_subst((~x)^(ext_den((~r)) - 1)*((~f) + (~g)*(~x)^(ext_den(
 ("3_3_27",
 @rule ∫((~x)^(~!m)*((~!f) + (~!g)*(~x)^(~r))^ (~!q)*((~!a) + (~!b)*log((~!c)*((~d) + (~!e)*(~x))^(~!n)))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~n), (~p), (~q), (~x)) &&
-    fraction((~r)) &&
+    isfraction((~r)) &&
     igt((~p), 0) &&
     ext_isinteger((~m)) ?
 ext_den((~r))*int_and_subst((~x)^(ext_den((~r))*((~m) + 1) - 1)*((~f) + (~g)*(~x)^(ext_den((~r))*(~r)))^ (~q)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^ext_den((~r)))^(~n)))^(~p),  (~x), (~x), (~x)^(1⨸ext_den((~r))), "3_3_27") : nothing)

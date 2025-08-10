@@ -184,7 +184,7 @@ file_rules = [
 # ("1_1_2_2_27",
 # @rule ∫(((~!c)*(~x))^(~m)*((~a)+(~!b)*(~x)^2)^(~p),(~x)) =>
 #     !contains_var((~a),(~b),(~c),(~p), (~x)) &&
-#     fraction((~m)) &&
+#     isfraction((~m)) &&
 #     IntBinomialQ[(~a),(~b),(~c),2,(~m),(~p),(~x)] ?
 # ext_den((~m))⨸(~c) * int_and_subst((~x)^(ext_den((~m))*((~m)+1)-1)*((~a)+(~b)*(~x)^(2*ext_den((~m)))⨸(~c)^2)^(~p), (~x), (~x), ((~c)*(~x))^(1⨸ext_den((~m))), "1_1_2_2_27") : nothing)
 
@@ -251,21 +251,21 @@ ext_den((~p))*(~a)^((~p)+simplify(((~m)+1)⨸2))⨸2 * int_and_subst((~x)^(ext_d
 ("1_1_2_2_36",
 @rule ∫((~x)^(~!m)/((~a)+(~!b)*(~x)^2),(~x)) =>
     !contains_var((~a),(~b),(~m), (~x)) &&
-    fraction(((~m)+1)/2) &&
+    isfraction(((~m)+1)/2) &&
     sumsimpler((~m), -2) ?
  (~x)^((~m)-1)⨸((~b)*((~m)-1)) -  (~a)⨸(~b) * ∫((~x)^((~m)-2)⨸((~a)+(~b)*(~x)^2), (~x))  : nothing)
 
 ("1_1_2_2_37",
 @rule ∫((~x)^(~m)/((~a)+(~!b)*(~x)^2),(~x)) =>
     !contains_var((~a),(~b),(~m), (~x)) &&
-    fraction(((~m)+1)/2) &&
+    isfraction(((~m)+1)/2) &&
     sumsimpler((~m), 2) ?
  (~x)^((~m)+1)⨸((~a)*((~m)+1)) -  (~b)⨸(~a) * ∫((~x)^simplify((~m)+2)⨸((~a)+(~b)*(~x)^2), (~x))  : nothing)
 
 ("1_1_2_2_38",
 @rule ∫(((~c)*(~x))^(~m)/((~a)+(~!b)*(~x)^2),(~x)) =>
     !contains_var((~a),(~b),(~c),(~m), (~x)) &&
-    fraction(((~m)+1)/2) &&
+    isfraction(((~m)+1)/2) &&
     (
         sumsimpler((~m), 2) ||
         sumsimpler((~m), -2)

@@ -35,7 +35,7 @@ file_rules = [
 ("3_4_5",
 @rule ∫(((~!a) + (~!b)*log((~!c)*((~d) + (~!e)*(~x)^(~n))^(~!p)))^(~q),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~p), (~q), (~x)) &&
-    fraction((~n)) ?
+    isfraction((~n)) ?
 ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^(ext_den((~n))*(~n)))^(~p)))^(~q),  (~x), (~x), (~x)^(1⨸ext_den((~n))), "3_4_5") : nothing)
 
 # ("3_4_6",
@@ -92,13 +92,13 @@ ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~a) + (~b)*log((~c)*((~d)
 ("3_4_12",
 @rule ∫((~x)^(~!m)*((~!a) + (~!b)*log((~!c)*((~d) + (~!e)*(~x)^(~n))^(~!p)))^(~q),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~m), (~p), (~q), (~x)) &&
-    fraction((~n)) ?
+    isfraction((~n)) ?
 ext_den((~n))*int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^(ext_den((~n))*(~n)))^(~p)))^(~q),  (~x), (~x), (~x)^(1⨸ext_den((~n))), "3_4_12") : nothing)
 
 ("3_4_13",
 @rule ∫(((~f)*(~x))^(~m)*((~!a) + (~!b)*log((~!c)*((~d) + (~!e)*(~x)^(~n))^(~!p)))^(~!q),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~m), (~p), (~q), (~x)) &&
-    fraction((~n)) ?
+    isfraction((~n)) ?
 ((~f)*(~x))^(~m)⨸(~x)^(~m)*∫((~x)^(~m)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^(~n))^(~p)))^(~q), (~x)) : nothing)
 
 # ("3_4_14",
@@ -116,7 +116,7 @@ ext_den((~n))*int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*((~a) + (~b)*log
 ("3_4_16",
 @rule ∫(((~!a) + (~!b)*log((~!c)*((~d) + (~!e)*(~x)^(~n))^(~!p)))/((~!f) + (~!g)*(~x)),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~n), (~p), (~x)) &&
-    rational((~n)) ?
+    isrational((~n)) ?
 log((~f) + (~g)*(~x))*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^(~n))^(~p)))⨸(~g) - (~b)*(~e)*(~n)*(~p)⨸(~g)*∫((~x)^((~n) - 1)*log((~f) + (~g)*(~x))⨸((~d) + (~e)*(~x)^(~n)), (~x)) : nothing)
 
 ("3_4_17",
@@ -124,7 +124,7 @@ log((~f) + (~g)*(~x))*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^(~n))^(~p)))⨸(~g
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~n), (~p), (~r), (~x)) &&
     (
         igt((~r), 0) ||
-        rational((~n))
+        isrational((~n))
     ) &&
     !eq((~r), -1) ?
 ((~f) + (~g)*(~x))^((~r) + 1)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^(~n))^(~p)))⨸((~g)*((~r) + 1)) - (~b)*(~e)*(~n)*(~p)⨸((~g)*((~r) + 1))* ∫((~x)^((~n) - 1)*((~f) + (~g)*(~x))^((~r) + 1)⨸((~d) + (~e)*(~x)^(~n)), (~x)) : nothing)
@@ -155,7 +155,7 @@ log((~f) + (~g)*(~x))*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^(~n))^(~p)))⨸(~g
 ("3_4_21",
 @rule ∫(((~!h)*(~x))^(~m)*((~!f) + (~!g)*(~x))^ (~!r)*((~!a) + (~!b)*log((~!c)*((~d) + (~!e)*(~x)^(~!n))^(~!p)))^(~!q),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~p), (~r), (~x)) &&
-    fraction((~m)) &&
+    isfraction((~m)) &&
     ext_isinteger((~n)) &&
     ext_isinteger((~r)) ?
 ext_den((~m))⨸(~h)* int_and_subst( (~x)^(ext_den((~m))*((~m) + 1) - 1)*((~f) + (~g)*(~x)^ext_den((~m))⨸(~h))^ (~r)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^(ext_den((~m))*(~n))⨸(~h)^(~n))^(~p)))^(~q),  (~x), (~x), ((~h)*(~x))^(1⨸ext_den((~m))), "3_4_21") : nothing)
@@ -202,7 +202,7 @@ ext_den((~m))⨸(~h)* int_and_subst( (~x)^(ext_den((~m))*((~m) + 1) - 1)*((~f) +
 ("3_4_26",
 @rule ∫(((~f) + (~!g)*(~x)^(~s))^(~!r)*((~!a) + (~!b)*log((~!c)*((~d) + (~!e)*(~x)^(~n))^(~!p)))^ (~!q),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~n), (~p), (~q), (~r), (~s), (~x)) &&
-    fraction((~n)) &&
+    isfraction((~n)) &&
     ext_isinteger(ext_den((~n))*(~s)) ?
 ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~f) + (~g)*(~x)^(ext_den((~n))*(~s)))^ (~r)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^(ext_den((~n))*(~n)))^(~p)))^(~q),  (~x), (~x), (~x)^(1⨸ext_den((~n))), "3_4_26") : nothing)
 
@@ -242,14 +242,14 @@ ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~f) + (~g)*(~x)^(ext_den(
 ("3_4_31",
 @rule ∫(((~f) + (~!g)*(~x)^(~s))^(~!r)*((~!a) + (~!b)*log((~!c)*((~d) + (~!e)*(~x)^(~n))^(~!p)))^ (~!q),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~n), (~p), (~q), (~r), (~s), (~x)) &&
-    fraction((~n)) &&
+    isfraction((~n)) &&
     ext_isinteger(ext_den((~n))*(~s)) ?
 ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~f) + (~g)*(~x)^(ext_den((~n))*(~s)))^ (~r)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^(ext_den((~n))*(~n)))^(~p)))^(~q),  (~x), (~x), (~x)^(1⨸ext_den((~n))), "3_4_31") : nothing)
 
 ("3_4_32",
 @rule ∫((~x)^(~!m)*((~f) + (~!g)*(~x)^(~s))^ (~!r)*((~!a) + (~!b)*log((~!c)*((~d) + (~!e)*(~x)^(~n))^(~!p)))^(~!q),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~m), (~n), (~p), (~q), (~r), (~s), (~x)) &&
-    fraction((~n)) &&
+    isfraction((~n)) &&
     ext_isinteger(1/(~n)) &&
     ext_isinteger((~s)/(~n)) ?
 1⨸(~n)*int_and_subst((~x)^((~m) + 1⨸(~n) - 1)*((~f) + (~g)*(~x)^((~s)⨸(~n)))^(~r)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x))^(~p)))^ (~q),  (~x), (~x), (~x)^(~n), "3_4_32") : nothing)
@@ -257,7 +257,7 @@ ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~f) + (~g)*(~x)^(ext_den(
 ("3_4_33",
 @rule ∫(((~!h)*(~x))^(~m)*((~!f) + (~!g)*(~x)^(~!s))^ (~!r)*((~!a) + (~!b)*log((~!c)*((~d) + (~!e)*(~x)^(~!n))^(~!p)))^(~!q),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~p), (~r), (~x)) &&
-    fraction((~m)) &&
+    isfraction((~m)) &&
     ext_isinteger((~n)) &&
     ext_isinteger((~s)) ?
 ext_den((~m))⨸(~h)* int_and_subst( (~x)^(ext_den((~m))*((~m) + 1) - 1)*((~f) + (~g)*(~x)^(ext_den((~m))*(~s))⨸(~h)^(~s))^ (~r)*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^(ext_den((~m))*(~n))⨸(~h)^(~n))^(~p)))^(~q),  (~x), (~x), ((~h)*(~x))^(1⨸ext_den((~m))), "3_4_33") : nothing)

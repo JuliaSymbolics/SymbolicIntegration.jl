@@ -151,7 +151,7 @@ file_rules = [
     !(
         ile((~m) + (~n) + 2, 0) &&
         (
-            fraction((~m)) ||
+            isfraction((~m)) ||
             ge(2*(~n) + (~m) + 1, 0)
         )
     ) &&
@@ -329,12 +329,12 @@ ext_den((~m))⨸(~b)* int_and_subst((~x)^(ext_den((~m))*((~m) + 1) - 1)*((~c) - 
     !(gt((~c), 0)) &&
     !(gt(-(~d)/((~b)*(~c)), 0)) &&
     (
-        rational((~m)) &&
+        isrational((~m)) &&
         !(
             eq((~n), -1/2) &&
             eq((~c)^2 - (~d)^2, 0)
         ) ||
-        !(rational((~n)))
+        !(isrational((~n)))
     ) ?
 (~c)^intpart((~n))*((~c) + (~d)*(~x))^fracpart((~n))⨸(1 + (~d)*(~x)⨸(~c))^fracpart((~n))* ∫(((~b)*(~x))^(~m)*(1 + (~d)*(~x)⨸(~c))^(~n), (~x)) : nothing)
 
@@ -363,9 +363,9 @@ ext_den((~m))⨸(~b)* int_and_subst((~x)^(ext_den((~m))*((~m) + 1) - 1)*((~c) - 
     !(ext_isinteger((~n))) &&
     gt((~b)/((~b)*(~c) - (~a)*(~d)), 0) &&
     (
-        rational((~m)) ||
+        isrational((~m)) ||
         !(
-            rational((~n)) &&
+            isrational((~n)) &&
             gt(-(~d)/((~b)*(~c) - (~a)*(~d)), 0)
         )
     ) ?
@@ -378,7 +378,7 @@ ext_den((~m))⨸(~b)* int_and_subst((~x)^(ext_den((~m))*((~m) + 1) - 1)*((~c) - 
     !(ext_isinteger((~m))) &&
     !(ext_isinteger((~n))) &&
     (
-        rational((~m)) ||
+        isrational((~m)) ||
         !(simpler((~n) + 1, (~m) + 1))
     ) ?
 ((~c) + (~d)*(~x))^ fracpart( (~n))⨸(((~b)⨸((~b)*(~c) - (~a)*(~d)))^intpart((~n))*((~b)*((~c) + (~d)*(~x))⨸((~b)*(~c) - (~a)*(~d)))^ fracpart((~n)))* ∫(((~a) + (~b)*(~x))^(~m)*simplify((~b)*(~c)⨸((~b)*(~c) - (~a)*(~d)) + (~b)*(~d)*(~x)⨸((~b)*(~c) - (~a)*(~d)), (~x))^(~n), (~x)) : nothing)

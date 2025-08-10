@@ -143,6 +143,7 @@ function translate_result(result, index)
     simple_substitutions = [
         ("D", "Symbolics.derivative"),
 
+        ("Rt", "rt", 2),
         ("Sqrt", "sqrt"),
         ("Exp", "exp"),
         ("Log", "log"),
@@ -216,7 +217,6 @@ function translate_result(result, index)
         (r"RemoveContent\[(.*?),\s*x\]", s"\1"), (r"Log\[(.*?)\]", s"log(\1)"),
 
 
-        (r"Rt\[(.*?),(.*?)\]", s"rt(\1,\2)"),
 
         (r"LogIntegral\[(.*?)\]", s"SymbolicUtils.expinti(log(\1))"), # TODO use it from SpecialFunctions.jl once pr is merged
         
@@ -249,6 +249,7 @@ function translate_conditions(conditions)
     # since a lot of times Not has inside other functions, better to use find_closing_braket
     simple_substitutions = [
         ("Log", "log"),
+        ("Rt", "rt", 2),
 
         ("IGtQ", "igt", 2),
         ("IGeQ", "ige", 2),
@@ -284,6 +285,10 @@ function translate_conditions(conditions)
         ("IntBinomialQ", "int_binomial", 7),
         ("IntQuadraticQ", "int_quadratic", 8),
         
+        ("FractionQ", "isfraction"), #called with one or more arguments
+        ("RationalQ", "isrational"),
+        ("IntegerQ", "ext_isinteger"),
+        ("IntegersQ", "ext_isinteger"),
         ("OddQ", "ext_isodd", 1),
         ("EvenQ", "ext_iseven", 1),
         ("EqQ", "eq"),
@@ -318,12 +323,6 @@ function translate_conditions(conditions)
         ("ArcTan", "atan"),
         ("ArcCot", "acot"),
         ("ArcCoth", "acoth"),
-
-        (r"IntegerQ\[(.*?)\]", s"ext_isinteger(\1)"), # called with only one argument
-        (r"IntegersQ\[(.*?)\]", s"ext_isinteger(\1)"), # called with only multiple arguments
-        (r"FractionQ\[(.*?)\]", s"fraction(\1)"), #called with one or more arguments
-        (r"RationalQ\[(.*?)\]", s"rational(\1)"), 
-        (r"RationalQ\[(.*?),(.*?)\]", s"rational(\1,\2)"),
 
         (r"PosQ\[(.*?)\]", s"pos(\1)"),
         (r"NegQ\[(.*?)\]", s"neg(\1)"),

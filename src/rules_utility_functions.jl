@@ -44,8 +44,10 @@ end
 
 contains_int(expr) = contains_op(∫, expr)
 
+s(u) = isa(Symbolics.unwrap(u), Symbolics.Symbolic)
+
 function eq(a, b)
-    if !isa(a, Num) && !isa(b, Num)
+    if !s(a) && !s(b)
         return isequal(a, b)
     end
     return SymbolicUtils._iszero(SymbolicUtils.simplify(a - b))
@@ -53,29 +55,29 @@ end
 
 # TODO do with multiple dispatch?
 function ext_isinteger(u)
-    isa(u, Num) && return false # for symbolic expressions
+    s(u) && return false # for symbolic expressions
     isa(u, Number) && return isinteger(u) # for numeric types
     return false
 end
 ext_isinteger(args...) = all(ext_isinteger(arg) for arg in args)
 
 function ext_iseven(u)
-    isa(u, Num) && return false # for symbolic expressions
+    s(u) && return false # for symbolic expressions
     isa(u, Number) && return iseven(u) # for numeric types
     return false    
 end
 
 function ext_isodd(u)
-    isa(u, Num) && return false # for symbolic expressions
+    s(u) && return false # for symbolic expressions
     isa(u, Number) && return isodd(u) # for numeric types
     return false    
 end
 
 # TODO change name to isfractiona nd isrational
-# If m, n, ... are explicit fractions, FractionQ[m,n,...] returns True; else it returns False.
-fraction(args...) = all(isa(arg, Rational) for arg in args)
-# If m, n, ... are explicit integers or fractions, rationalQ(m,n,...) returns true; else it returns false.
-rational(args...) = all(isa(arg, Rational) || isa(arg, Integer) for arg in args)
+# If m, n, ... are explicit fractions, fraction(m,n,...) returns true
+isfraction(args...) = all(isa(arg, Rational) && denominator(arg)!=1 for arg in args)
+# If m, n, ... are integers or fractions, rational(m,n,...) returns true
+isrational(args...) = all(isa(arg, Rational) || isa(arg, Integer) for arg in args)
 
 # If u is a sum, sumQ(u) returns true; else it returns false.
 function issum(u)
@@ -169,7 +171,7 @@ simp(u,x) = simplify(u)
 # FracPart[u] returns the sum of the non-integer terms of u.
 # fracpart(3//2 + x) = (1//2) + x, fracpart(2.4) = 2.4
 function fracpart(a)
-    if rational(a)
+    if isrational(a)
         a - trunc(a)
     elseif issum(a)
         # If a is a sum, we return the sum of the fractional parts of each term
@@ -181,7 +183,7 @@ end
 
 # IntPart[u] returns the sum of the integer terms of u.
 function intpart(a)
-    if rational(a)
+    if isrational(a)
         trunc(a)
     elseif sum(a)
         # If a is a sum, we return the sum of the integer parts of each term
@@ -191,7 +193,6 @@ function intpart(a)
     end
 end
 
-s(u) = isa(Symbolics.unwrap(u), Symbolics.Symbolic)
 # Greater than
 gt(u, v) = (s(u) || s(v)) ? false : u > v
 gt(u, v, w) = gt(u, v) && gt(v, w)
@@ -233,11 +234,11 @@ int_linear(a, b, c, d, m, n, x) =
     igt(m, 0) || igt(n, 0) || 
     ext_isinteger(3*m, 3*n) || ext_isinteger(4*m, 4*n) || 
     ext_isinteger(2*m, 6*n) || ext_isinteger(6*m, 2*n) || 
-    ilt(m + n, -1) || (ext_isinteger(m + n) && rational(m))
+    ilt(m + n, -1) || (ext_isinteger(m + n) && isrational(m))
 
 # IntBinomialQ[a,b,c,n,m,p,x] returns True iff (c*x)^m*(a+b*x^n)^p  is integrable wrt x in terms of non-hypergeometric functions.
 int_binomial(a, b, c, n, m, p, x) =
-    igt(p, 0) || (rational(m) && ext_isinteger(n, 2*p)) || 
+    igt(p, 0) || (isrational(m) && ext_isinteger(n, 2*p)) || 
     ext_isinteger((m + 1)⨸n + p) || 
     (eq(n, 2) || eq(n, 4)) && ext_isinteger(2*m, 4*p) || 
     eq(n, 2) && ext_isinteger(6*p) && (ext_isinteger(m) || ext_isinteger(m - p))
@@ -254,7 +255,7 @@ int_quadratic(a,b,c,d,e,m,p,x) =
 # If u has a nice squareroot (e.g. a positive number or none of the degrees of 
 # the factors of the squareroot of u are fractions), return true
 function nice_sqrt(u)
-    rational(u) && return u>0
+    isrational(u) && return u>0
     println(rt(u,2))
     return !fractional_power_factor(rt(u,2))
 end
@@ -266,7 +267,7 @@ function fractional_power_factor(expr)
     expr = Symbolics.unwrap(expr)
     atom(expr) && return false
     !iscall(expr) && return false
-    ispow(expr) && return (!ext_isinteger(arguments(expr)[2]) && fraction(arguments(expr)[2]))
+    ispow(expr) && return (!ext_isinteger(arguments(expr)[2]) && isfraction(arguments(expr)[2]))
     isprod(expr) && return any(fractional_power_factor(f) for f in arguments(expr))
     return false
 end
@@ -610,7 +611,7 @@ function algebraic_function(u, x)
     o = operation(u)
     ar = arguments(u)
     o in [*,+,/] && return all(algebraic_function(a,x) for a in ar)
-    (o===^) && return algebraic_function(ar[1],x) && rational(ar[2]) # an alternative can be !contains_var(ar[2],x) instead of rational(ar[2])
+    (o===^) && return algebraic_function(ar[1],x) && isrational(ar[2]) # an alternative can be !contains_var(ar[2],x) instead of isrational(ar[2])
     (o===sqrt) && return algebraic_function(arguments(u)[1], x)
     return false
 end

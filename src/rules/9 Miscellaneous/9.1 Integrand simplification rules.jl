@@ -14,9 +14,9 @@ file_rules = [
 ("9_1_7",
 @rule ∫((~!u)*(~Px)^(~p),(~x)) =>
     poly((~Px), (~x)) &&
-    !(rational((~p))) &&
+    !(isrational((~p))) &&
     !contains_var((~p), (~x)) &&
-    rational(simplify((~p))) ?
+    isrational(simplify((~p))) ?
 ∫((~u)*(~Px)^simplify((~p)), (~x)) : nothing)
 
 ("9_1_8",

@@ -80,10 +80,10 @@ log((~x))⨸(~b) - log((~b) + (~c)*(~x))⨸(~b) : nothing)
 @rule ∫(1/((~a) + (~!b)*(~x) + (~!c)*(~x)^2),(~x)) =>
     !contains_var((~a), (~b), (~c), (~x)) &&
     !eq((~b)^2 - 4*(~a)*(~c), 0) &&
-    rational(1 - 4*simplify((~a)*(~c)/(~b)^2)) &&
+    isrational(1 - 4*simplify((~a)*(~c)/(~b)^2)) &&
     (
         eq(1 - 4*simplify((~a)*(~c)/(~b)^2)^2, 1) ||
-        !(rational((~b)^2 - 4*(~a)*(~c)))
+        !(isrational((~b)^2 - 4*(~a)*(~c)))
     ) ?
 -2⨸(~b)*int_and_subst(1⨸(1 - 4*simplify((~a)*(~c)⨸(~b)^2) - (~x)^2),  (~x), (~x), 1 + 2*(~c)*(~x)⨸(~b), "1_2_1_1_11") : nothing)
 
@@ -113,7 +113,7 @@ log((~x))⨸(~b) - log((~b) + (~c)*(~x))⨸(~b) : nothing)
 ("1_2_1_1_16",
 @rule ∫(((~!b)*(~x) + (~!c)*(~x)^2)^(~p),(~x)) =>
     !contains_var((~b), (~c), (~x)) &&
-    rational((~p)) &&
+    isrational((~p)) &&
     3 <= ext_den((~p)) <= 4 ?
 ((~b)*(~x) + (~c)*(~x)^2)^(~p)⨸(-(~c)*((~b)*(~x) + (~c)*(~x)^2)⨸((~b)^2))^(~p)* ∫((-(~c)*(~x)⨸(~b) - (~c)^2*(~x)^2⨸(~b)^2)^(~p), (~x)) : nothing)
 
@@ -122,7 +122,7 @@ log((~x))⨸(~b) - log((~b) + (~c)*(~x))⨸(~b) : nothing)
 @rule ∫(((~!a) + (~!b)*(~x) + (~!c)*(~x)^2)^(~p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~x)) &&
     !eq((~b)^2 - 4*(~a)*(~c), 0) &&
-    rational((~p)) &&
+    isrational((~p)) &&
     3 <= ext_den((~p)) <= 4 ?
 ext_den((~p))*sqrt(((~b) + 2*(~c)*(~x))^2)⨸((~b) + 2*(~c)*(~x))* int_and_subst((~x)^(ext_den((~p))*((~p) + 1) - 1)⨸sqrt((~b)^2 - 4*(~a)*(~c) + 4*(~c)*(~x)^ext_den((~p))),  (~x), (~x), ((~a) + (~b)*(~x) + (~c)*(~x)^2)^(1⨸ext_den((~p))), "1_2_1_1_17") : nothing)
 
