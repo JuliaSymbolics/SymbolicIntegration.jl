@@ -163,19 +163,23 @@ function translate_result(result, index)
         ("ArcTan", "atan"),
 
         # definied in SpecialFunctions.jl
-        ("ExpIntegralEi", "SymbolicUtils.expinti", (1,2)),
+        ("ExpIntegralEi", "SymbolicUtils.expinti", 1),
+        ("ExpIntegralE", "SymbolicUtils.expint", 2),
         ("Gamma", "SymbolicUtils.gamma"),
         ("LogGamma", "SymbolicUtils.loggamma"),
         ("Erfi", "SymbolicUtils.erfi"),
         ("Erf", "SymbolicUtils.erf"),
-        ("PolyLog", "PolyLog.reli", 2),
-
+        ("SinIntegral", "SymbolicUtils.sinint"),
+        ("CosIntegral", "SymbolicUtils.cosint"),
         # taken from other packages
         ("EllipticE", "elliptic_e", (1,2)),
         ("EllipticF", "elliptic_f", 2),
         ("EllipticPi", "elliptic_pi", (2,3)),
         ("Hypergeometric2F1", "hypergeometric2f1", 4),
         ("AppellF1", "appell_f1", 6),
+        ("PolyLog", "PolyLog.reli", 2),
+        ("FresnelC", "FresnelIntegrals.fresnelc", 1),
+        ("FresnelS", "FresnelIntegrals.fresnels", 1),
 
 
         ("FreeFactors", "free_factors"),
