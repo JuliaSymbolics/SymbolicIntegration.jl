@@ -1,6 +1,8 @@
-# Load all rules from the paths in the given array.
-# the paths schould be relative to src/
-function load_all_rules(rules_paths)
+# Utility function to load all rules in rules_paths
+# to the global `rules` and `identifiers` array
+# If called with no arguments loads all rules from the default paths
+# paths must start with src/rules/
+function load_rules(rules_paths)
     global rules
     global identifiers
     
@@ -27,17 +29,14 @@ function load_all_rules(rules_paths)
     println("Loaded $(length(rules)) rules from $(length(rules_paths)) files.")
 end
 
-# if called with no argument loads all rules from the default paths
-function load_all_rules()
-    load_all_rules([joinpath(@__DIR__, "rules/" * file) for file in all_rules_paths])
-end
-
+load_rules() = load_rules(["src/rules/" * file for file in all_rules_paths])
 
 # function useful in developing the package
 # reads the rules from the given path.
 # for each one of them checks if in the global rules array there is a rule with the same identifier.
 # if so, it replaces the rule with the new one.
 # if not, it adds the new rule to the global rules array.
+# if called with no argument reloads all rules from the default paths
 function reload_rules(path; verbose = false)
     global rules
     global identifiers
@@ -72,7 +71,7 @@ function reload_rules(;verbose = false)
     empty!(rules)
     empty!(identifiers)
 
-    load_all_rules()
+    load_rules()
     
     if verbose
         println("Here they are in order:")
