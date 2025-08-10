@@ -152,12 +152,12 @@ cos((~c))*∫(cos((~d)*((~e) + (~f)*(~x))^2), (~x)) - sin((~c))*∫(sin((~d)*((~
 ∫(((~a) + (~b)*cos(expand_to_sum((~u), (~x))))^(~p), (~x)) : nothing)
 
 ("4_1_12_25",
-@rule ∫(sin((~!d)*(~x)^(~n))/(~x),(~x)) =>
+@rule ∫(sin((~!d)*(~x)^(~!n))/(~x),(~x)) =>
     !contains_var((~d), (~n), (~x)) ?
 SymbolicUtils.sinint((~d)*(~x)^(~n))⨸(~n) : nothing)
 
 ("4_1_12_26",
-@rule ∫(cos((~!d)*(~x)^(~n))/(~x),(~x)) =>
+@rule ∫(cos((~!d)*(~x)^(~!n))/(~x),(~x)) =>
     !contains_var((~d), (~n), (~x)) ?
 SymbolicUtils.cosint((~d)*(~x)^(~n))⨸(~n) : nothing)
 
