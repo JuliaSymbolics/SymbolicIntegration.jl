@@ -52,11 +52,13 @@ end
 function integrate(integrand; verbose = true) # TODO change default verbose to false
     vars = Symbolics.get_variables(integrand)
     if length(vars) > 1
-        error("Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument.")
+        @warn "Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument."
+        return nothing
     elseif length(vars) == 1
         integration_variable = vars[1]
     else
-        error("No integration variable provided")
+        @warn "No integration variable provided"
+        return nothing
     end
 
     integrate(integrand, integration_variable; verbose=verbose)
@@ -64,5 +66,4 @@ end
 
 function integrate(;verbose=false)
     @warn "No integrand provided. Please provide one like this: `integrate(x^2 + 3x + 2, x)`"
-    return nothing
 end 
