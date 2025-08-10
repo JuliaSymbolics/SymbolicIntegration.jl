@@ -212,7 +212,13 @@ ile(a, b) = ext_isinteger(a) && le(a, b)
 # returns the simplest nth root of u
 # return SymbolicUtils.Pow{Real}(u, 1⨸n)
 # TODO this doesnt allow for exact simplification of roots
-rt(u, n::Integer) = u^(1⨸n) 
+function rt(u, n::Integer)
+    if !s(u) && u<0
+        u=Complex(u)
+    end
+    n==2 && return sqrt(u)
+    return u^(1⨸n)
+end
 
 # If u is not 0 and has a positive form, posQ(u) returns True, else it returns False
 function pos(u)
@@ -255,8 +261,7 @@ int_quadratic(a,b,c,d,e,m,p,x) =
 # If u has a nice squareroot (e.g. a positive number or none of the degrees of 
 # the factors of the squareroot of u are fractions), return true
 function nice_sqrt(u)
-    isrational(u) && return u>0
-    println(rt(u,2))
+    !s(u) && return u>0
     return !fractional_power_factor(rt(u,2))
 end
 
