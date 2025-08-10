@@ -1,6 +1,6 @@
 file_rules = [
-# (* ::Subsection::Closed:: *) 
-# (* 1.1.3.1 (a+b x^n)^p *) 
+#(* ::Subsection::Closed:: *)
+#(* 1.1.3.1 (a+b x^n)^p *)
 ("1_1_3_1_1",
 @rule ∫(((~!b)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~b), (~n), (~p), (~x)) ?
@@ -94,21 +94,21 @@ file_rules = [
     !contains_var((~a), (~b), (~x)) ?
 1⨸(3*rt((~a), 3)^2)*∫(1⨸(rt((~a), 3) + rt((~b), 3)*(~x)), (~x)) + 1⨸(3*rt((~a), 3)^2)* ∫((2*rt((~a), 3) - rt((~b), 3)*(~x))⨸(rt((~a), 3)^2 - rt((~a), 3)*rt((~b), 3)*(~x) + rt((~b), 3)^2*(~x)^2), (~x)) : nothing)
 
-# (* Int[1/(a_+b_.*x_^5),x_Symbol] := With[{r=Numerator[Rt[a/b,5]], s=Denominator[Rt[a/b,5]]}, r/(5*a)*Int[1/(r+s*x),x] + 2*r/(5*a)*Int[(r-1/4*(1-Sqrt[5])*s*x)/(r^2-1/2*(1-Sqrt[5])*r*s*x+s^ 2*x^2),x] + 2*r/(5*a)*Int[(r-1/4*(1+Sqrt[5])*s*x)/(r^2-1/2*(1+Sqrt[5])*r*s*x+s^ 2*x^2),x]] /; FreeQ[{a,b},x] && PosQ[a/b] *) 
-# (* Int[1/(a_+b_.*x_^5),x_Symbol] := With[{r=Numerator[Rt[-a/b,5]], s=Denominator[Rt[-a/b,5]]}, r/(5*a)*Int[1/(r-s*x),x] + 2*r/(5*a)*Int[(r+1/4*(1-Sqrt[5])*s*x)/(r^2+1/2*(1-Sqrt[5])*r*s*x+s^ 2*x^2),x] + 2*r/(5*a)*Int[(r+1/4*(1+Sqrt[5])*s*x)/(r^2+1/2*(1+Sqrt[5])*r*s*x+s^ 2*x^2),x]] /; FreeQ[{a,b},x] && NegQ[a/b] *) 
+#(* Int[1/(a_+b_.*x_^5),x_Symbol] := With[{r=Numerator[Rt[a/b,5]], s=Denominator[Rt[a/b,5]]}, r/(5*a)*Int[1/(r+s*x),x] + 2*r/(5*a)*Int[(r-1/4*(1-Sqrt[5])*s*x)/(r^2-1/2*(1-Sqrt[5])*r*s*x+s^ 2*x^2),x] + 2*r/(5*a)*Int[(r-1/4*(1+Sqrt[5])*s*x)/(r^2-1/2*(1+Sqrt[5])*r*s*x+s^ 2*x^2),x]] /; FreeQ[{a,b},x] && PosQ[a/b] *)
+#(* Int[1/(a_+b_.*x_^5),x_Symbol] := With[{r=Numerator[Rt[-a/b,5]], s=Denominator[Rt[-a/b,5]]}, r/(5*a)*Int[1/(r-s*x),x] + 2*r/(5*a)*Int[(r+1/4*(1-Sqrt[5])*s*x)/(r^2+1/2*(1-Sqrt[5])*r*s*x+s^ 2*x^2),x] + 2*r/(5*a)*Int[(r+1/4*(1+Sqrt[5])*s*x)/(r^2+1/2*(1+Sqrt[5])*r*s*x+s^ 2*x^2),x]] /; FreeQ[{a,b},x] && NegQ[a/b] *)
 # ("1_1_3_1_13",
 # @rule ∫(1/((~a) + (~!b)*(~x)^(~n)),(~x)) =>
 #     !contains_var((~a), (~b), (~x)) &&
 #     igt(((~n) - 3)/2, 0) &&
 #     pos((~a)/(~b)) ?
-# Module[{(~r) = ext_num(rt((~a)⨸(~b), (~n))), (~s) = ext_den(rt((~a)⨸(~b), (~n))), (~k), (~u)}, (~u) = ∫(((~r) - (~s)*Cos[(2*(~k) - 1)*(~Pi)⨸(~n)]*(~x))⨸((~r)^2 - 2*(~r)*(~s)*Cos[(2*(~k) - 1)*(~Pi)⨸(~n)]*(~x) + (~s)^2*(~x)^2), (~x)); (~r)⨸((~a)*(~n))*∫(1⨸((~r) + (~s)*(~x)), (~x)) + Dist[2*(~r)⨸((~a)*(~n)), Sum[(~u), {(~k), 1, ((~n) - 1)⨸2}], (~x)]] : nothing)
+# Module[{(~r) = ext_num(rt((~a)⨸(~b), (~n))), (~s) = ext_den(rt((~a)⨸(~b), (~n))), (~k), (~u)}, (~u) = ∫(((~r) - (~s)*cos((2*(~k) - 1)*π⨸(~n))*(~x))⨸((~r)^2 - 2*(~r)*(~s)*cos((2*(~k) - 1)*π⨸(~n))*(~x) + (~s)^2*(~x)^2), (~x)); (~r)⨸((~a)*(~n))*∫(1⨸((~r) + (~s)*(~x)), (~x)) + dist(2*(~r)⨸((~a)*(~n)), Sum[(~u), {(~k), 1, ((~n) - 1)⨸2}], (~x))] : nothing)
 # 
 # ("1_1_3_1_14",
 # @rule ∫(1/((~a) + (~!b)*(~x)^(~n)),(~x)) =>
 #     !contains_var((~a), (~b), (~x)) &&
 #     igt(((~n) - 3)/2, 0) &&
 #     neg((~a)/(~b)) ?
-# Module[{(~r) = ext_num(rt(-(~a)⨸(~b), (~n))), (~s) = ext_den(rt(-(~a)⨸(~b), (~n))), (~k), (~u)}, (~u) = ∫(((~r) + (~s)*Cos[(2*(~k) - 1)*(~Pi)⨸(~n)]*(~x))⨸((~r)^2 + 2*(~r)*(~s)*Cos[(2*(~k) - 1)*(~Pi)⨸(~n)]*(~x) + (~s)^2*(~x)^2), (~x)); (~r)⨸((~a)*(~n))*∫(1⨸((~r) - (~s)*(~x)), (~x)) + Dist[2*(~r)⨸((~a)*(~n)), Sum[(~u), {(~k), 1, ((~n) - 1)⨸2}], (~x)]] : nothing)
+# Module[{(~r) = ext_num(rt(-(~a)⨸(~b), (~n))), (~s) = ext_den(rt(-(~a)⨸(~b), (~n))), (~k), (~u)}, (~u) = ∫(((~r) + (~s)*cos((2*(~k) - 1)*π⨸(~n))*(~x))⨸((~r)^2 + 2*(~r)*(~s)*cos((2*(~k) - 1)*π⨸(~n))*(~x) + (~s)^2*(~x)^2), (~x)); (~r)⨸((~a)*(~n))*∫(1⨸((~r) - (~s)*(~x)), (~x)) + dist(2*(~r)⨸((~a)*(~n)), Sum[(~u), {(~k), 1, ((~n) - 1)⨸2}], (~x))] : nothing)
 
 ("1_1_3_1_15",
 @rule ∫(1/((~a) + (~!b)*(~x)^2),(~x)) =>
@@ -130,7 +130,7 @@ file_rules = [
     ) ?
 -1⨸(rt(-(~a), 2)*rt(-(~b), 2))*atan(rt(-(~b), 2)*(~x)⨸rt(-(~a), 2)) : nothing)
 
-# (* this had a comment Int[1/(a_ + b_.*x_^2), x_Symbol] := (*Rt[b/a,2]/b*ArcTan[Rt[b/a,2]*x] /; *) Rt[a/b, 2]/a*ArcTan[x/Rt[a/b, 2]] /; FreeQ[{a, b}, x] && PosQ[a/b]*) 
+#(* this had a comment Int[1/(a_ + b_.*x_^2), x_Symbol] := (*Rt[b/a,2]/b*ArcTan[Rt[b/a,2]*x] /; *) Rt[a/b, 2]/a*ArcTan[x/Rt[a/b, 2]] /; FreeQ[{a, b}, x] && PosQ[a/b]*)
 ("1_1_3_1_17",
 @rule ∫(1/((~a) + (~!b)*(~x)^2),(~x)) =>
     !contains_var((~a), (~b), (~x)) &&
@@ -157,7 +157,7 @@ rt((~a)⨸(~b), 2)⨸(~a)*atan((~x)⨸rt((~a)⨸(~b), 2)) : nothing)
     ) ?
 -1⨸(rt(-(~a), 2)*rt((~b), 2))*atanh(rt((~b), 2)*(~x)⨸rt(-(~a), 2)) : nothing)
 
-# (* this had a comment Int[1/(a_ + b_.*x_^2), x_Symbol] := (*-Rt[-b/a,2]/b*ArcTanh[Rt[-b/a,2]*x] /; *) Rt[-a/b, 2]/a*ArcTanh[x/Rt[-a/b, 2]] /; FreeQ[{a, b}, x] && NegQ[a/b]*) 
+#(* this had a comment Int[1/(a_ + b_.*x_^2), x_Symbol] := (*-Rt[-b/a,2]/b*ArcTanh[Rt[-b/a,2]*x] /; *) Rt[-a/b, 2]/a*ArcTanh[x/Rt[-a/b, 2]] /; FreeQ[{a, b}, x] && NegQ[a/b]*)
 ("1_1_3_1_20",
 @rule ∫(1/((~a) + (~!b)*(~x)^2),(~x)) =>
     !contains_var((~a), (~b), (~x)) &&
@@ -169,45 +169,45 @@ rt(-(~a)⨸(~b), 2)⨸(~a)*atanh((~x)⨸rt(-(~a)⨸(~b), 2)) : nothing)
 #     !contains_var((~a), (~b), (~x)) &&
 #     igt(((~n) - 2)/4, 0) &&
 #     pos((~a)/(~b)) ?
-# Module[{(~r) = ext_num(rt((~a)⨸(~b), (~n))), (~s) = ext_den(rt((~a)⨸(~b), (~n))), (~k), (~u), (~v)}, (~u) = ∫(((~r) - (~s)*Cos[(2*(~k) - 1)*(~Pi)⨸(~n)]*(~x))⨸((~r)^2 - 2*(~r)*(~s)*Cos[(2*(~k) - 1)*(~Pi)⨸(~n)]*(~x) + (~s)^2*(~x)^2), (~x)) + ∫(((~r) + (~s)*Cos[(2*(~k) - 1)*(~Pi)⨸(~n)]*(~x))⨸((~r)^2 + 2*(~r)*(~s)*Cos[(2*(~k) - 1)*(~Pi)⨸(~n)]*(~x) + (~s)^2*(~x)^2), (~x)); 2*(~r)^2⨸((~a)*(~n))*∫(1⨸((~r)^2 + (~s)^2*(~x)^2), (~x)) + Dist[2*(~r)⨸((~a)*(~n)), Sum[(~u), {(~k), 1, ((~n) - 2)⨸4}], (~x)]] : nothing)
+# Module[{(~r) = ext_num(rt((~a)⨸(~b), (~n))), (~s) = ext_den(rt((~a)⨸(~b), (~n))), (~k), (~u), (~v)}, (~u) = ∫(((~r) - (~s)*cos((2*(~k) - 1)*π⨸(~n))*(~x))⨸((~r)^2 - 2*(~r)*(~s)*cos((2*(~k) - 1)*π⨸(~n))*(~x) + (~s)^2*(~x)^2), (~x)) + ∫(((~r) + (~s)*cos((2*(~k) - 1)*π⨸(~n))*(~x))⨸((~r)^2 + 2*(~r)*(~s)*cos((2*(~k) - 1)*π⨸(~n))*(~x) + (~s)^2*(~x)^2), (~x)); 2*(~r)^2⨸((~a)*(~n))*∫(1⨸((~r)^2 + (~s)^2*(~x)^2), (~x)) + dist(2*(~r)⨸((~a)*(~n)), Sum[(~u), {(~k), 1, ((~n) - 2)⨸4}], (~x))] : nothing)
 # 
 # ("1_1_3_1_22",
 # @rule ∫(1/((~a) + (~!b)*(~x)^(~n)),(~x)) =>
 #     !contains_var((~a), (~b), (~x)) &&
 #     igt(((~n) - 2)/4, 0) &&
 #     neg((~a)/(~b)) ?
-# Module[{(~r) = ext_num(rt(-(~a)⨸(~b), (~n))), (~s) = ext_den(rt(-(~a)⨸(~b), (~n))), (~k), (~u)}, (~u) = ∫(((~r) - (~s)*Cos[(2*(~k)*(~Pi))⨸(~n)]*(~x))⨸((~r)^2 - 2*(~r)*(~s)*Cos[(2*(~k)*(~Pi))⨸(~n)]*(~x) + (~s)^2*(~x)^2), (~x)) + ∫(((~r) + (~s)*Cos[(2*(~k)*(~Pi))⨸(~n)]*(~x))⨸((~r)^2 + 2*(~r)*(~s)*Cos[(2*(~k)*(~Pi))⨸(~n)]*(~x) + (~s)^2*(~x)^2), (~x)); 2*(~r)^2⨸((~a)*(~n))*∫(1⨸((~r)^2 - (~s)^2*(~x)^2), (~x)) + Dist[2*(~r)⨸((~a)*(~n)), Sum[(~u), {(~k), 1, ((~n) - 2)⨸4}], (~x)]] : nothing)
-# 
-# ("1_1_3_1_23",
-# @rule ∫(1/((~a) + (~!b)*(~x)^4),(~x)) =>
-#     !contains_var((~a), (~b), (~x)) &&
-#     (
-#         gt((~a)/(~b), 0) ||
-#         pos((~a)/(~b)) &&
-#         atom(SplitProduct[SumBaseQ, (~a))] &&
-#         atom(SplitProduct[SumBaseQ, (~b))]
-#     ) ?
-# 1⨸(2*ext_num(rt((~a)⨸(~b), 2)), (~s) = ext_den(rt((~a)⨸(~b), 2)))*∫((ext_num(rt((~a)⨸(~b), 2)), (~s) = ext_den(rt((~a)⨸(~b), 2)) - (~s)*(~x)^2)⨸((~a) + (~b)*(~x)^4), (~x)) + 1⨸(2*ext_num(rt((~a)⨸(~b), 2)), (~s) = ext_den(rt((~a)⨸(~b), 2)))*∫((ext_num(rt((~a)⨸(~b), 2)), (~s) = ext_den(rt((~a)⨸(~b), 2)) + (~s)*(~x)^2)⨸((~a) + (~b)*(~x)^4), (~x)) : nothing)
+# Module[{(~r) = ext_num(rt(-(~a)⨸(~b), (~n))), (~s) = ext_den(rt(-(~a)⨸(~b), (~n))), (~k), (~u)}, (~u) = ∫(((~r) - (~s)*cos((2*(~k)*π)⨸(~n))*(~x))⨸((~r)^2 - 2*(~r)*(~s)*cos((2*(~k)*π)⨸(~n))*(~x) + (~s)^2*(~x)^2), (~x)) + ∫(((~r) + (~s)*cos((2*(~k)*π)⨸(~n))*(~x))⨸((~r)^2 + 2*(~r)*(~s)*cos((2*(~k)*π)⨸(~n))*(~x) + (~s)^2*(~x)^2), (~x)); 2*(~r)^2⨸((~a)*(~n))*∫(1⨸((~r)^2 - (~s)^2*(~x)^2), (~x)) + dist(2*(~r)⨸((~a)*(~n)), Sum[(~u), {(~k), 1, ((~n) - 2)⨸4}], (~x))] : nothing)
 
-# ("1_1_3_1_24",
-# @rule ∫(1/((~a) + (~!b)*(~x)^4),(~x)) =>
-#     !contains_var((~a), (~b), (~x)) &&
-#     !(gt((~a)/(~b), 0)) ?
-# ext_num(rt(-(~a)⨸(~b), 2)), (~s) = ext_den(rt(-(~a)⨸(~b), 2))⨸(2*(~a))*∫(1⨸(ext_num(rt(-(~a)⨸(~b), 2)), (~s) = ext_den(rt(-(~a)⨸(~b), 2)) - (~s)*(~x)^2), (~x)) + ext_num(rt(-(~a)⨸(~b), 2)), (~s) = ext_den(rt(-(~a)⨸(~b), 2))⨸(2*(~a))*∫(1⨸(ext_num(rt(-(~a)⨸(~b), 2)), (~s) = ext_den(rt(-(~a)⨸(~b), 2)) + (~s)*(~x)^2), (~x)) : nothing)
+("1_1_3_1_23",
+@rule ∫(1/((~a) + (~!b)*(~x)^4),(~x)) =>
+    !contains_var((~a), (~b), (~x)) &&
+    (
+        gt((~a)/(~b), 0) ||
+        pos((~a)/(~b))
+        # atom(SplitProduct[SumBaseQ, (~a))] &&
+        # atom(SplitProduct[SumBaseQ, (~b))]
+    ) ?
+1⨸(2*ext_num(rt((~a)⨸(~b), 2)))*∫((ext_num(rt((~a)⨸(~b), 2)) - ext_den(rt((~a)⨸(~b), 2))*(~x)^2)⨸((~a) + (~b)*(~x)^4), (~x)) + 1⨸(2*ext_num(rt((~a)⨸(~b), 2)))*∫((ext_num(rt((~a)⨸(~b), 2)) + ext_den(rt((~a)⨸(~b), 2))*(~x)^2)⨸((~a) + (~b)*(~x)^4), (~x)) : nothing)
 
-# ("1_1_3_1_25",
-# @rule ∫(1/((~a) + (~!b)*(~x)^(~n)),(~x)) =>
-#     !contains_var((~a), (~b), (~x)) &&
-#     igt((~n)/4, 1) &&
-#     gt((~a)/(~b), 0) ?
-# ext_num(rt((~a)⨸(~b), 4)), (~s) = ext_den(rt((~a)⨸(~b), 4))⨸(2*sqrt(2)*(~a))* ∫((sqrt(2)*ext_num(rt((~a)⨸(~b), 4)), (~s) = ext_den(rt((~a)⨸(~b), 4)) - (~s)*(~x)^((~n)⨸4))⨸(ext_num(rt((~a)⨸(~b), 4)), (~s) = ext_den(rt((~a)⨸(~b), 4))^2 - sqrt(2)*ext_num(rt((~a)⨸(~b), 4)), (~s) = ext_den(rt((~a)⨸(~b), 4))*(~s)*(~x)^((~n)⨸4) + (~s)^2*(~x)^((~n)⨸2)), (~x)) + ext_num(rt((~a)⨸(~b), 4)), (~s) = ext_den(rt((~a)⨸(~b), 4))⨸(2*sqrt(2)*(~a))* ∫((sqrt(2)*ext_num(rt((~a)⨸(~b), 4)), (~s) = ext_den(rt((~a)⨸(~b), 4)) + (~s)*(~x)^((~n)⨸4))⨸(ext_num(rt((~a)⨸(~b), 4)), (~s) = ext_den(rt((~a)⨸(~b), 4))^2 + sqrt(2)*ext_num(rt((~a)⨸(~b), 4)), (~s) = ext_den(rt((~a)⨸(~b), 4))*(~s)*(~x)^((~n)⨸4) + (~s)^2*(~x)^((~n)⨸2)), (~x)) : nothing)
-# 
-# ("1_1_3_1_26",
-# @rule ∫(1/((~a) + (~!b)*(~x)^(~n)),(~x)) =>
-#     !contains_var((~a), (~b), (~x)) &&
-#     igt((~n)/4, 1) &&
-#     !(gt((~a)/(~b), 0)) ?
-# ext_num(rt(-(~a)⨸(~b), 2)), (~s) = ext_den(rt(-(~a)⨸(~b), 2))⨸(2*(~a))*∫(1⨸(ext_num(rt(-(~a)⨸(~b), 2)), (~s) = ext_den(rt(-(~a)⨸(~b), 2)) - (~s)*(~x)^((~n)⨸2)), (~x)) + ext_num(rt(-(~a)⨸(~b), 2)), (~s) = ext_den(rt(-(~a)⨸(~b), 2))⨸(2*(~a))*∫(1⨸(ext_num(rt(-(~a)⨸(~b), 2)), (~s) = ext_den(rt(-(~a)⨸(~b), 2)) + (~s)*(~x)^((~n)⨸2)), (~x)) : nothing)
+("1_1_3_1_24",
+@rule ∫(1/((~a) + (~!b)*(~x)^4),(~x)) =>
+    !contains_var((~a), (~b), (~x)) &&
+    !(gt((~a)/(~b), 0)) ?
+ext_num(rt(-(~a)⨸(~b), 2))⨸(2*(~a))*∫(1⨸(ext_num(rt(-(~a)⨸(~b), 2)) - ext_den(rt(-(~a)⨸(~b), 2))*(~x)^2), (~x)) + ext_num(rt(-(~a)⨸(~b), 2))⨸(2*(~a))*∫(1⨸(ext_num(rt(-(~a)⨸(~b), 2)) + ext_den(rt(-(~a)⨸(~b), 2))*(~x)^2), (~x)) : nothing)
+
+("1_1_3_1_25",
+@rule ∫(1/((~a) + (~!b)*(~x)^(~n)),(~x)) =>
+    !contains_var((~a), (~b), (~x)) &&
+    igt((~n)/4, 1) &&
+    gt((~a)/(~b), 0) ?
+ext_num(rt((~a)⨸(~b), 4))⨸(2*sqrt(2)*(~a))* ∫((sqrt(2)*ext_num(rt((~a)⨸(~b), 4)) - ext_den(rt((~a)⨸(~b), 4))*(~x)^((~n)⨸4))⨸(ext_num(rt((~a)⨸(~b), 4))^2 - sqrt(2)*ext_num(rt((~a)⨸(~b), 4))*ext_den(rt((~a)⨸(~b), 4))*(~x)^((~n)⨸4) + ext_den(rt((~a)⨸(~b), 4))^2*(~x)^((~n)⨸2)), (~x)) + ext_num(rt((~a)⨸(~b), 4))⨸(2*sqrt(2)*(~a))* ∫((sqrt(2)*ext_num(rt((~a)⨸(~b), 4)) + ext_den(rt((~a)⨸(~b), 4))*(~x)^((~n)⨸4))⨸(ext_num(rt((~a)⨸(~b), 4))^2 + sqrt(2)*ext_num(rt((~a)⨸(~b), 4))*ext_den(rt((~a)⨸(~b), 4))*(~x)^((~n)⨸4) + ext_den(rt((~a)⨸(~b), 4))^2*(~x)^((~n)⨸2)), (~x)) : nothing)
+
+("1_1_3_1_26",
+@rule ∫(1/((~a) + (~!b)*(~x)^(~n)),(~x)) =>
+    !contains_var((~a), (~b), (~x)) &&
+    igt((~n)/4, 1) &&
+    !(gt((~a)/(~b), 0)) ?
+ext_num(rt(-(~a)⨸(~b), 2))⨸(2*(~a))*∫(1⨸(ext_num(rt(-(~a)⨸(~b), 2)) - ext_den(rt(-(~a)⨸(~b), 2))*(~x)^((~n)⨸2)), (~x)) + ext_num(rt(-(~a)⨸(~b), 2))⨸(2*(~a))*∫(1⨸(ext_num(rt(-(~a)⨸(~b), 2)) + ext_den(rt(-(~a)⨸(~b), 2))*(~x)^((~n)⨸2)), (~x)) : nothing)
 
 ("1_1_3_1_27",
 @rule ∫(1/sqrt((~a) + (~!b)*(~x)^2),(~x)) =>
@@ -229,22 +229,22 @@ asin(rt(-(~b), 2)*(~x)⨸sqrt((~a)))⨸rt(-(~b), 2) : nothing)
     !(gt((~a), 0)) ?
 int_and_subst(1⨸(1 - (~b)*(~x)^2),  (~x), (~x), (~x)⨸sqrt((~a) + (~b)*(~x)^2), "1_1_3_1_29") : nothing)
 
-# (* Int[1/Sqrt[a_+b_.*x_^3],x_Symbol] := With[{q=Rt[b/a,3]}, -Sqrt[2]*(1+Sqrt[3])*(1+Sqrt[3]+q*x)^2*Sqrt[(1+q^3*x^3)/(1+Sqrt[3]+ q*x)^4]/(3^(1/4)*q*Sqrt[a+b*x^3])* EllipticF[ArcSin[(-1+Sqrt[3]-q*x)/(1+Sqrt[3]+q*x)],-7-4*Sqrt[3]]]  /; FreeQ[{a,b},x] && PosQ[a] *) 
-# (* Int[1/Sqrt[a_+b_.*x_^3],x_Symbol] := With[{q=Rt[a/b,3]}, 2*Sqrt[2+Sqrt[3]]*(q+x)*Sqrt[(q^2-q*x+x^2)/((1+Sqrt[3])*q+x)^2]/ (3^(1/4)*Sqrt[a+b*x^3]*Sqrt[q*(q+x)/((1+Sqrt[3])*q+x)^2])* EllipticF[ArcSin[((1-Sqrt[3])*q+x)/((1+Sqrt[3])*q+x)],-7-4*Sqrt[3] ]] /; FreeQ[{a,b},x] && PosQ[a] && EqQ[b^2,1] *) 
-# (* Int[1/Sqrt[a_+b_.*x_^3],x_Symbol] := With[{q=Rt[b/a,3]}, -2*Sqrt[2+Sqrt[3]]*(1+q*x)*Sqrt[(1-q*x+q^2*x^2)/(1+Sqrt[3]+q*x)^2]/ (3^(1/4)*q*Sqrt[a+b*x^3]*Sqrt[(1+q*x)/(1+Sqrt[3]+q*x)^2])* EllipticF[ArcSin[(-1+Sqrt[3]-q*x)/(1+Sqrt[3]+q*x)],-7-4*Sqrt[3]]]  /; FreeQ[{a,b},x] && PosQ[a] *) 
-# ("1_1_3_1_30",
-# @rule ∫(1/sqrt((~a) + (~!b)*(~x)^3),(~x)) =>
-#     !contains_var((~a), (~b), (~x)) &&
-#     pos((~a)) ?
-# 2*sqrt(2 + sqrt(3))*((~s) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~x))* sqrt(((~s)^2 - ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~s)*(~x) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))^2*(~x)^2)⨸((1 + sqrt(3))*(~s) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~x))^2)⨸ (3^(1⨸4)*ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*sqrt((~a) + (~b)*(~x)^3)* sqrt((~s)*((~s) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~x))⨸((1 + sqrt(3))*(~s) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~x))^2))* elliptic_f( asin(((1 - sqrt(3))*(~s) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~x))⨸((1 + sqrt(3))*(~s) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~x))), -7 - 4*sqrt(3)) : nothing)
+#(* Int[1/Sqrt[a_+b_.*x_^3],x_Symbol] := With[{q=Rt[b/a,3]}, -Sqrt[2]*(1+Sqrt[3])*(1+Sqrt[3]+q*x)^2*Sqrt[(1+q^3*x^3)/(1+Sqrt[3]+ q*x)^4]/(3^(1/4)*q*Sqrt[a+b*x^3])* EllipticF[ArcSin[(-1+Sqrt[3]-q*x)/(1+Sqrt[3]+q*x)],-7-4*Sqrt[3]]]  /; FreeQ[{a,b},x] && PosQ[a] *)
+#(* Int[1/Sqrt[a_+b_.*x_^3],x_Symbol] := With[{q=Rt[a/b,3]}, 2*Sqrt[2+Sqrt[3]]*(q+x)*Sqrt[(q^2-q*x+x^2)/((1+Sqrt[3])*q+x)^2]/ (3^(1/4)*Sqrt[a+b*x^3]*Sqrt[q*(q+x)/((1+Sqrt[3])*q+x)^2])* EllipticF[ArcSin[((1-Sqrt[3])*q+x)/((1+Sqrt[3])*q+x)],-7-4*Sqrt[3] ]] /; FreeQ[{a,b},x] && PosQ[a] && EqQ[b^2,1] *)
+#(* Int[1/Sqrt[a_+b_.*x_^3],x_Symbol] := With[{q=Rt[b/a,3]}, -2*Sqrt[2+Sqrt[3]]*(1+q*x)*Sqrt[(1-q*x+q^2*x^2)/(1+Sqrt[3]+q*x)^2]/ (3^(1/4)*q*Sqrt[a+b*x^3]*Sqrt[(1+q*x)/(1+Sqrt[3]+q*x)^2])* EllipticF[ArcSin[(-1+Sqrt[3]-q*x)/(1+Sqrt[3]+q*x)],-7-4*Sqrt[3]]]  /; FreeQ[{a,b},x] && PosQ[a] *)
+("1_1_3_1_30",
+@rule ∫(1/sqrt((~a) + (~!b)*(~x)^3),(~x)) =>
+    !contains_var((~a), (~b), (~x)) &&
+    pos((~a)) ?
+2*sqrt(2 + sqrt(3))*(ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x))* sqrt((ext_den(rt((~b)⨸(~a), 3))^2 - ext_num(rt((~b)⨸(~a), 3))*ext_den(rt((~b)⨸(~a), 3))*(~x) + ext_num(rt((~b)⨸(~a), 3))^2*(~x)^2)⨸((1 + sqrt(3))*ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x))^2)⨸ (3^(1⨸4)*ext_num(rt((~b)⨸(~a), 3))*sqrt((~a) + (~b)*(~x)^3)* sqrt(ext_den(rt((~b)⨸(~a), 3))*(ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x))⨸((1 + sqrt(3))*ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x))^2))* elliptic_f( asin(((1 - sqrt(3))*ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x))⨸((1 + sqrt(3))*ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x))), -7 - 4*sqrt(3)) : nothing)
 
-# (* Int[1/Sqrt[a_+b_.*x_^3],x_Symbol] := With[{q=Rt[a/b,3]}, 2*Sqrt[2-Sqrt[3]]*(q+x)*Sqrt[(q^2-q*x+x^2)/((1-Sqrt[3])*q+x)^2]/ (3^(1/4)*Sqrt[a+b*x^3]*Sqrt[-q*(q+x)/((1-Sqrt[3])*q+x)^2])* EllipticF[ArcSin[((1+Sqrt[3])*q+x)/((1-Sqrt[3])*q+x)],-7+4*Sqrt[3] ]] /; FreeQ[{a,b},x] && NegQ[a] && EqQ[b^2,1] *) 
-# (* Int[1/Sqrt[a_+b_.*x_^3],x_Symbol] := With[{q=Rt[b/a,3]}, -2*Sqrt[2-Sqrt[3]]*(1+q*x)*Sqrt[(1-q*x+q^2*x^2)/(1-Sqrt[3]+q*x)^2]/ (3^(1/4)*q*Sqrt[a+b*x^3]*Sqrt[-(1+q*x)/(1-Sqrt[3]+q*x)^2])* EllipticF[ArcSin[(1+Sqrt[3]+q*x)/(-1+Sqrt[3]-q*x)],-7+4*Sqrt[3]]]  /; FreeQ[{a,b},x] && NegQ[a] *) 
-# ("1_1_3_1_31",
-# @rule ∫(1/sqrt((~a) + (~!b)*(~x)^3),(~x)) =>
-#     !contains_var((~a), (~b), (~x)) &&
-#     neg((~a)) ?
-# 2*sqrt(2 - sqrt(3))*((~s) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~x))* sqrt(((~s)^2 - ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~s)*(~x) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))^2*(~x)^2)⨸((1 - sqrt(3))*(~s) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~x))^2)⨸ (3^(1⨸4)*ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*sqrt((~a) + (~b)*(~x)^3)* sqrt(-(~s)*((~s) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~x))⨸((1 - sqrt(3))*(~s) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~x))^2))* elliptic_f( asin(((1 + sqrt(3))*(~s) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~x))⨸((1 - sqrt(3))*(~s) + ext_num(rt((~b)⨸(~a), 3)), (~s) = ext_den(rt((~b)⨸(~a), 3))*(~x))), -7 + 4*sqrt(3)) : nothing)
+#(* Int[1/Sqrt[a_+b_.*x_^3],x_Symbol] := With[{q=Rt[a/b,3]}, 2*Sqrt[2-Sqrt[3]]*(q+x)*Sqrt[(q^2-q*x+x^2)/((1-Sqrt[3])*q+x)^2]/ (3^(1/4)*Sqrt[a+b*x^3]*Sqrt[-q*(q+x)/((1-Sqrt[3])*q+x)^2])* EllipticF[ArcSin[((1+Sqrt[3])*q+x)/((1-Sqrt[3])*q+x)],-7+4*Sqrt[3] ]] /; FreeQ[{a,b},x] && NegQ[a] && EqQ[b^2,1] *)
+#(* Int[1/Sqrt[a_+b_.*x_^3],x_Symbol] := With[{q=Rt[b/a,3]}, -2*Sqrt[2-Sqrt[3]]*(1+q*x)*Sqrt[(1-q*x+q^2*x^2)/(1-Sqrt[3]+q*x)^2]/ (3^(1/4)*q*Sqrt[a+b*x^3]*Sqrt[-(1+q*x)/(1-Sqrt[3]+q*x)^2])* EllipticF[ArcSin[(1+Sqrt[3]+q*x)/(-1+Sqrt[3]-q*x)],-7+4*Sqrt[3]]]  /; FreeQ[{a,b},x] && NegQ[a] *)
+("1_1_3_1_31",
+@rule ∫(1/sqrt((~a) + (~!b)*(~x)^3),(~x)) =>
+    !contains_var((~a), (~b), (~x)) &&
+    neg((~a)) ?
+2*sqrt(2 - sqrt(3))*(ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x))* sqrt((ext_den(rt((~b)⨸(~a), 3))^2 - ext_num(rt((~b)⨸(~a), 3))*ext_den(rt((~b)⨸(~a), 3))*(~x) + ext_num(rt((~b)⨸(~a), 3))^2*(~x)^2)⨸((1 - sqrt(3))*ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x))^2)⨸ (3^(1⨸4)*ext_num(rt((~b)⨸(~a), 3))*sqrt((~a) + (~b)*(~x)^3)* sqrt(-ext_den(rt((~b)⨸(~a), 3))*(ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x))⨸((1 - sqrt(3))*ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x))^2))* elliptic_f( asin(((1 + sqrt(3))*ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x))⨸((1 - sqrt(3))*ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x))), -7 + 4*sqrt(3)) : nothing)
 
 ("1_1_3_1_32",
 @rule ∫(1/sqrt((~a) + (~!b)*(~x)^4),(~x)) =>
@@ -259,15 +259,13 @@ int_and_subst(1⨸(1 - (~b)*(~x)^2),  (~x), (~x), (~x)⨸sqrt((~a) + (~b)*(~x)^2
     gt((~a), 0) ?
 elliptic_f(asin(rt(-(~b), 4)*(~x)⨸rt((~a), 4)), -1)⨸(rt((~a), 4)*rt(-(~b), 4)) : nothing)
 
-# manually translated
 ("1_1_3_1_34",
 @rule ∫(1/sqrt((~a) + (~!b)*(~x)^4),(~x)) =>
     !contains_var((~a), (~b), (~x)) &&
     lt((~a), 0) &&
     gt((~b), 0) &&
     ext_isinteger(rt(-(~a)*(~b), 2)) ?
-sqrt(-(~a) + rt(-(~a)*(~b), 2)*(~x)^2)* sqrt(((~a) + rt(-(~a)*(~b), 2)*(~x)^2)⨸rt(-(~a)*(~b), 2))⨸(sqrt(2)*sqrt(-(~a))*sqrt((~a) + (~b)*(~x)^4))* elliptic_f(asin((~x)⨸sqrt(((~a) + rt(-(~a)*(~b), 2)*(~x)^2)⨸(2*rt(-(~a)*(~b), 2)))), 1//2) : nothing)
-
+sqrt(-(~a) + rt(-(~a)*(~b), 2)*(~x)^2)* sqrt(((~a) + rt(-(~a)*(~b), 2)*(~x)^2)⨸rt(-(~a)*(~b), 2))⨸(sqrt(2)*sqrt(-(~a))*sqrt((~a) + (~b)*(~x)^4))* elliptic_f(asin((~x)⨸sqrt(((~a) + rt(-(~a)*(~b), 2)*(~x)^2)⨸(2*rt(-(~a)*(~b), 2)))), 1⨸2) : nothing)
 
 ("1_1_3_1_35",
 @rule ∫(1/sqrt((~a) + (~!b)*(~x)^4),(~x)) =>
@@ -282,6 +280,11 @@ sqrt(((~a) - rt(-(~a)*(~b), 2)*(~x)^2)⨸((~a) + rt(-(~a)*(~b), 2)*(~x)^2))* sqr
     neg((~b)/(~a)) &&
     !(gt((~a), 0)) ?
 sqrt(1 + (~b)*(~x)^4⨸(~a))⨸sqrt((~a) + (~b)*(~x)^4)*∫(1⨸sqrt(1 + (~b)*(~x)^4⨸(~a)), (~x)) : nothing)
+
+("1_1_3_1_37",
+@rule ∫(1/sqrt((~a) + (~!b)*(~x)^6),(~x)) =>
+    !contains_var((~a), (~b), (~x)) ?
+(~x)*(ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x)^2)* sqrt((ext_den(rt((~b)⨸(~a), 3))^2 - ext_num(rt((~b)⨸(~a), 3))*ext_den(rt((~b)⨸(~a), 3))*(~x)^2 + ext_num(rt((~b)⨸(~a), 3))^2*(~x)^4)⨸(ext_den(rt((~b)⨸(~a), 3)) + (1 + sqrt(3))*ext_num(rt((~b)⨸(~a), 3))*(~x)^2)^2)⨸ (2*3^(1⨸4)*ext_den(rt((~b)⨸(~a), 3))*sqrt((~a) + (~b)*(~x)^6)* sqrt(ext_num(rt((~b)⨸(~a), 3))*(~x)^2*(ext_den(rt((~b)⨸(~a), 3)) + ext_num(rt((~b)⨸(~a), 3))*(~x)^2)⨸(ext_den(rt((~b)⨸(~a), 3)) + (1 + sqrt(3))*ext_num(rt((~b)⨸(~a), 3))*(~x)^2)^2))* elliptic_f( acos((ext_den(rt((~b)⨸(~a), 3)) + (1 - sqrt(3))*ext_num(rt((~b)⨸(~a), 3))*(~x)^2)⨸(ext_den(rt((~b)⨸(~a), 3)) + (1 + sqrt(3))*ext_num(rt((~b)⨸(~a), 3))*(~x)^2)), (2 + sqrt(3))⨸4) : nothing)
 
 ("1_1_3_1_38",
 @rule ∫(1/sqrt((~a) + (~!b)*(~x)^8),(~x)) =>
@@ -413,7 +416,7 @@ ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~a) + (~b)*(~x)^(ext_den(
     ) ?
 (~a)^(~p)*(~x)*hypergeometric2f1(-(~p), 1⨸(~n), 1⨸(~n) + 1, -(~b)*(~x)^(~n)⨸(~a)) : nothing)
 
-# (* Int[(a_+b_.*x_^n_)^p_,x_Symbol] := x*(a+b*x^n)^(p+1)/a*Hypergeometric2F1[1,1/n+p+1,1/n+1,-b*x^n/a] /; FreeQ[{a,b,n,p},x] && Not[IGtQ[p,0]] && Not[IntegerQ[1/n]] &&  Not[ILtQ[Simplify[1/n+p],0]] && Not[IntegerQ[p] || GtQ[a,0]] *) 
+#(* Int[(a_+b_.*x_^n_)^p_,x_Symbol] := x*(a+b*x^n)^(p+1)/a*Hypergeometric2F1[1,1/n+p+1,1/n+1,-b*x^n/a] /; FreeQ[{a,b,n,p},x] && Not[IGtQ[p,0]] && Not[IntegerQ[1/n]] &&  Not[ILtQ[Simplify[1/n+p],0]] && Not[IntegerQ[p] || GtQ[a,0]] *)
 ("1_1_3_1_58",
 @rule ∫(((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~n), (~p), (~x)) &&
@@ -427,67 +430,67 @@ ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~a) + (~b)*(~x)^(ext_den(
 (~a)^intpart((~p))*((~a) + (~b)*(~x)^(~n))^fracpart((~p))⨸(1 + (~b)*(~x)^(~n)⨸(~a))^fracpart((~p))* ∫((1 + (~b)*(~x)^(~n)⨸(~a))^(~p), (~x)) : nothing)
 
 ("1_1_3_1_59",
-@rule ∫(((~a) + (~!b)*(~v)^(~n))^(~p),(~x)) =>
+@rule ∫(((~!a) + (~!b)*(~v)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~n), (~p), (~x)) &&
     linear((~v), (~x)) &&
     !eq((~v), (~x)) ?
-1⨸Symbolics.coeff((~v), (~x)^ 1)*int_and_subst(((~a) + (~b)*(~x)^(~n))^(~p),  (~x), (~x), (~v), "1_1_3_1_59") : nothing)
+1⨸ext_coeff((~v), (~x), 1)*int_and_subst(((~a) + (~b)*(~x)^(~n))^(~p),  (~x), (~x), (~v), "1_1_3_1_59") : nothing)
 
-# ("1_1_3_1_60",
-# @rule ∫((a1_. + b1_.*(~x)^(~n))^(~!p)*(a2_. + b2_.*(~x)^(~n))^(~!p),(~x)) =>
-#     !contains_var(a1, b1, a2, b2, (~n), (~p), (~x)) &&
-#     eq(a2*b1 + a1*b2, 0) &&
-#     (
-#         ext_isinteger((~p)) ||
-#         gt(a1, 0) &&
-#         gt(a2, 0)
-#     ) ?
-# ∫((a1*a2 + b1*b2*(~x)^(2*(~n)))^(~p), (~x)) : nothing)
+("1_1_3_1_60",
+@rule ∫(((~!a1) + (~!b1)*(~x)^(~n))^(~!p)*((~!a2) + (~!b2)*(~x)^(~n))^(~!p),(~x)) =>
+    !contains_var((~a1), (~b1), (~a2), (~b2), (~n), (~p), (~x)) &&
+    eq((~a2)*(~b1) + (~a1)*(~b2), 0) &&
+    (
+        ext_isinteger((~p)) ||
+        gt((~a1), 0) &&
+        gt((~a2), 0)
+    ) ?
+∫(((~a1)*(~a2) + (~b1)*(~b2)*(~x)^(2*(~n)))^(~p), (~x)) : nothing)
 
-# ("1_1_3_1_61",
-# @rule ∫((a1_ + b1_.*(~x)^(~!n))^(~!p)*(a2_ + b2_.*(~x)^(~!n))^(~!p),(~x)) =>
-#     !contains_var(a1, b1, a2, b2, (~x)) &&
-#     eq(a2*b1 + a1*b2, 0) &&
-#     igt(2*(~n), 0) &&
-#     gt((~p), 0) &&
-#     (
-#         ext_isinteger(2*(~p)) ||
-#         ext_den((~p) + 1/(~n)) < ext_den((~p))
-#     ) ?
-# (~x)*(a1 + b1*(~x)^(~n))^(~p)*(a2 + b2*(~x)^(~n))^(~p)⨸(2*(~n)*(~p) + 1) + 2*a1*a2*(~n)*(~p)⨸(2*(~n)*(~p) + 1)* ∫((a1 + b1*(~x)^(~n))^((~p) - 1)*(a2 + b2*(~x)^(~n))^((~p) - 1), (~x)) : nothing)
-# 
-# ("1_1_3_1_62",
-# @rule ∫((a1_ + b1_.*(~x)^(~!n))^(~p)*(a2_ + b2_.*(~x)^(~!n))^(~p),(~x)) =>
-#     !contains_var(a1, b1, a2, b2, (~x)) &&
-#     eq(a2*b1 + a1*b2, 0) &&
-#     igt(2*(~n), 0) &&
-#     lt((~p), -1) &&
-#     (
-#         ext_isinteger(2*(~p)) ||
-#         ext_den((~p) + 1/(~n)) < ext_den((~p))
-#     ) ?
-# -(~x)*(a1 + b1*(~x)^(~n))^((~p) + 1)*(a2 + b2*(~x)^(~n))^((~p) + 1)⨸(2*a1*a2* (~n)*((~p) + 1)) + (2*(~n)*((~p) + 1) + 1)⨸(2*a1*a2*(~n)*((~p) + 1))* ∫((a1 + b1*(~x)^(~n))^((~p) + 1)*(a2 + b2*(~x)^(~n))^((~p) + 1), (~x)) : nothing)
-# 
-# ("1_1_3_1_63",
-# @rule ∫((a1_ + b1_.*(~x)^(~n))^(~p)*(a2_ + b2_.*(~x)^(~n))^(~p),(~x)) =>
-#     !contains_var(a1, b1, a2, b2, (~p), (~x)) &&
-#     eq(a2*b1 + a1*b2, 0) &&
-#     ilt(2*(~n), 0) ?
-# -int_and_subst((a1 + b1*(~x)^(-(~n)))^(~p)*(a2 + b2*(~x)^(-(~n)))^(~p)⨸(~x)^2,  (~x), (~x), 1⨸(~x), "1_1_3_1_63") : nothing)
-# 
-# ("1_1_3_1_64",
-# @rule ∫((a1_ + b1_.*(~x)^(~n))^(~p)*(a2_ + b2_.*(~x)^(~n))^(~p),(~x)) =>
-#     !contains_var(a1, b1, a2, b2, (~p), (~x)) &&
-#     eq(a2*b1 + a1*b2, 0) &&
-#     isfraction(2*(~n)) ?
-# ext_den(2*(~n))*int_and_subst((~x)^(ext_den(2*(~n)) - 1)*(a1 + b1*(~x)^(ext_den(2*(~n))*(~n)))^(~p)*(a2 + b2*(~x)^(ext_den(2*(~n))*(~n)))^(~p),  (~x), (~x), (~x)^(1⨸ext_den(2*(~n))), "1_1_3_1_64") : nothing)
-# 
-# ("1_1_3_1_65",
-# @rule ∫((a1_. + b1_.*(~x)^(~n))^(~p)*(a2_. + b2_.*(~x)^(~n))^(~p),(~x)) =>
-#     !contains_var(a1, b1, a2, b2, (~n), (~p), (~x)) &&
-#     eq(a2*b1 + a1*b2, 0) &&
-#     !(ext_isinteger((~p))) ?
-# (a1 + b1*(~x)^(~n))^ fracpart((~p))*(a2 + b2*(~x)^(~n))^fracpart((~p))⨸(a1*a2 + b1*b2*(~x)^(2*(~n)))^ fracpart((~p))*∫((a1*a2 + b1*b2*(~x)^(2*(~n)))^(~p), (~x)) : nothing)
+("1_1_3_1_61",
+@rule ∫(((~a1) + (~!b1)*(~x)^(~!n))^(~!p)*((~a2) + (~!b2)*(~x)^(~!n))^(~!p),(~x)) =>
+    !contains_var((~a1), (~b1), (~a2), (~b2), (~x)) &&
+    eq((~a2)*(~b1) + (~a1)*(~b2), 0) &&
+    igt(2*(~n), 0) &&
+    gt((~p), 0) &&
+    (
+        ext_isinteger(2*(~p)) ||
+        ext_den((~p) + 1/(~n)) < ext_den((~p))
+    ) ?
+(~x)*((~a1) + (~b1)*(~x)^(~n))^(~p)*((~a2) + (~b2)*(~x)^(~n))^(~p)⨸(2*(~n)*(~p) + 1) + 2*(~a1)*(~a2)*(~n)*(~p)⨸(2*(~n)*(~p) + 1)* ∫(((~a1) + (~b1)*(~x)^(~n))^((~p) - 1)*((~a2) + (~b2)*(~x)^(~n))^((~p) - 1), (~x)) : nothing)
+
+("1_1_3_1_62",
+@rule ∫(((~a1) + (~!b1)*(~x)^(~!n))^(~p)*((~a2) + (~!b2)*(~x)^(~!n))^(~p),(~x)) =>
+    !contains_var((~a1), (~b1), (~a2), (~b2), (~x)) &&
+    eq((~a2)*(~b1) + (~a1)*(~b2), 0) &&
+    igt(2*(~n), 0) &&
+    lt((~p), -1) &&
+    (
+        ext_isinteger(2*(~p)) ||
+        ext_den((~p) + 1/(~n)) < ext_den((~p))
+    ) ?
+-(~x)*((~a1) + (~b1)*(~x)^(~n))^((~p) + 1)*((~a2) + (~b2)*(~x)^(~n))^((~p) + 1)⨸(2*(~a1)*(~a2)* (~n)*((~p) + 1)) + (2*(~n)*((~p) + 1) + 1)⨸(2*(~a1)*(~a2)*(~n)*((~p) + 1))* ∫(((~a1) + (~b1)*(~x)^(~n))^((~p) + 1)*((~a2) + (~b2)*(~x)^(~n))^((~p) + 1), (~x)) : nothing)
+
+("1_1_3_1_63",
+@rule ∫(((~a1) + (~!b1)*(~x)^(~n))^(~p)*((~a2) + (~!b2)*(~x)^(~n))^(~p),(~x)) =>
+    !contains_var((~a1), (~b1), (~a2), (~b2), (~p), (~x)) &&
+    eq((~a2)*(~b1) + (~a1)*(~b2), 0) &&
+    ilt(2*(~n), 0) ?
+-int_and_subst(((~a1) + (~b1)*(~x)^(-(~n)))^(~p)*((~a2) + (~b2)*(~x)^(-(~n)))^(~p)⨸(~x)^2,  (~x), (~x), 1⨸(~x), "1_1_3_1_63") : nothing)
+
+("1_1_3_1_64",
+@rule ∫(((~a1) + (~!b1)*(~x)^(~n))^(~p)*((~a2) + (~!b2)*(~x)^(~n))^(~p),(~x)) =>
+    !contains_var((~a1), (~b1), (~a2), (~b2), (~p), (~x)) &&
+    eq((~a2)*(~b1) + (~a1)*(~b2), 0) &&
+    isfraction(2*(~n)) ?
+ext_den(2*(~n))*int_and_subst((~x)^(ext_den(2*(~n)) - 1)*((~a1) + (~b1)*(~x)^(ext_den(2*(~n))*(~n)))^(~p)*((~a2) + (~b2)*(~x)^(ext_den(2*(~n))*(~n)))^(~p),  (~x), (~x), (~x)^(1⨸ext_den(2*(~n))), "1_1_3_1_64") : nothing)
+
+("1_1_3_1_65",
+@rule ∫(((~!a1) + (~!b1)*(~x)^(~n))^(~p)*((~!a2) + (~!b2)*(~x)^(~n))^(~p),(~x)) =>
+    !contains_var((~a1), (~b1), (~a2), (~b2), (~n), (~p), (~x)) &&
+    eq((~a2)*(~b1) + (~a1)*(~b2), 0) &&
+    !(ext_isinteger((~p))) ?
+((~a1) + (~b1)*(~x)^(~n))^ fracpart((~p))*((~a2) + (~b2)*(~x)^(~n))^fracpart((~p))⨸((~a1)*(~a2) + (~b1)*(~b2)*(~x)^(2*(~n)))^ fracpart((~p))*∫(((~a1)*(~a2) + (~b1)*(~b2)*(~x)^(2*(~n)))^(~p), (~x)) : nothing)
 
 ("1_1_3_1_66",
 @rule ∫(((~a) + (~!b)*((~!c)*(~x)^(~!q))^(~n))^(~!p),(~x)) =>
@@ -520,5 +523,6 @@ int_and_subst(((~a) + (~b)*(~c)^(~n)*(~x)^((~n)*(~q)))^(~p),  (~x), (~x)^((~n)*(
     isfraction((~q)) ?
 ext_den((~q))*int_and_subst((~x)^(ext_den((~q)) - 1)*((~a) + (~b)*((~d)*(~x)^((~q)*ext_den((~q))))^(~n))^(~p),  (~x), (~x), (~x)^(1⨸ext_den((~q))), "1_1_3_1_70") : nothing)
 
-# (* Int[(a_+b_.*(d_.*x_^q_.)^n_)^p_.,x_Symbol] := Subst[Int[(a+b*x^(n*q))^p,x],x^(n*q),(d*x^q)^n] /; FreeQ[{a,b,d,n,p,q},x] && Not[IntegerQ[n*q]] &&  NeQ[x^(n*q),(d*x^q)^n] *) 
+#(* Int[(a_+b_.*(d_.*x_^q_.)^n_)^p_.,x_Symbol] := Subst[Int[(a+b*x^(n*q))^p,x],x^(n*q),(d*x^q)^n] /; FreeQ[{a,b,d,n,p,q},x] && Not[IntegerQ[n*q]] &&  NeQ[x^(n*q),(d*x^q)^n] *)
+
 ]
