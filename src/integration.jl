@@ -24,13 +24,14 @@ function repeated_prewalk(expr, verbose)
     
     if operation(expr)===∫
         (new_expr,success) = apply_rule(expr, verbose)
-        if success
-            if new_expr !== expr
-                return repeated_prewalk(new_expr, verbose)
-            else
-                verbose && println("Infinite cycle detected for ", expr, ", aborting.")
-            end
+        if !success
+            # TODO Can this be a bad idea sometimes?
+            simplified_expr = simplify(expr, expand=true)
+            verbose && println("integration of \n", expr, "\n failed, trying with the expanded version:\n", simplified_expr)
+            (new_expr,success) = apply_rule(simplified_expr, verbose)
         end
+        new_expr !== expr && return repeated_prewalk(new_expr, verbose)
+        verbose && println("Infinite cycle detected for ", expr, ", aborting.")
     end
 
     expr = SymbolicUtils.maketerm(
