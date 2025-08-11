@@ -29,7 +29,7 @@ function load_rules(rules_paths)
     println("Loaded $(length(rules)) rules from $(length(rules_paths)) files.")
 end
 
-load_rules() = load_rules(["rules/" * file for file in all_rules_paths])
+load_rules() = load_rules([joinpath(@__DIR__, "rules/" * f) for f in all_rules_paths])
 
 # function useful in developing the package
 # reads the rules from the given path.
