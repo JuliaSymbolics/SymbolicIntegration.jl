@@ -279,6 +279,20 @@ int_binomial(a, b, c, d, n, p, q, x) =
     eq(n, 3) && (ext_isinteger(p + 2//3, q) ||
     ext_isinteger(q + 2//3, p)) && eq(b*c + a*d, 0)
 
+# IntBinomialQ[a,b,c,d,e,m,n,p,q,x] returns True iff  (e*x)^m*(a+b*x^n)^p*(c+d*x^n)^q is integrable wrt x in terms of  non-Appell functions.
+int_binomial(a, b, c, d, e, m, n, p, q, x) =
+    ext_isinteger(p, q) ||
+    igt(p, 0) ||
+    igt(q, 0) ||
+    eq(n, 2) && (ext_isinteger(m, 2*p, 2*q) || ext_isinteger(2*m, p, 2*q) || ext_isinteger(2*m, 2*p, q)) ||
+    eq(n, 4) && (ext_isinteger(m, p, 2*q) || ext_isinteger(m, 2*p, q)) ||
+    eq(n, 2) && ext_isinteger(m/2, p + 1//3, q) && (eq(b*c + 3*a*d, 0) || eq(b*c - 9*a*d, 0)) ||
+    eq(n, 2) && ext_isinteger(m/2, q + 1//3, p) && (eq(a*d + 3*b*c, 0) || eq(a*d - 9*b*c, 0)) ||
+    eq(n, 3) && ext_isinteger((m - 1)/3, q, p - 1//2) && (eq(b*c - 4*a*d, 0) || eq(b*c + 8*a*d, 0) || eq(b^2*c^2 - 20*a*b*c*d - 8*a^2*d^2, 0)) ||
+    eq(n, 3) && ext_isinteger((m - 1)/3, p, q - 1//2) && (eq(4*b*c - a*d, 0) || eq(8*b*c + a*d, 0) || eq(8*b^2*c^2 + 20*a*b*c*d - a^2*d^2, 0)) ||
+    eq(n, 3) && (ext_isinteger(m, q, 3*p) || ext_isinteger(m, p, 3*q)) && eq(b*c + a*d, 0) ||
+    eq(n, 3) && (ext_isinteger((m + 2)/3, p + 2//3, q) || ext_isinteger((m + 2)/3, q + 2//3, p)) ||
+    eq(n, 3) && (ext_isinteger(m/3, p + 1//3, q) || ext_isinteger(m/3, q + 1//3, p))
 
 # IntQuadraticQ[a,b,c,d,e,m,p,x] returns True iff  (d+e*x)^m*(a+b*x+c*x^2)^p is integrable wrt x in terms of non-Appell  functions.
 int_quadratic(a,b,c,d,e,m,p,x) = 

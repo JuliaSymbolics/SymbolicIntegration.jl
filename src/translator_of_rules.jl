@@ -288,7 +288,7 @@ function translate_conditions(conditions)
         ("IntegralFreeQ", "contains_int", 1),
         
         ("IntLinearQ", "int_linear", 7),
-        ("IntBinomialQ", "int_binomial", (7,8)),
+        ("IntBinomialQ", "int_binomial", (7, 8, 10)),
         ("IntQuadraticQ", "int_quadratic", 8),
         
         ("ComplexFreeQ", "complexfree", 1),
