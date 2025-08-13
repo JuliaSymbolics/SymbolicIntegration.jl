@@ -516,18 +516,18 @@ sqrt(1 + (~d)⨸(~c)*(~x)^2)⨸sqrt((~c) + (~d)*(~x)^2)* ∫(sqrt((~a) + (~b)*(~
     !eq((~u), (~x)) ?
 1⨸ext_coeff((~u), (~x), 1)* int_and_subst(((~a) + (~b)*(~x)^(~n))^(~p)*((~c) + (~d)*(~x)^(~n))^(~q),  (~x), (~x), (~u), "1_1_3_3_63") : nothing)
 
-("1_1_3_3_64",
-@rule ∫((~u)^(~!p)*(~v)^(~!q),(~x)) =>
-    !contains_var((~p), (~q), (~x)) &&
-    PseudoBinomialPairQ[(~u), (~v), (~x)] ?
-∫(NormalizePseudoBinomial[(~u), (~x)]^(~p)* NormalizePseudoBinomial[(~v), (~x)]^(~q), (~x)) : nothing)
-
-("1_1_3_3_65",
-@rule ∫((~x)^(~!m)*(~u)^(~!p)*(~v)^(~!q),(~x)) =>
-    !contains_var((~p), (~q), (~x)) &&
-    ext_isinteger((~p), (~m)⨸(~p)) &&
-    PseudoBinomialPairQ[(~x)^((~m)⨸(~p))*(~u), (~v), (~x)] ?
-∫(NormalizePseudoBinomial[(~x)^((~m)⨸(~p))*(~u), (~x)]^(~p)* NormalizePseudoBinomial[(~v), (~x)]^(~q), (~x)) : nothing)
+# ("1_1_3_3_64",
+# @rule ∫((~u)^(~!p)*(~v)^(~!q),(~x)) =>
+#     !contains_var((~p), (~q), (~x)) &&
+#     PseudoBinomialPairQ[(~u), (~v), (~x)] ?
+# ∫(NormalizePseudoBinomial[(~u), (~x)]^(~p)* NormalizePseudoBinomial[(~v), (~x)]^(~q), (~x)) : nothing)
+# 
+# ("1_1_3_3_65",
+# @rule ∫((~x)^(~!m)*(~u)^(~!p)*(~v)^(~!q),(~x)) =>
+#     !contains_var((~p), (~q), (~x)) &&
+#     ext_isinteger((~p), (~m)⨸(~p)) &&
+#     PseudoBinomialPairQ[(~x)^((~m)⨸(~p))*(~u), (~v), (~x)] ?
+# ∫(NormalizePseudoBinomial[(~x)^((~m)⨸(~p))*(~u), (~x)]^(~p)* NormalizePseudoBinomial[(~v), (~x)]^(~q), (~x)) : nothing)
 
 #(* IntBinomialQ[a,b,c,d,n,p,q,x] returns True iff  (a+b*x^n)^p*(c+d*x^n)^q is integrable wrt x in terms of non-Appell  functions. *) IntBinomialQ[a_, b_, c_, d_, n_, p_, q_, x_Symbol] := IntegersQ[p, q] || IGtQ[p, 0] || IGtQ[q, 0] || (EqQ[n, 2] || EqQ[n, 4]) && (IntegersQ[p, 4*q] || IntegersQ[4*p, q]) || EqQ[n, 2] && (IntegersQ[2*p, 2*q] || IntegersQ[3*p, q] && EqQ[b*c + 3*a*d, 0] || IntegersQ[p, 3*q] && EqQ[3*b*c + a*d, 0]) || EqQ[n, 3] && (IntegersQ[p + 1/3, q] || IntegersQ[q + 1/3, p]) || EqQ[n, 3] && (IntegersQ[p + 2/3, q] || IntegersQ[q + 2/3, p]) && EqQ[b*c + a*d, 0]
 ("1_1_3_3_66",
