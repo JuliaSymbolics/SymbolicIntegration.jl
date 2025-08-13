@@ -1,12 +1,17 @@
 # this custom division function is added to produce 
 # - rationals if called with integers
 # - floats if called with floats
-# it's also a infix operator with the same precedence of /
+# it's a infix operator with the same precedence of /
 function ⨸(x::Union{Rational, Integer}, y::Union{Rational, Integer})
     res = x // y
     ext_isinteger(res) ? Int(res) : res
 end
 ⨸(x, y) = x / y
+
+# this custom exponentiation function should be used whenever there are 
+# fractional powers, becasue (-1)^(1/2) errors
+# it's a infix operator with the same precedence of ^
+⟰(x, y) = (lt(y, 1) && lt(x, 0)) ? Complex(x) ^ y : x ^ y
 
 # if expr contains variable var return true
 function contains_var(expr, var)

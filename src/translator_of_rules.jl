@@ -220,14 +220,15 @@ function translate_result(result, index)
         # common functions
         (r"RemoveContent\[(.*?),\s*x\]", s"\1"), (r"Log\[(.*?)\]", s"log(\1)"),
 
-
-
         (r"LogIntegral\[(.*?)\]", s"SymbolicUtils.expinti(log(\1))"), # TODO use it from SpecialFunctions.jl once pr is merged
         
         (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
         (r"PolynomialRemainder\[(.*?),(.*?)\]", s"poly_remainder(\1,\2)"),
         (r"PolynomialQuotient\[(.*?),(.*?)\]", s"poly_quotient(\1,\2)"),
         (r"PolynomialDivide\[(.*?),(.*?),(.*?)\]", s"polynomial_divide(\1,\2,\3)"),
+
+        (r"Sum\[(.*?),\s*\{(.*?),(.*?),(.*?)\}\]", s"sum([\1 for \2 in (\3):(\4)])"), # from Sum[f(x), {x, a, b}] to sum([f(x) for x in a:b])
+        (r"ReplaceAll\[(.*?),(.*?)->(.*?)\]", s"substitute(\1, Dict(\2 => \3))"), # from ReplaceAll[f(x), x->a] to substitute(f(x), Dict(x => a))
 
         # not yet solved integrals
         # (r"Int\[(.*?),\s*x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
@@ -253,6 +254,7 @@ function translate_conditions(conditions)
     # since a lot of times Not has inside other functions, better to use find_closing_braket
     simple_substitutions = [
         ("Log", "log"),
+        ("Sqrt", "sqrt"),
         ("Rt", "rt", 2),
 
         ("IGtQ", "igt", 2),
@@ -286,7 +288,7 @@ function translate_conditions(conditions)
         ("IntegralFreeQ", "contains_int", 1),
         
         ("IntLinearQ", "int_linear", 7),
-        ("IntBinomialQ", "int_binomial", 7),
+        ("IntBinomialQ", "int_binomial", (7,8)),
         ("IntQuadraticQ", "int_quadratic", 8),
         
         ("ComplexFreeQ", "complexfree", 1),
@@ -351,6 +353,8 @@ function translate_conditions(conditions)
 
         ("{", "["), # to transform lists syntax
         ("}", "]"),
+        
+        # ("/", "⨸"), # custom division not necessary i think
 
         # convert conditions variables.
         (r"(?<!\w)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
