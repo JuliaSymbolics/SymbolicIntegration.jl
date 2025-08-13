@@ -242,8 +242,10 @@ end
 neg(u) = !pos(u) && !eq(u, 0)
 
 # extended denominator
-ext_den(u) = isa(u, Float64) ? 1 : denominator(u)
-ext_num(u) = isa(u, Float64) ? u : numerator(u)
+ext_den(u::Union{Num, SymbolicUtils.Symbolic, Rational, Integer}) = denominator(u)
+ext_den(u) = 1
+ext_num(u::Union{Num, SymbolicUtils.Symbolic, Rational, Integer}) = numerator(u)
+ext_num(u) = 1
 
 # IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is integrable wrt x in terms of non-hypergeometric functions.
 int_linear(a, b, c, d, m, n, x) =
@@ -254,10 +256,26 @@ int_linear(a, b, c, d, m, n, x) =
 
 # IntBinomialQ[a,b,c,n,m,p,x] returns True iff (c*x)^m*(a+b*x^n)^p  is integrable wrt x in terms of non-hypergeometric functions.
 int_binomial(a, b, c, n, m, p, x) =
-    igt(p, 0) || (isrational(m) && ext_isinteger(n, 2*p)) || 
+    igt(p, 0) ||
+    (isrational(m) && ext_isinteger(n, 2*p)) || 
     ext_isinteger((m + 1)⨸n + p) || 
     (eq(n, 2) || eq(n, 4)) && ext_isinteger(2*m, 4*p) || 
     eq(n, 2) && ext_isinteger(6*p) && (ext_isinteger(m) || ext_isinteger(m - p))
+
+# IntBinomialQ[a,b,c,d,n,p,q,x] returns True iff  (a+b*x^n)^p*(c+d*x^n)^q is integrable wrt x in terms of non-Appell  functions.
+int_binomial(a, b, c, d, n, p, q, x) =
+    ext_isinteger(p, q) ||
+    igt(p, 0) ||
+    igt(q, 0) ||
+    (eq(n, 2) || eq(n, 4)) && (ext_isinteger(p, 4*q) ||
+    ext_isinteger(4*p, q)) ||
+    eq(n, 2) && (ext_isinteger(2*p, 2*q) ||
+    ext_isinteger(3*p, q) && eq(b*c + 3*a*d, 0) ||
+    ext_isinteger(p, 3*q) && eq(3*b*c + a*d, 0)) ||
+    eq(n, 3) && (ext_isinteger(p + 1//3, q) ||
+    ext_isinteger(q + 1//3, p)) ||
+    eq(n, 3) && (ext_isinteger(p + 2//3, q) ||
+    ext_isinteger(q + 2//3, p)) && eq(b*c + a*d, 0)
 
 
 # IntQuadraticQ[a,b,c,d,e,m,p,x] returns True iff  (d+e*x)^m*(a+b*x+c*x^2)^p is integrable wrt x in terms of non-Appell  functions.
