@@ -11,7 +11,8 @@ end
 # this custom exponentiation function should be used whenever there are 
 # fractional powers, becasue (-1)^(1/2) errors
 # it's a infix operator with the same precedence of ^
-⟰(x, y) = (lt(y, 1) && lt(x, 0)) ? Complex(x) ^ y : x ^ y
+⟰(x, y) = lt(x, 0) ? Complex(x) ^ y : x ^ y
+⟰(x, y::Integer) = x ^ y
 
 # if expr contains variable var return true
 function contains_var(expr, var)
@@ -223,6 +224,7 @@ ile(a, b) = ext_isinteger(a) && le(a, b)
 # return SymbolicUtils.Pow{Real}(u, 1⨸n)
 # TODO this doesnt allow for exact simplification of roots
 function rt(u, n::Integer)
+    ext_isodd(n) && lt(u, 0) && return -((-u)^(1⨸n))
     if !s(u) && u<0
         u=Complex(u)
     end
@@ -245,7 +247,7 @@ neg(u) = !pos(u) && !eq(u, 0)
 ext_den(u::Union{Num, SymbolicUtils.Symbolic, Rational, Integer}) = denominator(u)
 ext_den(u) = 1
 ext_num(u::Union{Num, SymbolicUtils.Symbolic, Rational, Integer}) = numerator(u)
-ext_num(u) = 1
+ext_num(u) = u
 
 # IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is integrable wrt x in terms of non-hypergeometric functions.
 int_linear(a, b, c, d, m, n, x) =
