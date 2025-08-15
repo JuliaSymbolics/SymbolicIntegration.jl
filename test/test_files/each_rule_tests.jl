@@ -106,4 +106,6 @@ data = [
 (integrand = (1/(cos(x)))^2*(2+2sin(x))^4, result = 666, integration_var = x) # 4
 # 1_1_3_7
 (integrand = (3*x^2 + 2*x - 2)/(x^3 - 1), result = 666, integration_var = x) # 1_1_3_7_22
+# 4_1_6_1
+(integrand = sqrt(5 + 4cos(1 + 2x) + 3*sin(1 + 2x)), result = (4sin(1 + 2x) - 3cos(1 + 2x)) / sqrt(5 + 3sin(1 + 2x) + 4cos(1 + 2x)), integration_var=x)
 ]
