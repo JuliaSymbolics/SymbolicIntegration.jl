@@ -142,6 +142,7 @@ function translate_result(result, index)
     end
 
     simple_substitutions = [
+        # normal math functions
         ("D", "Symbolics.derivative"),
 
         ("Rt", "rt", 2),
@@ -163,6 +164,8 @@ function translate_result(result, index)
         ("ArcCos", "acos"),
         ("ArcTan", "atan"),
 
+        ("Sign", "sign"),
+
         # definied in SpecialFunctions.jl
         ("ExpIntegralEi", "SymbolicUtils.expinti", 1),
         ("ExpIntegralE", "SymbolicUtils.expint", 2),
@@ -172,7 +175,7 @@ function translate_result(result, index)
         ("Erf", "SymbolicUtils.erf"),
         ("SinIntegral", "SymbolicUtils.sinint"),
         ("CosIntegral", "SymbolicUtils.cosint"),
-        # taken from other packages
+        # taken from other julia packages
         ("EllipticE", "elliptic_e", (1,2)),
         ("EllipticF", "elliptic_f", 2),
         ("EllipticPi", "elliptic_pi", (2,3)),
@@ -182,6 +185,7 @@ function translate_result(result, index)
         ("FresnelC", "FresnelIntegrals.fresnelc", 1),
         ("FresnelS", "FresnelIntegrals.fresnels", 1),
 
+        # definied in rules_utility_functions.jl
         ("FreeFactors", "free_factors"),
         ("NonfreeFactors", "non_free_factors"),
         ("FreeTerms", "free_terms"),
@@ -239,7 +243,7 @@ function translate_result(result, index)
         (r"(?<!\w)E\^", "ℯ^"), # this works only for E^, not E used in other contexts like multiplications.
 
         # slots and defslots
-        (r"(?<!\w)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
+        (r"(?<!\w)(?!in\b)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead, excluding "in"
     ]
 
     for (mathematica, julia) in associations
