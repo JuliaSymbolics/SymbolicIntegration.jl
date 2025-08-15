@@ -1,3 +1,5 @@
+include("string_manipulation_helpers.jl")
+
 # returns a tuple:
 # if found a rule to apply, (solution, true)
 # if not, (original problem, false)
@@ -6,10 +8,28 @@ function apply_rule(problem, verbose)
     for (i, rule) in enumerate(rules)
         result = rule(problem)
         if result !== nothing
-            verbose && printstyled("┌---Applied rule $(identifiers[i]) on "; color = :white)
-            verbose && printstyled(problem; color = :light_red)
-            verbose && printstyled("\n| ", join(split(string(rule), '\n'), "\n| "), "\n└---with result: "; color = :white)
-            verbose && printstyled(result, "\n"; color = :light_blue)
+            if verbose
+                s = string(rule)
+                if_pos = findfirst("if", s)
+                newline_pos = findfirst("\n", s)
+                if if_pos !== nothing && newline_pos !== nothing && if_pos.start < newline_pos.start
+                    conditions = pretty_indentation(strip(s[if_pos.start+2:newline_pos.start-1]))
+                    
+                    rest = s[newline_pos.start:end]
+                    else_pos = findfirst("else", rest)
+                    
+                    s = s[1:if_pos.start+2] * "\n" * conditions * "\n" * strip(rest[1:else_pos.start-1])
+                    s = replace(s, "~" => "")
+                    s = replace(s, "!" => "")
+                end
+                printstyled("┌---Applied rule $(identifiers[i]) on "; color = :white)
+                printstyled(problem; color = :light_red)
+                for ss in split(s, '\n')
+                    print("\n| "); printstyled(ss; bold=true)
+                end
+                print("\n└---with result: ")
+                printstyled(result, "\n"; color = :light_blue)
+            end
             return (result, true)
         end
     end
