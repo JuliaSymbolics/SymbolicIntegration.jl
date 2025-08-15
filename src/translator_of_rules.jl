@@ -1,3 +1,83 @@
+#=
+This script is used to translate integration rules from Mathematica syntax
+to julia Syntax.
+
+## How to use it
+``` bash
+julia src/translator_of_rules.jl "src/rules/4 Trig functions/4.1 Sine/4.1.8 trig^m (a+b cos^p+c sin^q)^n.m"
+```
+and will produce the julia file at the path `src/rules/4 Trig functions/4.1 Sine/4.1.8 trig^m (a+b cos^p+c sin^q)^n.jl`
+
+## How it works internally (useful to know if you have to debug it)
+It processes line per line, so the integration rule must be all on only one 
+line. Let's say we translate this (fictional) rule:
+```
+Int[x_^m_./(a_ + b_. + c_.*x_^4), x_Symbol] := With[{q = Rt[a/c, 2], r = Rt[2*q - b/c, 2]}, 1/(2*c*r)*Int[x^(m - 3), x] - 1/(2*c*r) /; OddQ[r]] /; FreeQ[{a, b, c}, x] && (NeQ[b^2 - 4*a*c, 0] || (GeQ[m, 3] && LtQ[m, 4])) && NegQ[b^2 - 4*a*c]
+```
+### With syntax
+for each line it first check if there is the With syntax, a syntax in Mathematica
+that enables to define variables in a local scope. If yes finds the defined
+variables and substitute them with their definition. Also there could be conditions
+inside the With block (OddQ in the example), that are bought outside.
+```
+1/(2*c*Rt[2*q - b/c, 2])*Int[x^(m - 3), x] - 1/(2*c*Rt[2*q - b/c, 2])/;  FreeQ[{a, b, c}, x] && (NeQ[b^2 - 4*a*c, 0] || (GeQ[m, 3] && LtQ[m, 4])) && NegQ[b^2 - 4*a*c] &&  OddQ[Rt[2*q - b/c, 2]]
+```
+# replace and smart_replace applications
+Then the line is split into integral, result, and conditions:
+```
+Int[x_^m_./(a_ + b_. + c_.*x_^4), x_Symbol]
+```
+```
+1/(2*c*Rt[2*q - b/c, 2])*Int[x^(m - 3), x] - 1/(2*c*Rt[2*q - b/c, 2])
+```
+```
+FreeQ[{a, b, c}, x] && (NeQ[b^2 - 4*a*c, 0] || (GeQ[m, 3] && LtQ[m, 4])) && NegQ[b^2 - 4*a*c] &&  OddQ[Rt[2*q - b/c, 2]]
+```
+
+Each one of them is translated using the appropriate function, but the three
+all work the same. They first apply a numebr of times the smart_replace function,
+that replaces functions names without messing the nested brakets (like normal regex do)
+```
+smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
+# output
+"atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
+```
+Then also the normal replace function is applied a number of times, for more
+complex patterns. For example, every two letter word, optionally followed by 
+numbers, that is not a function call (so not followed by open parenthesis), and
+that is not the "in" word, is prefixed with a tilde `~`. This is because in
+Mathematica you can reference the slot variables without any prefix, and in
+julia you need ~.
+
+### Pretty indentation
+Then they are all put togheter following the julia rules syntax
+@rule integrand => conditions ? result : nothing
+```
+@rule ∫((~x)^(~!m)/((~a) + (~!b) + (~!c)*(~x)^4),(~x)) => !contains_var((~a), (~b), (~c), (~x)) && (!eq((~b)^2 - 4*(~a)*(~c), 0) || (ge((~m), 3) && lt((~m), 4))) && neg((~b)^2 - 4*(~a)*(~c)) && ext_isodd(rt(2*(~q) - (~b)/(~c), 2)) ? 1⨸(2*(~c)*rt(2*(~q) - (~b)⨸(~c), 2))*∫((~x)^((~m) - 3), (~x)) - 1⨸(2*(~c)*rt(2*(~q) - (~b)⨸(~c), 2)) : nothing
+```
+Usually the conditions are a lot of && and ||, so a pretty indentation is 
+applied automatically that rewrites the rule like this:
+```
+@rule ∫((~x)^(~!m)/((~a) + (~!b) + (~!c)*(~x)^4),(~x)) =>
+    !contains_var((~a), (~b), (~c), (~x)) &&
+    (
+        !eq((~b)^2 - 4*(~a)*(~c), 0) ||
+        (
+            ge((~m), 3) &&
+            lt((~m), 4)
+        )
+    ) &&
+    neg((~b)^2 - 4*(~a)*(~c)) &&
+    ext_isodd(rt(2*(~q) - (~b)/(~c), 2)) ?
+1⨸(2*(~c)*rt(2*(~q) - (~b)⨸(~c), 2))*∫((~x)^((~m) - 3), (~x)) - 1⨸(2*(~c)*rt(2*(~q) - (~b)⨸(~c), 2)) : nothing
+```
+
+### end
+finally the rule is placed in a tuple (index, rule), and all the
+tuples are put into a array, ready to be included by load_rules
+
+=#
+
 using Printf
 
 include("string_manipulation_helpers.jl")
@@ -64,7 +144,7 @@ function translate_line(line, index)
         throw("Line does not contain a valid rule: $line")
     end
     
-    integral = parts[1]
+    integrand = parts[1]
     result_and_conds = translate_With_syntax(parts[2])
 
     if count("/;", result_and_conds)==1
@@ -76,7 +156,7 @@ function translate_line(line, index)
         julia_conditions = nothing
     end
     
-    julia_integrand = transalte_integrand(integral)
+    julia_integrand = transalte_integrand(integrand)
     julia_result = translate_result(result, index)
     
     return (julia_integrand, julia_conditions, julia_result)
