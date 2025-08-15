@@ -245,6 +245,7 @@ function translate_result(result, index)
         ("ArcTan", "atan"),
 
         ("Sign", "sign"),
+        ("GCD", "gcd"),
 
         # definied in SpecialFunctions.jl
         ("ExpIntegralEi", "SymbolicUtils.expinti", 1),
@@ -277,7 +278,7 @@ function translate_result(result, index)
         ("Numerator", "ext_num"),
         ("Denom", "ext_den"),
         ("Numer", "ext_num"),
-        ("GCD", "gcd"),
+        ("Expon", s"exponent_of", 2),
 
         ("Dist", "dist"),
         ("SimplifyIntegrand", "ext_simplify", 2), # TODO is this enough?
@@ -306,7 +307,6 @@ function translate_result(result, index)
 
         (r"LogIntegral\[(.*?)\]", s"SymbolicUtils.expinti(log(\1))"), # TODO use it from SpecialFunctions.jl once pr is merged
         
-        (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
         (r"PolynomialRemainder\[(.*?),(.*?)\]", s"poly_remainder(\1,\2)"),
         (r"PolynomialQuotient\[(.*?),(.*?)\]", s"poly_quotient(\1,\2)"),
         (r"PolynomialDivide\[(.*?),(.*?),(.*?)\]", s"polynomial_divide(\1,\2,\3)"),
@@ -337,6 +337,8 @@ function translate_conditions(conditions)
     conditions = strip(conditions)
     # since a lot of times Not has inside other functions, better to use find_closing_braket
     simple_substitutions = [
+        ("D", "Symbolics.derivative"),
+
         ("Log", "log"),
         ("Sqrt", "sqrt"),
         ("Rt", "rt", 2),
@@ -364,6 +366,7 @@ function translate_conditions(conditions)
         ("Coefficient", "ext_coeff", (2,3)),
         ("Coeff", "ext_coeff", (2,3)),
         ("LeafCount", "leaf_count"),
+        ("Expon", s"exponent_of", 2),
         
         ("AlgebraicFunctionQ", "algebraic_function", (2,3)),
         ("RationalFunctionQ", "rational_function", 2),

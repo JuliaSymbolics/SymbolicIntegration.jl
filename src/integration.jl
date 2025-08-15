@@ -66,5 +66,5 @@ function integrate(integrand; verbose = true) # TODO change default verbose to f
 end
 
 function integrate(;verbose=false)
-    @warn "No integrand provided. Please provide one like this: `integrate(x^2 + 3x + 2, x)`"
+    @warn "No integrand provided. Please provide one like this: `integrate(x^2 + 3x + 2)`"
 end 
