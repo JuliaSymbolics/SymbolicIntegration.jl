@@ -1,6 +1,6 @@
 file_rules = [
-# (* ::Subsection::Closed:: *) 
-# (* 3.1.1 (a+b log(c x^n))^p *) 
+#(* ::Subsection::Closed:: *)
+#(* 3.1.1 (a+b log(c x^n))^p *)
 ("3_1_1_1",
 @rule ∫(log((~!c)*(~x)^(~!n)),(~x)) =>
     !contains_var((~c), (~n), (~x)) ?
@@ -29,11 +29,12 @@ SymbolicUtils.expinti(log((~c)*(~x)))⨸(~c) : nothing)
 @rule ∫(((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~p), (~x)) &&
     ext_isinteger(1/(~n)) ?
-1⨸((~n)*(~c)^(1⨸(~n)))*int_and_subst((~E)^((~x)⨸(~n))*((~a) + (~b)*(~x))^(~p),  (~x), (~x), log((~c)*(~x)^(~n)), "3_1_1_5") : nothing)
+1⨸((~n)*(~c)^(1⨸(~n)))*int_and_subst(ℯ^((~x)⨸(~n))*((~a) + (~b)*(~x))^(~p),  (~x), (~x), log((~c)*(~x)^(~n)), "3_1_1_5") : nothing)
 
 ("3_1_1_6",
 @rule ∫(((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~n), (~p), (~x)) ?
-(~x)⨸((~n)*((~c)*(~x)^(~n))^(1⨸(~n)))* int_and_subst((~E)^((~x)⨸(~n))*((~a) + (~b)*(~x))^(~p),  (~x), (~x), log((~c)*(~x)^(~n)), "3_1_1_6") : nothing)
+(~x)⨸((~n)*((~c)*(~x)^(~n))^(1⨸(~n)))* int_and_subst(ℯ^((~x)⨸(~n))*((~a) + (~b)*(~x))^(~p),  (~x), (~x), log((~c)*(~x)^(~n)), "3_1_1_6") : nothing)
+
 
 ]
