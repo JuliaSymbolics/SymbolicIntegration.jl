@@ -27,12 +27,30 @@ function apply_rule(problem)
     return (problem, false)
 end
 
+ncn(expr) = SymbolicUtils.Term{Number}(^,[expr,-1])
 # TODO add threaded for speed?
 function repeated_prewalk(expr)
     !iscall(expr) && return expr
     
     if operation(expr)===∫
         (new_expr,success) = apply_rule(expr)
+        # r1 and r2 are needed bc of neim problem
+        if !success
+            r1 = @rule ∫((~n)/(~d),~x) => ∫(~n*ncn(~d),~x)
+            r1r = r1(expr)
+            if r1r!==nothing
+                VERBOSE && println("integration of ", expr, " failed, trying with this mathematically equivalent integrand:\n$r1r")
+                (new_expr,success) = apply_rule(r1r)
+            end
+        end
+        if !success
+            r2 = @rule ∫((~n)/*(~~d),~x) => ∫(~n*prod([ncn(el) for el in ~~d]),~x)
+            r2r = r2(expr)
+            if r2r!==nothing
+                VERBOSE && println("integration of ", expr, " failed, trying with this mathematically equivalent integrand:\n$r2r")
+                (new_expr,success) = apply_rule(r2r)
+            end
+        end
         if !success
             # TODO Can this be a bad idea sometimes?
             simplified_expr = simplify(expr, expand=true)
@@ -41,6 +59,7 @@ function repeated_prewalk(expr)
         end
         new_expr !== expr && return repeated_prewalk(new_expr)
         VERBOSE && println("Infinite cycle detected for ", expr, ", aborting.")
+
     end
 
     expr = SymbolicUtils.maketerm(
