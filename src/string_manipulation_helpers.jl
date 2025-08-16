@@ -178,7 +178,7 @@ end
 #            !(ext_isinteger((~p)))
 #        )
 #    )
-function pretty_indentation(conditions)
+function pretty_indentation(conditions; indent=" "^4)
     if isempty(strip(conditions)) || length(conditions)<=2
         return conditions
     end
@@ -189,7 +189,6 @@ function pretty_indentation(conditions)
     
     result = string(chars[1])
     depth = 1
-    indent = " "^4
     i = 2
     remove_next_spaces = false
     groups_depths = []
@@ -301,3 +300,49 @@ end
 #     
 #     return indent^depth * result
 # end
+
+
+function pretty_print_rt(m)
+    numbers2_9 = [string(i) for i in 2:9]
+    !in(m[2], numbers2_9) && return m.match
+    m1 = length(m[1])==1 ? m[1] : "("*m[1]*")"
+    new = ["√", "∛", "∜", "⁵√", "⁶√", "⁷√", "⁸√", "⁹√"]
+    i = findfirst(==(m[2]), numbers2_9)
+    return new[i] * m1
+end
+
+function pretty_print_rule(rule, identifier)
+    identifier == "9_1_0" && return "∫( +(a...), x) => sum([ ∫(f, x) for f in a ])"
+
+    s = string(rule)
+    # manage conditions
+    if_pos = findfirst("if", s)
+    newline_pos = findfirst("\n", s)
+    if if_pos !== nothing && newline_pos !== nothing && if_pos.start < newline_pos.start
+        conditions = pretty_indentation(strip(s[if_pos.start+2:newline_pos.start-1]), indent = " "^6)
+        
+        rest = s[newline_pos.start:end]
+        else_pos = findfirst("else", rest)
+        
+        s = s[1:if_pos.start+2] * "\n" * conditions * "\n" * strip(rest[1:else_pos.start-1])
+    end
+    # manage slot variables
+    s = replace(s, r"~\(!(.+?)\)" => s"\1")
+    s = replace(s, "~" => "")
+    # manage single letters surrounded by parenthesis
+    s = replace(s, r"(?<![a-zA-Z])\((.)\)" => s"\1")
+    # # spaces
+    # s = replace(s,r"(?<![\s]) "=>"")
+    # manage custom infix operators
+    s = replace(s, "⨸" => "/")
+    s = replace(s, "⟰" => "^")
+    # manage rt function
+    s = replace(s, r"sqrt\((.+?)\)" => s"rt(\1,2)")
+    m = match(r"(?<!q)rt\((.+?),\s*(\d)\s*\)", s)
+    while m!==nothing
+        s = replace(s, m.match => pretty_print_rt(m))
+        m = match(r"rt\((.+?),\s*(\d)\s*\)", s)
+    end
+
+    return s
+end

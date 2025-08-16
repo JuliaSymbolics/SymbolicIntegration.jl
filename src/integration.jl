@@ -9,25 +9,13 @@ function apply_rule(problem, verbose)
         result = rule(problem)
         if result !== nothing
             if verbose
-                s = string(rule)
-                if_pos = findfirst("if", s)
-                newline_pos = findfirst("\n", s)
-                if if_pos !== nothing && newline_pos !== nothing && if_pos.start < newline_pos.start
-                    conditions = pretty_indentation(strip(s[if_pos.start+2:newline_pos.start-1]))
-                    
-                    rest = s[newline_pos.start:end]
-                    else_pos = findfirst("else", rest)
-                    
-                    s = s[1:if_pos.start+2] * "\n" * conditions * "\n" * strip(rest[1:else_pos.start-1])
-                    s = replace(s, "~" => "")
-                    s = replace(s, "!" => "")
-                end
-                printstyled("┌---Applied rule $(identifiers[i]) on "; color = :white)
+                s = pretty_print_rule(rule, identifiers[i])
+                printstyled("┌-------Applied rule $(identifiers[i]) on ";);
                 printstyled(problem; color = :light_red)
                 for ss in split(s, '\n')
-                    print("\n| "); printstyled(ss; bold=true)
+                    printstyled("\n| ";); printstyled(ss;bold=true)
                 end
-                print("\n└---with result: ")
+                printstyled("\n└-------with result: ";)
                 printstyled(result, "\n"; color = :light_blue)
             end
             return (result, true)
