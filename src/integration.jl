@@ -5,12 +5,12 @@ include("string_manipulation_helpers.jl")
 # if not, (original problem, false)
 function apply_rule(problem)
     result = nothing
-    for (i, rule) in enumerate(rules)
+    for (i, rule) in enumerate(RULES)
         result = rule(problem)
         if result !== nothing
-            if VERBOSE && !in(identifiers[i], SILENCE)
-                s = pretty_print_rule(rule, identifiers[i])
-                printstyled("┌-------Applied rule $(identifiers[i]) on ";);
+            if VERBOSE && !in(IDENTIFIERS[i], SILENCE)
+                s = pretty_print_rule(rule, IDENTIFIERS[i])
+                printstyled("┌-------Applied rule $(IDENTIFIERS[i]) on ";);
                 printstyled(problem; color = :light_red)
                 for ss in split(s, '\n')
                     printstyled("\n| ";); printstyled(ss;bold=true)
@@ -18,7 +18,7 @@ function apply_rule(problem)
                 printstyled("\n└-------with result: ";)
                 printstyled(result, "\n"; color = :light_blue)
             end
-            in(identifiers[i], SILENCE) && pop!(SILENCE)
+            in(IDENTIFIERS[i], SILENCE) && pop!(SILENCE)
             return (result, true)
         end
     end

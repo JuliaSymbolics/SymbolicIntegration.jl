@@ -356,6 +356,6 @@ function pretty_print_rule(rule, identifier)
     return s
 end
 function pretty_print_rule(identifier::String)
-    rule = rules[findfirst(x->x==identifier,identifiers)]
+    rule = RULES[findfirst(x->x==identifier,IDENTIFIERS)]
     return pretty_print_rule(rule, identifier)
 end
