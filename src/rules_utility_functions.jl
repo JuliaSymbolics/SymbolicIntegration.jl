@@ -36,7 +36,6 @@ function contains_var(args...)
     return any(contains_var(expr, var) for expr in args[1:end-1])
 end
 
-# contains_op(∫, expr) is the same as checking if the integral has been comletely solved
 function contains_op(op, expr)
     expr = Symbolics.unwrap(expr)
     if iscall(expr)
@@ -48,6 +47,7 @@ function contains_op(op, expr)
     return false
 end
 
+# contains_op(∫, expr) is the same as checking if the integral has been comletely solved
 contains_int(expr) = contains_op(∫, expr)
 
 function complexfree(expr)
@@ -55,17 +55,14 @@ function complexfree(expr)
     return false
 end
 
+# to distinguish between symbolic expressions and numbers
 s(u) = isa(Symbolics.unwrap(u), Symbolics.Symbolic)
 
 function eq(a, b)
-    if !s(a) && !s(b)
-        return isequal(a, b)
-    end
-    return SymbolicUtils._iszero(SymbolicUtils.simplify(a - b)) # TODO operatore pipa
+    !s(a) && !s(b) && return isequal(a, b)
+    return SymbolicUtils.simplify(a - b) |> SymbolicUtils._iszero
 end
 
-# TODO do with multiple dispatch?
-# TODO SymbolicUtils._isinteger
 function ext_isinteger(u)
     s(u) && return false # for symbolic expressions
     isa(u, Number) && return isinteger(u) # for numeric types
@@ -85,7 +82,6 @@ function ext_isodd(u)
     return false    
 end
 
-# TODO change name to isfractiona nd isrational
 # If m, n, ... are explicit fractions, fraction(m,n,...) returns true
 isfraction(args...) = all(isa(arg, Rational) && denominator(arg)!=1 for arg in args)
 # If m, n, ... are integers or fractions, rational(m,n,...) returns true
@@ -224,8 +220,7 @@ ilt(a, b) = ext_isinteger(a) && lt(a, b)
 ile(a, b) = ext_isinteger(a) && le(a, b)
 
 # returns the simplest nth root of u
-# return SymbolicUtils.Pow{Real}(u, 1⨸n)
-# TODO this doesnt allow for exact simplification of roots
+# TODO this doesnt allow for exact simplification of roots, maybe use SymbolicUtils.Pow{Real}(u, 1⨸n)?
 function rt(u, n::Integer)
     ext_isodd(n) && lt(u, 0) && return -((-u)^(1⨸n))
     if !s(u) && u<0
@@ -361,18 +356,7 @@ function simpler(u, v)
         return false
     end
     
-    return leaf_count(u) < leaf_count(v)
-end
-
-# Helper function to count leaves (atoms) in an expression
-# TODO SymbolicUtils.node_count
-function leaf_count(expr)
-    expr = Symbolics.unwrap(expr)
-    if !SymbolicUtils.iscall(expr)
-        return 1
-    else
-        return sum(leaf_count(arg) for arg in SymbolicUtils.arguments(expr))+1
-    end
+    return SymbolicUtils.node_count(u) < SymbolicUtils.node_count(v)
 end
 
 # True if expr is an expression which cannot be divided into subexpressions, false otherwise

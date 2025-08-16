@@ -365,7 +365,7 @@ function translate_conditions(conditions)
         ("BinomialMatchQ", "binomial_without_simplify"),
         ("Coefficient", "ext_coeff", (2,3)),
         ("Coeff", "ext_coeff", (2,3)),
-        ("LeafCount", "leaf_count"),
+        ("LeafCount", "SymbolicUtils.node_count"),
         ("Expon", s"exponent_of", 2),
         
         ("AlgebraicFunctionQ", "algebraic_function", (2,3)),
