@@ -61,10 +61,11 @@ function eq(a, b)
     if !s(a) && !s(b)
         return isequal(a, b)
     end
-    return SymbolicUtils._iszero(SymbolicUtils.simplify(a - b))
+    return SymbolicUtils._iszero(SymbolicUtils.simplify(a - b)) # TODO operatore pipa
 end
 
 # TODO do with multiple dispatch?
+# TODO SymbolicUtils._isinteger
 function ext_isinteger(u)
     s(u) && return false # for symbolic expressions
     isa(u, Number) && return isinteger(u) # for numeric types
@@ -152,7 +153,7 @@ function expand_linear_product(v, u, a, b, x)
     return sum(v * c * (a + b*x)^(i-1) for (i,c) in enumerate(coeffs))
 end
 
-# TODO is this enough?
+# TODO this is not enough, not taking all the cases of rubi
 function ext_expand(expr, x)
     f(p) = !contains_var(p, x) # f stands for free of x
     case1 = @rule (~u::(p->poly(p,x)))*((~a::f) + (~!b::f)*(~x::(p->eq(p,x))))^(~m::f) => (a=~a, b=~b, m=~m, x=~x, u=~u)
@@ -178,6 +179,8 @@ function expand_to_sum(u, v, x)
 end
 
 simp(u,x) = simplify(u)
+
+# TODO ExpandTrigReduce is missing
 
 # FracPart[u] returns the sum of the non-integer terms of u.
 # fracpart(3//2 + x) = (1//2) + x, fracpart(2.4) = 2.4
@@ -362,6 +365,7 @@ function simpler(u, v)
 end
 
 # Helper function to count leaves (atoms) in an expression
+# TODO SymbolicUtils.node_count
 function leaf_count(expr)
     expr = Symbolics.unwrap(expr)
     if !SymbolicUtils.iscall(expr)
@@ -394,18 +398,31 @@ function contains_inverse_function(expr,x)
     any(contains_op(op, expr) for op in inverse_functions)
 end
 
-# also putting directly substitute(integrate(...), ... => ...) in the rules works
-# but using a custom funciton is better because
-# - if the integral is not solved, substitute does bad things like substituting the integration variable
-# - we can print rule application
-function int_and_subst(integrand, integration_var, from, to, rule_number)
-    printstyled("Applied rule $rule_number with result $integrand\n\n"; color=:light_blue)
-    result = integrate(integrand, integration_var)
+#=
+also `substitute(integrate(integrand, int_var), from => to)` works
+but using a custom funciton is better because
+- if the integral is not solved, substitute does bad things like substituting the integration variable
+- we can print rule application
+=#
+function int_and_subst(integrand, int_var, from, to, rule_from_identifier)
+    if VERBOSE
+        printstyled("┌-------Applied rule $rule_from_identifier (change of variables):";);
+        for ss in split(pretty_print_rule(rule_from_identifier), '\n')
+            printstyled("\n| ";); printstyled(ss;bold=true)
+        end
+        printstyled("\n└-------with result: ";)
+        printstyled("∫"*replace(string(integrand),string(int_var)=>"u")*" du"; color = :light_blue)
+        print(" where ")
+        printstyled(replace(string(from),string(int_var)=>"u")*" = "*string(to), "\n"; color = :light_blue)
+    end
+
+    result = integrate(integrand, int_var;verbose=VERBOSE)
+    push!(SILENCE, rule_from_identifier)
     if !contains_int(result)
         return substitute(result, from => to)
     end
     println("Integral not solved")
-    return subst(∫(integrand, integration_var),from, to)
+    return subst(∫(integrand, int_var), from, to)
 end
 
 # distributes exp1 over exp2

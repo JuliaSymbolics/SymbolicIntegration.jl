@@ -92,6 +92,7 @@ log((~x))⨸(~b) - log((~b) + (~c)*(~x))⨸(~b) : nothing)
     !contains_var((~a), (~b), (~c), (~x)) &&
     !eq((~b)^2 - 4*(~a)*(~c), 0) ?
 -2*int_and_subst(1⨸simp((~b)^2 - 4*(~a)*(~c) - (~x)^2,  (~x)), (~x), (~x), (~b) + 2*(~c)*(~x), "1_2_1_1_12") : nothing)
+# -2*substitute(integrate(1⨸simp((~b)^2 - 4*(~a)*(~c) - (~x)^2,  (~x)), (~x)), (~x)=>(~b) + 2*(~c)*(~x)) : nothing)
 
 ("1_2_1_1_13",
 @rule ∫(((~!a) + (~!b)*(~x) + (~!c)*(~x)^2)^(~p),(~x)) =>

@@ -312,6 +312,7 @@ function pretty_print_rt(m)
 end
 
 function pretty_print_rule(rule, identifier)
+    # manage special cases
     identifier == "9_1_0" && return "∫( +(a...), x) => sum([ ∫(f, x) for f in a ])"
 
     s = string(rule)
@@ -343,6 +344,18 @@ function pretty_print_rule(rule, identifier)
         s = replace(s, m.match => pretty_print_rt(m))
         m = match(r"rt\((.+?),\s*(\d)\s*\)", s)
     end
+    # manage int_and_subst function
+    m = match(r"int_and_subst\((.+?),(.+?),(.+?),(.+?),\s*\"(.+?)\"\s*\)", s)
+    while m!==nothing
+        full_str = find_closing_braket(s, "int_and_subst(","()")
+        parts = split_outside_brackets(full_str[15:end-1], ',')
+        s = replace(s, m.match => "substitute(∫{$(parts[1])}d$(strip(parts[2])), $(parts[3]) => $(parts[4]))")
+        m = match(r"rt\((.+?),\s*(\d)\s*\)", s)
+    end
 
     return s
+end
+function pretty_print_rule(identifier::String)
+    rule = rules[findfirst(x->x==identifier,identifiers)]
+    return pretty_print_rule(rule, identifier)
 end

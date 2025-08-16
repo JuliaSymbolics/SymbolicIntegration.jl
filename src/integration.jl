@@ -3,12 +3,12 @@ include("string_manipulation_helpers.jl")
 # returns a tuple:
 # if found a rule to apply, (solution, true)
 # if not, (original problem, false)
-function apply_rule(problem, verbose)
+function apply_rule(problem)
     result = nothing
     for (i, rule) in enumerate(rules)
         result = rule(problem)
         if result !== nothing
-            if verbose
+            if VERBOSE && !in(identifiers[i], SILENCE)
                 s = pretty_print_rule(rule, identifiers[i])
                 printstyled("┌-------Applied rule $(identifiers[i]) on ";);
                 printstyled(problem; color = :light_red)
@@ -18,47 +18,50 @@ function apply_rule(problem, verbose)
                 printstyled("\n└-------with result: ";)
                 printstyled(result, "\n"; color = :light_blue)
             end
+            in(identifiers[i], SILENCE) && pop!(SILENCE)
             return (result, true)
         end
     end
 
-    verbose && println("No rule found for ", problem)
+    VERBOSE && println("No rule found for ", problem)
     return (problem, false)
 end
 
 # TODO add threaded for speed?
-function repeated_prewalk(expr, verbose)
+function repeated_prewalk(expr)
     !iscall(expr) && return expr
     
     if operation(expr)===∫
-        (new_expr,success) = apply_rule(expr, verbose)
+        (new_expr,success) = apply_rule(expr)
         if !success
             # TODO Can this be a bad idea sometimes?
             simplified_expr = simplify(expr, expand=true)
-            verbose && println("integration of \n", expr, "\n failed, trying with the expanded version:\n", simplified_expr)
-            (new_expr,success) = apply_rule(simplified_expr, verbose)
+            VERBOSE && println("integration of \n", expr, "\n failed, trying with the expanded version:\n", simplified_expr)
+            (new_expr,success) = apply_rule(simplified_expr)
         end
-        new_expr !== expr && return repeated_prewalk(new_expr, verbose)
-        verbose && println("Infinite cycle detected for ", expr, ", aborting.")
+        new_expr !== expr && return repeated_prewalk(new_expr)
+        VERBOSE && println("Infinite cycle detected for ", expr, ", aborting.")
     end
 
     expr = SymbolicUtils.maketerm(
         typeof(expr), 
         operation(expr), 
-        map(in -> repeated_prewalk(in, verbose),arguments(expr)), 
+        map(repeated_prewalk,arguments(expr)), 
         SymbolicUtils.metadata(expr)
     )
 
     return expr
 end
 
-function integrate(integrand, int_var; verbose = true) # TODO change default verbose to false
+function integrate(integrand, int_var; verbose=false)
+    global VERBOSE
+    VERBOSE = verbose # TODO change default verbose to false
     problem = ∫(integrand,int_var)
-    repeated_prewalk(problem, verbose)
+    repeated_prewalk(problem)
 end
 
 # If no integration variable provided
-function integrate(integrand; verbose = true) # TODO change default verbose to false
+function integrate(integrand; verbose=false)
     vars = Symbolics.get_variables(integrand)
     if length(vars) > 1
         @warn "Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument."
