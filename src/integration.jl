@@ -63,7 +63,7 @@ function repeated_prewalk(expr)
         if !success
             # TODO Can this be a bad idea sometimes?
             simplified_expr = simplify(expr, expand=true)
-            VERBOSE && println("integration of \n", expr, "\n failed, trying with the expanded version:\n", simplified_expr)
+            VERBOSE && println("integration of ", expr, " failed, trying with the expanded version:\n", simplified_expr)
             (new_expr,success) = apply_rule(simplified_expr)
         end
         
