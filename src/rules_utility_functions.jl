@@ -152,22 +152,21 @@ end
 # TODO this is not enough, not taking all the cases of rubi
 function ext_expand(expr, x)
     f(p) = !contains_var(p, x) # f stands for free of x
-    # note that m can not be a integer
-    case1 = @rule (~u::(p->poly(p,x)))*((~a::f) + (~!b::f)*x)^(~m::f) => (a=~a, b=~b, m=~m, x=~x, u=~u)
+    
+    # note that m can be a non integer
+    case1 = @rule (~u::(p->poly(p,x)))*((~a::f) + (~!b::f)*x)^(~m::f) => ~
     t = case1(expr) # t stands for tmp
-    if t !== nothing
-        return expand_linear_product((t.a+t.b*t.x)^t.m,t.u, t.a, t.b, t.x)
-    end
-    # (a+b x)^m/(c+d x)==(b (a+b x)^(m-1))/d+((a d-b c) (a+b x)^(m-1))/(d (c+d x))*)
-    case2 = @rule (~a::f + ~b::f*x)^(~m::ext_isinteger)/(~c::f + ~d::f*x) => (~b*(~a+~b*x)^(~m-1))/~d + ((~a*~d-~b*~c)*(~a+~b*x)^(~m-1))/(~d*(~c+~d*x))
+    t !== nothing && return expand_linear_product((t[:a]+t[:b]*x)^t[:m],t[:u], t[:a], t[:b], x)
+
+    case2 = @rule (~a::f + ~b::f*x)^(~m::ext_isinteger)/(~c::f + ~d::f*x) => (~b*(~a+~b*x)^(~m-1))⨸~d + ((~a*~d-~b*~c)*(~a+~b*x)^(~m-1))⨸(~d*(~c+~d*x))
     t = case2(expr)
     t!==nothing && return t
 
-    case3 = @rule (~a::f + ~b::f*x)/(~c::f + ~d::f*x) => ~a/(~c + ~d*x) + ~b*x/(~c + ~d*x) 
+    case3 = @rule (~a::f + ~b::f*x)/(~c::f + ~d::f*x) => ~a⨸(~c + ~d*x) + ~b⨸~d - ~b*~c⨸(~d*(~c + ~d*x))
     t = case3(expr)
     t!==nothing && return t
 
-    case4 = @rule x/(~a::f + ~b::f*x) => 1/~b - ~a/(~b*(~a + ~b*x))
+    case4 = @rule x/(~a::f + ~b::f*x) => 1⨸~b - ~a⨸(~b*(~a + ~b*x))
     t = case4(expr)
     t!==nothing && return t
     return expand(expr)
