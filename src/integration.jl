@@ -8,6 +8,10 @@ function apply_rule(problem)
     for (i, rule) in enumerate(RULES)
         result = rule(problem)
         if result !== nothing
+            if result===problem
+                VERBOSE && println("Infinite cycle created by rule $(IDENTIFIERS[i]) applied on ", problem)
+                continue
+            end
             if VERBOSE && !in(IDENTIFIERS[i], SILENCE)
                 s = pretty_print_rule(rule, IDENTIFIERS[i])
                 printstyled("┌-------Applied rule $(IDENTIFIERS[i]) on ";);
@@ -62,8 +66,8 @@ function repeated_prewalk(expr)
             VERBOSE && println("integration of \n", expr, "\n failed, trying with the expanded version:\n", simplified_expr)
             (new_expr,success) = apply_rule(simplified_expr)
         end
-        new_expr !== expr && return repeated_prewalk(new_expr)
-        VERBOSE && println("Infinite cycle detected for ", expr, ", aborting.")
+        
+        success && return repeated_prewalk(new_expr)
 
     end
 
