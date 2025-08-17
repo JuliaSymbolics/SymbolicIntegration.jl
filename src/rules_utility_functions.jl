@@ -150,6 +150,7 @@ function expand_linear_product(v, u, a, b, x)
 end
 
 # TODO this is not enough, not taking all the cases of rubi
+# TODO function ext_expand(expr::Union{SymbolicUtils.BasicSymbolic{Real}, Num}, x::Union{SymbolicUtils.BasicSymbolic{Real}, Num})
 function ext_expand(expr, x)
     f(p) = !contains_var(p, x) # f stands for free of x
     
@@ -207,7 +208,7 @@ end
 function intpart(a)
     if isrational(a)
         trunc(a)
-    elseif sum(a)
+    elseif issum(a)
         # If a is a sum, we return the sum of the integer parts of each term
         return sum(intpart(term) for term in SymbolicUtils.arguments(Symbolics.unwrap(a)))
     else
