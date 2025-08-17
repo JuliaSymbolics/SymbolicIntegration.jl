@@ -27,7 +27,12 @@ function apply_rule(problem)
     return (problem, false)
 end
 
-ncn(expr) = SymbolicUtils.Term{Number}(^,[expr,-1])
+function ncn(expr)
+    t = (@rule (~u)^(~m) => ~)(expr)
+    t!==nothing && return SymbolicUtils.Term{Number}(^,[t[:u],-t[:m]])
+    return SymbolicUtils.Term{Number}(^,[expr,-1])
+end
+
 # TODO add threaded for speed?
 function repeated_prewalk(expr)
     !iscall(expr) && return expr
@@ -72,15 +77,15 @@ function repeated_prewalk(expr)
     return expr
 end
 
-function integrate(integrand, int_var; verbose=false)
+function integrate(integrand, int_var; verbose=true)#TODO
     global VERBOSE
-    VERBOSE = verbose # TODO change default verbose to false
+    VERBOSE = verbose
     problem = ∫(integrand,int_var)
     repeated_prewalk(problem)
 end
 
 # If no integration variable provided
-function integrate(integrand; verbose=false)
+function integrate(integrand; verbose=true)#TODO
     vars = Symbolics.get_variables(integrand)
     if length(vars) > 1
         @warn "Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument."
