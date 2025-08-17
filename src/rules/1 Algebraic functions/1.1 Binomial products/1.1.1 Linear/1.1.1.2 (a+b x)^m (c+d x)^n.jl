@@ -348,11 +348,9 @@ ext_den((~m))⨸(~b)* int_and_subst((~x)^(ext_den((~m))*((~m) + 1) - 1)*((~c) - 
 (-(~b)*(~c)⨸(~d))^intpart((~m))*((~b)*(~x))^fracpart((~m))⨸(-(~d)*(~x)⨸(~c))^fracpart((~m))* ∫((-(~d)*(~x)⨸(~c))^(~m)*((~c) + (~d)*(~x))^(~n), (~x)) : nothing)
 
 ("1_1_1_2_37",
-@rule ∫(((~a) + (~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) =>
+@rule ∫(((~a) + (~!b)*(~x))^(~m::(!ext_isinteger))*((~c) + (~!d)*(~x))^(~n::ext_isinteger),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~m), (~x)) &&
-    !eq((~b)*(~c) - (~a)*(~d), 0) &&
-    !(ext_isinteger((~m))) &&
-    ext_isinteger((~n)) ?
+    !eq((~b)*(~c) - (~a)*(~d), 0) ?
 ((~b)*(~c) - (~a)*(~d))^(~n)*((~a) + (~b)*(~x))^((~m) + 1)⨸((~b)^((~n) + 1)*((~m) + 1))* hypergeometric2f1(-(~n), (~m) + 1, (~m) + 2, -(~d)*((~a) + (~b)*(~x))⨸((~b)*(~c) - (~a)*(~d))) : nothing)
 
 ("1_1_1_2_38",
