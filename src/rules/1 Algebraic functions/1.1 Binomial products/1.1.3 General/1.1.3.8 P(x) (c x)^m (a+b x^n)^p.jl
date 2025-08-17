@@ -89,7 +89,7 @@ ext_den((~p))⨸(~b)* int_and_subst( (~x)^(ext_den((~p))*(~p) + ext_den((~p)) - 
 #     poly((~Pq), (~x)) &&
 #     igt(((~n) - 1)/2, 0) &&
 #     gt((~p), 0) ?
-# Module[{(~q) = exponent_of((~Pq), (~x)), (~i)}, ((~c)*(~x))^(~m)*((~a) + (~b)*(~x)^(~n))^(~p)* sum([ext_coeff((~Pq), (~x), (~i))*(~x)^((~i) + 1)⨸((~m) + (~n)*(~p) + (~i) + 1) for (~i) (~in) ( 0):( (~q))]) + (~a)*(~n)*(~p)* ∫(((~c)*(~x))^(~m)*((~a) + (~b)*(~x)^(~n))^((~p) - 1)* sum([ext_coeff((~Pq), (~x), (~i))*(~x)^(~i)⨸((~m) + (~n)*(~p) + (~i) + 1) for (~i) (~in) ( 0):( (~q))]), (~x))] : nothing)
+# Module[{(~q) = exponent_of((~Pq), (~x)), (~i)}, ((~c)*(~x))^(~m)*((~a) + (~b)*(~x)^(~n))^(~p)* sum([ext_coeff((~Pq), (~x), (~i))*(~x)^((~i) + 1)⨸((~m) + (~n)*(~p) + (~i) + 1) for (~i) in ( 0):( (~q))]) + (~a)*(~n)*(~p)* ∫(((~c)*(~x))^(~m)*((~a) + (~b)*(~x)^(~n))^((~p) - 1)* sum([ext_coeff((~Pq), (~x), (~i))*(~x)^(~i)⨸((~m) + (~n)*(~p) + (~i) + 1) for (~i) in ( 0):( (~q))]), (~x))] : nothing)
 
 ("1_1_3_8_12",
 @rule ∫((~x)^2*(~P4)/((~a) + (~!b)*(~x)^4)^(3//2),(~x)) =>
@@ -109,7 +109,7 @@ ext_den((~p))⨸(~b)* int_and_subst( (~x)^(ext_den((~p))*(~p) + ext_den((~p)) - 
 #     igt((~m), 0) &&
 #     ge((~m) + exponent_of((~Pq), (~x))], (~n)) ?
 # -(~x)* (~R)*((~a) + (~b)*(~x)^(~n))^((~p) + 1)⨸((~a)*(~n)*((~p) + 1)* (~b)^(Floor[((~m) + exponent_of((~Pq), (~x))} - 1)⨸(~n)] + 1)) + 1⨸((~a)*(~n)*((~p) + 1)*(~b)^(Floor[((~m) + exponent_of((~Pq), (~x))} - 1)⨸(~n)] + 1))* ∫(((~a) + (~b)*(~x)^(~n))^((~p) + 1)* expand_to_sum((~a)*(~n)*((~p) + 1)*(~Q) + (~n)*((~p) + 1)*(~R) + Symbolics.derivative((~x)*(~R), (~x)), (~x)), (~x))] : nothing)
-
+# 
 # ("1_1_3_8_14",
 # @rule ∫((~x)^(~m)*(~Pq)*((~a) + (~!b)*(~x)^(~!n))^(~p),(~x)) =>
 #     !contains_var((~a), (~b), (~x)) &&
@@ -117,7 +117,7 @@ ext_den((~p))⨸(~b)* int_and_subst( (~x)^(ext_den((~p))*(~p) + ext_den((~p)) - 
 #     igt((~n), 0) &&
 #     lt((~p), -1) &&
 #     ilt((~m), 0) ?
-# -(~x)* (~R)*((~a) + (~b)*(~x)^(~n))^((~p) + 1)⨸((~a)^2*(~n)*((~p) + 1)* (~b)^(Floor[(exponent_of((~Pq), (~x))} - 1)⨸(~n)] + 1)) + 1⨸((~a)*(~n)*((~p) + 1)*(~b)^(Floor[(exponent_of((~Pq), (~x))} - 1)⨸(~n)] + 1))* ∫((~x)^(~m)*((~a) + (~b)*(~x)^(~n))^((~p) + 1)* expand_to_sum( (~n)*((~p) + 1)*(~x)^(-(~m))*(~Q) + sum([((~n)*((~p) + 1) + (~i) + 1)⨸(~a)*ext_coeff((~R), (~x), (~i))*(~x)^((~i) - (~m)) for (~i) (~in) ( 0):( (~n) - 1)]), (~x)), (~x))] : nothing)
+# -(~x)* (~R)*((~a) + (~b)*(~x)^(~n))^((~p) + 1)⨸((~a)^2*(~n)*((~p) + 1)* (~b)^(Floor[(exponent_of((~Pq), (~x))} - 1)⨸(~n)] + 1)) + 1⨸((~a)*(~n)*((~p) + 1)*(~b)^(Floor[(exponent_of((~Pq), (~x))} - 1)⨸(~n)] + 1))* ∫((~x)^(~m)*((~a) + (~b)*(~x)^(~n))^((~p) + 1)* expand_to_sum( (~n)*((~p) + 1)*(~x)^(-(~m))*(~Q) + sum([((~n)*((~p) + 1) + (~i) + 1)⨸(~a)*ext_coeff((~R), (~x), (~i))*(~x)^((~i) - (~m)) for (~i) in ( 0):( (~n) - 1)]), (~x)), (~x))] : nothing)
 
 ("1_1_3_8_15",
 @rule ∫((~x)^(~!m)*(~Pq)*((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>
@@ -150,7 +150,7 @@ ext_coeff((~Pq), (~x), 0)*∫(1⨸((~x)*sqrt((~a) + (~b)*(~x)^(~n))), (~x)) + �
 #     poly((~Pq), (~x)) &&
 #     igt((~n)/2, 0) &&
 #     !(poly((~Pq), (~x)^((~n)/2))) ?
-# Module[{(~q) = exponent_of((~Pq), (~x)), (~j), (~k)}, ∫( sum([((~c)*(~x))^((~m) + (~j))⨸(~c)^(~j)* Sum[ext_coeff((~Pq), (~x), (~j) + (~k)*(~n)⨸2)*(~x)^((~k)*(~n)⨸2) for (~k) (~in) ( 0):( 2*((~q) - (~j))⨸(~n) + 1)])*((~a) + (~b)*(~x)^(~n))^(~p), {(~j), 0, (~n)⨸2 - 1}], (~x))] : nothing)
+# Module[{(~q) = exponent_of((~Pq), (~x)), (~j), (~k)}, ∫( sum([((~c)*(~x))^((~m) + (~j))⨸(~c)^(~j)* Sum[ext_coeff((~Pq), (~x), (~j) + (~k)*(~n)⨸2)*(~x)^((~k)*(~n)⨸2) for (~k) in ( 0):( 2*((~q) - (~j))⨸(~n) + 1)])*((~a) + (~b)*(~x)^(~n))^(~p), {(~j), 0, (~n)⨸2 - 1}], (~x))] : nothing)
 
 ("1_1_3_8_19",
 @rule ∫(((~!c)*(~x))^(~!m)*(~Pq)/((~a) + (~!b)*(~x)^(~n)),(~x)) =>
@@ -181,7 +181,7 @@ ext_coeff((~Pq), (~x), 0)*((~c)*(~x))^((~m) + 1)*((~a) + (~b)*(~x)^(~n))^((~p) +
         ext_isinteger(2*(~p)) ||
         ext_isinteger((~p) + (exponent_of((~Pq), (~x)) + 1)/(2*(~n)))
     ) ?
-ext_coeff((~Pq), (~x), (~q))*((~c)*(~x))^((~m) + exponent_of((~Pq), (~x)) - (~n) + 1)*((~a) + (~b)*(~x)^(~n))^((~p) + 1)⨸((~b)* (~c)^(exponent_of((~Pq), (~x)) - (~n) + 1)*((~m) + exponent_of((~Pq), (~x)) + (~n)*(~p) + 1)) + 1⨸((~b)*((~m) + exponent_of((~Pq), (~x)) + (~n)*(~p) + 1))* ∫(((~c)*(~x))^(~m)* expand_to_sum( (~b)*((~m) + exponent_of((~Pq), (~x)) + (~n)*(~p) + 1)*((~Pq) - ext_coeff((~Pq), (~x), (~q))*(~x)^exponent_of((~Pq), (~x))) - (~a)*ext_coeff((~Pq), (~x), (~q))*((~m) + exponent_of((~Pq), (~x)) - (~n) + 1)*(~x)^(exponent_of((~Pq), (~x)) - (~n)), (~x))*((~a) + (~b)*(~x)^(~n))^(~p), (~x)) : nothing)
+ext_coeff((~Pq), (~x), exponent_of((~Pq), (~x)))*((~c)*(~x))^((~m) + exponent_of((~Pq), (~x)) - (~n) + 1)*((~a) + (~b)*(~x)^(~n))^((~p) + 1)⨸((~b)* (~c)^(exponent_of((~Pq), (~x)) - (~n) + 1)*((~m) + exponent_of((~Pq), (~x)) + (~n)*(~p) + 1)) + 1⨸((~b)*((~m) + exponent_of((~Pq), (~x)) + (~n)*(~p) + 1))* ∫(((~c)*(~x))^(~m)* expand_to_sum( (~b)*((~m) + exponent_of((~Pq), (~x)) + (~n)*(~p) + 1)*((~Pq) - ext_coeff((~Pq), (~x), exponent_of((~Pq), (~x)))*(~x)^exponent_of((~Pq), (~x))) - (~a)*ext_coeff((~Pq), (~x), exponent_of((~Pq), (~x)))*((~m) + exponent_of((~Pq), (~x)) - (~n) + 1)*(~x)^(exponent_of((~Pq), (~x)) - (~n)), (~x))*((~a) + (~b)*(~x)^(~n))^(~p), (~x)) : nothing)
 
 ("1_1_3_8_22",
 @rule ∫((~x)^(~!m)*(~Pq)*((~a) + (~!b)*(~x)^(~n))^(~p),(~x)) =>

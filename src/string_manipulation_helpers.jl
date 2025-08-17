@@ -149,12 +149,16 @@ function translate_With_syntax(s)
     # replaces newly definied variables with their definitions
     m = match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)\s*\]\s*/;(?<conds>.+)\s*$", s)
     s = m[:body] * "/;" * m[:conds]
-    for a in split_outside_brackets(m[:vardefs], ',')
+    vardefs = split_outside_brackets(m[:vardefs], ',')
+    for (i,a) in enumerate(vardefs)
         a = strip(a)
         !occursin("=", a) && continue
         var_match = match(r"^\s*(?<varname>[a-zA-Z]{1,2}\d*)\s*=\s*(?<vardef>.*)", a)
         var_match === nothing && continue
         s = replace(s, Regex("(?<!\\w)$(var_match[:varname])(?!\\w)") => var_match[:vardef])
+        for j in i+1:length(vardefs)
+            vardefs[j] = replace(vardefs[j], Regex("(?<!\\w)$(var_match[:varname])(?!\\w)") => var_match[:vardef])
+        end
     end
 
     println("with transofmed to")
