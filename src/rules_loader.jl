@@ -87,12 +87,17 @@ function reload_rules(path; verbose = true)
     file_identifier = replace(split(replace(basename(path), r"\.jl$" => ""), " ")[1], r"\." => "_")
 
     # delete rules previously in the system but now deleted
-    for (i, identifier) in enumerate(IDENTIFIERS)
-        if startswith(identifier, file_identifier) && identifier ∉ file_identifiers
+    # for (i, identifier) in enumerate(IDENTIFIERS)
+    i = 1
+    while i<=length(IDENTIFIERS)
+        this_id = IDENTIFIERS[i]
+        if startswith(this_id, file_identifier) && this_id ∉ file_identifiers
             deleteat!(IDENTIFIERS, i)
             deleteat!(RULES, i)
-            verbose && printstyled("Deleted rule $(identifier) that was in RULES but is no more in $path\n";color=:red)
+            i -= 1 # decrement i because we deleted an element
+            verbose && printstyled("Deleted rule $(this_id) that was in RULES but is no more in $path\n";color=:red)
         end
+        i += 1
     end
             
     

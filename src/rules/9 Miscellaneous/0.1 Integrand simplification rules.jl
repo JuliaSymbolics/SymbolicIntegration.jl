@@ -2,16 +2,16 @@ file_rules = [
 # (* ::Subsection::Closed:: *) 
 # (* 9.1 Integrand simplification rules *) 
 # (* Int[u_.*(v_+w_)^p_.,x_Symbol] := Int[u*w^p,x] /; FreeQ[p,x] && EqQ[v,0] *) 
-("9_1_0",
+("0_1_0",
 @rule ∫(+(~~a),~x) => sum(map(f -> ∫(f,~x), ~a)))
 
-("9_1_6",
+("0_1_6",
 @rule ∫((~!u)*((~!a)*(~v) + (~!b)*(~v) + (~!w))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~x)) &&
     contains_var((~v), (~x)) ?
 ∫((~u)*(((~a) + (~b))*(~v) + (~w))^(~p), (~x)) : nothing)
 
-("9_1_7",
+("0_1_7",
 @rule ∫((~!u)*(~Px)^(~p),(~x)) =>
     poly((~Px), (~x)) &&
     !(isrational((~p))) &&
@@ -19,49 +19,51 @@ file_rules = [
     isrational(simplify((~p))) ?
 ∫((~u)*(~Px)^simplify((~p)), (~x)) : nothing)
 
-("9_1_8",
+("0_1_8",
 @rule ∫((~a),(~x)) =>
     !contains_var((~a), (~x)) ?
 (~a)*(~x) : nothing)
 
-("9_1_12",
+# TODO 5sin(x)cos(x) not taken
+
+("0_1_12",
 @rule ∫((~~a)*(~u),(~x)) =>
     !contains_var(prod(~a), (~x)) ?
 prod(~a)*∫((~u), (~x)) : nothing)
 
-# TODO if pattern matching was better 9_1_12_[1,2,3] would be handled by 9_1_12
-("9_1_12_1",
+# TODO if pattern matching was better 0_1_12_[1,2,3] would be handled by 0_1_12
+("0_1_12_1",
 @rule ∫((~a)/(~u),(~x)) =>
     !contains_var(~a, ~x) &&
     !eq(~a,1) ?
 (~a)*∫(1/(~u), ~x) : nothing)
 
-("9_1_12_2",
+("0_1_12_2",
 @rule ∫((~a * ~v)/(~u),(~x)) =>
     !contains_var(~a, ~x) &&
     !eq(~a,1) ?
 (~a)*∫((~v)/(~u), ~x) : nothing)
 
-("9_1_12_3",
+("0_1_12_3",
 @rule ∫((~v)/(~a * ~u),(~x)) =>
     !contains_var(~a, ~x) &&
     !eq(~a,1) ?
 (1⨸(~a))*∫((~v)/(~u), ~x) : nothing)
 
 
-("9_1_13",
+("0_1_13",
 @rule ∫((~!u)*((~!a)*(~x)^(~n))^(~m),(~x)) =>
     !contains_var((~a), (~m), (~n), (~x)) &&
     !(ext_isinteger((~m))) ?
 (~a)^intpart((~m))*((~a)*(~x)^(~n))^fracpart((~m))⨸(~x)^((~n)*fracpart((~m)))* ∫((~u)*(~x)^((~m)*(~n)), (~x)) : nothing)
 
-("9_1_14",
+("0_1_14",
 @rule ∫((~!u)*(~v)^(~!m)*((~b)*(~v))^(~n),(~x)) =>
     !contains_var((~b), (~n), (~x)) &&
     ext_isinteger((~m)) ?
 1⨸(~b)^(~m)*∫((~u)*((~b)*(~v))^((~m) + (~n)), (~x)) : nothing)
 
-("9_1_15",
+("0_1_15",
 @rule ∫((~!u)*((~!a)*(~v))^(~m)*((~!b)*(~v))^(~n),(~x)) =>
     !contains_var((~a), (~b), (~m), (~x)) &&
     !(ext_isinteger((~m))) &&
@@ -70,7 +72,7 @@ prod(~a)*∫((~u), (~x)) : nothing)
 (~a)^((~m) + 1⨸2)*(~b)^((~n) - 1⨸2)*sqrt((~b)*(~v))⨸sqrt((~a)*(~v))*∫((~u)*(~v)^((~m) + (~n)), (~x)) : nothing)
 
 # (* Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] := b^(n-1/2)*Sqrt[b*v]/(a^(n-1/2)*Sqrt[a*v])*Int[u*(a*v)^(m+n),x] /; FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && IGtQ[n+1/2,0] &&  Not[IntegerQ[m+n]] *) 
-("9_1_16",
+("0_1_16",
 @rule ∫((~!u)*((~!a)*(~v))^(~m)*((~!b)*(~v))^(~n),(~x)) =>
     !contains_var((~a), (~b), (~m), (~x)) &&
     !(ext_isinteger((~m))) &&
@@ -79,7 +81,7 @@ prod(~a)*∫((~u), (~x)) : nothing)
 (~a)^((~m) - 1⨸2)*(~b)^((~n) + 1⨸2)*sqrt((~a)*(~v))⨸sqrt((~b)*(~v))*∫((~u)*(~v)^((~m) + (~n)), (~x)) : nothing)
 
 # (* Int[u_.*(a_.*v_)^m_*(b_.*v_)^n_,x_Symbol] := b^(n+1/2)*Sqrt[a*v]/(a^(n+1/2)*Sqrt[b*v])*Int[u*(a*v)^(m+n),x] /; FreeQ[{a,b,m},x] && Not[IntegerQ[m]] && ILtQ[n-1/2,0] &&  Not[IntegerQ[m+n]] *) 
-("9_1_17",
+("0_1_17",
 @rule ∫((~!u)*((~!a)*(~v))^(~m)*((~!b)*(~v))^(~n),(~x)) =>
     !contains_var((~a), (~b), (~m), (~n), (~x)) &&
     !(ext_isinteger((~m))) &&
@@ -87,7 +89,7 @@ prod(~a)*∫((~u), (~x)) : nothing)
     ext_isinteger((~m) + (~n)) ?
 (~a)^((~m) + (~n))*((~b)*(~v))^(~n)⨸((~a)*(~v))^(~n)*∫((~u)*(~v)^((~m) + (~n)), (~x)) : nothing)
 
-("9_1_18",
+("0_1_18",
 @rule ∫((~!u)*((~!a)*(~v))^(~m)*((~!b)*(~v))^(~n),(~x)) =>
     !contains_var((~a), (~b), (~m), (~n), (~x)) &&
     !(ext_isinteger((~m))) &&
@@ -95,7 +97,7 @@ prod(~a)*∫((~u), (~x)) : nothing)
     !(ext_isinteger((~m) + (~n))) ?
 (~b)^intpart((~n))*((~b)*(~v))^fracpart((~n))⨸((~a)^intpart((~n))*((~a)*(~v))^fracpart((~n)))* ∫((~u)*((~a)*(~v))^((~m) + (~n)), (~x)) : nothing)
 
-("9_1_19",
+("0_1_19",
 @rule ∫((~!u)*((~a) + (~!b)*(~v))^(~!m)*((~c) + (~!d)*(~v))^(~!n),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~n), (~x)) &&
     eq((~b)*(~c) - (~a)*(~d), 0) &&
@@ -106,7 +108,7 @@ prod(~a)*∫((~u), (~x)) : nothing)
     ) ?
 ((~b)⨸(~d))^(~m)*∫((~u)*((~c) + (~d)*(~v))^((~m) + (~n)), (~x)) : nothing)
 
-("9_1_20",
+("0_1_20",
 @rule ∫((~!u)*((~a) + (~!b)*(~v))^(~m)*((~c) + (~!d)*(~v))^(~n),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~m), (~n), (~x)) &&
     eq((~b)*(~c) - (~a)*(~d), 0) &&
@@ -117,7 +119,7 @@ prod(~a)*∫((~u), (~x)) : nothing)
     ) ?
 ((~b)⨸(~d))^(~m)*∫((~u)*((~c) + (~d)*(~v))^((~m) + (~n)), (~x)) : nothing)
 
-("9_1_21",
+("0_1_21",
 @rule ∫((~!u)*((~a) + (~!b)*(~v))^(~m)*((~c) + (~!d)*(~v))^(~n),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~m), (~n), (~x)) &&
     eq((~b)*(~c) - (~a)*(~d), 0) &&
@@ -129,14 +131,14 @@ prod(~a)*∫((~u), (~x)) : nothing)
 ((~a) + (~b)*(~v))^(~m)⨸((~c) + (~d)*(~v))^(~m)*∫((~u)*((~c) + (~d)*(~v))^((~m) + (~n)), (~x)) : nothing)
 
 # (* Int[u_.*(a_.*v_)^m_*(b_.*v_+c_.*v_^2),x_Symbol] := 1/a*Int[u*(a*v)^(m+1)*(b+c*v),x] /; FreeQ[{a,b,c},x] && LeQ[m,-1] *) 
-("9_1_22",
+("0_1_22",
 @rule ∫((~!u)*((~a) + (~!b)*(~v))^(~m)*((~!A) + (~!B)*(~v) + (~!C)*(~v)^2),(~x)) =>
     !contains_var((~a), (~b), (~A), (~B), (~C), (~x)) &&
     eq((~A)*(~b)^2 - (~a)*(~b)*(~B) + (~a)^2*(~C), 0) &&
     le((~m), -1) ?
 1⨸(~b)^2*∫((~u)*((~a) + (~b)*(~v))^((~m) + 1)*simplify((~b)*(~B) - (~a)*(~C) + (~b)*(~C)*(~v), (~x)), (~x)) : nothing)
 
-("9_1_23",
+("0_1_23",
 @rule ∫((~!u)*((~a) + (~!b)*(~x)^(~!n))^(~!m)*((~c) + (~!d)*(~x)^(~!q))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~m), (~n), (~x)) &&
     eq((~q), -(~n)) &&
@@ -148,7 +150,7 @@ prod(~a)*∫((~u), (~x)) : nothing)
     ) ?
 ((~d)⨸(~a))^(~p)*∫((~u)*((~a) + (~b)*(~x)^(~n))^((~m) + (~p))⨸(~x)^((~n)*(~p)), (~x)) : nothing)
 
-("9_1_24",
+("0_1_24",
 @rule ∫((~!u)*((~a) + (~!b)*(~x)^(~!n))^(~!m)*((~c) + (~!d)*(~x)^(~j))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~d), (~m), (~n), (~p), (~x)) &&
     eq((~j), 2*(~n)) &&
@@ -158,14 +160,14 @@ prod(~a)*∫((~u), (~x)) : nothing)
     lt((~d), 0) ?
 (-(~b)^2⨸(~d))^(~m)*∫((~u)*((~a) - (~b)*(~x)^(~n))^(-(~m)), (~x)) : nothing)
 
-("9_1_25",
+("0_1_25",
 @rule ∫((~!u)*((~a) + (~!b)*(~x) + (~!c)*(~x)^2)^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~x)) &&
     eq((~b)^2 - 4*(~a)*(~c), 0) &&
     ext_isinteger((~p)) ?
 ∫((~u)*Cancel[((~b)⨸2 + (~c)*(~x))^(2*(~p))⨸(~c)^(~p)], (~x)) : nothing)
 
-("9_1_26",
+("0_1_26",
 @rule ∫((~!u)*((~a) + (~!b)*(~x)^(~n) + (~!c)*(~x)^(~!n2))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~n), (~x)) &&
     eq(~n2, 2*(~n)) &&
