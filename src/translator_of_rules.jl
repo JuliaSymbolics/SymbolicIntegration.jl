@@ -177,6 +177,7 @@ function transalte_integrand(integrand)
         ("cot", "cot"), ("Cot", "cot"),
 
         ("ArcSin", "asin"),
+        ("ArcCos", "acos"),
         ("ArcTan", "atan"),
         ("ArcCot", "acot"),
 
