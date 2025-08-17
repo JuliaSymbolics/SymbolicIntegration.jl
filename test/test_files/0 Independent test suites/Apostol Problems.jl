@@ -407,7 +407,7 @@ data = [
 # Exercise 1
 
 
-(log(t)/(t + 1), log(t)*log(1 + t) + PolyLog(2, -t), t, 2),
+(log(t)/(t + 1), log(t)*log(1 + t) + PolyLog.reli(2., -t), t, 2),
 
 
 # ::Subsection::Closed::
@@ -421,20 +421,20 @@ data = [
 # Exercise 6
 
 
-(ℯ^t/t, ExpIntegralEi(t), t, 1),
-(ℯ^(a*t)/t, ExpIntegralEi(a*t), t, 1),
-(ℯ^t/t^2, -(ℯ^t/t) + ExpIntegralEi(t), t, 2),
-(ℯ^(1/t), ℯ^(1/t)*t - ExpIntegralEi(1/t), t, 2),
+(ℯ^t/t, SymbolicUtils.expinti(t), t, 1),
+(ℯ^(a*t)/t, SymbolicUtils.expinti(a*t), t, 1),
+(ℯ^t/t^2, -(ℯ^t/t) + SymbolicUtils.expinti(t), t, 2),
+(ℯ^(1/t), ℯ^(1/t)*t - SymbolicUtils.expinti(1/t), t, 2),
 
 
 # ::Subsection::Closed::
 # Exercise 12
 
 
-(1/(ℯ^t*(t - a - 1)), ℯ^(-1 - a)*ExpIntegralEi(1 + a - t), t, 1),
-(t*(ℯ^t^2/(t^2 + 1)), ExpIntegralEi(1 + t^2)/(2*ℯ), t, 2),
-(ℯ^t/(t + 1)^2, -(ℯ^t/(1 + t)) + ExpIntegralEi(1 + t)/ℯ, t, 2),
-(ℯ^t*log(1 + t), -(ExpIntegralEi(1 + t)/ℯ) + ℯ^t*log(1 + t), t, 2),
+(1/(ℯ^t*(t - a - 1)), ℯ^(-1 - a)*SymbolicUtils.expinti(1 + a - t), t, 1),
+(t*(ℯ^t^2/(t^2 + 1)), SymbolicUtils.expinti(1 + t^2)/(2*ℯ), t, 2),
+(ℯ^t/(t + 1)^2, -(ℯ^t/(1 + t)) + SymbolicUtils.expinti(1 + t)/ℯ, t, 2),
+(ℯ^t*log(1 + t), -(SymbolicUtils.expinti(1 + t)/ℯ) + ℯ^t*log(1 + t), t, 2),
 
 
 # ::Subsection::Closed::
@@ -450,7 +450,7 @@ data = [
 # Exercise 26
 
 
-((a1*sin(x) + b1*cos(x))/(a*sin(x) + b*cos(x)), ((a*a1 + b*b1)*x)/(a^2 + b^2) - ((a1*b - a*b1)*log(b*cos(x) + a*sin(x)))/(a^2 + b^2), x, 1),
+((c*sin(x) + d*cos(x))/(a*sin(x) + b*cos(x)), ((a*c + b*d)*x)/(a^2 + b^2) - ((c*b - a*d)*log(b*cos(x) + a*sin(x)))/(a^2 + b^2), x, 1),
 
 
 # ::Subsection::Closed::
@@ -459,9 +459,9 @@ data = [
 
 (1/log(t), SymbolicUtils.expinti(log(t)), t, 1),
 (1/log(t)^2, -(t/log(t)) + SymbolicUtils.expinti(log(t)), t, 2),
-(1/log(t)^(n + 1), ((-Gamma(-n, -log(t)))*(-log(t))^n)/log(t)^n, t, 2),
-(ℯ^(2*t)/(t - 1), ℯ^2*ExpIntegralEi(-2*(1 - t)), t, 1),
-(ℯ^(2*x)/(x^2 - 3*x + 2), ℯ^4*ExpIntegralEi(-4 + 2*x) - ℯ^2*ExpIntegralEi(-2 + 2*x), x, 4),
+(1/log(t)^(n + 1), ((-SymbolicUtils.gamma(-n, -log(t)))*(-log(t))^n)/log(t)^n, t, 2),
+(ℯ^(2*t)/(t - 1), ℯ^2*SymbolicUtils.expinti(-2*(1 - t)), t, 1),
+(ℯ^(2*x)/(x^2 - 3*x + 2), ℯ^4*SymbolicUtils.expinti(-4 + 2*x) - ℯ^2*SymbolicUtils.expinti(-2 + 2*x), x, 4),
 
 
 # ::Subsection::Closed::

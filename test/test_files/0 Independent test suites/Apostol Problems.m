@@ -448,7 +448,7 @@
 (*Exercise 26*)
 
 
-{(a1*Sin[x] + b1*Cos[x])/(a*Sin[x] + b*Cos[x]), x, 1, ((a*a1 + b*b1)*x)/(a^2 + b^2) - ((a1*b - a*b1)*Log[b*Cos[x] + a*Sin[x]])/(a^2 + b^2)}
+{(c*Sin[x] + d*Cos[x])/(a*Sin[x] + b*Cos[x]), x, 1, ((a*c + b*d)*x)/(a^2 + b^2) - ((c*b - a*d)*Log[b*Cos[x] + a*Sin[x]])/(a^2 + b^2)}
 
 
 (* ::Subsection::Closed:: *)

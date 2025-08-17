@@ -6,6 +6,31 @@ function translate_mathematica_to_julia(expr::String)
     # Remove leading/trailing whitespace
     expr = strip(expr)
 
+    simple_substitutions = [
+        # definied in SpecialFunctions.jl
+        ("ExpIntegralEi", "SymbolicUtils.expinti", 1),
+        ("ExpIntegralE", "SymbolicUtils.expint", 2),
+        ("Gamma", "SymbolicUtils.gamma"),
+        ("LogGamma", "SymbolicUtils.loggamma"),
+        ("Erfi", "SymbolicUtils.erfi"),
+        ("Erf", "SymbolicUtils.erf"),
+        ("SinIntegral", "SymbolicUtils.sinint"),
+        ("CosIntegral", "SymbolicUtils.cosint"),
+        # taken from other julia packages
+        ("EllipticE", "SymbolicIntegration.elliptic_e", (1,2)),
+        ("EllipticF", "SymbolicIntegration.elliptic_f", 2),
+        ("EllipticPi", "SymbolicIntegration.elliptic_pi", (2,3)),
+        ("Hypergeometric2F1", "SymbolicIntegration.hypergeometric2f1", 4),
+        ("AppellF1", "SymbolicIntegration.appell_f1", 6),
+        ("PolyLog", "PolyLog.reli", 2),
+        ("FresnelC", "FresnelIntegrals.fresnelc", 1),
+        ("FresnelS", "FresnelIntegrals.fresnels", 1),
+    ]
+
+    for (mathematica, julia, n_args...) in simple_substitutions
+        expr = smart_replace(expr, mathematica, julia, n_args)
+    end
+
     associations = [
         (r"\bSqrt\[", "sqrt("),
         (r"\bLog\[", "log("),
@@ -36,13 +61,7 @@ function translate_mathematica_to_julia(expr::String)
         (r"\bExp\[", "exp("),
         (r"\bAbs\[", "abs("),
 
-        (r"EllipticPi\[", s"SymbolicIntegration.elliptic_pi("),
-        (r"EllipticE\[", s"SymbolicIntegration.elliptic_e("),
-        (r"EllipticF\[", s"SymbolicIntegration.elliptic_f("),
-        (r"Hypergeometric2F1\[", s"SymbolicIntegration.hypergeometric2f1("),
-        (r"AppellF1\[", s"SymbolicIntegration.appell_f1("),
         (r"LogIntegral\[(.*?)\]", s"SymbolicUtils.expinti(log(\1))"), # TODO use it from SpecialFunctions.jl once pr is merged
-        (r"PolyLog\[(.+?)\]", s"SymbolicIntegration.PolyLog(\1)"),
 
         (r"(?<=\d)/(?=\d)", "//"), # to make fractions and not divisions
         (r"\bPi\b", "π"),
