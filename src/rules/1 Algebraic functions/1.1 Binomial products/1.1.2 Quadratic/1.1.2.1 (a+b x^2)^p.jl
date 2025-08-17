@@ -219,10 +219,11 @@ int_and_subst(1⨸(1-(~b)*(~x)^2),  (~x), (~x), (~x)⨸sqrt((~a)+(~b)*(~x)^2), "
 (~a)^intpart((~p))*((~a)+(~b)*(~x)^2)^fracpart((~p))⨸(1+(~b)*(~x)^2⨸(~a))^fracpart((~p)) * ∫((1+(~b)*(~x)^2⨸(~a))^(~p), (~x)) : nothing)
 
 ("1_1_2_1_33",
-@rule ∫(((~a)+(~!b)*(~v)^(~n))^(~p),(~x)) =>
+@rule ∫(((~!a)+(~!b)*(~v)^(~n))^(~p),(~x)) =>
     !contains_var((~a), (~b), (~n), (~p), (~x)) &&
     linear((~v), (~x)) &&
     !eq((~v), (~x)) ?
-1⨸Symbolics.coeff((~v), (~x) ^ 1) * int_and_subst(((~a)+(~b)*(~x)^(~n))^(~p),  (~x), (~x), (~v), "1_1_2_1_33") : nothing)
+1⨸ext_coeff((~v), (~x), 1) * int_and_subst(((~a)+(~b)*(~x)^(~n))^(~p),  (~x), (~x), (~v), "1_1_2_1_33") : nothing)
+
 
 ]
