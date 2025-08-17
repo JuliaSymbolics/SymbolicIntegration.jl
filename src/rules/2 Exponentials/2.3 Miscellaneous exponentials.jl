@@ -37,7 +37,7 @@ ext_coeff((~w), (~x))*(~u)^((~m) + 1)*(~F)^((~c)*(~v))⨸(ext_coeff((~v), (~x))*
 #     PowerOflinear((~u), (~x)) &&
 #     ext_isinteger((~m)) &&
 #     USE_GAMMA ?
-# ∫(ext_expand( (~w)*NormalizePowerOfLinear[(~u), (~x))^(~m)*(~F)^((~c)*expand_to_sum((~v), (~x))), (~x)), (~x)] : nothing)
+# ∫(ext_expand( (~w)*NormalizePowerOfLinear[(~u), (~x)]^(~m)*(~F)^((~c)*expand_to_sum((~v), (~x))), (~x)), (~x)) : nothing)
 # 
 # ("2_3_6",
 # @rule ∫((~w)*(~u)^(~!m)*(~F)^((~!c)*(~v)),(~x)) =>
@@ -47,8 +47,8 @@ ext_coeff((~w), (~x))*(~u)^((~m) + 1)*(~F)^((~c)*(~v))⨸(ext_coeff((~v), (~x))*
 #     PowerOflinear((~u), (~x)) &&
 #     ext_isinteger((~m)) &&
 #     !(USE_GAMMA) ?
-# ∫(ext_expand((~F)^((~c)*expand_to_sum((~v), (~x))), (~w)*NormalizePowerOfLinear[(~u), (~x))^(~m), (~x)), (~x)] : nothing)
-# 
+# ∫(ext_expand((~F)^((~c)*expand_to_sum((~v), (~x))), (~w)*NormalizePowerOfLinear[(~u), (~x)]^(~m), (~x)), (~x)) : nothing)
+
 # ("2_3_7",
 # @rule ∫((~w)*(~u)^(~!m)*(~F)^((~!c)*(~v)),(~x)) =>
 #     !contains_var((~F), (~c), (~m), (~x)) &&
@@ -260,20 +260,19 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*(~F)^((~
     ) ?
 ∫(expand_to_sum((~u), (~x))^(~m)*(~F)^expand_to_sum((~v), (~x)), (~x)) : nothing)
 
-# not translating this, is used in just this one rule
-# ("2_3_34",
-# @rule ∫((~u)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n)),(~x)) =>
-#     !contains_var((~F), (~a), (~b), (~c), (~d), (~n), (~x)) &&
-#     poly((~u), (~x)) ?
-# ∫(ExpandLinearProduct[(~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n)), (~u), (~c), (~d), (~x)), (~x)] : nothing)
-# 
+("2_3_34",
+@rule ∫((~u)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n)),(~x)) =>
+    !contains_var((~F), (~a), (~b), (~c), (~d), (~n), (~x)) &&
+    poly((~u), (~x)) ?
+∫(expand_linear_product((~F)^((~a) + (~b)*((~c) + (~d)*(~x))^(~n)), (~u), (~c), (~d), (~x)), (~x)) : nothing)
+
 # ("2_3_35",
 # @rule ∫((~!u)*(~F)^((~!a) + (~!b)*(~v)),(~x)) =>
 #     !contains_var((~F), (~a), (~b), (~x)) &&
 #     poly((~u), (~x)) &&
 #     PowerOflinear((~v), (~x)) &&
 #     !(PowerOflinear_without_simplify((~v), (~x))) ?
-# ∫((~u)*(~F)^((~a) + (~b)*NormalizePowerOfLinear[(~v), (~x))), (~x)] : nothing)
+# ∫((~u)*(~F)^((~a) + (~b)*NormalizePowerOfLinear[(~v), (~x)]), (~x)) : nothing)
 
 #(* Int[u_.*F_^(a_.+b_.*v_^n_),x_Symbol] := Int[u*F^(a+b*ExpandToSum[v,x]^n),x] /; FreeQ[{F,a,b,n},x] && PolynomialQ[u,x] && LinearQ[v,x] &&  Not[LinearMatchQ[v,x]] *)
 #(* Int[u_.*F_^u_,x_Symbol] := Int[u*F^ExpandToSum[u,x],x] /; FreeQ[F,x] && PolynomialQ[u,x] && BinomialQ[u,x] &&  Not[BinomialMatchQ[u,x]] *)
@@ -410,23 +409,25 @@ dist((~x)^(~m), ∫((~F)^((~e)*((~c) + (~d)*(~x)))*((~a) + (~b)*(~F)^(~v))^(~p),
     eq((~d)*(~e)*(~n)*log((~F)), (~g)*(~h)*(~m)*log((~G))) ?
 ((~G)^((~h)*((~f) + (~g)*(~x))))^(~m)⨸((~F)^((~e)*((~c) + (~d)*(~x))))^(~n)* ∫(((~F)^((~e)*((~c) + (~d)*(~x))))^(~n)*((~a) + (~b)*((~F)^((~e)*((~c) + (~d)*(~x))))^(~n))^(~p), (~x)) : nothing)
 
-# ("2_3_56",
-# @rule ∫((~G)^((~!h)*((~!f) + (~!g)*(~x)))*((~a) + (~!b)*(~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~!p),(~x)) =>
-# # Nested conditions found, not translating rule:
-# Int[G_^(h_.*(f_. + g_.*x_))*(a_ + b_.*F_^(e_.*(c_. + d_.*x_)))^p_., x_Symbol] := With[{m = FullSimplify[g*h*Log[G]/(d*e*Log[F])]}, Denominator[m]*G^(f*h - c*g*h/d)/(d*e*Log[F])* Subst[Int[x^(Numerator[m] - 1)*(a + b*x^Denominator[m])^p, x], x, F^(e*(c + d*x)/Denominator[m])] /; LeQ[m, -1] || GeQ[m, 1]] /; FreeQ[{F, G, a, b, c, d, e, f, g, h, p}, x] ?
-# ext_den(FullSimplify[(~g)*(~h)*log((~G))⨸((~d)*(~e)*log((~F)))])*(~G)^((~f)*(~h) - (~c)*(~g)*(~h)⨸(~d))⨸((~d)*(~e)*log((~F)))* int_and_subst((~x)^(ext_num(FullSimplify[(~g)*(~h)*log((~G))⨸((~d)*(~e)*log((~F)))]) - 1)*((~a) + (~b)*(~x)^ext_den(FullSimplify[(~g)*(~h)*log((~G))⨸((~d)*(~e)*log((~F)))]))^(~p),  (~x), (~x), (~F)^((~e)*((~c) + (~d)*(~x))⨸ext_den(FullSimplify[(~g)*(~h)*log((~G))⨸((~d)*(~e)*log((~F)))])), "2_3_56") ⨸; LeQ[FullSimplify[(~g)*(~h)*log((~G))⨸((~d)*(~e)*log((~F)))], -1] || GeQ[FullSimplify[(~g)*(~h)*log((~G))⨸((~d)*(~e)*log((~F)))], 1]] ⨸; FreeQ[{(~F), (~G), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~p)}, (~x) : nothing)
-# 
-# ("2_3_57",
-# @rule ∫((~G)^((~!h)*((~!f) + (~!g)*(~x)))*((~a) + (~!b)*(~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~!p),(~x)) =>
-# # Nested conditions found, not translating rule:
-# Int[G_^(h_.*(f_. + g_.*x_))*(a_ + b_.*F_^(e_.*(c_. + d_.*x_)))^p_., x_Symbol] := With[{m = FullSimplify[d*e*Log[F]/(g*h*Log[G])]}, Denominator[m]/(g*h*Log[G])* Subst[Int[ x^(Denominator[m] - 1)*(a + b*F^(c*e - d*e*f/g)*x^Numerator[m])^p, x], x, G^(h*(f + g*x)/Denominator[m])] /; LtQ[m, -1] || GtQ[m, 1]] /; FreeQ[{F, G, a, b, c, d, e, f, g, h, p}, x] ?
-# ext_den(FullSimplify[(~d)*(~e)*log((~F))⨸((~g)*(~h)*log((~G)))])⨸((~g)*(~h)*log((~G)))* int_and_subst( (~x)^(ext_den(FullSimplify[(~d)*(~e)*log((~F))⨸((~g)*(~h)*log((~G)))]) - 1)*((~a) + (~b)*(~F)^((~c)*(~e) - (~d)*(~e)*(~f)⨸(~g))*(~x)^ext_num(FullSimplify[(~d)*(~e)*log((~F))⨸((~g)*(~h)*log((~G)))]))^(~p),  (~x), (~x), (~G)^((~h)*((~f) + (~g)*(~x))⨸ext_den(FullSimplify[(~d)*(~e)*log((~F))⨸((~g)*(~h)*log((~G)))])), "2_3_57") ⨸; LtQ[FullSimplify[(~d)*(~e)*log((~F))⨸((~g)*(~h)*log((~G)))], -1] || GtQ[FullSimplify[(~d)*(~e)*log((~F))⨸((~g)*(~h)*log((~G)))], 1]] ⨸; FreeQ[{(~F), (~G), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~p)}, (~x) : nothing)
-# 
-# ("2_3_58",
-# @rule ∫((~G)^((~!h)*((~!f) + (~!g)*(~x)))*((~a) + (~!b)*(~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~!p),(~x)) =>
-#     !contains_var((~F), (~G), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~x)) &&
-#     igt((~p), 0) ?
-# ∫(Expand[(~G)^((~h)*((~f) + (~g)*(~x)))*((~a) + (~b)*(~F)^((~e)*((~c) + (~d)*(~x))))^(~p), (~x)), (~x)] : nothing)
+("2_3_56",
+@rule ∫((~G)^((~!h)*((~!f) + (~!g)*(~x)))*((~a) + (~!b)*(~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~!p),(~x)) =>
+    !contains_var((~F), (~G), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~p), (~x)) &&
+    le(simplify((~g)*(~h)*log((~G))/((~d)*(~e)*log((~F)))), -1) ||
+    ge(simplify((~g)*(~h)*log((~G))/((~d)*(~e)*log((~F)))), 1) ?
+ext_den(simplify((~g)*(~h)*log((~G))⨸((~d)*(~e)*log((~F)))))*(~G)^((~f)*(~h) - (~c)*(~g)*(~h)⨸(~d))⨸((~d)*(~e)*log((~F)))* int_and_subst((~x)^(ext_num(simplify((~g)*(~h)*log((~G))⨸((~d)*(~e)*log((~F))))) - 1)*((~a) + (~b)*(~x)^ext_den(simplify((~g)*(~h)*log((~G))⨸((~d)*(~e)*log((~F))))))^(~p),  (~x), (~x), (~F)^((~e)*((~c) + (~d)*(~x))⨸ext_den(simplify((~g)*(~h)*log((~G))⨸((~d)*(~e)*log((~F)))))), "2_3_56") : nothing)
+
+("2_3_57",
+@rule ∫((~G)^((~!h)*((~!f) + (~!g)*(~x)))*((~a) + (~!b)*(~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~!p),(~x)) =>
+    !contains_var((~F), (~G), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~p), (~x)) &&
+    lt(simplify((~d)*(~e)*log((~F))/((~g)*(~h)*log((~G)))), -1) ||
+    gt(simplify((~d)*(~e)*log((~F))/((~g)*(~h)*log((~G)))), 1) ?
+ext_den(simplify((~d)*(~e)*log((~F))⨸((~g)*(~h)*log((~G)))))⨸((~g)*(~h)*log((~G)))* int_and_subst( (~x)^(ext_den(simplify((~d)*(~e)*log((~F))⨸((~g)*(~h)*log((~G))))) - 1)*((~a) + (~b)*(~F)^((~c)*(~e) - (~d)*(~e)*(~f)⨸(~g))*(~x)^ext_num(simplify((~d)*(~e)*log((~F))⨸((~g)*(~h)*log((~G))))))^(~p),  (~x), (~x), (~G)^((~h)*((~f) + (~g)*(~x))⨸ext_den(simplify((~d)*(~e)*log((~F))⨸((~g)*(~h)*log((~G)))))), "2_3_57") : nothing)
+
+("2_3_58",
+@rule ∫((~G)^((~!h)*((~!f) + (~!g)*(~x)))*((~a) + (~!b)*(~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~!p),(~x)) =>
+    !contains_var((~F), (~G), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~x)) &&
+    igt((~p), 0) ?
+∫(ext_expand((~G)^((~h)*((~f) + (~g)*(~x)))*((~a) + (~b)*(~F)^((~e)*((~c) + (~d)*(~x))))^(~p), (~x)), (~x)) : nothing)
 
 ("2_3_59",
 @rule ∫((~G)^((~!h)*((~!f) + (~!g)*(~x)))*((~a) + (~!b)*(~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~p),(~x)) =>
@@ -455,17 +456,20 @@ dist((~x)^(~m), ∫((~F)^((~e)*((~c) + (~d)*(~x)))*((~a) + (~b)*(~F)^(~v))^(~p),
 
 #(* Int[(c_.+d_.*x_)^m_.*F_^(g_.*(e_.+f_.*x_))/(a_+b_.*F_^(h_.*(e_.+f_. *x_))),x_Symbol] := 1/b*Int[(c+d*x)^m*F^((g-h)*(e+f*x)),x] - a/b*Int[(c+d*x)^m*F^((g-h)*(e+f*x))/(a+b*F^(h*(e+f*x))),x] /; FreeQ[{F,a,b,c,d,e,f,g,h,m},x] && LeQ[0,g/h-1,g/h] *)
 #(* Int[(c_.+d_.*x_)^m_.*F_^(g_.*(e_.+f_.*x_))/(a_+b_.*F_^(h_.*(e_.+f_. *x_))),x_Symbol] := 1/a*Int[(c+d*x)^m*F^(g*(e+f*x)),x] - b/a*Int[(c+d*x)^m*F^((g+h)*(e+f*x))/(a+b*F^(h*(e+f*x))),x] /; FreeQ[{F,a,b,c,d,e,f,g,h,m},x] && LeQ[g/h,g/h+1,0] *)
-# ("2_3_62",
-# @rule ∫(((~!e) + (~!f)*(~x))^(~!m)*((~!a) + (~!b)*(~F)^(~u))^(~!p)*((~!c) + (~!d)*(~F)^(~v))^(~!q),(~x)) =>
-# # Nested conditions found, not translating rule:
-# Int[(e_. + f_.*x_)^m_.*(a_. + b_.*F_^u_)^p_.*(c_. + d_.*F_^v_)^q_., x_Symbol] := With[{w = ExpandIntegrand[(e + f*x)^m, (a + b*F^u)^p*(c + d*F^v)^q, x]}, Int[w, x] /; SumQ[w]] /; FreeQ[{F, a, b, c, d, e, f, m}, x] && IntegersQ[p, q] && LinearQ[{u, v}, x] && RationalQ[Simplify[u/v]] ?
-# ∫(ext_expand(((~e) + (~f)*(~x))^(~m), ((~a) + (~b)*(~F)^(~u))^(~p)*((~c) + (~d)*(~F)^(~v))^(~q), (~x)), (~x)) ⨸; SumQ[ext_expand(((~e) + (~f)*(~x))^(~m), ((~a) + (~b)*(~F)^(~u))^(~p)*((~c) + (~d)*(~F)^(~v))^(~q), (~x))]] ⨸; FreeQ[{(~F), (~a), (~b), (~c), (~d), (~e), (~f), (~m)}, (~x)] && IntegersQ[(~p), (~q)] && LinearQ[{(~u), (~v)}, (~x)] && RationalQ[simplify((~u)⨸(~v)) : nothing)
-# 
-# ("2_3_63",
-# @rule ∫((~G)^((~!h)*((~!f) + (~!g)*(~x)))* (~H)^((~!t) ((~!r) + (~!s)*(~x)))*((~a) + (~!b)*(~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~!p),(~x)) =>
-# # Nested conditions found, not translating rule:
-# Int[G_^(h_.*(f_. + g_.*x_))* H_^(t_. (r_. + s_.*x_))*(a_ + b_.*F_^(e_.*(c_. + d_.*x_)))^p_., x_Symbol] := With[{m = FullSimplify[(g*h*Log[G] + s*t*Log[H])/(d*e*Log[F])]}, Denominator[m]*G^(f*h - c*g*h/d)*H^(r*t - c*s*t/d)/(d*e*Log[F])* Subst[Int[x^(Numerator[m] - 1)*(a + b*x^Denominator[m])^p, x], x, F^(e*(c + d*x)/Denominator[m])] /; RationalQ[m]] /; FreeQ[{F, G, H, a, b, c, d, e, f, g, h, r, s, t, p}, x] ?
-# ext_den(FullSimplify[((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)*log((~F)))])*(~G)^((~f)*(~h) - (~c)*(~g)*(~h)⨸(~d))*(~H)^((~r)*(~t) - (~c)*(~s)*(~t)⨸(~d))⨸((~d)*(~e)*log((~F)))* int_and_subst((~x)^(ext_num(FullSimplify[((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)*log((~F)))]) - 1)*((~a) + (~b)*(~x)^ext_den(FullSimplify[((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)*log((~F)))]))^(~p),  (~x), (~x), (~F)^((~e)*((~c) + (~d)*(~x))⨸ext_den(FullSimplify[((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)*log((~F)))])), "2_3_63") ⨸; RationalQ[FullSimplify[((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)*log((~F)))]]] ⨸; FreeQ[{(~F), (~G), (~H), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~r), (~s), (~t), (~p)}, (~x) : nothing)
+("2_3_62",
+@rule ∫(((~!e) + (~!f)*(~x))^(~!m)*((~!a) + (~!b)*(~F)^(~u))^(~!p)*((~!c) + (~!d)*(~F)^(~v))^(~!q),(~x)) =>
+    !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~m), (~x)) &&
+    ext_isinteger((~p), (~q)) &&
+    linear((~u), (~v), (~x)) &&
+    isrational(simplify((~u)/(~v))) &&
+    issum(ext_expand(((~e) + (~f)*(~x))^(~m), ((~a) + (~b)*(~F)^(~u))^(~p)*((~c) + (~d)*(~F)^(~v))^(~q), (~x))) ?
+∫(ext_expand(((~e) + (~f)*(~x))^(~m), ((~a) + (~b)*(~F)^(~u))^(~p)*((~c) + (~d)*(~F)^(~v))^(~q), (~x)), (~x)) : nothing)
+
+("2_3_63",
+@rule ∫((~G)^((~!h)*((~!f) + (~!g)*(~x)))* (~H)^((~!t)*((~!r) + (~!s)*(~x)))*((~a) + (~!b)*(~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~!p),(~x)) =>
+    !contains_var((~F), (~G), (~H), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~r), (~s), (~t), (~p), (~x)) &&
+    isrational(simplify(((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))/((~d)*(~e)*log((~F))))) ?
+ext_den(simplify(((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)*log((~F)))))*(~G)^((~f)*(~h) - (~c)*(~g)*(~h)⨸(~d))*(~H)^((~r)*(~t) - (~c)*(~s)*(~t)⨸(~d))⨸((~d)*(~e)*log((~F)))* int_and_subst((~x)^(ext_num(simplify(((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)*log((~F))))) - 1)*((~a) + (~b)*(~x)^ext_den(simplify(((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)*log((~F))))))^(~p),  (~x), (~x), (~F)^((~e)*((~c) + (~d)*(~x))⨸ext_den(simplify(((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)*log((~F)))))), "2_3_63") : nothing)
 
 ("2_3_64",
 @rule ∫((~G)^((~!h)*((~!f) + (~!g)*(~x)))* (~H)^((~!t)*((~!r) + (~!s)*(~x)))*((~a) + (~!b)*(~F)^((~!e)*((~!c) + (~!d)*(~x))))^(~!p),(~x)) =>
@@ -677,7 +681,8 @@ sqrt(π)*exp(2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F))))* SymbolicUtils.erf((
 ((~a)*(~F)^(~v))^(~n)⨸(~F)^((~n)*(~v))*∫((~u)*(~F)^((~n)*(~v)), (~x)) : nothing)
 
 # ("2_3_96",
-# @rule ∫((~u),(~x)) => FunctionOfExponential[(~u), (~x)]⨸(~D)[FunctionOfExponential[(~u), (~x)], (~x)]* int_and_subst(FunctionOfExponentialFunction[(~u),  (~x)]⨸(~x), (~x), (~x), FunctionOfExponential[(~u), (~x)], "2_3_96")] ⨸; FunctionOfExponentialQ[(~u), (~x)] && Not[ MatchQ[(~u), w_*(a_.*v_^n_)^m_ ⨸; FreeQ[{(~a), (~m), (~n)}, (~x)] && IntegerQ[(~m)*(~n)]]] && Not[ MatchQ[(~u), (~E)^(c_.*(a_. + b_.*(~x)))*F_[v_] ⨸; FreeQ[{(~a), (~b), (~c)}, (~x)] && InverseFunctionQ[(~F)[(~x)]]])
+# @rule ∫((~u),(~x)) =>
+# FunctionOfExponential[(~u), (~x)]⨸Symbolics.derivative(FunctionOfExponential[(~u), (~x)], (~x))* int_and_subst(FunctionOfExponentialFunction[(~u),  (~x)]⨸(~x), (~x), (~x), FunctionOfExponential[(~u), (~x)], "2_3_96")]⨸;  FreeQ[{(~a), (~b), (~c)}, (~x)] && InverseFunctionQ[(~F)[(~x)]]]] &&  FunctionOfExponentialQ[(~u), (~x)] && Not[ MatchQ[(~u), w_*(a_.*v_^n_)^m_ ⨸; FreeQ[{(~a), (~m), (~n)}, (~x)] && IntegerQ[(~m)*(~n)]]] && Not[ MatchQ[(~u), ℯ^(c_.*(a_. + b_.*(~x)))*F_[v_)
 
 ("2_3_97",
 @rule ∫((~!u)*((~!a)*(~F)^(~v) + (~!b)*(~F)^(~w))^(~n),(~x)) =>
@@ -709,21 +714,27 @@ sqrt(π)*exp(2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F))))* SymbolicUtils.erf((
 
 # ("2_3_101",
 # @rule ∫((~!u)*(~F)^(~v)*(~G)^(~w),(~x)) =>
-# # Nested conditions found, not translating rule:
-# Int[u_.*F_^v_*G_^w_, x_Symbol] := With[{z = v*Log[F] + w*Log[G]}, Int[u*NormalizeIntegrand[E^z, x], x] /; BinomialQ[z, x] || PolynomialQ[z, x] && LeQ[Exponent[z, x], 2]] /; FreeQ[{F, G}, x] ?
-# ∫((~u)*NormalizeIntegrand[ℯ^(~v)*log((~F)) + (~w)*log((~G)), (~x)), (~x)] ⨸; BinomialQ[(~v)*log((~F)) + (~w)*log((~G)), (~x)] || PolynomialQ[(~v)*log((~F)) + (~w)*log((~G)), (~x)] && LeQ[Exponent[(~v)*log((~F)) + (~w)*log((~G)), (~x)], 2]] ⨸; FreeQ[{(~F), (~G)}, (~x) : nothing)
-# 
-# ("2_3_102",
-# @rule ∫((~F)^(~u)*((~v) + (~w))*(~!y),(~x)) =>
-# # Nested conditions found, not translating rule:
-# Int[F_^u_*(v_ + w_)*y_., x_Symbol] := With[{z = v*y/(Log[F]*D[u, x])}, F^u*z /; EqQ[D[z, x], w*y]] /; FreeQ[F, x] ?
-# (~F)^(~u)*(~v)*(~y)⨸(log((~F))*(~D)[(~u), (~x)]) ⨸; EqQ[(~D)[(~v)*(~y)⨸(log((~F))*(~D)[(~u), (~x)]), (~x)], (~w)*(~y)]] ⨸; FreeQ[(~F), (~x) : nothing)
-# 
+#     !contains_var((~F), (~G), (~x)) &&
+#     binomial((~v)*log((~F)) + (~w)*log((~G)), (~x)) ||
+#     poly((~v)*log((~F)) + (~w)*log((~G)), (~x)) &&
+#     le(Exponent[(~v)*log((~F)) + (~w)*log((~G)), (~x)], 2) ?
+# ∫((~u)*NormalizeIntegrand[ℯ^(~v)*log((~F)) + (~w)*log((~G)), (~x)], (~x)) : nothing)
+
+("2_3_102",
+@rule ∫((~F)^(~u)*((~v) + (~w))*(~!y),(~x)) =>
+    !contains_var((~F), (~x)) &&
+    eq(Symbolics.derivative((~v)*(~y)/(log((~F))*Symbolics.derivative((~u), (~x))), (~x)), (~w)*(~y)) ?
+(~F)^(~u)*(~v)*(~y)⨸(log((~F))*Symbolics.derivative((~u), (~x))) : nothing)
+
 # ("2_3_103",
 # @rule ∫((~F)^(~u)*(~v)^(~!n)*(~w),(~x)) =>
-# # Nested conditions found, not translating rule:
-# Int[F_^u_*v_^n_.*w_, x_Symbol] := With[{z = Log[F]*v*D[u, x] + (n + 1)*D[v, x]}, Coefficient[w, x, Exponent[w, x]]/ Coefficient[z, x, Exponent[z, x]]*F^u*v^(n + 1) /; EqQ[Exponent[w, x], Exponent[z, x]] && EqQ[w*Coefficient[z, x, Exponent[z, x]], z*Coefficient[w, x, Exponent[w, x]]]] /; FreeQ[{F, n}, x] && PolynomialQ[u, x] && PolynomialQ[v, x] && PolynomialQ[w, x] ?
-# Symbolics.coeff((~w), (~x)^ Exponent[(~w), (~x))]⨸ Symbolics.coeff(log((~F))*(~v)*(~D)[(~u), (~x)] + ((~n) + 1)*(~D)[(~v)^ (~x)), (~x), Exponent[log((~F))*(~v)*(~D)[(~u), (~x)] + ((~n) + 1)*(~D)[(~v), (~x)], (~x)]]*(~F)^(~u)*(~v)^((~n) + 1) ⨸; EqQ[Exponent[(~w), (~x)], Exponent[log((~F))*(~v)*(~D)[(~u), (~x)] + ((~n) + 1)*(~D)[(~v), (~x)], (~x)]] && EqQ[(~w)*Symbolics.coeff(log((~F))*(~v)*(~D)[(~u), (~x)] + ((~n) + 1)*(~D)[(~v)^ (~x)), (~x), Exponent[log((~F))*(~v)*(~D)[(~u), (~x)] + ((~n) + 1)*(~D)[(~v), (~x)], (~x)]], log((~F))*(~v)*(~D)[(~u), (~x)] + ((~n) + 1)*(~D)[(~v), (~x)]*Symbolics.coeff((~w), (~x)^ Exponent[(~w), (~x))]]] ⨸; FreeQ[{(~F), (~n)}, (~x)] && PolynomialQ[(~u), (~x)] && PolynomialQ[(~v), (~x)] && PolynomialQ[(~w), (~x) : nothing)
+#     !contains_var((~F), (~n), (~x)) &&
+#     poly((~u), (~x)) &&
+#     poly((~v), (~x)) &&
+#     poly((~w), (~x)) &&
+#     eq(Exponent[(~w), (~x)], Exponent[log((~F))*(~v)*Symbolics.derivative((~u), (~x)) + ((~n) + 1)*Symbolics.derivative((~v), (~x)), (~x)]) &&
+#     eq((~w)*ext_coeff(log((~F))*(~v)*Symbolics.derivative((~u), (~x)) + ((~n) + 1)*Symbolics.derivative((~v), (~x)), (~x), Exponent[log((~F))*(~v)*Symbolics.derivative((~u), (~x)) + ((~n) + 1)*Symbolics.derivative((~v), (~x)), (~x)]), log((~F))*(~v)*Symbolics.derivative((~u), (~x)) + ((~n) + 1)*Symbolics.derivative((~v), (~x))*ext_coeff((~w), (~x), Exponent[(~w), (~x)])) ?
+# ext_coeff((~w), (~x), Exponent[(~w), (~x)])⨸ ext_coeff(log((~F))*(~v)*Symbolics.derivative((~u), (~x)) + ((~n) + 1)*Symbolics.derivative((~v), (~x)), (~x), Exponent[log((~F))*(~v)*Symbolics.derivative((~u), (~x)) + ((~n) + 1)*Symbolics.derivative((~v), (~x)), (~x)])*(~F)^(~u)*(~v)^((~n) + 1) : nothing)
 
 ("2_3_104",
 @rule ∫(((~!a) + (~!b)*(~F)^((~!c)*sqrt((~!d) + (~!e)*(~x))/sqrt((~!f) + (~!g)*(~x))))^ (~!n)/((~!A) + (~!B)*(~x) + (~!C)*(~x)^2),(~x)) =>

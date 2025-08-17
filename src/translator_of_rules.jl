@@ -287,6 +287,8 @@ function translate_result(result, index)
         ("Expon", s"exponent_of", 2),
 
         ("Dist", "dist"),
+
+        ("FullSimplify", "simplify", 1),
         ("SimplifyIntegrand", "ext_simplify", 2), # TODO is this enough?
         ("Simplify", "simplify", 1),
         ("Simp", "simp", (1,2)),
@@ -373,6 +375,7 @@ function translate_conditions(conditions)
         ("Coeff", "ext_coeff", (2,3)),
         ("LeafCount", "SymbolicUtils.node_count"),
         ("Expon", s"exponent_of", 2),
+        ("FullSimplify", "simplify", 1),
         
         ("AlgebraicFunctionQ", "algebraic_function", (2,3)),
         ("RationalFunctionQ", "rational_function", 2),
