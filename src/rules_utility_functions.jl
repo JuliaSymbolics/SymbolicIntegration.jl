@@ -159,17 +159,18 @@ function ext_expand(expr, x)
     t = case1(expr) # t stands for tmp
     t !== nothing && return expand_linear_product((t[:a]+t[:b]*x)^t[:m],t[:u], t[:a], t[:b], x)
 
-    case2 = @rule (~a::f + ~b::f*x)^(~m::ext_isinteger)/(~c::f + ~d::f*x) => (~b*(~a+~b*x)^(~m-1))⨸~d + ((~a*~d-~b*~c)*(~a+~b*x)^(~m-1))⨸(~d*(~c+~d*x))
+    case2 = @rule (~!a::f + ~!b::f*x)^(~!m::ext_isinteger)/(~!c::f + ~!d::f*x) => (~b*(~a+~b*x)^(~m-1))⨸~d + ((~a*~d-~b*~c)*(~a+~b*x)^(~m-1))⨸(~d*(~c+~d*x))
     t = case2(expr)
-    t!==nothing && return t
-
-    case3 = @rule (~a::f + ~b::f*x)/(~c::f + ~d::f*x) => ~a⨸(~c + ~d*x) + ~b⨸~d - ~b*~c⨸(~d*(~c + ~d*x))
-    t = case3(expr)
     t!==nothing && return t
 
     case4 = @rule x/(~a::f + ~b::f*x) => 1⨸~b - ~a⨸(~b*(~a + ~b*x))
     t = case4(expr)
     t!==nothing && return t
+
+    case5 = @rule (~d::f + ~!e::f*x)/(x*(~a::f + x^2)) => (~d+~e*x)/(x*~a) - (~d+~e*x)*x/(~a*(~a + x^2))
+    t = case5(expr)
+    t!==nothing && return t
+
     return expand(expr)
 end
 
