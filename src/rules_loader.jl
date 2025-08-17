@@ -31,40 +31,75 @@ end
 
 load_rules() = load_rules([joinpath(@__DIR__, "rules/" * f) for f in all_rules_paths])
 
+# greater or equal function to sort identifiers
+function identifier_ge(id1, id2)
+    id1 = [parse(Int,x) for x in split(id1,"_")]
+    id2 = [parse(Int,x) for x in split(id2,"_")]
+
+    for i in 1:min(length(id1), length(id2))
+        if id1[i] > id2[i]
+            return true
+        elseif id1[i] < id2[i]
+            return false
+        end
+    end
+    return length(id1) >= length(id2)
+end
+
 # function useful in developing the package
 # reads the rules from the given path.
 # for each one of them checks if in the global RULES array there is a rule with the same identifier.
 # if so, it replaces the rule with the new one.
-# if not, it adds the new rule to the global RULES array.
+# if not, it adds the new rule to the global RULES array in the correct place.
 # if called with no argument reloads all rules from the default paths
-function reload_rules(path; verbose = false)
+function reload_rules(path; verbose = true)
     global RULES
     global IDENTIFIERS
     
+    println("Including $path...")
     include(path)
     
     for r in file_rules
-        idx = findfirst(x -> x == r[1], IDENTIFIERS)
+        idx = findfirst(i->identifier_ge(i, r[1]), IDENTIFIERS)
+        
+        # if there is a identifier >= of r[1]
         if idx !== nothing
-            RULES[idx] = r[2]
+            # if r[1] is already in the identifiers
+            if IDENTIFIERS[idx]==r[1]
+                # replace rule
+                RULES[idx] = r[2]
+                verbose && printstyled("replaced rule $(r[1]) at index $idx\n";color = :yellow)
+            # else add it at idx
+            else
+                insert!(IDENTIFIERS, idx, r[1])
+                insert!(RULES, idx, r[2])
+                verbose && printstyled("Inserted rule $(r[1]) at index $idx\n";color=:green)
+            end
+        # else add it at the end
         else
-            # add at the end
             push!(IDENTIFIERS, r[1])
             push!(RULES, r[2])
+            verbose && printstyled("Appended rule $(r[1]) at the end of RULES (index $(length(RULES)))\n";color = :magenta)
         end
     end
+
+    file_identifiers = [r[1] for r in file_rules]
+    file_identifier = replace(split(replace(basename(path), r"\.jl$" => ""), " ")[1], r"\." => "_")
+
+    # delete rules previously in the system but now deleted
+    for (i, identifier) in enumerate(IDENTIFIERS)
+        if startswith(identifier, file_identifier) && identifier ∉ file_identifiers
+            deleteat!(IDENTIFIERS, i)
+            deleteat!(RULES, i)
+            verbose && printstyled("Deleted rule $(identifier) that was in RULES but is no more in $path\n";color=:red)
+        end
+    end
+            
     
-    println("$(length(file_rules)) rules reloaded from $path, $(length(RULES)) total rules.")
-    if verbose
-        println("Here they are in order:")
-        for r in file_rules
-            println("============ Rule $(r[1]): ")
-            println(r[2])
-        end
-    end
+    verbose && println("$(length(file_rules)) rules reloaded from $path, $(length(RULES)) total rules.")
 end
 
-function reload_rules(;verbose = false)
+function reload_rules(;verbose = true)
     global RULES
     global IDENTIFIERS
     
@@ -72,12 +107,4 @@ function reload_rules(;verbose = false)
     empty!(IDENTIFIERS)
 
     load_rules()
-    
-    if verbose
-        println("Here they are in order:")
-        for (i, rule) in enumerate(RULES)
-            println("============ Rule $(IDENTIFIERS[i]): ")
-            println(rule)
-        end
-    end
 end
