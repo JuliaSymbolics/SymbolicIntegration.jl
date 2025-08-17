@@ -176,6 +176,10 @@ function transalte_integrand(integrand)
         ("sec", "sec"), ("Sec", "sec"),
         ("cot", "cot"), ("Cot", "cot"),
 
+        ("ArcSin", "asin"),
+        ("ArcTan", "atan"),
+        ("ArcCot", "acot"),
+
         ("PolyLog", "PolyLog.reli", 2),
         ("Gamma", "SymbolicUtils.gamma"),
     ]
@@ -240,9 +244,11 @@ function translate_result(result, index)
         ("ArcSinh", "asinh"),
         ("ArcCosh", "acosh"),
         ("ArcTanh", "atanh"),
+        ("ArcCoth", "acoth"),
         ("ArcSin", "asin"),
         ("ArcCos", "acos"),
         ("ArcTan", "atan"),
+        ("ArcCot", "acot"),
 
         ("Sign", "sign"),
         ("GCD", "gcd"),
