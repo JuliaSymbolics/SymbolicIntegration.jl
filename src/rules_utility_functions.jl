@@ -417,7 +417,7 @@ function int_and_subst(integrand, int_var, from, to, rule_from_identifier)
     if !contains_int(result)
         return substitute(result, from => to)
     end
-    println("Integral not solved")
+    VERBOSE && println("Integral not solved")
     return subst(∫(integrand, int_var), from, to)
 end
 

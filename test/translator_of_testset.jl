@@ -42,6 +42,7 @@ function translate_mathematica_to_julia(expr::String)
         (r"Hypergeometric2F1\[", s"SymbolicIntegration.hypergeometric2f1("),
         (r"AppellF1\[", s"SymbolicIntegration.appell_f1("),
         (r"LogIntegral\[(.*?)\]", s"SymbolicUtils.expinti(log(\1))"), # TODO use it from SpecialFunctions.jl once pr is merged
+        (r"PolyLog\[(.+?)\]", s"SymbolicIntegration.PolyLog(\1)"),
 
         (r"(?<=\d)/(?=\d)", "//"), # to make fractions and not divisions
         (r"\bPi\b", "π"),
