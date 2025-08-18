@@ -151,6 +151,7 @@ end
 
 # TODO this is not enough, not taking all the cases of rubi
 # TODO function ext_expand(expr::Union{SymbolicUtils.BasicSymbolic{Real}, Num}, x::Union{SymbolicUtils.BasicSymbolic{Real}, Num})
+# TODO address x / ((1 + x)^2)
 function ext_expand(expr, x)
     f(p) = !contains_var(p, x) # f stands for free of x
     
@@ -158,6 +159,9 @@ function ext_expand(expr, x)
     case1 = @rule (~u::(p->poly(p,x)))*((~a::f) + (~!b::f)*x)^(~m::f) => ~
     t = case1(expr) # t stands for tmp
     t !== nothing && return expand_linear_product((t[:a]+t[:b]*x)^t[:m],t[:u], t[:a], t[:b], x)
+    case1_1 = @rule (~u::(p->poly(p,x)))/(((~a::f) + (~!b::f)*x)^(~m::f)) => ~ # TODO needed because of neim problem
+    t = case1_1(expr)
+    t !== nothing && return expand_linear_product((t[:a]+t[:b]*x)^(-t[:m]),t[:u], t[:a], t[:b], x)
 
     case2 = @rule (~!a::f + ~!b::f*x)^(~!m::ext_isinteger)/(~!c::f + ~!d::f*x) => (~b*(~a+~b*x)^(~m-1))⨸~d + ((~a*~d-~b*~c)*(~a+~b*x)^(~m-1))⨸(~d*(~c+~d*x))
     t = case2(expr)
@@ -171,6 +175,7 @@ function ext_expand(expr, x)
     t = case5(expr)
     t!==nothing && return t
 
+    println("ciaos")
     return expand(expr)
 end
 
