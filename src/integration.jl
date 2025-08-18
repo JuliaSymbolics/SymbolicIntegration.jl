@@ -45,6 +45,17 @@ function repeated_prewalk(expr)
         (new_expr,success) = apply_rule(expr)
         # r1 and r2 are needed bc of neim problem
         if !success
+            r2 = @rule ∫((~n)/*(~~d),~x) => ∫(~n*prod([ncn(el) for el in ~~d]),~x)
+            r2r = r2(expr)
+            if r2r!==nothing
+                VERBOSE && println("integration of ", expr, " failed, trying with this mathematically equivalent integrand:\n$r2r")
+                (new_expr,success) = apply_rule(r2r)
+                if success && new_expr===expr
+                    success=false
+                end
+            end
+        end
+        if !success
             r1 = @rule ∫((~n)/(~d),~x) => ∫(~n*ncn(~d),~x)
             r1r = r1(expr)
             if r1r!==nothing
@@ -52,17 +63,6 @@ function repeated_prewalk(expr)
                 (new_expr,success) = apply_rule(r1r)
                 # if success we know r1r!=new_expr
                 # but clud be new_expr==expr
-                if success && new_expr===expr
-                    success=false
-                end
-            end
-        end
-        if !success
-            r2 = @rule ∫((~n)/*(~~d),~x) => ∫(~n*prod([ncn(el) for el in ~~d]),~x)
-            r2r = r2(expr)
-            if r2r!==nothing
-                VERBOSE && println("integration of ", expr, " failed, trying with this mathematically equivalent integrand:\n$r2r")
-                (new_expr,success) = apply_rule(r2r)
                 if success && new_expr===expr
                     success=false
                 end
@@ -116,4 +116,12 @@ end
 
 function integrate(;verbose=false)
     @warn "No integrand provided. Please provide one like this: `integrate(x^2 + 3x + 2)`"
+    @rule ∫(((~!g)*(~x))^(~!m)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^ (~!p)*((~!d) + (~!e)*log((~!f)*(~x)^(~!r))),(~x)) =>
+    !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~m), (~n), (~p), (~r), (~x)) &&
+    !(
+        eq((~p), 1) &&
+        eq((~a), 0) &&
+        !eq((~d), 0)
+    ) ?
+dist(((~d) + (~e)*log((~f)*(~x)^(~r))), ∫(((~g)*(~x))^(~m)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)), (~x)) - (~e)*(~r)*∫(simplify(∫(((~g)*(~x))^(~m)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x))⨸(~x), (~x)), (~x)) : nothing
 end 
