@@ -175,7 +175,6 @@ function ext_expand(expr, x)
     t = case5(expr)
     t!==nothing && return t
 
-    println("ciaos")
     return expand(expr)
 end
 

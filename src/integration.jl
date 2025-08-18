@@ -50,6 +50,11 @@ function repeated_prewalk(expr)
             if r1r!==nothing
                 VERBOSE && println("integration of ", expr, " failed, trying with this mathematically equivalent integrand:\n$r1r")
                 (new_expr,success) = apply_rule(r1r)
+                # if success we know r1r!=new_expr
+                # but clud be new_expr==expr
+                if success && new_expr===expr
+                    success=false
+                end
             end
         end
         if !success
@@ -58,13 +63,18 @@ function repeated_prewalk(expr)
             if r2r!==nothing
                 VERBOSE && println("integration of ", expr, " failed, trying with this mathematically equivalent integrand:\n$r2r")
                 (new_expr,success) = apply_rule(r2r)
+                if success && new_expr===expr
+                    success=false
+                end
             end
         end
         if !success
             # TODO Can this be a bad idea sometimes?
             simplified_expr = simplify(expr, expand=true)
-            VERBOSE && println("integration of ", expr, " failed, trying with the expanded version:\n", simplified_expr)
-            (new_expr,success) = apply_rule(simplified_expr)
+            if simplified_expr !== expr
+                VERBOSE && println("integration of ", expr, " failed, trying with the expanded version:\n", simplified_expr)
+                (new_expr,success) = apply_rule(simplified_expr)
+            end
         end
         
         success && return repeated_prewalk(new_expr)
