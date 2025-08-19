@@ -106,7 +106,7 @@ function translate_integral_file(input_filename::String, output_filename::String
     open(output_filename, "w") do outfile
         # Write header
         write(outfile, "# Each tuple is (integrand, result, integration variable, mistery value)\n")
-        write(outfile, "data = [\n")
+        write(outfile, "file_tests = [\n")
         
         
         open(input_filename, "r") do infile
