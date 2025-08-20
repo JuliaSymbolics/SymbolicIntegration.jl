@@ -22,8 +22,10 @@ function load_rules(rules_paths)
 
         # add rules
         include(file) # most of the time is spent here
-        append!(RULES, [x[2] for x in file_rules])
-        append!(IDENTIFIERS, [x[1] for x in file_rules])
+        # Use Base.invokelatest to handle world age issues in Julia 1.12+
+        local_file_rules = Base.invokelatest(() -> file_rules)
+        append!(RULES, [x[2] for x in local_file_rules])
+        append!(IDENTIFIERS, [x[1] for x in local_file_rules])
     end
     print("\e[1A\e[2K\e[1A\e[2K")
     println("Loaded $(length(RULES)) rules from $(length(rules_paths)) files.")
@@ -59,7 +61,10 @@ function reload_rules(path; verbose = true)
     println("Including $path...")
     include(path)
     
-    for r in file_rules
+    # Use Base.invokelatest to handle world age issues in Julia 1.12+
+    local_file_rules = Base.invokelatest(() -> file_rules)
+    
+    for r in local_file_rules
         idx = findfirst(i->identifier_ge(i, r[1]), IDENTIFIERS)
         
         # if there is a identifier >= of r[1]
@@ -83,7 +88,7 @@ function reload_rules(path; verbose = true)
         end
     end
 
-    file_identifiers = [r[1] for r in file_rules]
+    file_identifiers = [r[1] for r in local_file_rules]
     file_identifier = replace(split(replace(basename(path), r"\.jl$" => ""), " ")[1], r"\." => "_")
 
     # delete rules previously in the system but now deleted
