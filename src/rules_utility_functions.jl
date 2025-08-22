@@ -177,6 +177,11 @@ function ext_expand(expr, x)
     case5 = @rule (~d::f + ~!e::f*x)/(x*(~a::f + x^2)) => (~d+~e*x)/(x*~a) - (~d+~e*x)*x/(~a*(~a + x^2))
     t = case5(expr)
     t!==nothing && return t
+    
+    p(pa) = poly(pa,x)
+    case6 = @rule (~u::p)/(~v::p) => exponent_of(~u,x)>=exponent_of(~v,x) ? polynomial_divide(~u,~v,x) : nothing
+    t = case6(t)
+    t!==nothing && return t
 
     return expand(expr)
 end
