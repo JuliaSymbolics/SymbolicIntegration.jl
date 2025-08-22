@@ -183,10 +183,18 @@ function transalte_integrand(integrand)
         ("sec", "sec"), ("Sec", "sec"),
         ("cot", "cot"), ("Cot", "cot"),
 
+        ("Sinh", "sinh"),
+        ("Cosh", "cosh"),
+
         ("ArcSin", "asin"),
         ("ArcCos", "acos"),
         ("ArcTan", "atan"),
         ("ArcCot", "acot"),
+
+        ("ArcSinh", "asinh"),
+        ("ArcCosh", "acosh"),
+        ("ArcTanh", "atanh"),
+        ("ArcCoth", "acoth"),
 
         ("PolyLog", "PolyLog.reli", 2),
         ("Gamma", "SymbolicUtils.gamma"),
@@ -199,9 +207,12 @@ function transalte_integrand(integrand)
     associations = [
         ("Int[", "∫("), # Handle common Int[...] integrands
         (r",\s?x_Symbol\]", ",(~x))"),
+        
+        (r"(?<!\w)Pi(?!\w)", "π"),
+        (r"(?<!\w)E\^", "ℯ^"), # this works only for E^, not E used in other contexts like multiplications.
+        
         (r"(?<!\w)([a-zA-Z]{1,2}\d*)_\.(?!\w)", s"(~!\1)"), # default slot
         (r"(?<!\w)([a-zA-Z]{1,2}\d*)_(?!\w)", s"(~\1)"), # slot
-        (r"(?<!\w)Pi(?!\w)", "π"),
         (r"(?<=\d)/(?=\d)", "//"),
         (r"Sqrt\[(.*?)\]", s"sqrt(\1)"),
     ]
@@ -242,6 +253,13 @@ function translate_result(result, index)
         ("Exp", "exp"),
         ("Log", "log"),
 
+        ("Sinh", "sinh"),
+        ("Cosh", "cosh"),
+        ("Tanh", "tanh"),
+        ("Coth", "coth"),
+        ("Sech", "sech"),
+        ("Csch", "csch"),
+
         ("sin", "sin"), ("Sin", "sin"),
         ("cos", "cos"), ("Cos", "cos"),
         ("tan", "tan"), ("Tan", "tan"),
@@ -253,6 +271,8 @@ function translate_result(result, index)
         ("ArcCosh", "acosh"),
         ("ArcTanh", "atanh"),
         ("ArcCoth", "acoth"),
+        ("ArcCsch", "acsch"),
+        ("ArcSech", "asech"),
         ("ArcSin", "asin"),
         ("ArcCos", "acos"),
         ("ArcTan", "atan"),
@@ -275,10 +295,13 @@ function translate_result(result, index)
         ("EllipticF", "elliptic_f", 2),
         ("EllipticPi", "elliptic_pi", (2,3)),
         ("Hypergeometric2F1", "hypergeometric2f1", 4),
-        ("AppellF1", "appell_f1", 6),
         ("PolyLog", "PolyLog.reli", 2),
         ("FresnelC", "FresnelIntegrals.fresnelc", 1),
         ("FresnelS", "FresnelIntegrals.fresnels", 1),
+        # (not) definied in this package
+        ("AppellF1", "appell_f1", 6),
+        ("SinhIntegral", "sinhintegral", 1),
+        ("CoshIntegral", "coshintegral", 1),
 
         # definied in rules_utility_functions.jl
         ("FreeFactors", "free_factors"),
@@ -311,6 +334,7 @@ function translate_result(result, index)
         ("ExpandToSum", "expand_to_sum", (2,3)),
         ("Expand", "ext_expand"),
         ("ExpandLinearProduct", "expand_linear_product", 5),
+        ("ExpandTrigReduce", "expand_trig_reduce",(2,3))
     ]
 
     for (mathematica, julia, n_args...) in simple_substitutions
@@ -390,6 +414,7 @@ function translate_conditions(conditions)
         ("QuadraticQ", "quadratic", 2),
         ("QuadraticMatchQ", "quadratic_without_simplify", 2),
         ("IntegralFreeQ", "contains_int", 1),
+        ("FunctionOfExponentialQ", "function_of_exponential", 2),
         
         ("IntLinearQ", "int_linear", 7),
         ("IntBinomialQ", "int_binomial", (7, 8, 10)),
@@ -400,6 +425,7 @@ function translate_conditions(conditions)
         ("RationalQ", "isrational"),
         ("IntegerQ", "ext_isinteger"),
         ("IntegersQ", "ext_isinteger"),
+        ("HalfIntegerQ", "half_integer"),
         ("OddQ", "ext_isodd", 1),
         ("EvenQ", "ext_iseven", 1),
         ("EqQ", "eq"),

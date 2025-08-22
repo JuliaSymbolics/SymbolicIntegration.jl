@@ -63,12 +63,15 @@ function eq(a, b)
     return SymbolicUtils.simplify(a - b) |> SymbolicUtils._iszero
 end
 
-function ext_isinteger(u)
-    s(u) && return false # for symbolic expressions
-    isa(u, Number) && return isinteger(u) # for numeric types
-    return false
-end
+ext_isinteger(u::SymbolicUtils.BasicSymbolic) = false
+ext_isinteger(u::Number) = isinteger(u)
+ext_isinteger(u::Any) = false
 ext_isinteger(args...) = all(ext_isinteger(arg) for arg in args)
+
+half_integer(u::SymbolicUtils.BasicSymbolic) = false
+half_integer(u::Number) = isinteger(u - 1//2)
+half_integer(u::Any) = false
+half_integer(args...) = all(half_integer(arg) for arg in args)
 
 function ext_iseven(u)
     s(u) && return false # for symbolic expressions
@@ -194,7 +197,8 @@ end
 
 simp(u,x) = simplify(u)
 
-# TODO ExpandTrigReduce is missing
+expand_trig_reduce(u,x) = expand(simplify(u))
+expand_trig_reduce(v,u,x) = expand(simplify(u*v))
 
 # FracPart[u] returns the sum of the non-integer terms of u.
 # fracpart(3//2 + x) = (1//2) + x, fracpart(2.4) = 2.4
@@ -706,6 +710,18 @@ function rational_function(u::Num, x::Num)
     x = Symbolics.unwrap(x)
     rational_function(u, x)
 end
+
+# FunctionOfExponentialQ[u,x] returns True iff u is a function of F^v where F is a constant and v is linear in x, and such an exponential explicitly occurs in u
+function function_of_exponential(u, x)
+    !iscall(u) && return false
+    o = operation(u)
+    ar = arguments(u)
+    (o===exp) && return linear(ar[1], x)
+    (o===^) && return isa(ar[1], Number) && linear(ar[2], x)
+    (o in [+,*,/]) && return any(function_of_exponential(a,x) for a in ar)
+    return false
+end
+function_of_exponential(u::Num, x::Num) = function_of_exponential(Symbolics.unwrap(u), Symbolics.unwrap(x))
 
 # returns the product of the factors of u free of x
 function free_factors(u, x)
