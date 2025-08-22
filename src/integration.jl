@@ -84,7 +84,7 @@ function repeated_prewalk(expr)
     expr = SymbolicUtils.maketerm(
         typeof(expr), 
         operation(expr), 
-        map(repeated_prewalk,arguments(expr)), 
+        map(repeated_prewalk, arguments(expr)), 
         SymbolicUtils.metadata(expr)
     )
 
@@ -95,7 +95,7 @@ function integrate(integrand, int_var; verbose=true)#TODO
     global VERBOSE
     VERBOSE = verbose
     problem = ∫(integrand,int_var)
-    repeated_prewalk(problem)
+    simplify(repeated_prewalk(problem))
 end
 
 # If no integration variable provided
@@ -116,12 +116,5 @@ end
 
 function integrate(;verbose=false)
     @warn "No integrand provided. Please provide one like this: `integrate(x^2 + 3x + 2)`"
-    @rule ∫(((~!g)*(~x))^(~!m)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^ (~!p)*((~!d) + (~!e)*log((~!f)*(~x)^(~!r))),(~x)) =>
-    !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~m), (~n), (~p), (~r), (~x)) &&
-    !(
-        eq((~p), 1) &&
-        eq((~a), 0) &&
-        !eq((~d), 0)
-    ) ?
-dist(((~d) + (~e)*log((~f)*(~x)^(~r))), ∫(((~g)*(~x))^(~m)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)), (~x)) - (~e)*(~r)*∫(simplify(∫(((~g)*(~x))^(~m)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x))⨸(~x), (~x)), (~x)) : nothing
+    println(half_integer(0.5))
 end 
