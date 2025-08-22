@@ -1,5 +1,5 @@
 # Each tuple is (integrand, result, integration variable, mistery value)
-data = [
+file_tests = [
 # ::Package::
 
 # ::Title::
@@ -98,7 +98,7 @@ data = [
 (1/log(x), SymbolicUtils.expinti(log(x)), x, 1),
 (1/log(x+1), SymbolicUtils.expinti(log(1 + x)), x, 2),
 (1/(x*log(x)), log(log(x)), x, 2),
-(1/(x*log(x))^2, -ExpIntegralEi(-log(x)) - 1/(x*log(x)), x, 3),
+(1/(x*log(x))^2, -SymbolicUtils.expinti(-log(x)) - 1/(x*log(x)), x, 3),
 ((log(x))^p/x, log(x)^(1 + p)/(1 + p), x, 2),
 (log(x)*(a*x+b), (-b)*x - (a*x^2)/4 + b*x*log(x) + (1//2)*a*x^2*log(x), x, 2),
 ((a*x+b)^2*log(x), (-b^2)*x - (1//2)*a*b*x^2 - (a^2*x^3)/9 - (b^3*log(x))/(3*a) + ((b + a*x)^3*log(x))/(3*a), x, 4),
@@ -143,10 +143,10 @@ data = [
 (x*cos(x)^2, x^2//4 + cos(x)^2//4 + (1//2)*x*cos(x)*sin(x), x, 2),
 (x^2*cos(x)^2, -(x/4) + x^3//6 + (1//2)*x*cos(x)^2 - (1//4)*cos(x)*sin(x) + (1//2)*x^2*cos(x)*sin(x), x, 4),
 (x*cos(x)^3, (2*cos(x))/3 + cos(x)^3//9 + (2//3)*x*sin(x) + (1//3)*x*cos(x)^2*sin(x), x, 3),
-(sin(x)/x, SinIntegral(x), x, 1),
-(cos(x)/x, CosIntegral(x), x, 1),
-(sin(x)/x^2, CosIntegral(x) - sin(x)/x, x, 2),
-(sin(x)^2/x, (-(1//2))*CosIntegral(2*x) + log(x)/2, x, 3),
+(sin(x)/x, SymbolicUtils.sinint(x), x, 1),
+(cos(x)/x, SymbolicUtils.cosint(x), x, 1),
+(sin(x)/x^2, SymbolicUtils.cosint(x) - sin(x)/x, x, 2),
+(sin(x)^2/x, (-(1//2))*SymbolicUtils.cosint(2*x) + log(x)/2, x, 3),
 (tan(x)^3, log(cos(x)) + tan(x)^2//2, x, 2),
 
 
@@ -173,8 +173,8 @@ data = [
 (cos(x)*cos(2*x), sin(x)/2 + (1//6)*sin(3*x), x, 1),
 (x^2*cos(a+b*x)^2, -(x/(4*b^2)) + x^3//6 + (x*cos(a + b*x)^2)/(2*b^2) - (cos(a + b*x)*sin(a + b*x))/(4*b^3) + (x^2*cos(a + b*x)*sin(a + b*x))/(2*b), x, 4),
 (1/tan(x)^3, (-(1//2))*cot(x)^2 - log(sin(x)), x, 2),
-(x^3*tan(x)^4, -(x^2//2) + (4*I*x^3)/3 + x^4//4 - 4*x^2*log(1 + ℯ^(2*I*x)) + log(cos(x)) + 4*I*x*PolyLog(2, -ℯ^(2*I*x)) - 2*PolyLog(3, -ℯ^(2*I*x)) + x*tan(x) - x^3*tan(x) - (1//2)*x^2*tan(x)^2 + (1//3)*x^3*tan(x)^3, x, 17),
-(x^3*tan(x)^6, (19*x^2)/20 - (23*I*x^3)/15 - x^4//4 + (23//5)*x^2*log(1 + ℯ^(2*I*x)) - 2*log(cos(x)) - (23//5)*I*x*PolyLog(2, -ℯ^(2*I*x)) + (23//10)*PolyLog(3, -ℯ^(2*I*x)) - (19//10)*x*tan(x) + x^3*tan(x) - tan(x)^2//20 + (4//5)*x^2*tan(x)^2 + (1//10)*x*tan(x)^3 - (1//3)*x^3*tan(x)^3 - (3//20)*x^2*tan(x)^4 + (1//5)*x^3*tan(x)^5, x, 34),
+(x^3*tan(x)^4, -(x^2//2) + (4*I*x^3)/3 + x^4//4 - 4*x^2*log(1 + ℯ^(2*I*x)) + log(cos(x)) + 4*I*x*PolyLog.reli(2, -ℯ^(2*I*x)) - 2*PolyLog.reli(3, -ℯ^(2*I*x)) + x*tan(x) - x^3*tan(x) - (1//2)*x^2*tan(x)^2 + (1//3)*x^3*tan(x)^3, x, 17),
+(x^3*tan(x)^6, (19*x^2)/20 - (23*I*x^3)/15 - x^4//4 + (23//5)*x^2*log(1 + ℯ^(2*I*x)) - 2*log(cos(x)) - (23//5)*I*x*PolyLog.reli(2, -ℯ^(2*I*x)) + (23//10)*PolyLog.reli(3, -ℯ^(2*I*x)) - (19//10)*x*tan(x) + x^3*tan(x) - tan(x)^2//20 + (4//5)*x^2*tan(x)^2 + (1//10)*x*tan(x)^3 - (1//3)*x^3*tan(x)^3 - (3//20)*x^2*tan(x)^4 + (1//5)*x^3*tan(x)^5, x, 34),
 (x*tan(x)^2, -(x^2//2) + log(cos(x)) + x*tan(x), x, 3),
 (sin(2*x)*cos(3*x), cos(x)/2 - (1//10)*cos(5*x), x, 1),
 (sin(x)^2*cos(x)^2, x/8 + (1//8)*cos(x)*sin(x) - (1//4)*cos(x)^3*sin(x), x, 3),
@@ -217,7 +217,7 @@ data = [
 (ℯ^x, ℯ^x, x, 1),
 (a^x, a^x/log(a), x, 1),
 (ℯ^(a*x), ℯ^(a*x)/a, x, 1),
-(ℯ^(a*x)/x, ExpIntegralEi(a*x), x, 1),
+(ℯ^(a*x)/x, SymbolicUtils.expinti(a*x), x, 1),
 (1/(a+b*ℯ^(m*x)), x/a - log(a + b*ℯ^(m*x))/(a*m), x, 4),
 (ℯ^(2*x)/(1+ℯ^x), ℯ^x - log(1 + ℯ^x), x, 3),
 (ℯ^(2*x)*ℯ^(a*x), ℯ^((2 + a)*x)/(2 + a), x, 2),
@@ -226,11 +226,11 @@ data = [
 (x^20*ℯ^x, 2432902008176640000*ℯ^x - 2432902008176640000*ℯ^x*x + 1216451004088320000*ℯ^x*x^2 - 405483668029440000*ℯ^x*x^3 + 101370917007360000*ℯ^x*x^4 - 20274183401472000*ℯ^x*x^5 + 3379030566912000*ℯ^x*x^6 - 482718652416000*ℯ^x*x^7 + 60339831552000*ℯ^x*x^8 - 6704425728000*ℯ^x*x^9 + 670442572800*ℯ^x*x^10 - 60949324800*ℯ^x*x^11 + 5079110400*ℯ^x*x^12 - 390700800*ℯ^x*x^13 + 27907200*ℯ^x*x^14 - 1860480*ℯ^x*x^15 + 116280*ℯ^x*x^16 - 6840*ℯ^x*x^17 + 380*ℯ^x*x^18 - 20*ℯ^x*x^19 + ℯ^x*x^20, x, 21),
 (a^x/b^x, a^x/(b^x*(log(a) - log(b))), x, 2),
 (a^x*b^x, (a^x*b^x)/(log(a) + log(b)), x, 2),
-(a^x/x^2, -(a^x/x) + ExpIntegralEi(x*log(a))*log(a), x, 2),
-(x*a^x/(1+b*x)^2, a^x/(b^2*(1 + b*x)) + ExpIntegralEi(((1 + b*x)*log(a))/b)/(a^b^(-1)*b^2) - (ExpIntegralEi(((1 + b*x)*log(a))/b)*log(a))/(a^b^(-1)*b^3), x, 5),
+(a^x/x^2, -(a^x/x) + SymbolicUtils.expinti(x*log(a))*log(a), x, 2),
+(x*a^x/(1+b*x)^2, a^x/(b^2*(1 + b*x)) + SymbolicUtils.expinti(((1 + b*x)*log(a))/b)/(a^b^(-1)*b^2) - (SymbolicUtils.expinti(((1 + b*x)*log(a))/b)*log(a))/(a^b^(-1)*b^3), x, 5),
 (x*ℯ^(a*x)/(1+a*x)^2, ℯ^(a*x)/(a^2*(1 + a*x)), x, 1),
 (x*k^(x^2), k^x^2/(2*log(k)), x, 1),
-(ℯ^(x^2), (1//2)*sqrt(π)*Erfi(x), x, 1),
+(ℯ^(x^2), (1//2)*sqrt(π)*SymbolicUtils.erfi(x), x, 1),
 (x*ℯ^(x^2), ℯ^x^2//2, x, 1),
 ((x+1)*ℯ^(1/x)/x^4, -ℯ^(1/x) - ℯ^(1/x)/x^2 + ℯ^(1/x)/x, x, 7),
 ((2*x^3+x)*(ℯ^(x^2))^2*ℯ^(1-x*ℯ^(x^2))/(1-x*ℯ^(x^2))^2, -(ℯ^(1 - ℯ^x^2*x)/(-1 + ℯ^x^2*x)), x, -3),
@@ -238,8 +238,8 @@ data = [
 
 
 # Examples involving exponentials and logarithms.
-(ℯ^x*log(x), -ExpIntegralEi(x) + ℯ^x*log(x), x, 2),
-(x*ℯ^x*log(x), -ℯ^x + ExpIntegralEi(x) - ℯ^x*log(x) + ℯ^x*x*log(x), x, 5),
+(ℯ^x*log(x), -SymbolicUtils.expinti(x) + ℯ^x*log(x), x, 2),
+(x*ℯ^x*log(x), -ℯ^x + SymbolicUtils.expinti(x) - ℯ^x*log(x) + ℯ^x*x*log(x), x, 5),
 (ℯ^(2*x)*log(ℯ^x), -(ℯ^(2*x)/4) + (1//2)*ℯ^(2*x)*log(ℯ^x), x, 3),
 
 
@@ -368,7 +368,7 @@ data = [
 (1/(x-3)^4, 1/(3*(3 - x)^3), x, 1),
 (x/(x^3-1), atan((1 + 2*x)/sqrt(3))/sqrt(3) + (1//3)*log(1 - x) - (1//6)*log(1 + x + x^2), x, 6),
 (x/(x^4-1), (-(1//2))*atanh(x^2), x, 2),
-(log(x)*(x^3+1)/(x^4+2), (1//8)*(2 + I*(-2)^(1//4))*log(x)*log(1 - ((1 + I)*x)/2^(3//4)) + (1//16)*(4 + (1 - I)*2^(3//4))*log(x)*log(1 + ((1 + I)*x)/2^(3//4)) + (1//8)*(2 + (-2)^(1//4))*log(x)*log(1 - ((-1)^(3//4)*x)/2^(1//4)) + (1//8)*(2 - (-2)^(1//4))*log(x)*log(1 + ((-1)^(3//4)*x)/2^(1//4)) + (1//16)*(4 + (1 - I)*2^(3//4))*PolyLog(2, -(((1 + I)*x)/2^(3//4))) + (1//8)*(2 + I*(-2)^(1//4))*PolyLog(2, ((1 + I)*x)/2^(3//4)) + (1//8)*(2 - (-2)^(1//4))*PolyLog(2, -(((-1)^(3//4)*x)/2^(1//4))) + (1//8)*(2 + (-2)^(1//4))*PolyLog(2, ((-1)^(3//4)*x)/2^(1//4)), x, 10),
+(log(x)*(x^3+1)/(x^4+2), (1//8)*(2 + I*(-2)^(1//4))*log(x)*log(1 - ((1 + I)*x)/2^(3//4)) + (1//16)*(4 + (1 - I)*2^(3//4))*log(x)*log(1 + ((1 + I)*x)/2^(3//4)) + (1//8)*(2 + (-2)^(1//4))*log(x)*log(1 - ((-1)^(3//4)*x)/2^(1//4)) + (1//8)*(2 - (-2)^(1//4))*log(x)*log(1 + ((-1)^(3//4)*x)/2^(1//4)) + (1//16)*(4 + (1 - I)*2^(3//4))*PolyLog.reli(2, -(((1 + I)*x)/2^(3//4))) + (1//8)*(2 + I*(-2)^(1//4))*PolyLog.reli(2, ((1 + I)*x)/2^(3//4)) + (1//8)*(2 - (-2)^(1//4))*PolyLog.reli(2, -(((-1)^(3//4)*x)/2^(1//4))) + (1//8)*(2 + (-2)^(1//4))*PolyLog.reli(2, ((-1)^(3//4)*x)/2^(1//4)), x, 10),
 (log(x)+log(x+1)+log(x+2), -3*x + x*log(x) + (1 + x)*log(1 + x) + (2 + x)*log(2 + x), x, 6),
 (1/(x^3+5), -(atan((5^(1//3) - 2*x)/(sqrt(3)*5^(1//3)))/(sqrt(3)*5^(2//3))) + log(5^(1//3) + x)/(3*5^(2//3)) - log(5^(2//3) - 5^(1//3)*x + x^2)/(6*5^(2//3)), x, 6),
 (1/sqrt(1+x^2), asinh(x), x, 1),
@@ -409,8 +409,8 @@ data = [
 
 # Examples involving the error function.
 
-(Erf(x), 1/(ℯ^x^2*sqrt(π)) + x*Erf(x), x, 1),
-(Erf(x+a), 1/(ℯ^(a + x)^2*sqrt(π)) + (a + x)*Erf(a + x), x, 1),
+(SymbolicUtils.erf(x), 1/(ℯ^x^2*sqrt(π)) + x*SymbolicUtils.erf(x), x, 1),
+(SymbolicUtils.erf(x+a), 1/(ℯ^(a + x)^2*sqrt(π)) + (a + x)*SymbolicUtils.erf(a + x), x, 1),
 
 
 # Some interesting integrals of algebraic functions;
@@ -436,7 +436,7 @@ data = [
 
 # It is interesting to see how much of this one can be done;
 
-((12*log(x/mc^2)*x^2*π^2*mc^3*(-8*x-12*mc^2+3*mc) + π^2*(12*x^4*mc+3*x^4+176*x^3*mc^3-24*x^3*mc^2 - 144*x^2*mc^5-48*x*mc^7+24*x*mc^6+4*mc^9-3*mc^8))/(384*ℯ^(x/y)*x^2), ((3 - 4*mc)*mc^8*π^2)/(ℯ^(x/y)*(384*x)) + ((3//8)*mc^5*π^2*y)/ℯ^(x/y) + ((1//48)*(3 - 22*mc)*mc^2*π^2*x*y)/ℯ^(x/y) - ((1//128)*(1 + 4*mc)*π^2*x^2*y)/ℯ^(x/y) + ((1//48)*(3 - 22*mc)*mc^2*π^2*y^2)/ℯ^(x/y) + ((1//4)*mc^3*π^2*y^2)/ℯ^(x/y) - ((1//64)*(1 + 4*mc)*π^2*x*y^2)/ℯ^(x/y) - ((1//64)*(1 + 4*mc)*π^2*y^3)/ℯ^(x/y) + (1//16)*(1 - 2*mc)*mc^6*π^2*ExpIntegralEi(-(x/y)) + ((3 - 4*mc)*mc^8*π^2*ExpIntegralEi(-(x/y)))/(384*y) + (1//32)*mc^3*π^2*(3*mc - 12*mc^2 - 8*y)*y*ExpIntegralEi(-(x/y)) - ((1//32)*mc^3*π^2*(3*(1 - 4*mc)*mc - 8*x)*y*log(x/mc^2))/ℯ^(x/y) + ((1//4)*mc^3*π^2*y^2*log(x/mc^2))/ℯ^(x/y), x, 20),
+((12*log(x/mc^2)*x^2*π^2*mc^3*(-8*x-12*mc^2+3*mc) + π^2*(12*x^4*mc+3*x^4+176*x^3*mc^3-24*x^3*mc^2 - 144*x^2*mc^5-48*x*mc^7+24*x*mc^6+4*mc^9-3*mc^8))/(384*ℯ^(x/y)*x^2), ((3 - 4*mc)*mc^8*π^2)/(ℯ^(x/y)*(384*x)) + ((3//8)*mc^5*π^2*y)/ℯ^(x/y) + ((1//48)*(3 - 22*mc)*mc^2*π^2*x*y)/ℯ^(x/y) - ((1//128)*(1 + 4*mc)*π^2*x^2*y)/ℯ^(x/y) + ((1//48)*(3 - 22*mc)*mc^2*π^2*y^2)/ℯ^(x/y) + ((1//4)*mc^3*π^2*y^2)/ℯ^(x/y) - ((1//64)*(1 + 4*mc)*π^2*x*y^2)/ℯ^(x/y) - ((1//64)*(1 + 4*mc)*π^2*y^3)/ℯ^(x/y) + (1//16)*(1 - 2*mc)*mc^6*π^2*SymbolicUtils.expinti(-(x/y)) + ((3 - 4*mc)*mc^8*π^2*SymbolicUtils.expinti(-(x/y)))/(384*y) + (1//32)*mc^3*π^2*(3*mc - 12*mc^2 - 8*y)*y*SymbolicUtils.expinti(-(x/y)) - ((1//32)*mc^3*π^2*(3*(1 - 4*mc)*mc - 8*x)*y*log(x/mc^2))/ℯ^(x/y) + ((1//4)*mc^3*π^2*y^2*log(x/mc^2))/ℯ^(x/y), x, 20),
 
 
 # The following integrals reveal deficiencies in the current integrator;

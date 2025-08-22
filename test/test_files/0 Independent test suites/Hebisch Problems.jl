@@ -1,5 +1,5 @@
 # Each tuple is (integrand, result, integration variable, mistery value)
-data = [
+file_tests = [
 # ::Package::
 
 # ::Title::
@@ -17,17 +17,17 @@ data = [
 # Problem #2
 
 
-((2 - x^2)*exp(x/(x^2 + 2))/(x^3 + 2*x), ExpIntegralEi(x/(2 + x^2)), x, -5),
+((2 - x^2)*exp(x/(x^2 + 2))/(x^3 + 2*x), SymbolicUtils.expinti(x/(2 + x^2)), x, -5),
 
 
-((2 + 2*x + 3*x^2 - x^3 + 2*x^4)*exp(x/(2 + x^2))/(x^3 + 2*x), ℯ^(x/(2 + x^2))*(2 + x^2) + ExpIntegralEi(x/(2 + x^2)), x, -5),
+((2 + 2*x + 3*x^2 - x^3 + 2*x^4)*exp(x/(2 + x^2))/(x^3 + 2*x), ℯ^(x/(2 + x^2))*(2 + x^2) + SymbolicUtils.expinti(x/(2 + x^2)), x, -5),
 
 
 # ::Subsection::
 # Problem #3
 
 
-((exp(x) + 1)*(exp(exp(x) + x)/(exp(x) + x)), ExpIntegralEi(ℯ^x + x), x, 2),
+((exp(x) + 1)*(exp(exp(x) + x)/(exp(x) + x)), SymbolicUtils.expinti(ℯ^x + x), x, 2),
 
 
 # ::Subsection::

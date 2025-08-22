@@ -1,5 +1,5 @@
 # Each tuple is (integrand, result, integration variable, mistery value)
-data = [
+file_tests = [
 # ::Package::
 
 # ::Title::
@@ -31,8 +31,8 @@ data = [
 # Chapter 4 - The First Stage of Sin
 
 
-(sin(ℯ^x), SinIntegral(ℯ^x), x, 2),
-(sin(y)/y, SinIntegral(y), y, 1),
+(sin(ℯ^x), SymbolicUtils.sinint(ℯ^x), x, 2),
+(sin(y)/y, SymbolicUtils.sinint(y), y, 1),
 
 
 (sin(x) + ℯ^x, ℯ^x - cos(x), x, 3),
@@ -75,7 +75,7 @@ data = [
 
 (x^3*sin(x^2), (-(1//2))*x^2*cos(x^2) + sin(x^2)/2, x, 3),
 (x^7/(x^12 + 1), -(atan((1 - 2*x^4)/sqrt(3))/(4*sqrt(3))) - (1//12)*log(1 + x^4) + (1//24)*log(1 - x^4 + x^8), x, 7),
-(x^(3*a)*sin(x^(2*a)), (I*x^(1 + 3*a)*Gamma((1//2)*(3 + 1/a), (-I)*x^(2*a)))/(((-I)*x^(2*a))^((1 + 3*a)/(2*a))*(4*a)) - (I*x^(1 + 3*a)*Gamma((1//2)*(3 + 1/a), I*x^(2*a)))/((I*x^(2*a))^((1 + 3*a)/(2*a))*(4*a)), x, 3),
+(x^(3*a)*sin(x^(2*a)), (I*x^(1 + 3*a)*SymbolicUtils.gamma((1//2)*(3 + 1/a), (-I)*x^(2*a)))/(((-I)*x^(2*a))^((1 + 3*a)/(2*a))*(4*a)) - (I*x^(1 + 3*a)*SymbolicUtils.gamma((1//2)*(3 + 1/a), I*x^(2*a)))/((I*x^(2*a))^((1 + 3*a)/(2*a))*(4*a)), x, 3),
 
 
 # ::Subsection::Closed::
@@ -120,8 +120,8 @@ data = [
 (x*ℯ^x, -ℯ^x + ℯ^x*x, x, 2),
 ((x/(x + 1)^2)*ℯ^x, ℯ^x/(1 + x), x, 1),
 ((1 + 2*x^2)*ℯ^x^2, ℯ^x^2*x, x, 5),
-(ℯ^x^2, (1//2)*sqrt(π)*Erfi(x), x, 1),
-(ℯ^x/x, ExpIntegralEi(x), x, 1),
+(ℯ^x^2, (1//2)*sqrt(π)*SymbolicUtils.erfi(x), x, 1),
+(ℯ^x/x, SymbolicUtils.expinti(x), x, 1),
 
 
 # ::Subsection::Closed::

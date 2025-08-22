@@ -1,5 +1,5 @@
 # Each tuple is (integrand, result, integration variable, mistery value)
-data = [
+file_tests = [
 # ::Package::
 
 # ::Title::
@@ -995,8 +995,8 @@ data = [
 (x*cos(x)^4/sin(x)^2, -((3*x^2)/4) - cos(x)^2//4 - x*cot(x) + log(sin(x)) - (1//2)*x*cos(x)*sin(x), x, 6),
 (x*sin(x)^3/cos(x)^4, (5//6)*atanh(sin(x)) - x*sec(x) + (1//3)*x*sec(x)^3 - (1//6)*sec(x)*tan(x), x, 5),
 (x*sin(x)/cos(x)^3, (1//2)*x*sec(x)^2 - tan(x)/2, x, 3),
-(x*sin(x)^3/cos(x), x/4 + (I*x^2)/2 - x*log(1 + ℯ^(2*I*x)) + (1//2)*I*PolyLog(2, -ℯ^(2*I*x)) - (1//4)*cos(x)*sin(x) - (1//2)*x*sin(x)^2, x, 8),
-(x*sin(x)^3/cos(x)^3, x/2 - (I*x^2)/2 + x*log(1 + ℯ^(2*I*x)) - (1//2)*I*PolyLog(2, -ℯ^(2*I*x)) - tan(x)/2 + (1//2)*x*tan(x)^2, x, 7),
+(x*sin(x)^3/cos(x), x/4 + (I*x^2)/2 - x*log(1 + ℯ^(2*I*x)) + (1//2)*I*PolyLog.reli(2, -ℯ^(2*I*x)) - (1//4)*cos(x)*sin(x) - (1//2)*x*sin(x)^2, x, 8),
+(x*sin(x)^3/cos(x)^3, x/2 - (I*x^2)/2 + x*log(1 + ℯ^(2*I*x)) - (1//2)*I*PolyLog.reli(2, -ℯ^(2*I*x)) - tan(x)/2 + (1//2)*x*tan(x)^2, x, 7),
 
 
 # ::Subsection::Closed::
@@ -1081,7 +1081,7 @@ data = [
 
 
 (x^3/ℯ^(x/2), -96/ℯ^(x/2) - (48*x)/ℯ^(x/2) - (12*x^2)/ℯ^(x/2) - (2*x^3)/ℯ^(x/2), x, 4),
-(1/(x^3*ℯ^(x/2)), -(1/(ℯ^(x/2)*(2*x^2))) + 1/(ℯ^(x/2)*(4*x)) + (1//8)*ExpIntegralEi(-(x/2)), x, 3),
+(1/(x^3*ℯ^(x/2)), -(1/(ℯ^(x/2)*(2*x^2))) + 1/(ℯ^(x/2)*(4*x)) + (1//8)*SymbolicUtils.expinti(-(x/2)), x, 3),
 (x^2*a^(3*x), (2*a^(3*x))/(27*log(a)^3) - (2*a^(3*x)*x)/(9*log(a)^2) + (a^(3*x)*x^2)/(3*log(a)), x, 3),
 (x*(x^2 + 1)*ℯ^x^2, (1//2)*ℯ^x^2*x^2, x, 5),
 (x/(ℯ^x + ℯ^(-x))^2, x/2 - x/(2*(1 + ℯ^(2*x))) - (1//4)*log(1 + ℯ^(2*x)), x, 6),
@@ -1245,8 +1245,8 @@ data = [
 # Problems 90 - 92 (p. 376)
 
 
-(1/(x^3*log(x)^4), (-(4//3))*ExpIntegralEi(-2*log(x)) - 1/(3*x^2*log(x)^3) + 1/(3*x^2*log(x)^2) - 2/(3*x^2*log(x)), x, 5),
-(log(x)/(a + b*x), (log(x)*log(1 + (b*x)/a))/b + PolyLog(2, -((b*x)/a))/b, x, 2),
+(1/(x^3*log(x)^4), (-(4//3))*SymbolicUtils.expinti(-2*log(x)) - 1/(3*x^2*log(x)^3) + 1/(3*x^2*log(x)^2) - 2/(3*x^2*log(x)), x, 5),
+(log(x)/(a + b*x), (log(x)*log(1 + (b*x)/a))/b + PolyLog.reli(2, -((b*x)/a))/b, x, 2),
 (log(x)/(a + b*x)^2, (x*log(x))/(a*(a + b*x)) - log(a + b*x)/(a*b), x, 2),
 
 
@@ -1268,7 +1268,7 @@ data = [
 (log(log(x))^2/x, 2*log(x) - 2*log(x)*log(log(x)) + log(x)*log(log(x))^2, x, 3),
 (log(log(x))^3/x, -6*log(x) + 6*log(x)*log(log(x)) - 3*log(x)*log(log(x))^2 + log(x)*log(log(x))^3, x, 4),
 (log(log(x))^4/x, 24*log(x) - 24*log(x)*log(log(x)) + 12*log(x)*log(log(x))^2 - 4*log(x)*log(log(x))^3 + log(x)*log(log(x))^4, x, 5),
-(log(log(x))^n/x, (Gamma(1 + n, -log(log(x)))*log(log(x))^n)/(-log(log(x)))^n, x, 3),
+(log(log(x))^n/x, (SymbolicUtils.gamma(1 + n, -log(log(x)))*log(log(x))^n)/(-log(log(x)))^n, x, 3),
 
 
 # ::Subsection::Closed::
@@ -1321,7 +1321,7 @@ data = [
 (asin(x)*(1 - x^2)^(3//2), -((5*x^2)/16) + x^4//16 + (3//8)*x*sqrt(1 - x^2)*asin(x) + (1//4)*x*(1 - x^2)^(3//2)*asin(x) + (3*asin(x)^2)/16, x, 6),
 (asin(x)*x*(1 - x^2)^(3//2), x/5 - (2*x^3)/15 + x^5//25 - (1//5)*(1 - x^2)^(5//2)*asin(x), x, 3),
 (acos(x)*x^3*(1 - x^2)^(3//2), (-(1//35))*(2*x) - x^3//105 + (8*x^5)/175 - x^7//49 - (1//5)*(1 - x^2)^(5//2)*acos(x) + (1//7)*(1 - x^2)^(7//2)*acos(x), x, 4),
-((acos(x)*(1 - x^2)^(3//2))/x, (4*x)/3 - x^3//9 + sqrt(1 - x^2)*acos(x) + (1//3)*(1 - x^2)^(3//2)*acos(x) + 2*I*acos(x)*atan(ℯ^(I*acos(x))) - I*PolyLog(2, (-I)*ℯ^(I*acos(x))) + I*PolyLog(2, I*ℯ^(I*acos(x))), x, 10),
+((acos(x)*(1 - x^2)^(3//2))/x, (4*x)/3 - x^3//9 + sqrt(1 - x^2)*acos(x) + (1//3)*(1 - x^2)^(3//2)*acos(x) + 2*I*acos(x)*atan(ℯ^(I*acos(x))) - I*PolyLog.reli(2, (-I)*ℯ^(I*acos(x))) + I*PolyLog.reli(2, I*ℯ^(I*acos(x))), x, 10),
 ((asin(x)*(1 - x^2)^(3//2))/x^6, -(1/(20*x^4)) + 1/(5*x^2) - ((1 - x^2)^(5//2)*asin(x))/(5*x^5) + log(x)/5, x, 4),
 ((asin(x)*x^2)/sqrt(1 - x^2), x^2//4 - (1//2)*x*sqrt(1 - x^2)*asin(x) + asin(x)^2//4, x, 3),
 ((asin(x)*x^4)/sqrt(1 - x^2), (3*x^2)/16 + x^4//16 - (3//8)*x*sqrt(1 - x^2)*asin(x) - (1//4)*x^3*sqrt(1 - x^2)*asin(x) + (3*asin(x)^2)/16, x, 5),
@@ -1335,7 +1335,7 @@ data = [
 # Problems 19 - 22 (p. 401)
 
 
-(asin(x)/(x*(1 - x^2)^(3//2)), asin(x)/sqrt(1 - x^2) - 2*asin(x)*atanh(ℯ^(I*asin(x))) - atanh(x) + I*PolyLog(2, -ℯ^(I*asin(x))) - I*PolyLog(2, ℯ^(I*asin(x))), x, 8),
+(asin(x)/(x*(1 - x^2)^(3//2)), asin(x)/sqrt(1 - x^2) - 2*asin(x)*atanh(ℯ^(I*asin(x))) - atanh(x) + I*PolyLog.reli(2, -ℯ^(I*asin(x))) - I*PolyLog.reli(2, ℯ^(I*asin(x))), x, 8),
 (acos(x)/(x^4*sqrt(1 - x^2)), 1/(6*x^2) - (sqrt(1 - x^2)*acos(x))/(3*x^3) - (2*sqrt(1 - x^2)*acos(x))/(3*x) - (2*log(x))/3, x, 4),
 (acos(x)^2*x*sqrt(1 - x^2), (4*sqrt(1 - x^2))/9 + (2//27)*(1 - x^2)^(3//2) - (2//3)*x*acos(x) + (2//9)*x^3*acos(x) - (1//3)*(1 - x^2)^(3//2)*acos(x)^2, x, 5),
 ((asin(x)^3*x^2)/sqrt(1 - x^2), -((3*x^2)/8) + (3//4)*x*sqrt(1 - x^2)*asin(x) - (3*asin(x)^2)/8 + (3//4)*x^2*asin(x)^2 - (1//2)*x*sqrt(1 - x^2)*asin(x)^3 + asin(x)^4//8, x, 6),
@@ -1348,7 +1348,7 @@ data = [
 ((atan(x)*x)/(1 + x^2)^2, x/(4*(1 + x^2)) + atan(x)/4 - atan(x)/(2*(1 + x^2)), x, 3),
 ((atan(x)*x)/(1 + x^2)^3, x/(16*(1 + x^2)^2) + (3*x)/(32*(1 + x^2)) + (3*atan(x))/32 - atan(x)/(4*(1 + x^2)^2), x, 4),
 ((atan(x)*x^2)/(1 + x^2), x*atan(x) - atan(x)^2//2 - (1//2)*log(1 + x^2), x, 4),
-((atan(x)*x^3)/(1 + x^2), -(x/2) + atan(x)/2 + (1//2)*x^2*atan(x) + (1//2)*I*atan(x)^2 + atan(x)*log(2/(1 + I*x)) + (1//2)*I*PolyLog(2, 1 - 2/(1 + I*x)), x, 8),
+((atan(x)*x^3)/(1 + x^2), -(x/2) + atan(x)/2 + (1//2)*x^2*atan(x) + (1//2)*I*atan(x)^2 + atan(x)*log(2/(1 + I*x)) + (1//2)*I*PolyLog.reli(2, 1 - 2/(1 + I*x)), x, 8),
 
 
 # ::Subsection::Closed::
@@ -1356,11 +1356,11 @@ data = [
 
 
 ((atan(x)*x^2)/(1 + x^2)^2, -(1/(4*(1 + x^2))) - (x*atan(x))/(2*(1 + x^2)) + atan(x)^2//4, x, 2),
-((atan(x)*x^3)/(1 + x^2)^2, -(x/(4*(1 + x^2))) - atan(x)/4 + atan(x)/(2*(1 + x^2)) - (1//2)*I*atan(x)^2 - atan(x)*log(2/(1 + I*x)) - (1//2)*I*PolyLog(2, 1 - 2/(1 + I*x)), x, 8),
-((atan(x)*x^5)/(1 + x^2)^2, -(x/2) + x/(4*(1 + x^2)) + (3*atan(x))/4 + (1//2)*x^2*atan(x) - atan(x)/(2*(1 + x^2)) + I*atan(x)^2 + 2*atan(x)*log(2/(1 + I*x)) + I*PolyLog(2, 1 - 2/(1 + I*x)), x, 17),
+((atan(x)*x^3)/(1 + x^2)^2, -(x/(4*(1 + x^2))) - atan(x)/4 + atan(x)/(2*(1 + x^2)) - (1//2)*I*atan(x)^2 - atan(x)*log(2/(1 + I*x)) - (1//2)*I*PolyLog.reli(2, 1 - 2/(1 + I*x)), x, 8),
+((atan(x)*x^5)/(1 + x^2)^2, -(x/2) + x/(4*(1 + x^2)) + (3*atan(x))/4 + (1//2)*x^2*atan(x) - atan(x)/(2*(1 + x^2)) + I*atan(x)^2 + 2*atan(x)*log(2/(1 + I*x)) + I*PolyLog.reli(2, 1 - 2/(1 + I*x)), x, 17),
 ((atan(x)*(1 + x^2))/x^2, -(atan(x)/x) + x*atan(x) + log(x) - log(1 + x^2), x, 8),
 ((atan(x)*(1 + x^2))/x^5, -(1/(12*x^3)) - 1/(4*x) - ((1 + x^2)^2*atan(x))/(4*x^4), x, 3),
-((atan(x)*(1 + x^2)^2)/x^5, -(1/(12*x^3)) - 3/(4*x) - (3*atan(x))/4 - atan(x)/(4*x^4) - atan(x)/x^2 + (1//2)*I*PolyLog(2, (-I)*x) - (1//2)*I*PolyLog(2, I*x), x, 12),
+((atan(x)*(1 + x^2)^2)/x^5, -(1/(12*x^3)) - 3/(4*x) - (3*atan(x))/4 - atan(x)/(4*x^4) - atan(x)/x^2 + (1//2)*I*PolyLog.reli(2, (-I)*x) - (1//2)*I*PolyLog.reli(2, I*x), x, 12),
 
 
 # ::Subsection::Closed::
@@ -1404,7 +1404,7 @@ data = [
 (asin(sqrt((x - a)/(x + a))), -sqrt(2)*a*sqrt((x - a)/(x + a))/sqrt(a/(x + a)) + (x + a)*asin(sqrt((x - a)/(x + a))), x, -8),
 (atan(sqrt((x - a)/(x + a))), x*atan(sqrt(-((a - x)/(a + x)))) - a*atanh(sqrt(-((a - x)/(a + x)))), x, 4),
 (atan(x)/(1 + x)^3, -(1/(4*(1 + x))) - atan(x)/(2*(1 + x)^2) + (1//4)*log(1 + x) - (1//8)*log(1 + x^2), x, 5),
-(atan(x - a)/(x + a), atan(a - x)*log(2/(1 - I*(a - x))) - atan(a - x)*log(-((2*(a + x))/((I - 2*a)*(1 - I*(a - x))))) - (1//2)*I*PolyLog(2, 1 - 2/(1 - I*(a - x))) + (1//2)*I*PolyLog(2, 1 + (2*(a + x))/((I - 2*a)*(1 - I*(a - x)))), x, 5),
+(atan(x - a)/(x + a), atan(a - x)*log(2/(1 - I*(a - x))) - atan(a - x)*log(-((2*(a + x))/((I - 2*a)*(1 - I*(a - x))))) - (1//2)*I*PolyLog.reli(2, 1 - 2/(1 - I*(a - x))) + (1//2)*I*PolyLog.reli(2, 1 + (2*(a + x))/((I - 2*a)*(1 - I*(a - x)))), x, 5),
 (asin(sqrt(1 - x^2))/sqrt(1 - x^2), -sqrt(x^2)*asin(sqrt(1 - x^2))^2/(2*x), x, 2),
 (atan(sqrt(1 + x^2))*x/sqrt(1 + x^2), sqrt(1 + x^2)*atan(sqrt(1 + x^2)) - (1//2)*log(2 + x^2), x, 2),
 (asin(x)/(1 - x)^(5//2), -(sqrt(1 + x)/(3*(1 - x))) + (2*asin(x))/(3*(1 - x)^(3//2)) - (1/(3*sqrt(2)))*atanh(sqrt(1 + x)/sqrt(2)), x, 5),
