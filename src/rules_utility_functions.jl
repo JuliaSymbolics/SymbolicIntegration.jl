@@ -143,7 +143,9 @@ function expand_linear_product(v, u, a, b, x)
 
     # Extract coefficients of the transformed polynomial
     coeffs = Num[]
-    for i in 0:poly_degree(u_transformed, x)
+    N = poly_degree(u_transformed, x)
+    N===nothing && return nothing
+    for i in 0:N
         coeff = ext_coeff(u_transformed, x, i)
         push!(coeffs, simp(coeff, x)) # Simplify each coefficient
     end
@@ -157,9 +159,10 @@ end
 # TODO address x / ((1 + x)^2)
 function ext_expand(expr, x)
     f(p) = !contains_var(p, x) # f stands for free of x
+    p(pa) = poly(pa,x)
     
     # note that m can be a non integer
-    case1 = @rule (~u::(p->poly(p,x)))*((~a::f) + (~!b::f)*x)^(~m::f) => ~
+    case1 = @rule (~u::p)*((~a::f) + (~!b::f)*x)^(~m::f) => ~
     t = case1(expr) # t stands for tmp
     t !== nothing && return expand_linear_product((t[:a]+t[:b]*x)^t[:m],t[:u], t[:a], t[:b], x)
     case1_1 = @rule (~u::(p->poly(p,x)))/(((~a::f) + (~!b::f)*x)^(~m::f)) => ~ # TODO needed because of neim problem
@@ -178,9 +181,8 @@ function ext_expand(expr, x)
     t = case5(expr)
     t!==nothing && return t
     
-    p(pa) = poly(pa,x)
     case6 = @rule (~u::p)/(~v::p) => exponent_of(~u,x)>=exponent_of(~v,x) ? polynomial_divide(~u,~v,x) : nothing
-    t = case6(t)
+    t = case6(expr)
     t!==nothing && return t
 
     return expand(expr)
@@ -538,15 +540,17 @@ function monomial(u, x)
     # if u is a constant or a variable, it is a monomial
     !(s(u)) && return true
     u = Symbolics.unwrap(u)
+    !SymbolicUtils.iscall(u) && !eq(u,x) && return 0 # symbolic variables
+    f(p) = !contains_var(p,x)
     # if u is a call, check if it is a monomial
-    degree = (@rule (~!b::(b -> !contains_var(x, b)))*(~var::(var->var===x))^(~!m::(m->!contains_var(x,m)))=>~m)(u) 
+    degree = (@rule (~!b::f)*x^(~!m::f)=>~m)(u) 
     degree !== nothing && return degree
-    degree = (@rule ((~!b::(b -> !contains_var(x, b)))*(~var::(var->var===x)))^(~!m::(m->!contains_var(x,m)))=>~m)(u)
+    degree = (@rule ((~!b::f)*x)^(~!m::f)=>~m)(u)
     degree !== nothing && return degree
     return nothing
 end
 
-# If u is a polynomial in x of degree n, poly_degree(u,x) returns n, else nothing
+# If u is a polynomial in x of degree n, poly_degree(u,x) returns n, else false
 function poly_degree(u, x)
     x = Symbolics.unwrap(x)
     u = Symbolics.unwrap(u)
@@ -594,11 +598,9 @@ function poly(u, x)
     u = expand(u)
 
     # if u is a sum call monomial on each term
-    if issum(u)
-        return all(monomial(term, x)!==nothing for term in SymbolicUtils.arguments(u))
-    else
-        return monomial(u, x)!==nothing
-    end
+    !SymbolicUtils.iscall(u) && return true
+    issum(u) && return all(monomial(t, x)!==nothing for t in SymbolicUtils.arguments(u))
+    return monomial(u, x)!==nothing
 end
 
 function poly(u, x, n)
