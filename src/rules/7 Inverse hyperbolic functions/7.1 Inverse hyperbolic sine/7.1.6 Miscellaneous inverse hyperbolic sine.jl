@@ -77,7 +77,7 @@ file_rules = [
 1⨸(~p)*int_and_subst((~x)^(~n)*coth((~x)),  (~x), (~x), asinh((~a)*(~x)^(~p)), "7_1_6_12") : nothing)
 
 ("7_1_6_13",
-@rule ∫((~!u)*asinh((~!c)/((~!a) + (~!b)*(~x)^(~!n)))^(~!m),(~x)) =>
+@rule ∫((~!u)*asinh((~c)/((~!a) + (~!b)*(~x)^(~!n)))^(~!m),(~x)) =>
     !contains_var((~a), (~b), (~c), (~n), (~m), (~x)) ?
 ∫((~u)*acsch((~a)⨸(~c) + (~b)*(~x)^(~n)⨸(~c))^(~m), (~x)) : nothing)
 

@@ -354,9 +354,7 @@ function translate_result(result, index)
         (r"Sum\[(.*?),\s*\{(.*?),(.*?),(.*?)\}\]", s"sum([\1 for \2 in (\3):(\4)])"), # from Sum[f(x), {x, a, b}] to sum([f(x) for x in a:b])
         (r"ReplaceAll\[(.*?),(.*?)->(.*?)\]", s"substitute(\1, Dict(\2 => \3))"), # from ReplaceAll[f(x), x->a] to substitute(f(x), Dict(x => a))
 
-        # not yet solved integrals
-        # (r"Int\[(.*?),\s*x\]", s"∫(\1, x)"), # from Int[(a + b*x)^m, x] to  ∫((a + b*x)^m, x)        
-        # (r"IntHide\[(.*?),\s*x\]", s"∫(\1, x)"),
+        (r"HypergeometricPFQ\[\s*\{(.+?)\}\s*,\s*\{(.+?)\}\s*,(.+?)\]", s"hypergeometricpFq([\1], [\2], \3)"), # from HypergeometricPFQ[{a, b}, {c, d}, z] to hypergeometricpFq([a, b], [c, d], z)
 
         ("/", "⨸"), # custom division
         (r"(?<!\w)Pi(?!\w)", "π"),
