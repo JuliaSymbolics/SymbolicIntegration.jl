@@ -24,12 +24,10 @@ file_rules = [
     !contains_var((~a), (~x)) ?
 (~a)*(~x) : nothing)
 
-# TODO 5sin(x)cos(x) not taken
-
 ("0_1_12",
-@rule ∫((~~a)*(~u),(~x)) =>
-    !contains_var(prod(~a), (~x)) ?
-prod(~a)*∫((~u), (~x)) : nothing)
+@rule ∫(*(~~a),~x) => any([!contains_var(el,~x) for el in ~a]) ?
+prod([contains_var(el,~x) ? 1 : el for el in ~a])*∫(prod([contains_var(el,~x) ? el : 1 for el in ~a]),~x) : nothing
+)
 
 # TODO if pattern matching was better 0_1_12_[1,2,3] would be handled by 0_1_12
 ("0_1_12_1",
