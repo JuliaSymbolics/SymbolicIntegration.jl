@@ -468,19 +468,39 @@ function linear_without_simplify(args...)
     return true
 end
 
-
+# if u is an expression equivalent to a+bx^n with a,b,n constants,
+# b and n != 0, returns n
+function binomial_degree(u, x)
+    f(p) = !contains_var(p, x) # f stands for free of x
+    (@rule (~a::f) + (~!b::f)*x^(~!n::f) => ~n)(u)
+end
 # if u is an expression equivalent to a+bx^n with a,b,n constants,
 # b and n != 0, returns true
 function binomial_without_simplify(u, x)
-    (@rule (~a::(a -> !contains_var(a, x))) + (~!b::(b -> !contains_var(b, x)))*x^(~!n::(n -> !contains_var(n, x))) => 1)(u) !== nothing
+    binomial_degree(u,x) !== nothing
 end
 function binomial_without_simplify(u, x, pow)
-    (@rule (~a::(a -> !contains_var(a, x))) + (~!b::(b -> !contains_var(b,x)))*x^(~!n::(n -> !contains_var(n,x) && n===pow)) => 1)(u) !== nothing
+    binomial_degree(u,x) == pow
 end
 binomial(u, x) = binomial_without_simplify(simplify(u; expand = true),x)
 binomial(u::Vector,x) = all(binomial(e,x) for e in u)
 binomial(u, x, n) = binomial_without_simplify(simplify(u; expand = true), x, n)
 binomial(u::Vector,x,n) = all(binomial(e,x,n) for e in u)
+
+# if u is an expression equivalent to a+b*x^n+c*x^(2n) with a,b,n non zero constants,
+# b and n != 0, returns n
+function trinomial_degree(u, x)
+    f(p) = !contains_var(p, x) # f stands for free of x
+    (@rule (~a::f) + (~!b::f)*x^(~!n::f) + (~!c::f)*x^(~n2::f)=> eq(~n*2, ~n2)||eq(~n2*2, ~n) ? min(~n,~n2) : nothing)(u)
+    # the or is because of oooomm problem
+end
+# if u is an expression equivalent to a+bx^n with a,b,n constants,
+# b and n != 0, returns true
+function trinomial_without_simplify(u, x)
+    trinomial_degree(u,x) !== nothing
+end
+trinomial(u, x) = trinomial_without_simplify(simplify(u; expand = true),x)
+trinomial(u::Vector,x) = all(trinomial(e,x) for e in u)
 
 # If u is a monomial in x (either b(x^m) or (bx)^m), monomial(u,x) returns the degree of u in x; else it returns nothing.
 function monomial(u, x)
