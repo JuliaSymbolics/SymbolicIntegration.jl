@@ -1,3 +1,5 @@
+# rules 1_1_4 mostly dont work due to oom problem, there are a lot of lt(0,j,n) statements
+
 file_rules = [
 #(* ::Subsection::Closed:: *)
 #(* 1.1.4.1 (a x^j+b x^n)^p *)

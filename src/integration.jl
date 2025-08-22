@@ -116,5 +116,4 @@ end
 
 function integrate(;verbose=false)
     @warn "No integrand provided. Please provide one like this: `integrate(x^2 + 3x + 2)`"
-    println(half_integer(0.5))
 end 
