@@ -1,4 +1,12 @@
-#=
+"""
+- [Description of the script `src/translator_of_rules.jl`](#description-of-the-script-srctranslator_of_rulesjl)
+    - [How to use it](#how-to-use-it)
+    - [How it works internally (useful to know if you have to debug it)](#how-it-works-internally-useful-to-know-if-you-have-to-debug-it)
+      - [With syntax](#with-syntax)
+      - [replace and smart_replace applications](#replace-and-smart_replace-applications)
+      - [Pretty indentation](#pretty-indentation)
+      - [end](#end)
+
 This script is used to translate integration rules from Mathematica syntax
 to julia Syntax.
 
@@ -22,7 +30,7 @@ inside the With block (OddQ in the example), that are bought outside.
 ```
 1/(2*c*Rt[2*q - b/c, 2])*Int[x^(m - 3), x] - 1/(2*c*Rt[2*q - b/c, 2])/;  FreeQ[{a, b, c}, x] && (NeQ[b^2 - 4*a*c, 0] || (GeQ[m, 3] && LtQ[m, 4])) && NegQ[b^2 - 4*a*c] &&  OddQ[Rt[2*q - b/c, 2]]
 ```
-# replace and smart_replace applications
+### replace and smart_replace applications
 Then the line is split into integral, result, and conditions:
 ```
 Int[x_^m_./(a_ + b_. + c_.*x_^4), x_Symbol]
@@ -75,8 +83,7 @@ applied automatically that rewrites the rule like this:
 ### end
 finally the rule is placed in a tuple (index, rule), and all the
 tuples are put into a array, ready to be included by load_rules
-
-=#
+"""
 
 using Printf
 
