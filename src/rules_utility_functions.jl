@@ -476,31 +476,56 @@ function binomial_degree(u, x)
 end
 # if u is an expression equivalent to a+bx^n with a,b,n constants,
 # b and n != 0, returns true
-function binomial_without_simplify(u, x)
-    binomial_degree(u,x) !== nothing
-end
-function binomial_without_simplify(u, x, pow)
-    binomial_degree(u,x) == pow
-end
+binomial_without_simplify(u, x) = binomial_degree(u,x) !== nothing
+binomial_without_simplify(u, x, pow) = binomial_degree(u,x) == pow
+
 binomial(u, x) = binomial_without_simplify(simplify(u; expand = true),x)
 binomial(u::Vector,x) = all(binomial(e,x) for e in u)
 binomial(u, x, n) = binomial_without_simplify(simplify(u; expand = true), x, n)
 binomial(u::Vector,x,n) = all(binomial(e,x,n) for e in u)
 
+# if u is an expression equivalent to a*x^q+b*x^nwith a,b,n,q constants return n-q
+function generalized_binomial_degree(u,x)
+    f(p) = !contains_var(p, x) # f stands for free of x
+    (@rule (~a::f)*x^(~!q::f) + (~!b::f)*x^(~!n::f) => ~n-~q)(u)
+end
+generalized_binomial_without_simplify(u,x) = generalized_binomial_degree(u,x)!==nothing
+generalized_binomial(u,x) = generalized_binomial_without_simplify(simplify(u;expand=true),x)
+
 # if u is an expression equivalent to a+b*x^n+c*x^(2n) with a,b,n non zero constants,
 # b and n != 0, returns n
 function trinomial_degree(u, x)
     f(p) = !contains_var(p, x) # f stands for free of x
-    (@rule (~a::f) + (~!b::f)*x^(~!n::f) + (~!c::f)*x^(~n2::f)=> eq(~n*2, ~n2)||eq(~n2*2, ~n) ? min(~n,~n2) : nothing)(u)
-    # the or is because of oooomm problem
+    result = (@rule (~a::f) + (~!b::f)*x^(~!n::f) + (~!c::f)*x^(~n2::f)=> ~)(u)
+    result===nothing && return nothing
+    # TODO all these cases are for oooomm problem
+    n, n2 = result[:n], result[:n2]
+    eq(n*2,n2) && return n
+    eq(n2,2*n2) && return n2
+end
+trinomial_without_simplify(u, x) = trinomial_degree(u,x) !== nothing
+trinomial(u, x) = trinomial_without_simplify(simplify(u; expand = true),x)
+trinomial(u::Vector,x) = all(trinomial(e,x) for e in u)
+
+# if u is an expression equivalent to a*x^q + b*x^n + c*x^(2*n-q) where n!=0, q!=0, b!=0 and c!=0, reutrns n-q
+function generalized_trinomial_degree(u, x)
+    f(p) = !contains_var(p, x) # f stands for free of x
+    result = (@rule (~a::f)*x^(~q::f) + (~!b::f)*x^(~!n::f) + (~!c::f)*x^(~n2::f)=> ~)(u)
+    result===nothing && return nothing
+    # TODO all these cases are for oooomm problem
+    q, n, n2 = result[:q], result[:n], result[:n2]
+    2*n-q == n2 && return n-q
+    2*q-n == n2 && return q-n
+    2*n2-q == n && return n2-q
+    2*q-n2 == n && return q-n2
+    2*n-n2 == q && return n-n2
+    2*n2-n == q && return n2-n
 end
 # if u is an expression equivalent to a+bx^n with a,b,n constants,
 # b and n != 0, returns true
-function trinomial_without_simplify(u, x)
-    trinomial_degree(u,x) !== nothing
-end
-trinomial(u, x) = trinomial_without_simplify(simplify(u; expand = true),x)
-trinomial(u::Vector,x) = all(trinomial(e,x) for e in u)
+generalized_trinomial_without_simplify(u, x) = generalized_trinomial_degree(u,x) !== nothing
+generalized_trinomial(u, x) = generalized_trinomial_without_simplify(simplify(u; expand = true),x)
+generalized_trinomial(u::Vector,x) = all(generalized_trinomial(e,x) for e in u)
 
 # If u is a monomial in x (either b(x^m) or (bx)^m), monomial(u,x) returns the degree of u in x; else it returns nothing.
 function monomial(u, x)

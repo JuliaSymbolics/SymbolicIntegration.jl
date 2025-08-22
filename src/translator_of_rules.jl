@@ -405,13 +405,24 @@ function translate_conditions(conditions)
         ("Expon", s"exponent_of", 2),
         ("FullSimplify", "simplify", 1),
 
+
         ("BinomialDegree", "binomial_degree", (2,3)),
         ("BinomialQ", "binomial"),
         ("BinomialMatchQ", "binomial_without_simplify"),
-        ("TrinomialDegree", "Trinomial_degree", (2,3)),
+
+        ("GeneralizedBinomialDegree", "generalized_binomial_degree", (2,3)),
+        ("GeneralizedBinomialQ", "generalized_binomial",2),
+        ("GeneralizedBinomialMatchQ", "generalized_binomial_without_simplify",2),
+        
+        ("TrinomialDegree", "trinomial_degree", (2,3)),
         ("TrinomialQ", "trinomial"),
         ("TrinomialMatchQ", "trinomial_without_simplify"),
         
+        ("GeneralizedTrinomialDegree", "generalized_trinomial_degree", (2,3)),
+        ("GeneralizedTrinomialQ", "generalized_trinomial"),
+        ("GeneralizedTrinomialMatchQ", "generalized_trinomial_without_simplify"),
+
+
         ("AlgebraicFunctionQ", "algebraic_function", (2,3)),
         ("RationalFunctionQ", "rational_function", 2),
         ("QuadraticQ", "quadratic", 2),
