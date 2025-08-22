@@ -135,7 +135,7 @@ function translate_With_syntax(s)
     # if both conditions present
     if match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)/;(?<wconds>.+?)\]\s*/;(?<conds>.+)", s) !== nothing
         m = match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)/;(?<wconds>.+?)\]\s*/;(?<conds>.+)", s)
-        s = replace(s, m.match => "With[{$(m[:vardefs])},$(m[:body])] /; $(m[:conds]) && $(m[:wconds])")
+        s = replace(s, m.match => "With[{$(m[:vardefs])},$(m[:body])] /; $(m[:conds]) && ($(m[:wconds]))")
     # if only conditions with normal variables
     elseif match(r"With\[\{(?<vardefs>.+)\},(?<body>.+?)\s*\]\s*/;(?<conds>.+)\s*$", s) !== nothing
         # nothing to do here, just needs to match before the next case
