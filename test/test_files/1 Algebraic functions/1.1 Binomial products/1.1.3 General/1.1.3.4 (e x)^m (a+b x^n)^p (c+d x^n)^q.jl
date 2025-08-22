@@ -1,5 +1,5 @@
 # Each tuple is (integrand, result, integration variable, mistery value)
-data = [
+file_tests = [
 # ::Package::
 
 # ::Title::Closed::
@@ -184,7 +184,7 @@ data = [
 ((x^m*(A + B*x^3))/(a + b*x^3)^3, ((A*b - a*B)*x^(1 + m))/(6*a*b*(a + b*x^3)^2) + ((A*b*(5 - m) + a*B*(1 + m))*x^(1 + m)*SymbolicIntegration.hypergeometric2f1(2, (1 + m)/3, (4 + m)/3, -((b*x^3)/a)))/(6*a^3*b*(1 + m)), x, 2),
 
 
-((e*x)^m/((a + b*x^3)*(c + d*x^3)), (b*(e*x)^(1 + m)*SymbolicIntegration.hypergeometric2f1(1, (1 + m)/3, (4 + m)/3, -((b*x^3)/a)))/(a*(b*c - a*d)*e*(1 + m)) - (d*(e*x)^(1 + m)*SymbolicIntegration.hypergeometric2f1(1, (1 + m)/3, (4 + m)/3, -((d*x^3)/c)))/(c*(b*c - a*d)*e*(1 + m)), x, 3),
+((e x)^m/((a + b*x^3)*(c + d*x^3)), (b*(e*x)^(1 + m)*SymbolicIntegration.hypergeometric2f1(1, (1 + m)/3, (4 + m)/3, -((b*x^3)/a)))/(a*(b*c - a*d)*e*(1 + m)) - (d*(e*x)^(1 + m)*SymbolicIntegration.hypergeometric2f1(1, (1 + m)/3, (4 + m)/3, -((d*x^3)/c)))/(c*(b*c - a*d)*e*(1 + m)), x, 3),
 
 
 # ::Section::Closed::
