@@ -1,7 +1,7 @@
 
 (* ::Subsection::Closed:: *)
 (* 1.1.4.1 (a x^j+b x^n)^p *)
-Int[(a_.*x_^j_. + b_.*x_^n_.)^p_, x_Symbol] := (a*x^j + b*x^n)^(p + 1)/(b*(n - j) (p + 1)*x^(n - 1)) /; FreeQ[{a, b, j, n, p}, x] && Not[IntegerQ[p]] && NeQ[n, j] && EqQ[j*p - n + j + 1, 0]
+Int[(a_.*x_^j_. + b_.*x_^n_.)^p_, x_Symbol] := (a*x^j + b*x^n)^(p + 1)/(b*(n - j)*(p + 1)*x^(n - 1)) /; FreeQ[{a, b, j, n, p}, x] && Not[IntegerQ[p]] && NeQ[n, j] && EqQ[j*p - n + j + 1, 0]
 Int[(a_.*x_^j_. + b_.*x_^n_.)^p_, x_Symbol] := -(a*x^j + b*x^n)^(p + 1)/(a*(n - j)*(p + 1)*x^(j - 1)) + (n*p + n - j + 1)/(a*(n - j)*(p + 1))* Int[(a*x^j + b*x^n)^(p + 1)/x^j, x] /; FreeQ[{a, b, j, n}, x] && Not[IntegerQ[p]] && NeQ[n, j] && ILtQ[Simplify[(n*p + n - j + 1)/(n - j)], 0] && LtQ[p, -1]
 Int[(a_.*x_^j_. + b_.*x_^n_.)^p_, x_Symbol] := (a*x^j + b*x^n)^(p + 1)/(a*(j*p + 1)*x^(j - 1)) - b*(n*p + n - j + 1)/(a*(j*p + 1))* Int[x^(n - j)*(a*x^j + b*x^n)^p, x] /; FreeQ[{a, b, j, n, p}, x] && Not[IntegerQ[p]] && NeQ[n, j] && ILtQ[Simplify[(n*p + n - j + 1)/(n - j)], 0] && NeQ[j*p + 1, 0]
 Int[(a_.*x_^j_. + b_.*x_^n_.)^p_, x_Symbol] := x*(a*x^j + b*x^n)^p/(j*p + 1) - b*(n - j)*p/(j*p + 1)*Int[x^n*(a*x^j + b*x^n)^(p - 1), x] /; FreeQ[{a, b}, x] && Not[IntegerQ[p]] && LtQ[0, j, n] && GtQ[p, 0] && LtQ[j*p + 1, 0]
