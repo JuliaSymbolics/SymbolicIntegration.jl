@@ -25,8 +25,11 @@ file_rules = [
 (~a)*(~x) : nothing)
 
 ("0_1_12",
-@rule ∫(*(~~a),~x) => any([!contains_var(el,~x) for el in ~a]) ?
-prod([contains_var(el,~x) ? 1 : el for el in ~a])*∫(prod([contains_var(el,~x) ? el : 1 for el in ~a]),~x) : nothing
+@rule ∫(*(~~a),~x) =>
+let
+    out = prod([contains_var(el,~x) ? 1 : el for el in ~a])
+    out==1 ? nothing : out*∫(prod([contains_var(el,~x) ? el : 1 for el in ~a]),~x)
+end : nothing
 )
 
 # TODO if pattern matching was better 0_1_12_[1,2,3] would be handled by 0_1_12

@@ -101,14 +101,19 @@ ext_num(rt(-(~a)⨸(~b), 3))*((~B)*ext_num(rt(-(~a)⨸(~b), 3)) + (~A)*ext_den(r
 
 ("1_1_3_7_13",
 @rule ∫((~P2)/((~a) + (~!b)*(~x)^3),(~x)) =>
-    !contains_var((~a), (~b), (~x)) &&
-    poly((~P2), (~x), 2) &&
+!contains_var((~a), (~b), (~x)) && poly((~P2), (~x), 2) ?
+let
+    # P2 = A + B x + C x^2
+    A = ext_coeff((~P2), (~x), 0)
+    B = ext_coeff((~P2), (~x), 1)
+    C = ext_coeff((~P2), (~x), 2)
     (
-        eq(ext_coeff((~P2), (~x), 1)^2 - ext_coeff((~P2), (~x), 0)*ext_coeff((~P2), (~x), 2), 0) &&
-        eq((~b)*ext_coeff((~P2), (~x), 1)^3 + (~a)*ext_coeff((~P2), (~x), 2)^3, 0)
+        eq(B^2 - A*C, 0) &&
+        eq((~b)*B^3 + (~a)*C^3, 0)
     ) ?
--ext_coeff((~P2), (~x), 2)^2⨸(~b)*∫(1⨸(ext_coeff((~P2), (~x), 1) - ext_coeff((~P2), (~x), 2)*(~x)), (~x)) : nothing)
-
+    -C^2⨸(~b)*∫(1⨸(B - C*(~x)), (~x)) : nothing
+end : nothing
+)
 ("1_1_3_7_14",
 @rule ∫((~P2)/((~a) + (~!b)*(~x)^3),(~x)) =>
     !contains_var((~a), (~b), (~x)) &&
