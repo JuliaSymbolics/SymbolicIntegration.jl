@@ -317,7 +317,7 @@ end
 
 function pretty_print_rule(rule, identifier)
     # manage special cases
-    identifier == "9_1_0" && return "∫( +(a...), x) => sum([ ∫(f, x) for f in a ])"
+    identifier == "0_1_0" && return "∫( +(a...), x) => sum([ ∫(f, x) for f in a ])"
     identifier == "0_1_12" && return "∫ a*f(x) dx => a*∫ f(x) dx"
 
     s = string(rule)
