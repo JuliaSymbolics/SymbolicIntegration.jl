@@ -98,7 +98,7 @@ function translate_file(input_filename, output_filename)
     rules_big_string = "file_rules = [\n"
 
     for (i, line) in enumerate(lines)
-        println("-----------------Translating line $i:----------------\n$line")
+        println("Translating line $i")
         if startswith(line, "(*")
             rules_big_string *= "#$line\n"
             continue
@@ -165,6 +165,11 @@ function translate_line(line, index)
     
     julia_integrand = transalte_integrand(integrand)
     julia_result = translate_result(result, index)
+
+    m = match(r"\^\(.*?/.*?\)", julia_integrand)
+    if m !== nothing
+        @warn "Probably found something raised to a fractional power, you may want to add the ⟰ function manually"
+    end
     
     return (julia_integrand, julia_conditions, julia_result)
 end
@@ -507,7 +512,6 @@ function translate_conditions(conditions)
     for (mathematica, julia) in associations
         conditions = replace(conditions, mathematica => julia)
     end
-    println("c")
  
     conditions = pretty_indentation(conditions) # improve readibility
  
