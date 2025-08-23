@@ -31,14 +31,6 @@ file_tests = [
 (1/(3*a*b + 3*b^2*x + 3*b*c*x^2 + c^2*x^3)^3, -((c*(b/c + x))/(6*b*(b^2 - 3*a*c)*(3*a*b + 3*b^2*x + 3*b*c*x^2 + c^2*x^3)^2)) + (5*c^2*(b/c + x))/(18*b^2*(b^2 - 3*a*c)^2*(3*a*b + 3*b^2*x + 3*b*c*x^2 + c^2*x^3)) - (5*c^2*atan((b^(1//3) + (2*(b + c*x))/(b^2 - 3*a*c)^(1//3))/(sqrt(3)*b^(1//3))))/(9*sqrt(3)*b^(8//3)*(b^2 - 3*a*c)^(8//3)) + (5*c^2*log(b - b^(1//3)*(b^2 - 3*a*c)^(1//3) + c*x))/(27*b^(8//3)*(b^2 - 3*a*c)^(8//3)) - (5*c^2*log(b^(2//3)*(b^2 - 3*a*c)^(2//3) + b^(1//3)*c*(b^2 - 3*a*c)^(1//3)*(b/c + x) + c^2*(b/c + x)^2))/(54*b^(8//3)*(b^2 - 3*a*c)^(8//3)), x, 9),
 
 
-((a c e+(b c e+a d e+a c f) x+(b d e+b c f+a d f) x^2+b d f x^3)^3, ((b*c - a*d)^3*(b*e - a*f)^3*(a + b*x)^4)/(4*b^7) + (3*(b*c - a*d)^2*(b*e - a*f)^2*(b*d*e + b*c*f - 2*a*d*f)*(a + b*x)^5)/(5*b^7) + ((b*c - a*d)*(b*e - a*f)*(5*a^2*d^2*f^2 - 5*a*b*d*f*(d*e + c*f) + b^2*(d^2*e^2 + 3*c*d*e*f + c^2*f^2))*(a + b*x)^6)/(2*b^7) + ((b*d*e + b*c*f - 2*a*d*f)*(10*a^2*d^2*f^2 - 10*a*b*d*f*(d*e + c*f) + b^2*(d^2*e^2 + 8*c*d*e*f + c^2*f^2))*(a + b*x)^7)/(7*b^7) + (3*d*f*(5*a^2*d^2*f^2 - 5*a*b*d*f*(d*e + c*f) + b^2*(d^2*e^2 + 3*c*d*e*f + c^2*f^2))*(a + b*x)^8)/(8*b^7) + (d^2*f^2*(b*d*e + b*c*f - 2*a*d*f)*(a + b*x)^9)/(3*b^7) + (d^3*f^3*(a + b*x)^10)/(10*b^7), x, 3),
-((a c e+(b c e+a d e+a c f) x+(b d e+b c f+a d f) x^2+b d f x^3)^2, ((b*c - a*d)^2*(b*e - a*f)^2*(a + b*x)^3)/(3*b^5) + ((b*c - a*d)*(b*e - a*f)*(b*d*e + b*c*f - 2*a*d*f)*(a + b*x)^4)/(2*b^5) + ((6*a^2*d^2*f^2 - 6*a*b*d*f*(d*e + c*f) + b^2*(d^2*e^2 + 4*c*d*e*f + c^2*f^2))*(a + b*x)^5)/(5*b^5) + (d*f*(b*d*e + b*c*f - 2*a*d*f)*(a + b*x)^6)/(3*b^5) + (d^2*f^2*(a + b*x)^7)/(7*b^5), x, 3),
-((a c e+(b c e+a d e+a c f) x+(b d e+b c f+a d f) x^2+b d f x^3)^1, a*c*e*x + (1//2)*(b*c*e + a*d*e + a*c*f)*x^2 + (1//3)*(b*d*e + b*c*f + a*d*f)*x^3 + (1//4)*b*d*f*x^4, x, 1),
-(1/(a c e+(b c e+a d e+a c f) x+(b d e+b c f+a d f) x^2+b d f x^3)^1, (b*log(a + b*x))/((b*c - a*d)*(b*e - a*f)) - (d*log(c + d*x))/((b*c - a*d)*(d*e - c*f)) + (f*log(e + f*x))/((b*e - a*f)*(d*e - c*f)), x, 2),
-(1/(a c e+(b c e+a d e+a c f) x+(b d e+b c f+a d f) x^2+b d f x^3)^2, -(b^3/((b*c - a*d)^2*(b*e - a*f)^2*(a + b*x))) - d^3/((b*c - a*d)^2*(d*e - c*f)^2*(c + d*x)) - f^3/((b*e - a*f)^2*(d*e - c*f)^2*(e + f*x)) - (2*b^3*(b*d*e + b*c*f - 2*a*d*f)*log(a + b*x))/((b*c - a*d)^3*(b*e - a*f)^3) + (2*d^3*(b*d*e - 2*b*c*f + a*d*f)*log(c + d*x))/((b*c - a*d)^3*(d*e - c*f)^3) + (2*f^3*(2*b*d*e - b*c*f - a*d*f)*log(e + f*x))/((b*e - a*f)^3*(d*e - c*f)^3), x, 2),
-(1/(a c e+(b c e+a d e+a c f) x+(b d e+b c f+a d f) x^2+b d f x^3)^3, -(b^5/(2*(b*c - a*d)^3*(b*e - a*f)^3*(a + b*x)^2)) + (3*b^5*(b*d*e + b*c*f - 2*a*d*f))/((b*c - a*d)^4*(b*e - a*f)^4*(a + b*x)) + d^5/(2*(b*c - a*d)^3*(d*e - c*f)^3*(c + d*x)^2) + (3*d^5*(b*d*e - 2*b*c*f + a*d*f))/((b*c - a*d)^4*(d*e - c*f)^4*(c + d*x)) - f^5/(2*(b*e - a*f)^3*(d*e - c*f)^3*(e + f*x)^2) - (3*f^5*(2*b*d*e - b*c*f - a*d*f))/((b*e - a*f)^4*(d*e - c*f)^4*(e + f*x)) + (3*b^5*(7*a^2*d^2*f^2 - 7*a*b*d*f*(d*e + c*f) + b^2*(2*d^2*e^2 + 3*c*d*e*f + 2*c^2*f^2))*log(a + b*x))/((b*c - a*d)^5*(b*e - a*f)^5) - (3*d^5*(2*a^2*d^2*f^2 + a*b*d*f*(3*d*e - 7*c*f) + b^2*(2*d^2*e^2 - 7*c*d*e*f + 7*c^2*f^2))*log(c + d*x))/((b*c - a*d)^5*(d*e - c*f)^5) + (3*f^5*(2*a^2*d^2*f^2 - a*b*d*f*(7*d*e - 3*c*f) + b^2*(7*d^2*e^2 - 7*c*d*e*f + 2*c^2*f^2))*log(e + f*x))/((b*e - a*f)^5*(d*e - c*f)^5), x, 2),
-
-
 (1/(1 + x + x^2 + x^3), atan(x)/2 + (1//2)*log(1 + x) - (1//4)*log(1 + x^2), x, 5),
 (1/(-1 + 4*x - 4*x^2 + 16*x^3), (-(1//10))*atan(2*x) + (1//5)*log(1 - 4*x) - (1//10)*log(1 + 4*x^2), x, 5),
 
@@ -891,7 +883,7 @@ file_tests = [
 ((x + x^3)/(-1 + x), 2*x + x^2//2 + x^3//3 + 2*log(1 - x), x, 3),
 
 
-(a c+(d+b c) x, a*c*x + (1//2)*(b*c + d)*x^2, x, 1),
+(a*c+(d+b*c)*x, a*c*x + (1//2)*(b*c + d)*x^2, x, 1),
 (d*x + c*(a + b*x), (d*x^2)/2 + (c*(a + b*x)^2)/(2*b), x, 1),
 
 

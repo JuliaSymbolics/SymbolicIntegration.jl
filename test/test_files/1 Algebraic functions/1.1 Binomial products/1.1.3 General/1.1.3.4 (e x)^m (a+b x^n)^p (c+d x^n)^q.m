@@ -182,7 +182,7 @@
 {(x^m*(A + B*x^3))/(a + b*x^3)^3, x, 2, ((A*b - a*B)*x^(1 + m))/(6*a*b*(a + b*x^3)^2) + ((A*b*(5 - m) + a*B*(1 + m))*x^(1 + m)*Hypergeometric2F1[2, (1 + m)/3, (4 + m)/3, -((b*x^3)/a)])/(6*a^3*b*(1 + m))}
 
 
-{(e x)^m/((a + b*x^3)*(c + d*x^3)), x, 3, (b*(e*x)^(1 + m)*Hypergeometric2F1[1, (1 + m)/3, (4 + m)/3, -((b*x^3)/a)])/(a*(b*c - a*d)*e*(1 + m)) - (d*(e*x)^(1 + m)*Hypergeometric2F1[1, (1 + m)/3, (4 + m)/3, -((d*x^3)/c)])/(c*(b*c - a*d)*e*(1 + m))}
+{(e*x)^m/((a + b*x^3)*(c + d*x^3)), x, 3, (b*(e*x)^(1 + m)*Hypergeometric2F1[1, (1 + m)/3, (4 + m)/3, -((b*x^3)/a)])/(a*(b*c - a*d)*e*(1 + m)) - (d*(e*x)^(1 + m)*Hypergeometric2F1[1, (1 + m)/3, (4 + m)/3, -((d*x^3)/c)])/(c*(b*c - a*d)*e*(1 + m))}
 
 
 (* ::Section::Closed:: *)
