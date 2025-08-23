@@ -23,7 +23,7 @@ file_tests = [
 
 
 ((x - tan(x))/tan(x)^2, -(x^2//2) - x*cot(x), x, 6),
-(1 + x*tan(x) + tan(x)^2, (I*x^2)/2 - x*log(1 + ℯ^(2*I*x)) + (1//2)*I*PolyLog.reli(2, -ℯ^(2*I*x)) + tan(x), x, 7),
+(1 + x*tan(x) + tan(x)^2, (I*x^2)/2 - x*log(1 + ℯ^(2*I*x)) + (1//2)*I*PolyLog.reli(2., -ℯ^(2*I*x)) + tan(x), x, 7),
 (sin(x)/x, SymbolicUtils.sinint(x), x, 1),
 ((3*(x + ℯ^x)^(1//3) + (2*x^2 + 3*x)*ℯ^x + 5*x^2)/(x*(x + ℯ^x)^(1//3)), 3*x*(ℯ^x + x)^(2//3) + 3*log(x), x, 8),
 
