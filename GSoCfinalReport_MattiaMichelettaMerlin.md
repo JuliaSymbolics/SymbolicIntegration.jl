@@ -25,7 +25,6 @@ If you are in a hurry, read only the Project Overview section, and you should ha
 This project aimed to implement symbolic integration (i.e. finding primitives of functions, not numerical integration) in Symbolics.jl, the Julia package for symbolic manipulation. The chosen algorithm was rule-based integration, which uses a large number of integration rules that specify how to integrate various expressions. I chose this strategy thanks to the [Mathematica](https://www.wolfram.com/mathematica/) package [RUBI](https://rulebasedintegration.org/), which already contains more than 6000 integration rules and is open source.
 
 The main challenges I encountered were:
-
 - **Rule translation:** The rules are written in Mathematica files with Mathematica syntax (very different from Julia syntax). I tackled this challenge by creating a translator script that automatically translates the rules into Julia syntax using regex and other string manipulation functions that I wrote. It's described in detail in the sections below
 
 - **Utility functions:** There are many rules in RUBI, but also many utility functions used in the rule conditions, including both base Mathematica functions and custom functions made for the RUBI package (the file where they are defined contains 7842 lines of code). The translation of these could not be automated, so I had to: 1) understand what each utility function did (not always easy) and 2) rewrite it in Julia.
@@ -34,7 +33,16 @@ The main challenges I encountered were:
 
 As of september 2025, end of GSoC, I translated 3000+ rules from 90+ files and the system can integrate a vast class of expressions, involving normal algebraic functions
 ```julia
-julia> integrate(sqrt(4 - 12*x + 9*x^2),x)
+julia> integrate(sqrt(4 - 12*x + 9*x^2)+sqrt(1+x),x)
+┌-------Applied rule 0_1_0 on ∫(sqrt(1 + x) + sqrt(4 - 12x + 9(x^2)), x)
+| ∫( +(a...), x) => sum([ ∫(f, x) for f in a ])
+└-------with result: ∫(sqrt(4 - 12x + 9(x^2)), x) + ∫(sqrt(1 + x), x)
+┌-------Applied rule 1_1_1_1_4 on ∫(sqrt(1 + x), x)
+| ∫((a + b * x) ^ m, x) => if 
+|       !(contains_var(a, b, m, x)) &&
+|       !(eq(m, -1))
+| (a + b * x) ^ (m + 1) / (b * (m + 1))
+└-------with result: (2//3)*((1 + x)^(3//2))
 ┌-------Applied rule 1_2_1_1_3 on ∫(sqrt(4 - 12x + 9(x^2)), x)
 | ∫((a + b * x + c * x ^ 2) ^ p, x) => if 
 |       !(contains_var(a, b, c, p, x)) &&
@@ -44,32 +52,64 @@ julia> integrate(sqrt(4 - 12*x + 9*x^2),x)
 |       )
 | ((b + 2 * c * x) * (a + b * x + c * x ^ 2) ^ p) / (2 * c * (2 * p + 1))
 └-------with result: (1//36)*(-12 + 18x)*((4 - 12x + 9(x^2))^(1//2))
-(1//36)*(-12 + 18x)*sqrt(4 - 12x + 9(x^2))
+(2//3)*((1 + x)^(3//2)) + (1//36)*(-12 + 18x)*sqrt(4 - 12x + 9(x^2))
 
 julia> integrate((2+2x+2x^2)/(1+x^3);verbose=false)
 (2//3)*log(1 + x^3) + 2.3094010767585034atan(0.14433756729740646(-4 + 8x))
 
+julia> integrate((1 - x)^2*(1 + x)^(2.34);verbose=false)
+1.1976047904191618((1 + x)^3.34) - 0.9216589861751152((1 + x)^4.34) + 0.18726591760299627((1 + x)^5.34)
 ```
 also symbolic ones
 ```julia
 julia> integrate(1/(a+b*x^2),x;verbose=false)
 (atan(x / sqrt(a / b))*sqrt(a / b)) / a
 
+julia> integrate(x^2/(1+a*x^3),x;verbose=false)
+log(1 + a*(x^3)) / (3a)
 ```
-
 exponentials
+```julia
+julia> integrate(exp(x)/(exp(2x)-1);verbose=false)
+-atanh(exp(x))
 
+julia> integrate(sqrt(x)*exp(x);verbose=false)
+-0.8862269254527579SpecialFunctions.erfi(sqrt(x)) + sqrt(x)*exp(x)
+```
 logarithms
+```julia
+julia> integrate(log(x)*x;verbose=false)
+-(1//4)*(x^2) + (1//2)*(x^2)*log(x)
 
+julia> integrate(log(x)/sqrt(x);verbose=false)
+-(4//1)*sqrt(x) + (2//1)*sqrt(x)*log(x)
+
+julia> integrate(log(log(x));verbose=false)
+-SpecialFunctions.expinti(log(x)) + x*log(log(x))
+```
 trigonometric functions
 ```julia
-julia> integrate(2*π*sin(x)*cos(x) + sin(x)^2*cos(x);verbose=false)
-3.141592653589793(sin(x)^2) + (1//3)*(sin(x)^3)
-```
+julia> integrate(sin(x)^3*cos(x)^2;verbose=false)
+-(1//3)*(cos(x)^3) + (1//5)*(cos(x)^5)
 
+julia> integrate(sqrt(sin(x));verbose=false)
+2Elliptic.E((1//2)*(-1.5707963267948966 + x), 2)
+
+julia> integrate(sqrt(sin(x)+1);verbose=false)
+(-2cos(x)) / sqrt(1 + sin(x))
+
+julia> integrate(sin(x^2)/x;verbose=false)
+(1//2)*SpecialFunctions.sinint(x^2)
+
+julia> integrate(acosh(x+1);verbose=false)
+(1 + x)*acosh(1 + x) - sqrt(x)*sqrt(2 + x)
+```
 and much more. I also added 27585 tests (integrals with their correct solution) from the RUBI package that can be used to test the package.
 
-left to do??? TODO
+While this shows impressive integration capabilities, there is still work left to do, which I briefly list here and describe in detail below.
+- First, there are still some problems with the SymbolicUtils `@rule` macro that prevent some expressions from being integrated even though the rules are present.
+- There are still some rules not translated, mainly those involving trigonometric functions, hyperbolic functions, and special functions. 
+- Finally, during the summer, a Julia package has been revived that performs symbolic integration using various algorithms, and we decided to create one unified package where the user can choose which integration strategy to use. I thus need to add the rule-based strategy to that repository.
 
 # Detailed report of work done
 Here is a detailed report of the work done with links to code and pull requests (pr), if you really want to deep dive in the technical details. The code I have written is mainly in this repo, SymbolicIntegration.jl, and in the SymbolicUtils.jl repo where I improved the `@rule` macro.
@@ -183,13 +223,13 @@ I created the Julia package SymbolicIntegration.jl where I put the translated ru
 │   └── translator_of_rules.jl
 └── test
     ├── runtests.jl
-    ├── test_SymPy.jl
-    ├── test_SymbolicNumericIntegration.jl
     ├── test_files/
     ├── test_results/
     └── translator_of_testset.jl
 ```
 The file `integration.jl` contains the `integrate` function, the heart of the package, which wraps the integrand provided by the user in the symbolic function `∫(integrand, integration variable)` and then applies the rules iteratively. The rules are callable objects that search for specific patterns inside the `∫` symbolic function and are applied one after the other until a match is found. Often a rule doesn't yield a solved integral, but an expression containing a yet-to-be-solved integral (for example, integration by parts), so a pre-walk of the entire expression tree is performed.
+
+The file `rules_loader.jl` contains the code to load the rules from the rule files (in `src/rules/`) into one global array that will be used for integration
 
 ### Rules Translation
 The rules in the RUBI package are organized in files, containing integration rules for similar expressions. For example here is a selection of Mathematica rules i choose from various files to illustrate the translation script:
@@ -249,7 +289,7 @@ end : nothing)
 and yes, the indentation in the condition part of the rule is created automatically (see 1_1_1_2_35), and the let block is created automatically (see 1_1_3_7_14). For detailed information on how the scripts work and how one could use it (and debug it) to translate new rules see [this](https://github.com/Bumblebee00/SymbolicIntegration.jl?tab=readme-ov-file#description-of-the-script-srctranslator_of_rulesjl) section of the readme.
 
 ### Tests
-i tested TODO
+The file test/runtests.jl
 
 
 ## In other julia repos
@@ -259,7 +299,7 @@ I did also some minor stuff in two other julia repo:
 
 # What's left to do
 The problems holding back the most number of expressions to be integrated are:
-- **rules not translated**: As described above translating rules is not that fast, while it can be automated in some parts, the translation of the utlility functions cannot be automated and in general one has to test if rules get applied correctly. I didn't manage to translate all the 6k+ rules and there are still some left TODO
+- **rules not translated**: As described above translating rules is not that fast, while it can be automated in some parts, the translation of the utlility functions cannot be automated and in general one has to test if rules get applied correctly. The rules not yet translated are the ones involving mainly tirgonometric functions, hyperbolic functions and specia functions. For a general introduction on how to translate rue, there is the [Contributing](https://github.com/Bumblebee00/SymbolicIntegration.jl?tab=readme-ov-file#contributing) section of the readme.
 - **@rule macro**: While I improved it, there are still some problems in the rule macro. The two biggest are:
 - - **neim problem**: a rule like `(~a + ~b*~x)^(~m)*(~c + ~d*~x)^(~n)` doesnt match the expression `(1+2x)^2/(3+4x)^2` with `~n=-2`. For more info you can read [the issue](https://github.com/JuliaSymbolics/SymbolicUtils.jl/issues/777) or see this [WIP pr](https://github.com/JuliaSymbolics/SymbolicUtils.jl/pull/778) in wich i try to implement a solution.
 - - **oooomm problem**: a rule can match an expression in more than one way, but, for how rules are implemented currently, only one is returned and it might be the wrong one. For more detail read [the issue](https://github.com/JuliaSymbolics/SymbolicUtils.jl/issues/776) and see this [WIP pr](https://github.com/JuliaSymbolics/SymbolicUtils.jl/pull/772) in wich i try to implement a solution.
