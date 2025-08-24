@@ -1,5 +1,3 @@
-THIS IS A DRAFT!!!!!!!!!!!!!!!!!!!!
-
 If you are in a hurry, read only the Project Overview section, and you should have a pretty complete view on the work done during my GSoC and what's left to do. If you have time, read the whole document that goes in detail on the code written and has links to github.
 
 - [Project Overview](#project-overview)
@@ -289,8 +287,7 @@ end : nothing)
 and yes, the indentation in the condition part of the rule is created automatically (see 1_1_1_2_35), and the let block is created automatically (see 1_1_3_7_14). For detailed information on how the scripts work and how one could use it (and debug it) to translate new rules see [this](https://github.com/Bumblebee00/SymbolicIntegration.jl?tab=readme-ov-file#description-of-the-script-srctranslator_of_rulesjl) section of the readme.
 
 ### Tests
-The file test/runtests.jl
-
+The file `test/runtests.jl` can be used to automatically test the 25798 test integrals in `test/test_files/` or only some of them, and saves to a .out file the test results. Instead the file `translator_of_testset.jl` has been used to translate the testfiles from Mathematica syntax to Julia syntax.
 
 ## In other julia repos
 I did also some minor stuff in two other julia repo:
