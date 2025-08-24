@@ -26,13 +26,48 @@ This project aimed to implement symbolic integration (i.e. finding primitives of
 
 The main challenges I encountered were:
 
-- **Rule translation:** The rules are written in Mathematica files with Mathematica syntax (very different from Julia syntax). I tackled this challenge by creating a translator script that automatically translates the rules into Julia syntax using regex and other string manipulation functions that I wrote.
+- **Rule translation:** The rules are written in Mathematica files with Mathematica syntax (very different from Julia syntax). I tackled this challenge by creating a translator script that automatically translates the rules into Julia syntax using regex and other string manipulation functions that I wrote. It's described in detail in the sections below
 
-- **Utility functions:** There are many rules in RUBI, but also many utility functions used in the rule conditions, including both base Mathematica functions and custom functions made for the RUBI package (the file where they are defined contains 7842 lines of code). The translation of these could not be automated, so I had to: 1) understand what each utility function did and 2) rewrite it in Julia.
+- **Utility functions:** There are many rules in RUBI, but also many utility functions used in the rule conditions, including both base Mathematica functions and custom functions made for the RUBI package (the file where they are defined contains 7842 lines of code). The translation of these could not be automated, so I had to: 1) understand what each utility function did (not always easy) and 2) rewrite it in Julia.
 
 - **Rule application:** Julia's Symbolics.jl already had a pattern matching functionality, with the `@rule` macro, but it was not sufficient for symbolic integration to work well, so I improved it. There was not one single big improvement but many small ones, described in detail in the sections below.
 
-In the end I translated 3k+ rules and have a working package that can integrate ....? TODO
+As of september 2025, end of GSoC, I translated 3000+ rules from 90+ files and the system can integrate a vast class of expressions, involving normal algebraic functions
+```julia
+julia> integrate(sqrt(4 - 12*x + 9*x^2),x)
+┌-------Applied rule 1_2_1_1_3 on ∫(sqrt(4 - 12x + 9(x^2)), x)
+| ∫((a + b * x + c * x ^ 2) ^ p, x) => if 
+|       !(contains_var(a, b, c, p, x)) &&
+|       (
+|             eq(b ^ 2 - 4 * a * c, 0) &&
+|             !(eq(p, -1 / 2))
+|       )
+| ((b + 2 * c * x) * (a + b * x + c * x ^ 2) ^ p) / (2 * c * (2 * p + 1))
+└-------with result: (1//36)*(-12 + 18x)*((4 - 12x + 9(x^2))^(1//2))
+(1//36)*(-12 + 18x)*sqrt(4 - 12x + 9(x^2))
+
+julia> integrate((2+2x+2x^2)/(1+x^3);verbose=false)
+(2//3)*log(1 + x^3) + 2.3094010767585034atan(0.14433756729740646(-4 + 8x))
+
+```
+also symbolic ones
+```julia
+julia> integrate(1/(a+b*x^2),x;verbose=false)
+(atan(x / sqrt(a / b))*sqrt(a / b)) / a
+
+```
+
+exponentials
+
+logarithms
+
+trigonometric functions
+```julia
+julia> integrate(2*π*sin(x)*cos(x) + sin(x)^2*cos(x);verbose=false)
+3.141592653589793(sin(x)^2) + (1//3)*(sin(x)^3)
+```
+
+and much more. I also added 27585 tests (integrals with their correct solution) from the RUBI package that can be used to test the package.
 
 left to do??? TODO
 
@@ -46,6 +81,7 @@ Functionality | Link
 added DefSlots | [pr](https://github.com/JuliaSymbolics/SymbolicUtils.jl/pull/749)
 added commutative checks, <br> negative exponent matching, <br> `sqrt` and `exp` support <br> and new simplify behaviour (yes, all in one pr) | [pr](https://github.com/JuliaSymbolics/SymbolicUtils.jl/pull/752)
 return matches dictionary | [pr](https://github.com/JuliaSymbolics/SymbolicUtils.jl/pull/774)
+sped up rules | [pr](https://github.com/JuliaSymbolics/SymbolicUtils.jl/pull/779)
 
 
 ### Defslot
@@ -55,7 +91,7 @@ Rules in Mathematica are represented as patterns inside a function, for example:
 Int[1/(a_ + b_.*x_^2), x_Symbol] := Sqrt[a/b]/a*ArcTan[x/Sqrt[a/b]]
 ```
 
-The `a_` and `x_` are variables that can match any expression. The `b_.` is different: the dot at the end indicates that this pattern can match both `1/(1+2x^2)` (with a=1, b=2) and `1/(1+x^2)` with b=1, where there isn't actually a multiplication in front of the x. This feature was not present in Julia, so I added it.
+The `a_` and `x_` are variables that can match any expression. The `b_.` is different: the dot at the end indicates that this pattern can match both `1/(1+2x^2)` (with a=1, b=2) and `1/(1+x^2)` with b=1, where there isn't actually a multiplication in front of the `x^2`. This feature was not present in Julia, so I added it. Here is how:
 
 Rules in Julia are represented with the `@rule` macro. From the [documentation](https://symbolicutils.juliasymbolics.org/rewrite/):
 
@@ -153,7 +189,7 @@ I created the Julia package SymbolicIntegration.jl where I put the translated ru
     ├── test_results/
     └── translator_of_testset.jl
 ```
-The file `integration.jl` contains the `integrate` function, the heart of the package, which wraps the integrand provided by the user in the symbolic function `∫(integrand, integration_variable)` and then applies the rules iteratively. The rules are callable objects that search for specific patterns inside the `∫` symbolic function and are applied one after the other until a match is found. Often a rule doesn't yield a solved integral, but an expression containing a yet-to-be-solved integral (for example, integration by parts), so a pre-walk of the entire expression tree is performed.
+The file `integration.jl` contains the `integrate` function, the heart of the package, which wraps the integrand provided by the user in the symbolic function `∫(integrand, integration variable)` and then applies the rules iteratively. The rules are callable objects that search for specific patterns inside the `∫` symbolic function and are applied one after the other until a match is found. Often a rule doesn't yield a solved integral, but an expression containing a yet-to-be-solved integral (for example, integration by parts), so a pre-walk of the entire expression tree is performed.
 
 ### Rules Translation
 The rules in the RUBI package are organized in files, containing integration rules for similar expressions. For example here is a selection of Mathematica rules i choose from various files to illustrate the translation script:
@@ -161,11 +197,11 @@ The rules in the RUBI package are organized in files, containing integration rul
 Int[x_^m_., x_Symbol] := x^(m + 1)/(m + 1) /; FreeQ[m, x] && NeQ[m, -1]
 Int[1/(a_ + b_.*x_^2), x_Symbol] := Rt[a/b, 2]/a*ArcTan[x/Rt[a/b, 2]] /; FreeQ[{a, b}, x] && PosQ[a/b]
 Int[(b_.*x_)^m_*(c_ + d_.*x_)^n_, x_Symbol] := c^IntPart[n]*(c + d*x)^FracPart[n]/(1 + d*x/c)^FracPart[n]* Int[(b*x)^m*(1 + d*x/c)^n, x] /; FreeQ[{b, c, d, m, n}, x] && Not[IntegerQ[m]] && Not[IntegerQ[n]] && Not[GtQ[c, 0]] && Not[GtQ[-d/(b*c), 0]] && (RationalQ[m] && Not[EqQ[n, -1/2] && EqQ[c^2 - d^2, 0]] || Not[RationalQ[n]])
-Int[F_^(a_. + b_.*(c_. + d_.*x_)^2), x_Symbol] := F^a*Sqrt[Pi]* Erfi[(c + d*x)*Rt[b*Log[F], 2]]/(2*d*Rt[b*Log[F], 2]) /; FreeQ[{F, a, b, c, d}, x] && PosQ[b]
+Int[P2_/(a_ + b_.*x_^3), x_Symbol] := With[{A = Coeff[P2, x, 0], B = Coeff[P2, x, 1], C = Coeff[P2, x, 2], q = a^(1/3)/b^(1/3)}, C/b*Int[1/(q + x), x] + (B + C*q)/b* Int[1/(q^2 - q*x + x^2), x] /; EqQ[A*b^(2/3) - a^(1/3)*b^(1/3)*B - 2*a^(2/3)*C, 0]] /; FreeQ[{a, b}, x] && PolyQ[P2, x, 2]
 ```
 As you can see rules are definied as patterns for the `Int` function, functions have square brakets, lists are created with curly brakets and conditions are put after the `/;`
 
-The files `src/string_manipulation_helpers.jl` and `src/translator_of_rules.jl` are the two with which I translate the rules. Creating this script was quite difficult, because there are a lot of different syntaxes, functions, edge cases, etc. But now is quite powerful, and most of the times translates a rule file flawlessy (0 errors) to julia syntax. For example the above rules are translated automatically to:
+The files `src/string_manipulation_helpers.jl` and `src/translator_of_rules.jl` are the two with which I translate the rules. Creating these scripts was quite difficult, because there are a lot of different syntaxes, functions, edge cases, etc. But now they are quite powerful, and most of the times translate a rule file flawlessy (0 errors!) to julia syntax. I remember in the first month of GSoC using the translator script and seing the entire screen red in vscode for the syntax errors. For example the above rules are translated automatically to:
 ```
 ("1_1_1_1_2",
 @rule ∫((~x)^(~!m),(~x)) =>
@@ -196,13 +232,21 @@ rt((~a)⨸(~b), 2)⨸(~a)*atan((~x)⨸rt((~a)⨸(~b), 2)) : nothing)
     ) ?
 (~c)^intpart((~n))*((~c) + (~d)*(~x))^fracpart((~n))⨸(1 + (~d)*(~x)⨸(~c))^fracpart((~n))* ∫(((~b)*(~x))^(~m)*(1 + (~d)*(~x)⨸(~c))^(~n), (~x)) : nothing)
 
-("2_3_11",
-@rule ∫((~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^2),(~x)) =>
-    !contains_var((~F), (~a), (~b), (~c), (~d), (~x)) &&
-    pos((~b)) ?
-(~F)^(~a)*sqrt(π)* SymbolicUtils.erfi(((~c) + (~d)*(~x))*rt((~b)*log((~F)), 2))⨸(2*(~d)*rt((~b)*log((~F)), 2)) : nothing)
+("1_1_3_7_14",
+@rule ∫((~P2)/((~a) + (~!b)*(~x)^3),(~x)) =>
+    !contains_var((~a), (~b), (~x)) &&
+    poly((~P2), (~x), 2) ?
+let
+    A = ext_coeff((~P2), (~x), 0)
+    B = ext_coeff((~P2), (~x), 1)
+    C = ext_coeff((~P2), (~x), 2)
+    q = (~a)^(1⨸3)⨸(~b)^(1⨸3)
+    
+    eq(A*(~b)^(2/3) - (~a)^(1/3)*(~b)^(1/3)*B - 2*(~a)^(2/3)*C, 0) ?
+    C⨸(~b)*∫(1⨸(q + (~x)), (~x)) + (B + C*q)⨸(~b)* ∫(1⨸(q^2 - q*(~x) + (~x)^2), (~x)) : nothing
+end : nothing)
 ```
-and yes, the indentation in the condition part of the rule is created automatically. For detailed information on how the scripts work and how one could use it (and debug it) to translate new rules see [this]() section of the readme.
+and yes, the indentation in the condition part of the rule is created automatically (see 1_1_1_2_35), and the let block is created automatically (see 1_1_3_7_14). For detailed information on how the scripts work and how one could use it (and debug it) to translate new rules see [this](https://github.com/Bumblebee00/SymbolicIntegration.jl?tab=readme-ov-file#description-of-the-script-srctranslator_of_rulesjl) section of the readme.
 
 ### Tests
 i tested TODO
