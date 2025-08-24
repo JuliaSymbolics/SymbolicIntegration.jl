@@ -24,9 +24,30 @@ Int[x_^m_./(a_ + b_. + c_.*x_^4), x_Symbol] := With[{q = Rt[a/c, 2], r = Rt[2*q 
 ```
 ### With syntax
 for each line it first check if there is the With syntax, a syntax in Mathematica
-that enables to define variables in a local scope. If yes finds the defined
-variables and substitute them with their definition. Also there could be conditions
-inside the With block (OddQ in the example), that are bought outside.
+that enables to define variables in a local scope. If yes it can do two things:
+In the new method translates the block using the let syntax, like this:
+```julia
+@rule ∫((~x)^(~!m)/((~a) + (~!b) + (~!c)*(~x)^4),(~x)) =>
+    !contains_var((~a), (~b), (~c), (~x)) &&
+    (
+        !eq((~b)^2 - 4*(~a)*(~c), 0) ||
+        (
+            ge((~m), 3) &&
+            lt((~m), 4)
+        )
+    ) &&
+    neg((~b)^2 - 4*(~a)*(~c)) ?
+let
+    q = rt((~a)⨸(~c), 2)
+    r = rt(2*q - (~b)⨸(~c), 2)
+    
+    ext_isodd(r) ?
+    1⨸(2*(~c)*r)*∫((~x)^((~m) - 3), (~x)) - 1⨸(2*(~c)*r) : nothing
+end : nothing)
+```
+The old method was to finds the defined variables and substitute them with their
+definition. Also there could be conditions inside the With block (OddQ in the example),
+that were bought outside.
 ```
 1/(2*c*Rt[2*q - b/c, 2])*Int[x^(m - 3), x] - 1/(2*c*Rt[2*q - b/c, 2])/;  FreeQ[{a, b, c}, x] && (NeQ[b^2 - 4*a*c, 0] || (GeQ[m, 3] && LtQ[m, 4])) && NegQ[b^2 - 4*a*c] &&  OddQ[Rt[2*q - b/c, 2]]
 ```
@@ -105,34 +126,7 @@ function translate_file(input_filename, output_filename)
         end
         !startswith(line, "Int[") && continue
         
-        rule_index = "$(file_index)_$n_rules"
-        (int, cond, res) = translate_line(line, rule_index)
-
-        tmp = ""
-        if cond === nothing
-            tmp *= 
-            """
-            (\"$rule_index\",
-            @rule $int =>
-            $res)
-            
-            """
-        elseif cond == "nested"
-            tmp*="# Nested conditions found, not translating rule:\n#$line\n\n"
-        else
-            tmp *= 
-            """
-            (\"$rule_index\",
-            @rule $int =>
-            $cond ?
-            $res : nothing)
-            
-            """
-        end
-        if findfirst("Unintegrable", res) !== nothing
-            tmp = "# "*replace(strip(tmp), "\n"=>"\n# ")*"\n\n"
-        end
-        rules_big_string *= tmp
+        rules_big_string *= translate_line(line, "$(file_index)_$n_rules")*"\n"
         n_rules += 1
     end
     rules_big_string *= "\n]\n"
@@ -145,6 +139,10 @@ end
 
 # gets as input a line and returns  integrand, conditions and result
 function translate_line(line, index)
+    if occursin("Module", line)
+        @warn "Line has \"Module\" keyword, skipping it because I dont know how to transalte it"
+        return "# Rule skipped because of \"Module\":\n# "*line*"\n"
+    end
     # Separate the integrand and result
     parts = split(line, " := ")
     if length(parts) < 2
@@ -152,26 +150,99 @@ function translate_line(line, index)
     end
     
     integrand = parts[1]
-    result_and_conds = translate_With_syntax(parts[2])
-
-    if count("/;", result_and_conds)==1
-        tmp = split(result_and_conds, "/;")
-        result = tmp[1]
-        julia_conditions = translate_conditions(tmp[2])
-    else
-        result = result_and_conds
-        julia_conditions = nothing
-    end
+    result_and_conds = parts[2]
+    vardefs, conds, wconds, result = translate_With_syntax(parts[2])
     
-    julia_integrand = transalte_integrand(integrand)
-    julia_result = translate_result(result, index)
+    if vardefs!==nothing
+        var_names = [strip(split(v,"=")[1]) for v in vardefs]
+        var_exprs = [result_substitutions(strip(split(v,'=')[2]), vardefs) for v in vardefs]
+        julia_vardefs = ""
+        for i in 1:length(var_names)
+            julia_vardefs = julia_vardefs*var_names[i]*" = "*var_exprs[i]*"\n"*" "^4
+        end
 
-    m = match(r"\^\(.*?/.*?\)", julia_integrand)
-    if m !== nothing
+        # conditions present both inside with block and outside
+        if conds!==nothing && wconds!==nothing
+            julia_rule = 
+            """
+            (\"$index\",
+            @rule $(transalte_integrand(integrand)) =>
+            $(translate_conditions(conds, vardefs)) ?
+            let
+                $julia_vardefs
+            $(translate_conditions(wconds, vardefs)) ?
+                $(translate_result(result, index, vardefs)) : nothing
+            end : nothing)
+            """
+        elseif conds!==nothing && wconds===nothing
+            julia_rule = 
+            """
+            (\"$index\",
+            @rule $(transalte_integrand(integrand)) =>
+            $(translate_conditions(conds, vardefs)) ?
+            let
+                $julia_vardefs
+                $(translate_result(result, index, vardefs))
+            end : nothing)
+            """
+        elseif conds===nothing && wconds!==nothing
+            julia_rule = 
+            """
+            (\"$index\",
+            @rule $(transalte_integrand(integrand)) =>
+            let
+                $julia_vardefs
+            $(translate_conditions(wconds, vardefs)) ?
+                $(translate_result(result, index, vardefs)) : nothing
+            end)
+            """
+        end
+    else
+        if count("/;", result_and_conds)==1
+            tmp = split(result_and_conds, "/;")
+            result = tmp[1]
+            julia_conditions = translate_conditions(tmp[2], nothing)
+        elseif count("/;", result_and_conds)==0
+            # I think only rule 1_1_1_1_1 has no conditions
+            result = result_and_conds
+            julia_conditions = nothing
+        else
+            @warn "Too many /; in line $line"
+            return "# "*line
+        end
+        
+        julia_integrand = transalte_integrand(integrand)
+        julia_result = translate_result(result, index, nothing)
+
+        if julia_conditions === nothing
+            julia_rule = 
+            """
+            (\"$index\",
+            @rule $julia_integrand =>
+            $julia_result)
+            
+            """
+        else
+            julia_rule = 
+            """
+            (\"$index\",
+            @rule $julia_integrand =>
+            $julia_conditions ?
+            $julia_result : nothing)
+            
+            """
+        end
+    end
+
+    if findfirst("Unintegrable", julia_rule) !== nothing
+        julia_rule = "# "*replace(strip(julia_rule), "\n"=>"\n# ")*"\n\n"
+    end
+
+    if match(r"\^\(.*?/.*?\)", julia_rule) !== nothing
         @warn "Probably found something raised to a fractional power, you may want to add the ⟰ function manually"
     end
-    
-    return (julia_integrand, julia_conditions, julia_result)
+
+    return julia_rule
 end
 
 
@@ -228,27 +299,7 @@ function transalte_integrand(integrand)
     return integrand
 end
 
-function translate_result(result, index)
-    # Remove trailing symbol if present
-    if endswith(result, "/;") || endswith(result, "//;")
-        result = result[1:end-2]
-    end
-    
-    # substitution with integral inside
-    # from 2/Sqrt[b]* Subst[Int[1/Sqrt[b*c - a*d + d*x^2], x], x, Sqrt[a + b*x]]
-    # to 2/Sqrt[b]* int_and_subst(1/Sqrt[b*c - a*d + d*x^2], x, x, Sqrt[a + b*x], "1_1_1_2_23")
-    m = match(r"Subst\[Int\[", result)
-    while m !== nothing
-        full_str = find_closing_braket(result, "Subst[Int[", "[]")
-        if full_str === ""
-            error("Could not find closing bracket for 'Subst[Int[' in: $result")
-        end
-        int, from, to = split_outside_brackets(full_str[7:end-1] , ',') # remove "Subst[" and "]"
-        integrand, intvar = split(int[5:end-1], ",", limit=2) # remove "Int[" and "]"
-        result = replace(result, full_str => "int_and_subst($integrand, $intvar, $from, $to, \"$index\")")
-        m = match(r"Subst\[Int\[", result)
-    end
-
+function result_substitutions(result, vardefs)
     simple_substitutions = [
         # normal math functions
         ("D", "Symbolics.derivative"),
@@ -364,19 +415,65 @@ function translate_result(result, index)
         ("/", "⨸"), # custom division
         (r"(?<!\w)Pi(?!\w)", "π"),
         (r"(?<!\w)E\^", "ℯ^"), # this works only for E^, not E used in other contexts like multiplications.
-
-        # slots and defslots
-        (r"(?<!\w)(?!in\b)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead, excluding "in"
     ]
 
     for (mathematica, julia) in associations
         result = replace(result, mathematica => julia)
     end
-   
-    return strip(result)
+
+    result = translate_slots_in_result(result, vardefs)
+
+    return result
 end
 
-function translate_conditions(conditions)
+# handle slots translation in result or conditions
+function translate_slots_in_result(result, vardefs)
+    # if there are variables to exclude
+    if vardefs===nothing
+        # else use a regex that:
+        # - matches one or two letters optionally followed by a digit
+        # - that are not beofre a "[" as they would be a function call
+        # - that are not before words
+        # - that are not the "in" letter, because that is needed for sum function translation
+        result = replace(result, r"(?<!\w)(?!in\b)([a-zA-Z]{1,2}\d*)(?![\w(])" => s"(~\1)")
+    else
+        var_names = String[]
+        for vardef in vardefs
+            push!(var_names, strip(split(vardef, '=')[1]))
+        end
+        # Create a regex pattern that excludes var_names
+        excluded_names = join(var_names, "|")
+        result = replace(result, Regex("(?<!\\w)(?!(?:in|$excluded_names)\\b)([a-zA-Z]{1,2}\\d*)(?![\\w(])") => s"(~\1)")
+    end
+
+    return result
+end
+
+function translate_result(result, index, vardefs)
+    # Remove trailing symbol if present
+    if endswith(result, "/;") || endswith(result, "//;")
+        result = result[1:end-2]
+    end
+    
+    # substitution with integral inside
+    # from 2/Sqrt[b]* Subst[Int[1/Sqrt[b*c - a*d + d*x^2], x], x, Sqrt[a + b*x]]
+    # to 2/Sqrt[b]* int_and_subst(1/Sqrt[b*c - a*d + d*x^2], x, x, Sqrt[a + b*x], "1_1_1_2_23")
+    m = match(r"Subst\[Int\[", result)
+    while m !== nothing
+        full_str = find_closing_braket(result, "Subst[Int[", "[]")
+        if full_str === ""
+            error("Could not find closing bracket for 'Subst[Int[' in: $result")
+        end
+        int, from, to = split_outside_brackets(full_str[7:end-1] , ',') # remove "Subst[" and "]"
+        integrand, intvar = split(int[5:end-1], ",", limit=2) # remove "Int[" and "]"
+        result = replace(result, full_str => "int_and_subst($integrand, $intvar, $from, $to, \"$index\")")
+        m = match(r"Subst\[Int\[", result)
+    end
+   
+    return strip(result_substitutions(result, vardefs))
+end
+
+function translate_conditions(conditions, vardefs)
     conditions = strip(conditions)
     # since a lot of times Not has inside other functions, better to use find_closing_braket
     simple_substitutions = [
@@ -505,13 +602,13 @@ function translate_conditions(conditions)
         
         # ("/", "⨸"), # custom division not necessary i think
 
-        # convert conditions variables.
-        (r"(?<!\w)([a-zA-Z]{1,2}\d*)(?![\w(])", s"(~\1)"), # negative lookbehind and lookahead
     ]
 
     for (mathematica, julia) in associations
         conditions = replace(conditions, mathematica => julia)
     end
+
+    conditions = translate_slots_in_result(conditions, vardefs)
  
     conditions = pretty_indentation(conditions) # improve readibility
  
