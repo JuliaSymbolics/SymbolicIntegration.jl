@@ -158,7 +158,7 @@ function translate_integral_file(input_filename::String, output_filename::String
 end
 
 if length(ARGS) < 1
-    println("Usage: julia traduttore_testset.jl input_file.m [output_file.jl]")
+    println("Usage: julia translator_of_testset.jl input_file.m [output_file.jl]")
     println("If output_file is not specified, it will be input_file with .jl extension")
     exit(1)
 end
