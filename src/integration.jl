@@ -31,6 +31,17 @@ function apply_rule(problem)
     return (problem, false)
 end
 
+"""
+This function creates a term with negative power that doesnt transform
+automatically to a division, like would happen with the ^ function
+```
+julia> SymbolicIntegration.ncn(Symbolics.unwrap(x))
+x^-1
+
+julia> SymbolicIntegration.ncn(Symbolics.unwrap(x^3))
+x^-3
+```
+"""
 function ncn(expr)
     t = (@rule (~u)^(~m) => ~)(expr)
     t!==nothing && return SymbolicUtils.Term{Number}(^,[t[:u],-t[:m]])
