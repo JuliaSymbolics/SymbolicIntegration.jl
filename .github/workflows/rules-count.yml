@@ -1,0 +1,67 @@
+name: Rules Count
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  count-rules:
+    name: Count Integration Rules
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.11'
+          arch: x64
+      - uses: julia-actions/cache@v2
+      - uses: julia-actions/julia-buildpkg@v1
+      
+      - name: Count rules and create badge data
+        run: |
+          # Create a script to count rules
+          cat > count_rules.jl << 'EOF'
+          using Pkg
+          Pkg.activate(".")
+          using SymbolicIntegration
+          
+          rules_count = length(SymbolicIntegration.RULES)
+          println("Total rules: $rules_count")
+          
+          # Create badge JSON for shields.io endpoint
+          badge_data = Dict(
+              "schemaVersion" => 1,
+              "label" => "rules",
+              "message" => string(rules_count),
+              "color" => "blue"
+          )
+          
+          # Create directory if it doesn't exist
+          mkpath(".github/badges")
+          
+          # Write the JSON file
+          using JSON
+          open(".github/badges/rules-count.json", "w") do f
+              JSON.print(f, badge_data, 2)
+          end
+          
+          println("Badge data written to .github/badges/rules-count.json")
+          EOF
+          
+          julia count_rules.jl
+          
+      - name: Commit badge data
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .github/badges/rules-count.json
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update rules count badge [skip ci]"
+            git push
+          fi
