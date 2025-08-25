@@ -119,7 +119,6 @@ function translate_file(input_filename, output_filename)
     rules_big_string = "file_rules = [\n"
 
     for (i, line) in enumerate(lines)
-        println("Translating line $i")
         if startswith(line, "(*")
             rules_big_string *= "#$line\n"
             continue
@@ -207,8 +206,8 @@ function translate_line(line, index)
             result = result_and_conds
             julia_conditions = nothing
         else
-            @warn "Too many /; in line $line"
-            return "# "*line
+            @warn "[$index] Too many /; in line $line"
+            return "# Error in translation of the line:\n# "*line*"\n"
         end
         
         julia_integrand = transalte_integrand(integrand)
@@ -220,7 +219,6 @@ function translate_line(line, index)
             (\"$index\",
             @rule $julia_integrand =>
             $julia_result)
-            
             """
         else
             julia_rule = 
@@ -229,17 +227,22 @@ function translate_line(line, index)
             @rule $julia_integrand =>
             $julia_conditions ?
             $julia_result : nothing)
-            
             """
         end
     end
 
     if findfirst("Unintegrable", julia_rule) !== nothing
-        julia_rule = "# "*replace(strip(julia_rule), "\n"=>"\n# ")*"\n\n"
+        julia_rule = "# "*replace(strip(julia_rule), "\n"=>"\n# ")*"\n"
+        # skip the other checks
+        return julia_rule
     end
 
-    if match(r"\^\(.*?/.*?\)", julia_rule) !== nothing
-        @warn "Probably found something raised to a fractional power, you may want to add the ⟰ function manually"
+    if match(r"\^\(.{1,2,3}/.{1,2,3}\)", julia_rule) !== nothing
+        @warn "[$index] Probably found something raised to a fractional power, you may want to add the ⟰ function manually"
+    end
+
+    if match(r"\[", julia_rule) !== nothing
+        @warn "[$index] Found opening square brakets, check if that's not a error"
     end
 
     return julia_rule
