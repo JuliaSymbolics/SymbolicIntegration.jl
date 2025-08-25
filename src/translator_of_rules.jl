@@ -139,7 +139,7 @@ end
 # gets as input a line and returns  integrand, conditions and result
 function translate_line(line, index)
     if occursin("Module", line)
-        @warn "Line has \"Module\" keyword, skipping it because I dont know how to translate it"
+        @warn "[$index] Line has \"Module\" keyword, skipping it because I dont know how to translate it"
         return "# Rule skipped because of \"Module\":\n# "*line*"\n"
     end
     # Separate the integrand and result
@@ -553,6 +553,8 @@ function translate_conditions(conditions, vardefs)
         ("HalfIntegerQ", "half_integer"),
         ("OddQ", "ext_isodd", 1),
         ("EvenQ", "ext_iseven", 1),
+        ("TrigQ", "istrig", 1),
+
         ("EqQ", "eq"),
         ("NeQ", "!eq"),
         ("If", "ifelse", 3),

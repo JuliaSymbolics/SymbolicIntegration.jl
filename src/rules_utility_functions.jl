@@ -111,6 +111,9 @@ function ispow(u)
     return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === ^
 end
 
+const trig_functions = [sin, cos, tan, cot,sec, csc]
+istrig(funct) = in(funct, trig_functions)
+
 function ext_coeff(u, x)
     try 
         return Symbolics.coeff(u, x)
