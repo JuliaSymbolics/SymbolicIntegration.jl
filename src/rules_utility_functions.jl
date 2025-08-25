@@ -613,6 +613,7 @@ end
 function poly_coefficients(p, x)
     deg = poly_degree(p, x)
     deg===nothing && throw("first argument is not a polynomial")
+    p = expand(p)
     coeffs = Num[]
     for i in 0:deg
         push!(coeffs, Symbolics.coeff(p, x^i))
