@@ -404,6 +404,8 @@ function pretty_print_rule(rule, identifier)
     end
     # manage let block
     s = replace(s, r".*#=.*=#.*\n" => "")
+    # manage functions from other packages
+    s = replace(s, "SymbolicUtils."=>"")
 
     return s
 end
