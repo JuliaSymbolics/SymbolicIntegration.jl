@@ -28,7 +28,7 @@ file_rules = [
 @rule ∫(*(~~a),~x) =>
 let
     out = prod([contains_var(el,~x) ? 1 : el for el in ~a])
-    out==1 ? (return nothing) : (return out*∫(prod([contains_var(el,~x) ? el : 1 for el in ~a]),~x))
+    eq(out,1) ? (return nothing) : (return out*∫(prod([contains_var(el,~x) ? el : 1 for el in ~a]),~x))
 end : nothing
 )
 
