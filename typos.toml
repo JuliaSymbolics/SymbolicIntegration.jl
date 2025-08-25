@@ -1,0 +1,67 @@
+# Configuration for typos spell checker
+# See: https://github.com/crate-ci/typos
+
+[default.extend-identifiers]
+# Package names and Julia ecosystem
+SymbolicIntegration = "SymbolicIntegration"
+SymbolicUtils = "SymbolicUtils" 
+Symbolics = "Symbolics"
+RUBI = "RUBI"
+Mathematica = "Mathematica"
+GSoC = "GSoC"
+
+# Your custom acronyms/terms
+neim = "neim"  # negative exponents in multiplications
+oooomm = "oooomm"  # only one out of multiple matches
+
+# Mathematical function names
+sinh = "sinh"
+cosh = "cosh" 
+tanh = "tanh"
+asinh = "asinh"
+acosh = "acosh"
+atanh = "atanh"
+sqrt = "sqrt"
+atan = "atan"
+asin = "asin"
+acos = "acos"
+exp = "exp"
+log = "log"
+sin = "sin"
+cos = "cos"
+tan = "tan"
+erf = "erf"
+erfi = "erfi"
+gamma = "gamma"
+loggamma = "loggamma"
+
+# Technical terms
+integrand = "integrand"
+integrands = "integrands"
+testset = "testset"
+testsets = "testsets"
+runtest = "runtest"
+runtests = "runtests"
+buildpkg = "buildpkg"
+workflow = "workflow"
+workflows = "workflows"
+repo = "repo"
+repos = "repos"
+regex = "regex"
+
+# Common abbreviations
+bool = "bool"
+expr = "expr"
+args = "args"
+params = "params"
+config = "config"
+configs = "configs"
+
+[files]
+extend-exclude = [
+    "Manifest.toml",
+    "Project.toml",
+    "test/test_results/",
+    ".github/badges/",
+    "*.log",
+]
