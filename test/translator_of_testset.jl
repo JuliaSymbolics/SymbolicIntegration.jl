@@ -7,7 +7,7 @@ function translate_mathematica_to_julia(expr::String)
     expr = strip(expr)
 
     simple_substitutions = [
-        # definied in SpecialFunctions.jl
+        # defined in SpecialFunctions.jl
         ("ExpIntegralEi", "SymbolicUtils.expinti", 1),
         ("ExpIntegralE", "SymbolicUtils.expint", 2),
         ("Gamma", "SymbolicUtils.gamma"),
@@ -105,7 +105,7 @@ function translate_integral_file(input_filename::String, output_filename::String
 
     open(output_filename, "w") do outfile
         # Write header
-        write(outfile, "# Each tuple is (integrand, result, integration variable, mistery value)\n")
+        write(outfile, "# Each tuple is (integrand, result, integration variable, mystery value)\n")
         write(outfile, "file_tests = [\n")
         
         
@@ -124,7 +124,7 @@ function translate_integral_file(input_filename::String, output_filename::String
                         result_julia = translate_mathematica_to_julia(parts[4])
                         
                         # Write the translated integral
-                        # TODO what si mistery val?
+                        # TODO what si mystery val?
                         julia_line = "($integrand_julia, $result_julia, $variable_julia, $number_julia),\n"
                         write(outfile, julia_line)
                     catch e

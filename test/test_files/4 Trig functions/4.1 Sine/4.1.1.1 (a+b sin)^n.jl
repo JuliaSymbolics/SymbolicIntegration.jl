@@ -1,4 +1,4 @@
-# Each tuple is (integrand, result, integration variable, mistery value)
+# Each tuple is (integrand, result, integration variable, mystery value)
 data = [
 # ::Package::
 

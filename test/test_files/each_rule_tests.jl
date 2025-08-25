@@ -14,7 +14,7 @@ file_tests = [
 ((4 + 4x)*((10 + 2x)^3), (32//5)*x*((5 + x)^4), x) #1_1_1_2_1
 (1/((2 + 4x)*(5 - 10x)), (1//20)*atanh(2x), x) # 2 
 (1/((2 + 4*x)*(5  + 2*x)), (1//16)*(log(2+4x)-log(5+2x)), x) # 3 here also log(1+2x) is correct, because of +c
-(((21 + 3x)^5)*((1 / (4 + x))^7), (-27//2)*(7+x)^6/(4+x)^6, x) # 4 TODO here integrating (21 + 3x)^5) / (4 + x)^7 would not work because of pattern mathcing 1/((...)*(...))
+(((21 + 3x)^5)*((1 / (4 + x))^7), (-27//2)*(7+x)^6/(4+x)^6, x) # 4 TODO here integrating (21 + 3x)^5) / (4 + x)^7 would not work because of pattern matching 1/((...)*(...))
 ((2+3x)^(1//2)*(4-6x)^(1//2), (2-3x)^(3//2)*x*(2+3x)^(3//2)/sqrt(2) + (6/sqrt(2))*x*sqrt(2-3x)*sqrt(2+3x) + 4*sqrt(2)*asin(3x/2), x) #1_1_1_2_5 TODO 1_1_1_2_8 doesnt get applied because of pattern matching
 (1/((-3 + 2*x)^(3//2)*(3 + 2*x)^(3//2)), -x / (9sqrt(3 + 2x)*sqrt(-3 + 2x)), x) # 6
 ((-1+2x)^(-5//2)*(3+6x)^(-5//2), -(x/(27sqrt(3)*(-1 + 2x)^(3/2) *(1 + 2x)^(3/2))) + (2x)/(27*sqrt(3)*sqrt(-1 + 2x)*sqrt(1 + 2x)), x) # 7 TODO this doesnt get applied bc to be applied the exponent need to be <= -3/2, and 1/((...)*(...)) is not supported by current pattern matching
@@ -90,7 +90,7 @@ file_tests = [
 # 3_2_3
 ((1+2log(3*sqrt(1+x)/sqrt(1-x)))^2/(1-x^2), (1//6)*((1 + 2log((3sqrt(1 + x)) / sqrt(1 - x)))^3), x) # 15
 # 3_3
-(log(1+2x)*log(1+3x)/x, -PolyLog.reli(3., 1 + 2x) + PolyLog.reli(3., (1 + 2x) / (1 + 3x)) - PolyLog.reli(3., 1 + 3x) - PolyLog.reli(3., (3(1 + 2x)) / (2(1 + 3x))) + PolyLog.reli(2., (1 + 2x) / (1 + 3x))*log((1 + 3x) / (1 + 2x)) + PolyLog.reli(2., 1 + 3x)*(log((1 + 3x) / (1 + 2x)) + log(1 + 2x)) - PolyLog.reli(2., (3(1 + 2x)) / (2(1 + 3x)))*log((1 + 3x) / (1 + 2x)) + (log(1 + 3x) - log((1 + 3x) / (1 + 2x)))*PolyLog.reli(2., 1 + 2x) - (1//2)*(-log(-3x) + log(-2x))*((log((1 + 3x) / (1 + 2x)) + log(1 + 2x))^2) + log(-2x)*log(1 + 3x)*log(1 + 2x) + (1//2)*(log(-2x) + log(-1 / (2(1 + 3x))) - log(x / (1 + 3x)))*(log((1 + 3x) / (1 + 2x))^2), x) # 50 this is really suspicious but aslo Mathematica confirms it
+(log(1+2x)*log(1+3x)/x, -PolyLog.reli(3., 1 + 2x) + PolyLog.reli(3., (1 + 2x) / (1 + 3x)) - PolyLog.reli(3., 1 + 3x) - PolyLog.reli(3., (3(1 + 2x)) / (2(1 + 3x))) + PolyLog.reli(2., (1 + 2x) / (1 + 3x))*log((1 + 3x) / (1 + 2x)) + PolyLog.reli(2., 1 + 3x)*(log((1 + 3x) / (1 + 2x)) + log(1 + 2x)) - PolyLog.reli(2., (3(1 + 2x)) / (2(1 + 3x)))*log((1 + 3x) / (1 + 2x)) + (log(1 + 3x) - log((1 + 3x) / (1 + 2x)))*PolyLog.reli(2., 1 + 2x) - (1//2)*(-log(-3x) + log(-2x))*((log((1 + 3x) / (1 + 2x)) + log(1 + 2x))^2) + log(-2x)*log(1 + 3x)*log(1 + 2x) + (1//2)*(log(-2x) + log(-1 / (2(1 + 3x))) - log(x / (1 + 3x)))*(log((1 + 3x) / (1 + 2x))^2), x) # 50 this is really suspicious but also Mathematica confirms it
 # 3_4
 (log(3*(1+2x^6)^3), 666, x) # 2
 ((1+2log(2*(1+1/x)^3))^3, 666, x) # 3

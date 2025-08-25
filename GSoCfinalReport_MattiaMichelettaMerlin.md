@@ -237,9 +237,9 @@ Int[1/(a_ + b_.*x_^2), x_Symbol] := Rt[a/b, 2]/a*ArcTan[x/Rt[a/b, 2]] /; FreeQ[{
 Int[(b_.*x_)^m_*(c_ + d_.*x_)^n_, x_Symbol] := c^IntPart[n]*(c + d*x)^FracPart[n]/(1 + d*x/c)^FracPart[n]* Int[(b*x)^m*(1 + d*x/c)^n, x] /; FreeQ[{b, c, d, m, n}, x] && Not[IntegerQ[m]] && Not[IntegerQ[n]] && Not[GtQ[c, 0]] && Not[GtQ[-d/(b*c), 0]] && (RationalQ[m] && Not[EqQ[n, -1/2] && EqQ[c^2 - d^2, 0]] || Not[RationalQ[n]])
 Int[P2_/(a_ + b_.*x_^3), x_Symbol] := With[{A = Coeff[P2, x, 0], B = Coeff[P2, x, 1], C = Coeff[P2, x, 2], q = a^(1/3)/b^(1/3)}, C/b*Int[1/(q + x), x] + (B + C*q)/b* Int[1/(q^2 - q*x + x^2), x] /; EqQ[A*b^(2/3) - a^(1/3)*b^(1/3)*B - 2*a^(2/3)*C, 0]] /; FreeQ[{a, b}, x] && PolyQ[P2, x, 2]
 ```
-As you can see rules are definied as patterns for the `Int` function, functions have square brakets, lists are created with curly brakets and conditions are put after the `/;`
+As you can see rules are defined as patterns for the `Int` function, functions have square brackets, lists are created with curly brackets and conditions are put after the `/;`
 
-The files `src/string_manipulation_helpers.jl` and `src/translator_of_rules.jl` are the two with which I translate the rules. Creating these scripts was quite difficult, because there are a lot of different syntaxes, functions, edge cases, etc. But now they are quite powerful, and most of the times translate a rule file flawlessy (0 errors!) to julia syntax. I remember in the first month of GSoC using the translator script and seing the entire screen red in vscode for the syntax errors. For example the above rules are translated automatically to:
+The files `src/string_manipulation_helpers.jl` and `src/translator_of_rules.jl` are the two with which I translate the rules. Creating these scripts was quite difficult, because there are a lot of different syntaxes, functions, edge cases, etc. But now they are quite powerful, and most of the times translate a rule file flawlessly (0 errors!) to julia syntax. I remember in the first month of GSoC using the translator script and seeing the entire screen red in vscode for the syntax errors. For example the above rules are translated automatically to:
 ```
 ("1_1_1_1_2",
 @rule ∫((~x)^(~!m),(~x)) =>
@@ -292,15 +292,15 @@ The file `test/runtests.jl` can be used to automatically test the 25798 test int
 ## In other julia repos
 I did also some minor stuff in two other julia repo:
 - Updated tests of this dependency of SymbolicUtils.jl that were failing because of the new `SymbolicUtils.simplify` behaviour. [pr](https://github.com/SciML/ModelingToolkit.jl/pull/3893)
-- Added the Logarithmic integral function in SpecialFunctions.jl, that is definied as the integral of `1/log(x)`. [not yet merged pr](https://github.com/JuliaMath/SpecialFunctions.jl/pull/500)
+- Added the Logarithmic integral function in SpecialFunctions.jl, that is defined as the integral of `1/log(x)`. [not yet merged pr](https://github.com/JuliaMath/SpecialFunctions.jl/pull/500)
 
 # What's left to do
 The problems holding back the most number of expressions to be integrated are:
 - **rules not translated**: As described above translating rules is not that fast, while it can be automated in some parts, the translation of the utlility functions cannot be automated and in general one has to test if rules get applied correctly. The rules not yet translated are the ones involving mainly tirgonometric functions, hyperbolic functions and specia functions. For a general introduction on how to translate rue, there is the [Contributing](https://github.com/Bumblebee00/SymbolicIntegration.jl?tab=readme-ov-file#contributing) section of the readme.
 - **@rule macro**: While I improved it, there are still some problems in the rule macro. The two biggest are:
-- - **neim problem**: a rule like `(~a + ~b*~x)^(~m)*(~c + ~d*~x)^(~n)` doesnt match the expression `(1+2x)^2/(3+4x)^2` with `~n=-2`. For more info you can read [the issue](https://github.com/JuliaSymbolics/SymbolicUtils.jl/issues/777) or see this [WIP pr](https://github.com/JuliaSymbolics/SymbolicUtils.jl/pull/778) in wich i try to implement a solution.
-- - **oooomm problem**: a rule can match an expression in more than one way, but, for how rules are implemented currently, only one is returned and it might be the wrong one. For more detail read [the issue](https://github.com/JuliaSymbolics/SymbolicUtils.jl/issues/776) and see this [WIP pr](https://github.com/JuliaSymbolics/SymbolicUtils.jl/pull/772) in wich i try to implement a solution.
+- - **neim problem**: a rule like `(~a + ~b*~x)^(~m)*(~c + ~d*~x)^(~n)` doesnt match the expression `(1+2x)^2/(3+4x)^2` with `~n=-2`. For more info you can read [the issue](https://github.com/JuliaSymbolics/SymbolicUtils.jl/issues/777) or see this [WIP pr](https://github.com/JuliaSymbolics/SymbolicUtils.jl/pull/778) in which i try to implement a solution.
+- - **oooomm problem**: a rule can match an expression in more than one way, but, for how rules are implemented currently, only one is returned and it might be the wrong one. For more detail read [the issue](https://github.com/JuliaSymbolics/SymbolicUtils.jl/issues/776) and see this [WIP pr](https://github.com/JuliaSymbolics/SymbolicUtils.jl/pull/772) in which i try to implement a solution.
 
 While other things left to do are:
 - **Decrease loading time**: The first time you import the package in the Julia REPL with `using SymbolicIntegration.jl` it takes a while (roughly 5 min on a laptop) to create all the callable objects with the `@rule macro`. This could be solved by improving the `@rule macro`.
-- **Add to JuliaSymbolics/SymbolicIntegration.jl**: during the summer, a package has been revived that performs symbolic integration using various algorithms, and we decided to create one unified pacakge where the user can choose which integration strategy to use. I need thus to add the rule-based strategy to that repo.
+- **Add to JuliaSymbolics/SymbolicIntegration.jl**: during the summer, a package has been revived that performs symbolic integration using various algorithms, and we decided to create one unified package where the user can choose which integration strategy to use. I need thus to add the rule-based strategy to that repo.

@@ -309,7 +309,7 @@ sqrt((~a) + (~b)*(~x))*sqrt((~c) + (~d)*(~x))*sqrt((~g) + (~h)*(~x))⨸((~h)*sqr
 (~h)⨸(~b)*∫(((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^(~n)*((~e) + (~f)*(~x))^ (~p)*((~g) + (~h)*(~x))^((~q) - 1), (~x)) + ((~b)*(~g) - (~a)*(~h))⨸(~b)* ∫(((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~n)*((~e) + (~f)*(~x))^(~p)*((~g) + (~h)*(~x))^((~q) - 1), (~x)) : nothing)
 
 # instead of producing the same integral with a function cannot integrate, if i
-# remove this rule it will not be applied and the expresison will remain with the ∫ sign
+# remove this rule it will not be applied and the expressions will remain with the ∫ sign
 # ("1_1_1_4_42",
 # @rule ∫(((~!a) + (~!b)*(~x))^(~!m)*((~!c) + (~!d)*(~x))^(~!n)*((~!e) + (~!f)*(~x))^ (~!p)*((~!g) + (~!h)*(~x))^(~!q),(~x)) =>
 #     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~g), (~h), (~m), (~n), (~p), (~q), (~x)) ?

@@ -9,7 +9,7 @@ end
 ⨸(x, y) = x / y
 
 # this custom exponentiation function should be used whenever there are 
-# fractional powers, becasue (-1)^(1/2) errors
+# fractional powers, because (-1)^(1/2) errors
 # it's a infix operator with the same precedence of ^
 ⟰(x, y) = lt(x, 0) ? Complex(x) ^ y : x ^ y
 ⟰(x, y::Integer) = x ^ y
@@ -47,7 +47,7 @@ function contains_op(op, expr)
     return false
 end
 
-# contains_op(∫, expr) is the same as checking if the integral has been comletely solved
+# contains_op(∫, expr) is the same as checking if the integral has been completely solved
 contains_int(expr) = contains_op(∫, expr)
 
 function complexfree(expr)
@@ -131,7 +131,7 @@ end
 
 # If u is a polynomial in x, expand_linear_product(v, u, a, b, x) expands v*u
 # into a sum of terms of the form c*v*(a+b*x)^n where n is a non-negative integer
-# usally v = (a + bx)^(non integer number)
+# usually v = (a + bx)^(non integer number)
 # Example:
 # julia> SymbolicIntegration.expand_linear_product((3 + 6x)^(2.1),(-1 + 2x)^2, 3, 6, x)
 # (4//1)*((3 + 6x)^2.1) - (4//3)*((3 + 6x)^3.1) + (1//9)*((3 + 6x)^4.1)
@@ -413,7 +413,7 @@ end
 
 #=
 also `substitute(integrate(integrand, int_var), from => to)` works
-but using a custom funciton is better because
+but using a custom function is better because
 - if the integral is not solved, substitute does bad things like substituting the integration variable
 - we can print rule application
 =#
@@ -514,7 +514,7 @@ trinomial_without_simplify(u, x) = trinomial_degree(u,x) !== nothing
 trinomial(u, x) = trinomial_without_simplify(simplify(u; expand = true),x)
 trinomial(u::Vector,x) = all(trinomial(e,x) for e in u)
 
-# if u is an expression equivalent to a*x^q + b*x^n + c*x^(2*n-q) where n!=0, q!=0, b!=0 and c!=0, reutrns n-q
+# if u is an expression equivalent to a*x^q + b*x^n + c*x^(2*n-q) where n!=0, q!=0, b!=0 and c!=0, returns n-q
 function generalized_trinomial_degree(u, x)
     f(p) = !contains_var(p, x) # f stands for free of x
     result = (@rule (~a::f)*x^(~q::f) + (~!b::f)*x^(~!n::f) + (~!c::f)*x^(~n2::f)=> ~)(u)

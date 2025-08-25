@@ -64,8 +64,8 @@ FreeQ[{a, b, c}, x] && (NeQ[b^2 - 4*a*c, 0] || (GeQ[m, 3] && LtQ[m, 4])) && NegQ
 ```
 
 Each one of them is translated using the appropriate function, but the three
-all work the same. They first apply a numebr of times the smart_replace function,
-that replaces functions names without messing the nested brakets (like normal regex do)
+all work the same. They first apply a number of times the smart_replace function,
+that replaces functions names without messing the nested brackets (like normal regex do)
 ```
 smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
 # output
@@ -79,7 +79,7 @@ Mathematica you can reference the slot variables without any prefix, and in
 julia you need ~.
 
 ### Pretty indentation
-Then they are all put togheter following the julia rules syntax
+Then they are all put together following the julia rules syntax
 @rule integrand => conditions ? result : nothing
 ```
 @rule ∫((~x)^(~!m)/((~a) + (~!b) + (~!c)*(~x)^4),(~x)) => !contains_var((~a), (~b), (~c), (~x)) && (!eq((~b)^2 - 4*(~a)*(~c), 0) || (ge((~m), 3) && lt((~m), 4))) && neg((~b)^2 - 4*(~a)*(~c)) && ext_isodd(rt(2*(~q) - (~b)/(~c), 2)) ? 1⨸(2*(~c)*rt(2*(~q) - (~b)⨸(~c), 2))*∫((~x)^((~m) - 3), (~x)) - 1⨸(2*(~c)*rt(2*(~q) - (~b)⨸(~c), 2)) : nothing
@@ -139,7 +139,7 @@ end
 # gets as input a line and returns  integrand, conditions and result
 function translate_line(line, index)
     if occursin("Module", line)
-        @warn "Line has \"Module\" keyword, skipping it because I dont know how to transalte it"
+        @warn "Line has \"Module\" keyword, skipping it because I dont know how to translate it"
         return "# Rule skipped because of \"Module\":\n# "*line*"\n"
     end
     # Separate the integrand and result
@@ -165,7 +165,7 @@ function translate_line(line, index)
             julia_rule = 
             """
             (\"$index\",
-            @rule $(transalte_integrand(integrand)) =>
+            @rule $(translate_integrand(integrand)) =>
             $(translate_conditions(conds, vardefs)) ?
             let
                 $julia_vardefs
@@ -177,7 +177,7 @@ function translate_line(line, index)
             julia_rule = 
             """
             (\"$index\",
-            @rule $(transalte_integrand(integrand)) =>
+            @rule $(translate_integrand(integrand)) =>
             $(translate_conditions(conds, vardefs)) ?
             let
                 $julia_vardefs
@@ -188,7 +188,7 @@ function translate_line(line, index)
             julia_rule = 
             """
             (\"$index\",
-            @rule $(transalte_integrand(integrand)) =>
+            @rule $(translate_integrand(integrand)) =>
             let
                 $julia_vardefs
             $(translate_conditions(wconds, vardefs)) ?
@@ -210,7 +210,7 @@ function translate_line(line, index)
             return "# Error in translation of the line:\n# "*line*"\n"
         end
         
-        julia_integrand = transalte_integrand(integrand)
+        julia_integrand = translate_integrand(integrand)
         julia_result = translate_result(result, index, nothing)
 
         if julia_conditions === nothing
@@ -242,7 +242,7 @@ function translate_line(line, index)
     end
 
     if match(r"\[", julia_rule) !== nothing
-        @warn "[$index] Found opening square brakets, check if that's not an error"
+        @warn "[$index] Found opening square brackets, check if that's not an error"
     end
 
     if match(r"(?<!\w)([a-zA-Z]{3,}\d*)_\.?(?!\w)", julia_rule) !== nothing
@@ -256,7 +256,7 @@ end
 
 
 # assumes all integrals in the rules are in the x variable
-function transalte_integrand(integrand)
+function translate_integrand(integrand)
     simple_substitutions = [
         ("Log", "log"),
         
@@ -345,7 +345,7 @@ function result_substitutions(result, vardefs)
         ("Sign", "sign"),
         ("GCD", "gcd"),
 
-        # definied in SpecialFunctions.jl
+        # defined in SpecialFunctions.jl
         ("ExpIntegralEi", "SymbolicUtils.expinti", 1),
         ("ExpIntegralE", "SymbolicUtils.expint", 2),
         ("Gamma", "SymbolicUtils.gamma"),
@@ -362,12 +362,12 @@ function result_substitutions(result, vardefs)
         ("PolyLog", "PolyLog.reli", 2),
         ("FresnelC", "FresnelIntegrals.fresnelc", 1),
         ("FresnelS", "FresnelIntegrals.fresnels", 1),
-        # (not) definied in this package
+        # (not) defined in this package
         ("AppellF1", "appell_f1", 6),
         ("SinhIntegral", "sinhintegral", 1),
         ("CoshIntegral", "coshintegral", 1),
 
-        # definied in rules_utility_functions.jl
+        # defined in rules_utility_functions.jl
         ("FreeFactors", "free_factors"),
         ("NonfreeFactors", "non_free_factors"),
         ("FreeTerms", "free_terms"),
@@ -469,7 +469,7 @@ function translate_result(result, index, vardefs)
     # to 2/Sqrt[b]* int_and_subst(1/Sqrt[b*c - a*d + d*x^2], x, x, Sqrt[a + b*x], "1_1_1_2_23")
     m = match(r"Subst\[Int\[", result)
     while m !== nothing
-        full_str = find_closing_braket(result, "Subst[Int[", "[]")
+        full_str = find_closing_bracket(result, "Subst[Int[", "[]")
         if full_str === ""
             error("Could not find closing bracket for 'Subst[Int[' in: $result")
         end
@@ -484,7 +484,7 @@ end
 
 function translate_conditions(conditions, vardefs)
     conditions = strip(conditions)
-    # since a lot of times Not has inside other functions, better to use find_closing_braket
+    # since a lot of times Not has inside other functions, better to use find_closing_bracket
     simple_substitutions = [
         ("D", "Symbolics.derivative"),
 
@@ -619,7 +619,7 @@ function translate_conditions(conditions, vardefs)
 
     conditions = translate_slots_in_result(conditions, vardefs)
  
-    conditions = pretty_indentation(conditions) # improve readibility
+    conditions = pretty_indentation(conditions) # improve readability
  
     if conditions[end] == '\r' || conditions[end] == '\n'
         conditions = conditions[1:end-1] # remove trailing newline
@@ -632,7 +632,7 @@ end
 
 # main
 if length(ARGS) < 1
-    println("Usage: julia rules_translator.jl intput_file.m [output_file.jl]")
+    println("Usage: julia rules_translator.jl input_file.m [output_file.jl]")
     println("If output_file is not specified, it will be input_file with .jl extension")
     exit(1)
 end
