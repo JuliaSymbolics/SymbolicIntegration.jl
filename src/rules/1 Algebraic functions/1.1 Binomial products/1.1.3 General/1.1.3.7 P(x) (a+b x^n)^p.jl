@@ -516,8 +516,7 @@ end : nothing)
     !contains_var((~a), (~b), (~n), (~p), (~x)) &&
     linear((~v), (~x)) &&
     poly((~Pq), (~v)^(~n)) ?
-1⨸ext_coeff((~v), (~x), 1)* int_and_subst(SubstFor[(~v),  (~Pq), (~x)]*((~a) + (~b)*(~x)^(~n))^(~p), (~x), (~x), (~v), "1_1_3_7_46") : nothing)
-
+1⨸ext_coeff((~v), (~x), 1)* int_and_subst(substitute((~v), Dict(  (~Pq) =>  (~x)))*((~a) + (~b)*(~x)^(~n))^(~p), (~x), (~x), (~v), "prova_1") : nothing)
 
 ("1_1_3_7_47",
 @rule ∫((~Pq)*((~a1) + (~!b1)*(~x)^(~!n))^(~!p)*((~a2) + (~!b2)*(~x)^(~!n))^(~!p),(~x)) =>

@@ -409,6 +409,7 @@ function result_substitutions(result, vardefs)
 
         (r"Sum\[(.*?),\s*\{(.*?),(.*?),(.*?)\}\]", s"sum([\1 for \2 in (\3):(\4)])"), # from Sum[f(x), {x, a, b}] to sum([f(x) for x in a:b])
         (r"ReplaceAll\[(.*?),(.*?)->(.*?)\]", s"substitute(\1, Dict(\2 => \3))"), # from ReplaceAll[f(x), x->a] to substitute(f(x), Dict(x => a))
+        (r"SubstFor\[(.*?),(.*?),(.*?)\]", s"substitute(\1, Dict(\2 => \3))"),
 
         (r"HypergeometricPFQ\[\s*\{(.+?)\}\s*,\s*\{(.+?)\}\s*,(.+?)\]", s"hypergeometricpFq([\1], [\2], \3)"), # from HypergeometricPFQ[{a, b}, {c, d}, z] to hypergeometricpFq([a, b], [c, d], z)
 
