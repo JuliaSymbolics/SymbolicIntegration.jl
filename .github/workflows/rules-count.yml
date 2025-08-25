@@ -31,21 +31,17 @@ jobs:
           rules_count = length(SymbolicIntegration.RULES)
           println("Total rules: $rules_count")
           
-          # Create badge JSON for shields.io endpoint
-          badge_data = Dict(
-              "schemaVersion" => 1,
-              "label" => "rules",
-              "message" => string(rules_count),
-              "color" => "blue"
-          )
-          
           # Create directory if it doesn't exist
           mkpath(".github/badges")
           
-          # Write the JSON file
-          using JSON
+          # Write the JSON file manually (no JSON package needed)
           open(".github/badges/rules-count.json", "w") do f
-              JSON.print(f, badge_data, 2)
+              println(f, "{")
+              println(f, "  \"schemaVersion\": 1,")
+              println(f, "  \"label\": \"rules\",")
+              println(f, "  \"message\": \"$rules_count\",")
+              println(f, "  \"color\": \"blue\"")
+              println(f, "}")
           end
           
           println("Badge data written to .github/badges/rules-count.json")
