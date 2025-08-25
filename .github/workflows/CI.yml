@@ -54,7 +54,7 @@ jobs:
             open(".github/badges/rules-count.json", "w") do f
                 println(f, "{")
                 println(f, "  \"schemaVersion\": 1,")
-                println(f, "  \"label\": \"rules\",")
+                println(f, "  \"label\": \"Total Rules\",")
                 println(f, "  \"message\": \"$rules_count\",")
                 println(f, "  \"color\": \"blue\"")
                 println(f, "}")
