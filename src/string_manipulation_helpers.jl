@@ -207,8 +207,11 @@ end
 """
 This function indents the conditions in a more readable way.
 Example: from
+```
 !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~m), (~n), (~p), (~x)) && eq((~b)*(~c) + (~a)*(~d), 0) && eq((~n), (~m)) && ext_isinteger( (~m)) && (!eq((~m), -1) || eq((~e), 0) && (eq((~p), 1) || !(ext_isinteger((~p)))))
+```
 to
+```
    !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~m), (~n), (~p), (~x)) &&
    eq((~b)*(~c) + (~a)*(~d), 0) &&
    eq((~n), (~m)) &&
@@ -221,6 +224,7 @@ to
            !(ext_isinteger((~p)))
        )
    )
+```
 it's really cool
 """
 function pretty_indentation(conditions; indent=" "^4)

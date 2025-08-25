@@ -242,7 +242,12 @@ function translate_line(line, index)
     end
 
     if match(r"\[", julia_rule) !== nothing
-        @warn "[$index] Found opening square brakets, check if that's not a error"
+        @warn "[$index] Found opening square brakets, check if that's not an error"
+    end
+
+    if match(r"(?<!\w)([a-zA-Z]{3,}\d*)_\.?(?!\w)", julia_rule) !== nothing
+        m = match(r"(?<!\w)([a-zA-Z]{3,}\d*)_\.?(?!\w)", julia_rule)
+        @warn "[$index] Maybe found a non translated slot of 3+ letters: $(m.match), check if that's not an error"
     end
 
     return julia_rule
