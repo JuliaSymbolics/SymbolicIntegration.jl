@@ -67,6 +67,44 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RischMethod; kwar
         kwargs...)
 end
 
+"""
+    RuleBasedMethod <: AbstractIntegrationMethod
+
+- `use_gamma::Bool`: Whether to catch and handle algorithm errors gracefully (default: true)
+"""
+struct RuleBasedMethod <: AbstractIntegrationMethod
+    use_gamma::Bool
+    verbose::Bool
+    
+    function RuleBasedMethod(; use_gamma::Bool=false, verbose::Bool=true)
+        new(use_gamma, verbose)
+    end
+end
+
+"""
+    integrate(f, x, method::AbstractIntegrationMethod=RuleBasedMethod(); kwargs...)
+
+Compute the symbolic integral of expression `f` with respect to variable `x`
+using rule based method.
+
+# Arguments
+- `f`: Symbolic expression to integrate (Symbolics.Num)
+- `x`: Integration variable (Symbolics.Num)  
+- `method`: Integration method to use
+
+# Keyword Arguments
+- `verbose`: to print or not the rules applied to solve the integral
+- `use_gamma`: to use or not the gamma function in integration results
+
+# Returns
+- Symbolic expression representing the antiderivative (Symbolics.Num) (the +c is omitted)
+
+"""
+function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RuleBasedMethod; kwargs...)
+    return integrate_rule_based(f, x;
+        verbose=method.verbose, use_gamma=method.use_gamma, kwargs...)
+end
+
 # Main integrate function - dispatches to RischMethod by default
 function integrate(f::Symbolics.Num, x::Symbolics.Num; kwargs...)
     return integrate_risch(f, x; kwargs...)
@@ -76,14 +114,16 @@ end
     method_supports_rational(method::RischMethod)
 
 Check if the integration method supports rational function integration.
-Returns `true` for RischMethod.
+Returns `true` for RischMethod and RuleBasedMethod.
 """
 method_supports_rational(method::RischMethod) = true
+method_supports_rational(method::RuleBasedMethod) = true
 
 """
     method_supports_transcendental(method::RischMethod)
 
 Check if the integration method supports transcendental function integration.
-Returns `true` for RischMethod.
+Returns `true` for RischMethod and RuleBasedMethod.
 """
 method_supports_transcendental(method::RischMethod) = true
+method_supports_transcendental(method::RuleBasedMethod) = true

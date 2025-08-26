@@ -14,10 +14,13 @@ include("methods/risch/coupled_differential_systems.jl")
 include("methods/risch/algebraic_functions.jl")
 include("methods/risch/frontend.jl")
 
+# include rule based method
+include("methods/rule_based/frontend.jl")
+
 # Add method dispatch system
 include("methods.jl")
 
 # Export method interface
-export AbstractIntegrationMethod, RischMethod
+export AbstractIntegrationMethod, RischMethod, RuleBasedMethod
 
 end # module
