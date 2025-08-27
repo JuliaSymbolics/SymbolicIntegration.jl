@@ -105,10 +105,32 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RuleBasedMethod; 
         verbose=method.verbose, use_gamma=method.use_gamma, kwargs...)
 end
 
-# Main integrate function - dispatches to RischMethod by default
-function integrate(f::Symbolics.Num, x::Symbolics.Num; kwargs...)
-    return integrate_risch(f, x; kwargs...)
+# If no method dispatches to RischMethod by default
+integrate(f::Symbolics.Num, x::Symbolics.Num; kwargs...) = integrate(f, x, RischMethod(); kwargs...)
+integrate(f::Symbolics.Num; kwargs...) = integrate(f, RischMethod(); kwargs...)
+
+# If no integration variable provided
+function integrate(f::Symbolics.Num, method::AbstractIntegrationMethod; kwargs...)
+    vars = Symbolics.get_variables(f)
+    if length(vars) > 1
+        @warn "Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument."
+        return nothing
+    elseif length(vars) == 1
+        integration_variable = vars[1]
+    else
+        @warn "No integration variable provided"
+        return nothing
+    end
+
+    integrate(f, Num(integration_variable), method; kwargs...)
 end
+
+function integrate(;kwargs...)
+    @warn "No integrand provided. Please provide one like this: `integrate(x^2 + 3x + 2)`"
+end 
+
+# integrate_rule_based(integrand::Number, x::Symbolics.Num; kwargs...) = integrand*x
+
 
 """
     method_supports_rational(method::RischMethod)

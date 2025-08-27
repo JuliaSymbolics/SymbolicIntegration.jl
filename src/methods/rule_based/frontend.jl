@@ -107,30 +107,8 @@ function repeated_prewalk(expr)
     return expr
 end
 
-# integrate_rule_based(integrand::Number, x::Symbolics.Num; kwargs...) = integrand*x
-
-function integrate_rule_based(integrand::Symbolics.Num, x::Symbolics.Num; use_gamma::Bool=false, verbose::Bool=false, kwargs...)
+function integrate_rule_based(integrand::Symbolics.Num, int_var::Symbolics.Num; use_gamma::Bool=false, verbose::Bool=false, kwargs...)
     global VERBOSE
     VERBOSE = verbose
     return simplify(repeated_prewalk(∫(integrand,int_var)))
 end
-
-# If no integration variable provided
-function integrate_rule_based(integrand::Number; kwargs...)
-    vars = Symbolics.get_variables(integrand)
-    if length(vars) > 1
-        @warn "Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument."
-        return nothing
-    elseif length(vars) == 1
-        integration_variable = vars[1]
-    else
-        @warn "No integration variable provided"
-        return nothing
-    end
-
-    integrate_rule_based(integrand, integration_variable; kwargs...)
-end
-
-function integrate_rule_based(;kwargs...)
-    @warn "No integrand provided. Please provide one like this: `integrate(x^2 + 3x + 2)`"
-end 
