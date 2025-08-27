@@ -538,26 +538,25 @@ generalized_trinomial(u, x) = generalized_trinomial_without_simplify(simplify(u;
 generalized_trinomial(u::Vector,x) = all(generalized_trinomial(e,x) for e in u)
 
 # If u is a monomial in x (either b(x^m) or (bx)^m), monomial(u,x) returns the degree of u in x; else it returns nothing.
-function monomial(u, x)
-    x = Symbolics.unwrap(x)# TODO remove the unwrap?
+monomial(u::Number, x::Union{SymbolicUtils.BasicSymbolic, Symbolics.Num}) = 0
+monomial(u::Symbolics.Num,x::Symbolics.Num) = monomial(Symbolics.unwrap(u), Symbolics.unwrap(x))
+function monomial(u::SymbolicUtils.BasicSymbolic, x::SymbolicUtils.BasicSymbolic)
     # if u is a constant or a variable, it is a monomial
     !(s(u)) && return true
-    u = Symbolics.unwrap(u)
     !SymbolicUtils.iscall(u) && !eq(u,x) && return 0 # symbolic variables
     f(p) = !contains_var(p,x)
     # if u is a call, check if it is a monomial
-    degree = (@rule (~!b::f)*x^(~!m::f)=>~m)(u) 
+    degree = (@rule (~!b::f)*x^(~!m::(x->f(x)&&ext_isinteger(x)))=>~m)(u) 
     degree !== nothing && return degree
-    degree = (@rule ((~!b::f)*x)^(~!m::f)=>~m)(u)
+    degree = (@rule ((~!b::f)*x)^(~!m::(x->f(x)&&ext_isinteger(x)))=>~m)(u)
     degree !== nothing && return degree
     return nothing
 end
 
 # If u is a polynomial in x of degree n, poly_degree(u,x) returns n, else false
-function poly_degree(u, x)
-    x = Symbolics.unwrap(x)
-    u = Symbolics.unwrap(u)
-
+poly_degree(u::Number, x::Union{SymbolicUtils.BasicSymbolic, Symbolics.Num}) = 0
+poly_degree(u::Symbolics.Num, x::Symbolics.Num) = poly_degree(Symbolics.unwrap(u), Symbolics.unwrap(x))
+function poly_degree(u::SymbolicUtils.BasicSymbolic, x::SymbolicUtils.BasicSymbolic)
     u = expand(u)
     
     if issum(u)
