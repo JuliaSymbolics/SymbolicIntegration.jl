@@ -32,17 +32,19 @@ function apply_rule(problem)
 end
 
 """
-This function creates a term with negative power that doesnt transform
+ins = inverse not simplified
+
+This function creates a term with negative power that doesnt simplify
 automatically to a division, like would happen with the ^ function
 ```
-julia> SymbolicIntegration.ncn(Symbolics.unwrap(x))
+julia> SymbolicIntegration.ins(Symbolics.unwrap(x))
 x^-1
 
-julia> SymbolicIntegration.ncn(Symbolics.unwrap(x^3))
+julia> SymbolicIntegration.ins(Symbolics.unwrap(x^3))
 x^-3
 ```
 """
-function ncn(expr)
+function ins(expr)
     t = (@rule (~u)^(~m) => ~)(expr)
     t!==nothing && return SymbolicUtils.Term{Number}(^,[t[:u],-t[:m]])
     return SymbolicUtils.Term{Number}(^,[expr,-1])
@@ -56,7 +58,7 @@ function repeated_prewalk(expr)
         (new_expr,success) = apply_rule(expr)
         # r1 and r2 are needed bc of neim problem
         if !success
-            r2 = @rule ∫((~n)/*(~~d),~x) => ∫(~n*prod([ncn(el) for el in ~~d]),~x)
+            r2 = @rule ∫((~n)/*(~~d),~x) => ∫(~n*prod([ins(el) for el in ~~d]),~x)
             r2r = r2(expr)
             if r2r!==nothing
                 VERBOSE && println("integration of ", expr, " failed, trying with this mathematically equivalent integrand:\n$r2r")
@@ -67,7 +69,7 @@ function repeated_prewalk(expr)
             end
         end
         if !success
-            r1 = @rule ∫((~n)/(~d),~x) => ∫(~n*ncn(~d),~x)
+            r1 = @rule ∫((~n)/(~d),~x) => ∫(~n*ins(~d),~x)
             r1r = r1(expr)
             if r1r!==nothing
                 VERBOSE && println("integration of ", expr, " failed, trying with this mathematically equivalent integrand:\n$r1r")
