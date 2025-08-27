@@ -2,8 +2,6 @@ using Symbolics
 using SymbolicUtils
 using Logging
 
-export integrate
-
 """
     TowerOfDifferentialFields(Hs) -> K, gs, D
 
