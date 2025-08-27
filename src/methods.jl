@@ -26,6 +26,20 @@ struct RischMethod <: AbstractIntegrationMethod
 end
 
 """
+    RuleBasedMethod <: AbstractIntegrationMethod
+
+- `use_gamma::Bool`: Whether to catch and handle algorithm errors gracefully (default: true)
+"""
+struct RuleBasedMethod <: AbstractIntegrationMethod
+    use_gamma::Bool
+    verbose::Bool
+    
+    function RuleBasedMethod(; use_gamma::Bool=false, verbose::Bool=true)
+        new(use_gamma, verbose)
+    end
+end
+
+"""
     integrate(f, x, method::AbstractIntegrationMethod=RischMethod(); kwargs...)
 
 Compute the symbolic integral of expression `f` with respect to variable `x` 
@@ -68,20 +82,6 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RischMethod; kwar
 end
 
 """
-    RuleBasedMethod <: AbstractIntegrationMethod
-
-- `use_gamma::Bool`: Whether to catch and handle algorithm errors gracefully (default: true)
-"""
-struct RuleBasedMethod <: AbstractIntegrationMethod
-    use_gamma::Bool
-    verbose::Bool
-    
-    function RuleBasedMethod(; use_gamma::Bool=false, verbose::Bool=true)
-        new(use_gamma, verbose)
-    end
-end
-
-"""
     integrate(f, x, method::AbstractIntegrationMethod=RuleBasedMethod(); kwargs...)
 
 Compute the symbolic integral of expression `f` with respect to variable `x`
@@ -105,12 +105,22 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RuleBasedMethod; 
         verbose=method.verbose, use_gamma=method.use_gamma, kwargs...)
 end
 
-# If no method dispatches to RischMethod by default
-integrate(f::Symbolics.Num, x::Symbolics.Num; kwargs...) = integrate(f, x, RischMethod(); kwargs...)
-integrate(f::Symbolics.Num; kwargs...) = integrate(f, RischMethod(); kwargs...)
+# If no method tries them both
+function integrate(f::Symbolics.Num, x::Symbolics.Num; kwargs...)
+    result = integrate(f, x, RischMethod(); kwargs...)
+    !contains_int(result) && return result
+
+    printstyled("\n > RischMethod failed returning $result \n";color=:red)
+    println(" > Trying with RuleBasedMethod...\n")
+    result = integrate(f, x, RuleBasedMethod(); kwargs...)
+    !contains_int(result) && return result
+
+    printstyled("\n > RuleBasedMethod failed returning $result \n";color=:red)
+    println(" > Sorry we cannot integrate this expression :(")
+end
 
 # If no integration variable provided
-function integrate(f::Symbolics.Num, method::AbstractIntegrationMethod; kwargs...)
+function integrate(f::Symbolics.Num, method=nothing; kwargs...)
     vars = Symbolics.get_variables(f)
     if length(vars) > 1
         @warn "Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument."
@@ -122,7 +132,8 @@ function integrate(f::Symbolics.Num, method::AbstractIntegrationMethod; kwargs..
         return nothing
     end
 
-    integrate(f, Num(integration_variable), method; kwargs...)
+    method===nothing && return integrate(f, Num(integration_variable); kwargs...)
+    return integrate(f, Num(integration_variable), method; kwargs...)
 end
 
 function integrate(;kwargs...)

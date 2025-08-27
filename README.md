@@ -70,6 +70,40 @@ where:
 - `verbsoe` specifies whether to print or not the integration rules applied (default true)
 - `use_gamma` sepcifies whether to use rules with the gamma function in the result, or not (default false)
 
+If no method is specified, first RischMethod will be tried, then RuleBasedMethod:
+```julia
+julia> integrate(2x)
+x^2
+
+julia> integrate(sqrt(x))
+┌ Warning: NotImplementedError: integrand contains unsupported expression sqrt(x)
+└ @ SymbolicIntegration ~/.julia/dev/SymbolicIntegration.jl_official/src/methods/risch/frontend.jl:826
+
+ > RischMethod failed returning ∫(sqrt(x), x) 
+ > Trying with RuleBasedMethod...
+
+┌-------Applied rule 1_1_1_1_2 on ∫(sqrt(x), x)
+| ∫(x ^ m, x) => if 
+|       !(contains_var(m, x)) &&
+|       !(eq(m, -1))
+| x ^ (m + 1) / (m + 1)
+└-------with result: (2//3)*(x^(3//2))
+(2//3)*(x^(3//2))
+
+julia> integrate(abs(x))
+┌ Warning: NotImplementedError: integrand contains unsupported expression abs(x)
+└ @ SymbolicIntegration ~/.julia/dev/SymbolicIntegration.jl_official/src/methods/risch/frontend.jl:826
+
+ > RischMethod failed returning ∫(abs(x), x) 
+ > Trying with RuleBasedMethod...
+
+No rule found for ∫(abs(x), x)
+
+ > RuleBasedMethod failed returning ∫(abs(x), x) 
+ > Sorry we cannot integrate this expression :(
+
+```
+
 
 # Integration Methods
 Currently two algorithms are implemented: **Risch algorithm** and **Rule based integration**.
