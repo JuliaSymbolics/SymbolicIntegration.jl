@@ -1,5 +1,4 @@
 using Symbolics
-using Polynomials # TODO maybe implement division without using this package? for speed
 
 
 

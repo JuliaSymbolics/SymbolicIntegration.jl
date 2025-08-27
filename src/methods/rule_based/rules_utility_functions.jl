@@ -621,7 +621,6 @@ function poly_coefficients(p, x)
 end
 
 # gives the quotient of p / q, treated as polynomials in x, with any remainder dropped
-# TODO maybe do this without Polynomials.jl for speed?
 function poly_quotient(p, q, x)
     p = Symbolics.unwrap(p)
     q = Symbolics.unwrap(q)
@@ -635,14 +634,51 @@ function poly_quotient(p, q, x)
     # find coefficients
     p_coeffs = poly_coefficients(p, x)
     q_coeffs = poly_coefficients(q, x)
-    
-    quotient_coeffs = Polynomials.coeffs(Polynomials.div(Polynomial(p_coeffs),Polynomial(q_coeffs)))
 
-    quotient = 0
-    for i in 0:(deg_p - deg_q)
-        quotient += quotient_coeffs[i+1]*x^i
+    # Guard against division by the zero polynomial
+    if all(eq(c, 0) for c in q_coeffs)
+        throw("poly_quotient division by zero polynomial")
     end
-    return quotient
+
+    # If degree of numerator is smaller, quotient is zero
+    if deg_p < deg_q
+        return 0
+    end
+
+    # Perform long division on coefficient arrays (ascending powers)
+    # r_coeffs will be destructively updated to track the remainder during division
+    r_coeffs = copy(p_coeffs)
+    quotient_len = deg_p - deg_q + 1
+    quotient_coeffs = [zero(first(p_coeffs)) for _ in 1:quotient_len]
+
+    q_lead = q_coeffs[deg_q + 1]
+    eq(q_lead, 0) && throw("poly_quotient invalid divisor leading coefficient is zero")
+
+    # Work from highest degree down to 0
+    for k in reverse(0:(deg_p - deg_q))
+        # current leading term in remainder corresponding to x^(deg_q + k)
+        rc = r_coeffs[deg_q + k + 1]
+        # If rc is zero, this step contributes nothing
+        if !eq(rc, 0)
+            t = rc / q_lead
+            quotient_coeffs[k + 1] = t
+            # Subtract t * x^k * q(x) from remainder
+            for i in 0:deg_q
+                r_coeffs[i + k + 1] = simplify(r_coeffs[i + k + 1] - t * q_coeffs[i + 1])
+            end
+        end
+    end
+
+    # Build quotient polynomial expression from coefficients
+    quotient = zero(p)
+    for i in 0:(quotient_len - 1)
+        c = quotient_coeffs[i + 1]
+        # Drop symbolic zeros
+        if !eq(c, 0)
+            quotient += c * x^i
+        end
+    end
+    return simplify(quotient)
 end
 
 # gives the remainder of p and q, treated as polynomials in x
@@ -659,14 +695,43 @@ function poly_remainder(p, q, x)
     # find coefficients
     p_coeffs = poly_coefficients(p, x)
     q_coeffs = poly_coefficients(q, x)
-    
-    reminder_coeffs = Polynomials.coeffs(Polynomials.rem(Polynomial(p_coeffs),Polynomial(q_coeffs)))
 
-    quotient = 0
-    for i in 0:length(reminder_coeffs)-1
-        quotient += reminder_coeffs[i+1]*x^i
+    # Guard against division by the zero polynomial
+    if all(eq(c, 0) for c in q_coeffs)
+        throw("poly_remainder division by zero polynomial")
     end
-    return quotient
+
+    # If degree of numerator is smaller, remainder is p itself
+    if deg_p < deg_q
+        return p
+    end
+
+    # Long division to compute remainder
+    r_coeffs = copy(p_coeffs)
+    q_lead = q_coeffs[deg_q + 1]
+    eq(q_lead, 0) && throw("poly_remainder invalid divisor leading coefficient is zero")
+
+    for k in reverse(0:(deg_p - deg_q))
+        rc = r_coeffs[deg_q + k + 1]
+        if !eq(rc, 0)
+            t = rc / q_lead
+            for i in 0:deg_q
+                r_coeffs[i + k + 1] = simplify(r_coeffs[i + k + 1] - t * q_coeffs[i + 1])
+            end
+        end
+    end
+
+    # Build remainder polynomial expression from r_coeffs (degree < deg_q)
+    remainder = zero(p)
+    # Degree of remainder is at most deg_q-1; but symbolic cancellation may lower it further
+    max_i = min(length(r_coeffs), deg_q)
+    for i in 0:(max_i - 1)
+        c = r_coeffs[i + 1]
+        if !eq(c, 0)
+            remainder += c * x^i
+        end
+    end
+    return simplify(remainder)
 end
 
 # If u and v are polynomials in x, PolynomialDivide[u,v,x] returns the polynomial quotient of u and v plus the polynomial remainder divided by v.
