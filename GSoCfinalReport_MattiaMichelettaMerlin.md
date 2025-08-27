@@ -96,6 +96,9 @@ julia> integrate(sqrt(sin(x));verbose=false)
 julia> integrate(sqrt(sin(x)+1);verbose=false)
 (-2cos(x)) / sqrt(1 + sin(x))
 
+julia> integrate(sin(log(2x^2))/x;verbose=false)
+(-1//2)*cos(log(2(x^2)))
+
 julia> integrate(sin(x^2)/x;verbose=false)
 (1//2)*SpecialFunctions.sinint(x^2)
 
@@ -107,7 +110,7 @@ and much more. I also added 27585 tests (integrals with their correct solution) 
 While this shows impressive integration capabilities, there is still work left to do, which I briefly list here and describe in detail below.
 - First, there are still some problems with the SymbolicUtils `@rule` macro that prevent some expressions from being integrated even though the rules are present.
 - There are still some rules not translated, mainly those involving trigonometric functions, hyperbolic functions, and special functions. 
-- Finally, during the summer, a Julia package has been revived that performs symbolic integration using various algorithms, and we decided to create one unified package where the user can choose which integration strategy to use. I thus need to add the rule-based strategy to that repository.
+- Finally, during the summer, a Julia package has been revived that performs symbolic integration using various algorithms, and we decided to create one unified package where the user can choose which integration strategy to use. I thus need to move all my code to that repository, the pr is underway: [pr](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/pull/11).
 
 # Detailed report of work done
 Here is a detailed report of the work done with links to code and pull requests (pr), if you really want to deep dive in the technical details. The code I have written is mainly in this repo, SymbolicIntegration.jl, and in the SymbolicUtils.jl repo where I improved the `@rule` macro.
@@ -239,7 +242,7 @@ Int[P2_/(a_ + b_.*x_^3), x_Symbol] := With[{A = Coeff[P2, x, 0], B = Coeff[P2, x
 ```
 As you can see rules are defined as patterns for the `Int` function, functions have square brackets, lists are created with curly brackets and conditions are put after the `/;`
 
-The files `src/string_manipulation_helpers.jl` and `src/translator_of_rules.jl` are the two with which I translate the rules. Creating these scripts was quite difficult, because there are a lot of different syntaxes, functions, edge cases, etc. But now they are quite powerful, and most of the times translate a rule file flawlessly (0 errors!) to julia syntax. I remember in the first month of GSoC using the translator script and seeing the entire screen red in vscode for the syntax errors. For example the above rules are translated automatically to:
+The files `src/string_manipulation_helpers.jl` and `src/translator_of_rules.jl` are the two with which I translate the rules. Creating these scripts was quite difficult, because there are a lot of different syntaxes, functions, edge cases, etc. But now they are quite powerful, and most of the times translate a rule file flawlessly (0 errors!) to julia syntax. This is extremely satisfying, I remember in June using the translator script and seeing the entire screen red in vscode for the syntax errors. For example the above rules are translated automatically to:
 ```
 ("1_1_1_1_2",
 @rule ∫((~x)^(~!m),(~x)) =>
@@ -303,4 +306,4 @@ The problems holding back the most number of expressions to be integrated are:
 
 While other things left to do are:
 - **Decrease loading time**: The first time you import the package in the Julia REPL with `using SymbolicIntegration.jl` it takes a while (roughly 5 min on a laptop) to create all the callable objects with the `@rule macro`. This could be solved by improving the `@rule macro`.
-- **Add to JuliaSymbolics/SymbolicIntegration.jl**: during the summer, a package has been revived that performs symbolic integration using various algorithms, and we decided to create one unified package where the user can choose which integration strategy to use. I need thus to add the rule-based strategy to that repo.
+- **Add to JuliaSymbolics/SymbolicIntegration.jl**: during the summer, a package has been revived that performs symbolic integration using various algorithms, and we decided to create one unified package where the user can choose which integration strategy to use. I need thus to move all my code to that repo, the pr is underway: [pr](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/pull/11).
