@@ -107,12 +107,12 @@ end
 
 # If no method tries them both
 function integrate(f::Symbolics.Num, x::Symbolics.Num; kwargs...)
-    result = integrate(f, x, RischMethod(); kwargs...)
+    result = integrate_risch(f, x; kwargs...)
     !contains_int(result) && return result
 
     printstyled("\n > RischMethod failed returning $result \n";color=:red)
     println(" > Trying with RuleBasedMethod...\n")
-    result = integrate(f, x, RuleBasedMethod(); kwargs...)
+    result = integrate_rule_based(f, x; kwargs...)
     !contains_int(result) && return result
 
     printstyled("\n > RuleBasedMethod failed returning $result \n";color=:red)
