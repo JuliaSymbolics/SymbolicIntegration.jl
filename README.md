@@ -1,8 +1,7 @@
 # SymbolicIntegration.jl
 
-[![Build Status](https://github.com/Bumblebee00/SymbolicIntegration.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Bumblebee00/SymbolicIntegration.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Rules](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/Bumblebee00/SymbolicIntegration.jl/main/.github/badges/rules-count.json&query=$.message&label=Total%20rules&color=blue)](https://github.com/Bumblebee00/SymbolicIntegration.jl)
-[![Spell Check](https://github.com/Bumblebee00/SymbolicIntegration.jl/actions/workflows/spellcheck.yml/badge.svg?branch=main)](https://github.com/Bumblebee00/SymbolicIntegration.jl/actions/workflows/spellcheck.yml)
+[![Build Status](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Spell Check](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/spellcheck.yml/badge.svg?branch=main)](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/spellcheck.yml)
 
 - [SymbolicIntegration.jl](#symbolicintegrationjl)
 - [Installation](#installation)
@@ -127,6 +126,9 @@ Complete symbolic integration using the Risch algorithm from Manuel Bronstein's 
 - Trigonometric functions: `∫sin(x) dx`, `∫cos(x) dx`, `∫tan(x) dx`
 
 ## RuleBasedMethod
+
+[![Rules](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/JuliaSymbolics/SymbolicIntegration.jl/main/.github/badges/rules-count.json&query=$.message&label=Total%20rules&color=blue)](https://github.com/JuliaSymbolics/SymbolicIntegration.jl)
+
 This method uses a rule based approach to integrate a vast class of functions, and it's built using the rules from the Mathematica package [RUBI](https://rulebasedintegration.org/).
 
 **Capabilities:**
@@ -148,6 +150,18 @@ The infix operator `⨸` is used to represent a custom division function, if cal
 
 Not all rules are yet translated, I am each day translating more of them. If you want to know how to help translating rules and improving the package read the [contributing](#contributing) section. If you enconunter any issues using the package, please write me or open a issue on the repo.
 
+# Test
+To test the package run
+```
+julia --project=. test/runtests.jl
+```
+or in a Repl:
+```
+julia> using Symbolics, SymbolicIntegration
+
+julia> include("test/runtests.jl")
+
+```
 
 # Documentation
 

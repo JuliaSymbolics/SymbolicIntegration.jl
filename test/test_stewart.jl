@@ -458,7 +458,7 @@ for prob in problems
     print("∫", prob[1], "dx = ")        
     if length(prob)<=4
         try
-            result = integrate(prob[1], prob[2], catchNotImplementedError=false, catchAlgorithmFailedError=false)
+            result = integrate(prob[1], prob[2], RischMethod(catchNotImplementedError=false, catchAlgorithmFailedError=false))
             println(result)
             arg = 1.123456789
             err = abs(SymbolicUtils.substitute(prob[1]-Symbolics.derivative(result, prob[2]), prob[2]=>arg))

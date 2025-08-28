@@ -4,7 +4,7 @@ using Symbolics
 using AbstractAlgebra
 using Nemo
 
-@testset "Bronstein Algorithm Examples" begin
+@testset "[Risch] Bronstein Algorithm Examples" begin
     # Examples from "Symbolic Integration I: Transcendental Functions" by Manuel Bronstein
     # These test the core algorithms implemented in the package
     
@@ -14,20 +14,20 @@ using Nemo
         # Example 2.5.1: Basic rational function
         # This tests the Rothstein-Trager algorithm
         f1 = (x^2 + 1)//(x^3 + x)
-        result1 = integrate(f1, x)
+        result1 = integrate(f1, x, RischMethod())
         @test !isnothing(result1)
         @test string(result1) isa String
         
         # Example 2.8.1: Complex root handling
         # FIXED: Complex root handling now works!
         f2 = 1//(x^2 + 1)
-        result2 = integrate(f2, x)
+        result2 = integrate(f2, x, RischMethod())
         @test string(result2) == "atan(x)"
         
         # Example showing logarithmic parts
         # This one actually works!
         f3 = (2*x + 1)//(x^2 + x + 1) 
-        @test integrate(f3, x) isa Any
+        @test integrate(f3, x, RischMethod()) isa Any
     end
     
     @testset "Chapter 5: Transcendental Functions" begin
@@ -36,19 +36,19 @@ using Nemo
         # Example 5.8.1: Primitive case
         # ∫ exp(x^2) * x dx = (1/2) * exp(x^2)
         f1 = x * exp(x^2)
-        result1 = integrate(f1, x)
+        result1 = integrate(f1, x, RischMethod())
         @test !isnothing(result1)
         
         # Example: Logarithmic derivative case
         # ∫ (1/x) dx = log(x)
         f2 = 1//x
-        result2 = integrate(f2, x)
+        result2 = integrate(f2, x, RischMethod())
         @test string(result2) == "log(x)"
         
         # Example: Integration by parts
         # ∫ log(x) dx = x*log(x) - x
         f3 = log(x)
-        result3 = integrate(f3, x)
+        result3 = integrate(f3, x, RischMethod())
         @test string(result3) == "-x + x*log(x)"
     end
     

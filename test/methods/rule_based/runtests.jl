@@ -112,7 +112,7 @@ function test_from_file(path)
     
     for tuple in file_tests
         try
-            elapsed_time = @elapsed computed_result = integrate(tuple[1], tuple[3]; verbose = false)
+            elapsed_time = @elapsed computed_result = integrate(tuple[1], tuple[3], RuleBasedMethod(verbose = false))
             push!(times, elapsed_time)
 
             if SymbolicIntegration.contains_int(computed_result)
@@ -150,12 +150,12 @@ failed_color = :red
 errored_color = :magenta
 
 # Create test_results directory if it doesn't exist
-test_results_dir = joinpath(@__DIR__, "test_results")
+test_results_dir = joinpath(@__DIR__, "../../test_results")
 mkpath(test_results_dir)
 
 # Create output file with timestamp
 timestamp = Dates.format(now(), "yyyy-mm-dd_HH-MM-SS")
-output_file = joinpath(test_results_dir, "test_output_$(timestamp).out")
+output_file = joinpath(test_results_dir, "rule_based_test_output_$(timestamp).out")
 
 # Get package version
 project_toml = Pkg.project()
@@ -218,7 +218,7 @@ dual_println("="^74*"\n\n\n")
 
 @variables x a b c d e f g h k m n p t z A B C D I
 
-_ = integrate(atanh(x),x;verbose=false) # warming up
+_ = integrate(atanh(x),x,RuleBasedMethod(verbose=false)) # warming up
 
 # analytics for all the testsets
 total_tests = 0
@@ -247,4 +247,6 @@ dual_println("="^80*"\n")
 close(output_io)
 println("Test results saved to: ", output_file)
 
-@test total_errored == 0
+@testset "[Rule Based] Integration of simple functions" begin
+    @test total_errored == 0
+end

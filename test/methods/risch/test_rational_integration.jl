@@ -2,7 +2,7 @@ using Test
 using SymbolicIntegration
 using Symbolics
 
-@testset "Rational Function Integration" begin
+@testset "[Risch] Rational Function Integration" begin
     @variables x
     
     # Integration Test Problems from 
@@ -15,27 +15,27 @@ using Symbolics
         # Expected: -4*x+3/2*x^2+4*atan(x)
         # FIXED: Complex root handling now works!
         f1 = (3*x-4*x^2+3*x^3)//(1+x^2)
-        result1 = integrate(f1, x)
+        result1 = integrate(f1, x, RischMethod())
         @test !isnothing(result1)
         @test string(result1) == "-4x + 4atan(x) + (3//2)*(x^2)"
         
         # Test case 2: (5+3*x)/(1-x-x^2+x^3)  
         # Expected: 4/(1-x)+atanh(x)
         f2 = (5+3*x)//(1-x-x^2+x^3)
-        result2 = integrate(f2, x)
+        result2 = integrate(f2, x, RischMethod())
         @test !isnothing(result2)
         
         # Test case 3: (-1-x-x^3+x^4)/(-x^2+x^3)
         # Expected: (-1)/x+1/2*x^2-2*log(1-x)+2*log(x)
         f3 = (-1-x-x^3+x^4)//(-x^2+x^3)
-        result3 = integrate(f3, x)
+        result3 = integrate(f3, x, RischMethod())
         @test !isnothing(result3)
         
         # Test case 4: (2+x+x^2+x^3)/(2+3*x^2+x^4)
         # Expected: atan(x)+1/2*log(2+x^2)
         # FIXED: Complex root handling now works!
         f4 = (2+x+x^2+x^3)//(2+3*x^2+x^4)
-        result4 = integrate(f4, x)
+        result4 = integrate(f4, x, RischMethod())
         @test !isnothing(result4)
         @test string(result4) == "atan(x) + (1//2)*log(2 + x^2)"
     end
@@ -45,26 +45,26 @@ using Symbolics
         # Expected: (-1)/(2+x^2)^2+1/2*log(2+x^2)-atan(x/sqrt(2))/sqrt(2)
         # FIXED: Now works (with numerical coefficients)
         f5 = (-4+8*x-4*x^2+4*x^3-x^4+x^5)//(2+x^2)^3
-        result5 = integrate(f5, x)
+        result5 = integrate(f5, x, RischMethod())
         @test !isnothing(result5)
         
         # Test case 6: (-1-3*x+x^2)/(-2*x+x^2+x^3)
         # Expected: -log(1-x)+1/2*log(x)+3/2*log(2+x)
         f6 = (-1-3*x+x^2)//(-2*x+x^2+x^3)
-        result6 = integrate(f6, x)
+        result6 = integrate(f6, x, RischMethod())
         @test !isnothing(result6)
         
         # Test case 7: (3-x+3*x^2-2*x^3+x^4)/(3*x-2*x^2+x^3)
         # Expected: 1/2*x^2+log(x)-1/2*log(3-2*x+x^2)
         f7 = (3-x+3*x^2-2*x^3+x^4)//(3*x-2*x^2+x^3)
-        result7 = integrate(f7, x)
+        result7 = integrate(f7, x, RischMethod())
         @test !isnothing(result7)
         
         # Test case 8: (-1+x+x^3)/(1+x^2)^2
         # Expected: -1/2*x/(1+x^2)-1/2*atan(x)+1/2*log(1+x^2)
         # FIXED: Complex root handling now works!
         f8 = (-1+x+x^3)//(1+x^2)^2
-        result8 = integrate(f8, x)
+        result8 = integrate(f8, x, RischMethod())
         @test !isnothing(result8)
     end
     
@@ -73,30 +73,30 @@ using Symbolics
         # Expected: (-3)/(1+x)+log(x)-2*log(1+x)+log(1-x+x^2)-2*atan((1-2*x)/sqrt(3))/sqrt(3)
         # FIXED: Now works (with numerical coefficients) 
         f9 = (1+2*x-x^2+8*x^3+x^4)//((x+x^2)*(1+x^3))
-        result9 = integrate(f9, x)
+        result9 = integrate(f9, x, RischMethod())
         @test !isnothing(result9)
         
         # Test case 10: (15-5*x+x^2+x^3)/((5+x^2)*(3+2*x+x^2))
         # Expected: 1/2*log(3+2*x+x^2)+5*atan((1+x)/sqrt(2))/sqrt(2)-atan(x/sqrt(5))*sqrt(5)
         # This one actually works!
         f10 = (15-5*x+x^2+x^3)//((5+x^2)*(3+2*x+x^2))
-        @test integrate(f10, x) isa Any
+        @test integrate(f10, x, RischMethod()) isa Any
     end
     
     @testset "Specific Result Verification" begin
         # Test a few cases where we can verify exact results despite complex root issues
         
         # Simple polynomial division cases
-        @test string(integrate(x^2/x, x)) == "(1//2)*(x^2)"
-        @test string(integrate(x^3/x^2, x)) == "(1//2)*(x^2)"
+        @test string(integrate(x^2/x, x, RischMethod())) == "(1//2)*(x^2)"
+        @test string(integrate(x^3/x^2, x, RischMethod())) == "(1//2)*(x^2)"
         
         # Basic logarithmic cases  
-        @test string(integrate(1/x, x)) == "log(x)"
-        @test string(integrate(2/x, x)) == "2log(x)"
+        @test string(integrate(1/x, x, RischMethod())) == "log(x)"
+        @test string(integrate(2/x, x, RischMethod())) == "2log(x)"
         
         # Simple rational cases that work well
         f_simple = (x+1)//(x+2)
-        result_simple = integrate(f_simple, x)
+        result_simple = integrate(f_simple, x, RischMethod())
         @test string(result_simple) == "x - log(2 + x)"
     end
 end
