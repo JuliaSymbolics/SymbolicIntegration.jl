@@ -20,7 +20,7 @@ struct RischMethod <: AbstractIntegrationMethod
     use_algebraic_closure::Bool
     catch_errors::Bool
     
-    function RischMethod(; use_algebraic_closure::Bool=true, catch_errors::Bool=true)
+    function RischMethod(; use_algebraic_closure::Bool=false, catch_errors::Bool=true)
         new(use_algebraic_closure, catch_errors)
     end
 end
