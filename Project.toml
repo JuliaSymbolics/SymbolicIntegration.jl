@@ -1,11 +1,11 @@
 name = "SymbolicIntegration"
 uuid = "315ce56f-eed0-411d-ab8a-2fbdf9327b51"
+keywords = ["symbolic", "integration", "mathematics", "computer-algebra"]
+license = "MIT"
 authors = ["HaraldHofstaetter <hofi@harald-hofstaetter.at>", "Chris Rackauckas <accounts@chrisrackauckas.com>", "JuliaSymbolics contributors"]
-version = "2.0.0"
 description = "Symbolic integration algorithms for Julia"
 repository = "https://github.com/JuliaSymbolics/SymbolicIntegration.jl"
-license = "MIT"
-keywords = ["symbolic", "integration", "mathematics", "computer-algebra"]
+version = "2.0.0"
 
 [deps]
 AbstractAlgebra = "c3fe647b-3220-5bb0-a1ea-a7954cac585d"
@@ -16,7 +16,7 @@ Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 
 [compat]
 AbstractAlgebra = "0.46"
-Nemo = "0.51"
+Nemo = "0.51, 0.52"
 SymbolicUtils = "3"
 Symbolics = "6"
 julia = "1.10"
