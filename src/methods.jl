@@ -29,6 +29,7 @@ end
     RuleBasedMethod <: AbstractIntegrationMethod
 
 - `use_gamma::Bool`: Whether to catch and handle algorithm errors gracefully (default: true)
+- `verbose::Bool`: Wheter to print or not integration rules applied (default: true)
 """
 struct RuleBasedMethod <: AbstractIntegrationMethod
     use_gamma::Bool
@@ -39,11 +40,100 @@ struct RuleBasedMethod <: AbstractIntegrationMethod
     end
 end
 
+
+
+
+
+
+
+
+"""
+    integrate(f, x)
+    
+Compute the symbolic integral of expression `f` with respect to variable `x`
+using all aviable methods.
+
+# Arguments
+- `f`: Symbolic expression to integrate (Symbolics.Num)
+- `x`: Integration variable (Symbolics.Num)  
+
+# Examples
+```julia
+julia> using SymbolicIntegration, Symbolics
+julia> @variables x
+julia> integrate(2x)
+x^2
+
+julia> integrate(sqrt(x))
+┌ Warning: NotImplementedError: integrand contains unsupported expression sqrt(x)
+└ @ SymbolicIntegration ~/.julia/dev/SymbolicIntegration.jl_official/src/methods/risch/frontend.jl:826
+
+ > RischMethod failed returning ∫(sqrt(x), x) 
+ > Trying with RuleBasedMethod...
+
+┌-------Applied rule 1_1_1_1_2 on ∫(sqrt(x), x)
+| ∫(x ^ m, x) => if 
+|       !(contains_var(m, x)) &&
+|       !(eq(m, -1))
+| x ^ (m + 1) / (m + 1)
+└-------with result: (2//3)*(x^(3//2))
+(2//3)*(x^(3//2))
+
+julia> integrate(abs(x))
+┌ Warning: NotImplementedError: integrand contains unsupported expression abs(x)
+└ @ SymbolicIntegration ~/.julia/dev/SymbolicIntegration.jl_official/src/methods/risch/frontend.jl:826
+
+ > RischMethod failed returning ∫(abs(x), x) 
+ > Trying with RuleBasedMethod...
+
+No rule found for ∫(abs(x), x)
+
+ > RuleBasedMethod failed returning ∫(abs(x), x) 
+ > Sorry we cannot integrate this expression :(
+
+```
+"""
+function integrate(f::Symbolics.Num, x::Symbolics.Num; kwargs...)
+    result = integrate_risch(f.val, x.val; kwargs...)
+    !contains_int(result) && return result
+
+    printstyled("\n > RischMethod(use_algebraic_closure=false, catch_errors=true) failed, returning $result \n";color=:red)
+    printstyled(" > Trying with RuleBasedMethod(use_gamma=false, verbose=true)...\n\n"; color=:red)
+    result = integrate_rule_based(f, x; kwargs...)
+    !contains_int(result) && return result
+
+    printstyled(" > RuleBasedMethod(use_gamma=false, verbose=true) failed, returning $result \n";color=:red)
+    printstyled(" > Sorry we cannot integrate this expression :(\n";color=:red)
+end
+
+"""
+    integrate(f, method)
+
+If f contains only one symbolic variable, computes the integral of f with
+respect to that variable, with the specified method, or tries all aviable
+methods if not specified.
+"""
+function integrate(f::Symbolics.Num, method=nothing; kwargs...)
+    vars = Symbolics.get_variables(f)
+    if length(vars) > 1
+        @warn "Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument."
+        return nothing
+    elseif length(vars) == 1
+        integration_variable = vars[1]
+    else
+        @warn "No integration variable provided"
+        return nothing
+    end
+
+    method===nothing && return integrate(f, Num(integration_variable); kwargs...)
+    return integrate(f, Num(integration_variable), method; kwargs...)
+end
+
 """
     integrate(f, x, method::AbstractIntegrationMethod=RischMethod(); kwargs...)
 
 Compute the symbolic integral of expression `f` with respect to variable `x` 
-using the specified integration method.
+using Risch integration method.
 
 # Arguments
 - `f`: Symbolic expression to integrate (Symbolics.Num)
@@ -58,12 +148,6 @@ using the specified integration method.
 
 # Examples
 ```julia
-using SymbolicIntegration, Symbolics
-@variables x
-
-# Using default Risch method
-integrate(x^2, x)  # (1//3)*(x^3)
-
 # Explicit method with options
 integrate(1/(x^2 + 1), x, RischMethod(use_algebraic_closure=true))  # atan(x)
 
@@ -92,48 +176,38 @@ using rule based method.
 - `x`: Integration variable (Symbolics.Num)  
 - `method`: Integration method to use
 
-# Keyword Arguments
-- `verbose`: to print or not the rules applied to solve the integral
-- `use_gamma`: to use or not the gamma function in integration results
-
 # Returns
 - Symbolic expression representing the antiderivative (Symbolics.Num) (the +c is omitted)
 
+# Examples
+```julia
+julia> integrate(1/sqrt(1 + x), x, RuleBasedMethod())
+┌-------Applied rule 1_1_2_1_33 (change of variables):
+| ∫((a + b * v ^ n) ^ p, x) => if 
+|       !(contains_var(a, b, n, p, x)) &&
+|       (
+|             linear(v, x) &&
+|             v !== x
+|       )
+| (1 / ext_coeff(v, x, 1)) * substitute(∫{(a + b * x ^ n) ^ p}dx, x => v)
+└-------with result: ∫1 / (u^(1//2)) du where u = 1 + x
+┌-------Applied rule 1_1_1_1_2 on ∫(1 / (x^(1//2)), x)
+| ∫(x ^ m, x) => if 
+|       !(contains_var(m, x)) &&
+|       m !== -1
+| x ^ (m + 1) / (m + 1)
+└-------with result: (2//1)*(x^(1//2))
+(2//1)*sqrt(1 + x)
+
+julia> rbm = RuleBasedMethod(verbose=false)
+julia> integrate(1/sqrt(1 + x), x, rbm)
+
+(2//1)*sqrt(1 + x)
+```
 """
 function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RuleBasedMethod; kwargs...)
     return integrate_rule_based(f, x;
         verbose=method.verbose, use_gamma=method.use_gamma, kwargs...)
-end
-
-# If no method tries them both
-function integrate(f::Symbolics.Num, x::Symbolics.Num; kwargs...)
-    result = integrate_risch(f.val, x.val; kwargs...)
-    !contains_int(result) && return result
-
-    printstyled("\n > RischMethod(use_algebraic_closure=false, catch_errors=true) failed, returning $result \n";color=:red)
-    printstyled(" > Trying with RuleBasedMethod(use_gamma=false, verbose=true)...\n\n"; color=:red)
-    result = integrate_rule_based(f, x; kwargs...)
-    !contains_int(result) && return result
-
-    printstyled(" > RuleBasedMethod(use_gamma=false, verbose=true) failed, returning $result \n";color=:red)
-    printstyled(" > Sorry we cannot integrate this expression :(\n";color=:red)
-end
-
-# If no integration variable provided
-function integrate(f::Symbolics.Num, method=nothing; kwargs...)
-    vars = Symbolics.get_variables(f)
-    if length(vars) > 1
-        @warn "Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument."
-        return nothing
-    elseif length(vars) == 1
-        integration_variable = vars[1]
-    else
-        @warn "No integration variable provided"
-        return nothing
-    end
-
-    method===nothing && return integrate(f, Num(integration_variable); kwargs...)
-    return integrate(f, Num(integration_variable), method; kwargs...)
 end
 
 function integrate(;kwargs...)
@@ -141,6 +215,10 @@ function integrate(;kwargs...)
 end 
 
 # integrate_rule_based(integrand::Number, x::Symbolics.Num; kwargs...) = integrand*x
+
+
+
+
 
 
 """
