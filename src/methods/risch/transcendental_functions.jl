@@ -175,8 +175,8 @@ function ConstantPart(ss::Vector{P}, Ss::Vector{PP}, D::Derivation) where  {P<:P
                         var = string(symbols(parent(Ss[i]))[1])
                         F = base_ring(ss[i])
                         if !iszero(u)
-                            # Ignore log terms with contstant arguments. In some cases the denominator of the constant argument
-                            # might be zero after substitutiong (u,v). So this avoids divison by zero in these cases.
+                            # Ignore log terms with constant arguments. In some cases the denominator of the constant argument
+                            # might be zero after substitutiong (u,v). So this avoids division by zero in these cases.
                             if degree(RT.LT.arg)>0 || (!isconstant(numerator(constant_coefficient(RT.LT.arg))(u,v), BaseDerivation(D)) &&
                                                        !isconstant(denominator(constant_coefficient(RT.LT.arg))(u,v), BaseDerivation(D)))
                                 # TODO: Think about avoiding division by zero like below for atan term.
@@ -187,12 +187,12 @@ function ConstantPart(ss::Vector{P}, Ss::Vector{PP}, D::Derivation) where  {P<:P
                             end
                         end
                         for AT in RT.ATs    
-                            # Ignore atan terms with contstant arguments. In some cases the denominator of the constant argument
-                            # might be zero after substitutiong (u,v). So this avoids divison by zero in these cases.
+                            # Ignore atan terms with constant arguments. In some cases the denominator of the constant argument
+                            # might be zero after substitutiong (u,v). So this avoids division by zero in these cases.
                             if degree(AT.arg)>0 || (!isconstant(numerator(constant_coefficient(AT.arg))(u,v), BaseDerivation(D)) &&
                                                     !isconstant(denominator(constant_coefficient(AT.arg))(u,v), BaseDerivation(D)))
                                 if all([!iszero(denominator(c)(u, v)) for c in coefficients(AT.arg)])
-                                    # Ignore atan term if substitution of (u,v) in argument would cause divion by zero. 
+                                    # Ignore atan term if substitution of (u,v) in argument would cause division by zero. 
                                     # This requires more thought, but it seems to work...
                                     g = polynomial(F, [numerator(c)(u, v)//denominator(c)(u, v) for c in coefficients(AT.arg)], var)
                                     push!(gs, FunctionTerm(atan, AT.coeff*v, g))
@@ -503,7 +503,7 @@ function InFieldDerivative(f::F, D::Derivation) where
             a0 = p1 - D(q2)
         else
             H = MonomialDerivative(D)
-            throw(NotImplementedError("InFieldDerivative: monomial deivative =$H\n@ $(@__FILE__):$(@__LINE__)"))
+            throw(NotImplementedError("InFieldDerivative: monomial derivative =$H\n@ $(@__FILE__):$(@__LINE__)"))
         end
         @assert isone(denominator(a0)) && degree(numerator(a0))<=0 # p-D(q) ∈ k
         a = constant_coefficient(numerator(a0))
@@ -681,7 +681,7 @@ function InFieldLogarithmicDerivativeOfRadical(f::F, D::Derivation; expect_one::
             U = v^div(N, m)*(u+Z)^div(N, n)*(t^2+1+Z)^div(e*N, n)
             return N, U, 1
         elseif iszero(real(a)) 
-            # Note: This case is not treated in 5.12 of Bronsteins's book, altough it seems
+            # Note: This case is not treated in 5.12 of Bronsteins's book, although it seems
             # to be the one relevant for checking the condition of Theorem 5.10.1.
             # I did not prove that in the case of Theorem 5.12 real(a)=0 always holds true.
             ai = imag(a)
@@ -690,7 +690,7 @@ function InFieldLogarithmicDerivativeOfRadical(f::F, D::Derivation; expect_one::
             if !isrational(c1) || !isrational(c2)
                 return no_solution
             end
-            # implicitely set u = 1 => D(u)//u = 0            
+            # implicitly set u = 1 => D(u)//u = 0            
             c1 = rationalize_over_Int(c1)
             c2 = rationalize_over_Int(c2)
             n = lcm(denominator(c1), denominator(c2))

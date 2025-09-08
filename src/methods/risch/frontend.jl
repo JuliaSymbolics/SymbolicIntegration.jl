@@ -16,7 +16,7 @@ of `D`, `D` is `d/dx` on `C(x)`, and `D` is iteratively extended from `C(x)(t₁
 such that `tᵢ` is monomial over `C(x)(t₁)...(tᵢ₋₁)` with `D(tᵢ)=Hᵢ=Hᵢ(x, t₁,....,tᵢ)`.
 The generators `x` of C(x) over C and `tᵢ` of `C(x)(t₁)...(tᵢ)` over `C(x)(t₁)...(tᵢ₋₁)` are returned
 as `gs=[x, t₁,...,tₙ]`. (Note that these generators, although here denoted by the same symbols for simplicity, are isomorphic but not identical to 
-the generators `x, t₁,...,tₙ` of `C(x,t₁,...,tₙ)` given implicitely as the variables of the rational functions `Hᵢ`.)
+the generators `x, t₁,...,tₙ` of `C(x,t₁,...,tₙ)` given implicitly as the variables of the rational functions `Hᵢ`.)
 
 # Example  
 ```julia
@@ -24,7 +24,7 @@ R, (x, t1, t2) = polynomial_ring(QQ, [:x, :t1, :t2])
 Z = zero(R)//1 # zero element of the fraction field of R
 K, gs, D = TowerOfDifferentialFields([t1//x, (t2^2+1)*x*t1 + Z])
 ```
-(Note: by adding `Z` to a polynomial we explicitely transform it to an element of the fraction field.)
+(Note: by adding `Z` to a polynomial we explicitly transform it to an element of the fraction field.)
 """
 function TowerOfDifferentialFields(Hs::Vector{F})  where 
     {T<:FieldElement, P<:MPolyRingElem{T}, F<:FracElem{P}}
@@ -164,8 +164,8 @@ end
 
 function tan2sincos(f::K, arg::SymbolicUtils.Symbolic, vars::Vector, h::Int=0) where 
     {T<:FieldElement, P<:PolyRingElem{T}, K<:FracElem{P}}
-    # This function transforms a Nemo/AbstractAlgebra rational funktion with
-    # varibale t representing tan(arg) to a SymbolicUtils expression which is
+    # This function transforms a Nemo/AbstractAlgebra rational function with
+    # variable t representing tan(arg) to a SymbolicUtils expression which is
     # a quotient in which both numerator and denominator are linear combinations
     # of expressions of the form cos(2*j*arg) or sin(2*j*arg) where j is an integer >=0.
     k = base_ring(base_ring(parent(f)))

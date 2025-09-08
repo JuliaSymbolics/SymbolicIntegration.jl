@@ -67,7 +67,7 @@ integrate(f, x, rbm)
 ```
 where:
 - `verbsoe` specifies whether to print or not the integration rules applied (default true)
-- `use_gamma` sepcifies whether to use rules with the gamma function in the result, or not (default false)
+- `use_gamma` specifies whether to use rules with the gamma function in the result, or not (default false)
 
 If no method is specified, first RischMethod will be tried, then RuleBasedMethod:
 ```julia
