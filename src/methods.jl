@@ -29,7 +29,7 @@ end
     RuleBasedMethod <: AbstractIntegrationMethod
 
 - `use_gamma::Bool`: Whether to catch and handle algorithm errors gracefully (default: true)
-- `verbose::Bool`: Wheter to print or not integration rules applied (default: true)
+- `verbose::Bool`: Whether to print or not integration rules applied (default: true)
 """
 struct RuleBasedMethod <: AbstractIntegrationMethod
     use_gamma::Bool
@@ -51,7 +51,7 @@ end
     integrate(f, x)
     
 Compute the symbolic integral of expression `f` with respect to variable `x`
-using all aviable methods.
+using all available methods.
 
 # Arguments
 - `f`: Symbolic expression to integrate (Symbolics.Num)
@@ -110,7 +110,7 @@ end
     integrate(f, method)
 
 If f contains only one symbolic variable, computes the integral of f with
-respect to that variable, with the specified method, or tries all aviable
+respect to that variable, with the specified method, or tries all available
 methods if not specified.
 """
 function integrate(f::Symbolics.Num, method=nothing; kwargs...)
