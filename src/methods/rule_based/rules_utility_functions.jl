@@ -432,7 +432,7 @@ function int_and_subst(integrand, int_var, from, to, rule_from_identifier)
         printstyled(replace(string(from),string(int_var)=>"u")*" = "*string(to), "\n"; color = :light_blue)
     end
 
-    result = integrate(integrand, int_var;verbose=VERBOSE)
+    result = integrate_rule_based(integrand, int_var;verbose=VERBOSE)
     push!(SILENCE, rule_from_identifier)
     if !contains_int(result)
         return substitute(result, from => to)

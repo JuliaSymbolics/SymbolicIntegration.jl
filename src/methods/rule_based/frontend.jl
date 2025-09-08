@@ -114,3 +114,6 @@ function integrate_rule_based(integrand::Symbolics.Num, int_var::Symbolics.Num; 
     println()
     return result
 end
+
+integrate_rule_based(integrand::SymbolicUtils.BasicSymbolic{Real}, int_var::SymbolicUtils.BasicSymbolic{Real}; kwargs...) =
+    integrate_rule_based(Num(integrand), Num(int_var); kwargs...)
