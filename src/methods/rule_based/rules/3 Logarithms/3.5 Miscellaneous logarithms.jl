@@ -224,7 +224,7 @@ log((~a)*(~x)^(~m) + (~b)*log((~c)*(~x)^(~n))^(~q))⨸((~b)*(~n)*(~q)) - (~a)*(~
 #     (
 #         !eq((~a), 0) ||
 #         !(
-#             binomial((~u), (~x)) &&
+#             isbinomial((~u), (~x)) &&
 #             eq(BinomialDegree[(~u), (~x)]^2, 1)
 #         )
 #     ) ?

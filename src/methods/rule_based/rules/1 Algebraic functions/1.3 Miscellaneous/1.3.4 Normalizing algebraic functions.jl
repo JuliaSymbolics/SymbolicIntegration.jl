@@ -212,21 +212,21 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
 ("1_3_4_32",
 @rule ∫((~u)^(~p),(~x)) =>
     !contains_var((~p), (~x)) &&
-    binomial((~u), (~x)) &&
+    isbinomial((~u), (~x)) &&
     !(binomial_without_simplify((~u), (~x))) ?
 ∫(expand_to_sum((~u), (~x))^(~p), (~x)) : nothing)
 
 ("1_3_4_33",
 @rule ∫(((~!c)*(~x))^(~!m)*(~u)^(~!p),(~x)) =>
     !contains_var((~c), (~m), (~p), (~x)) &&
-    binomial((~u), (~x)) &&
+    isbinomial((~u), (~x)) &&
     !(binomial_without_simplify((~u), (~x))) ?
 ∫(((~c)*(~x))^(~m)*expand_to_sum((~u), (~x))^(~p), (~x)) : nothing)
 
 ("1_3_4_34",
 @rule ∫((~u)^(~!p)*(~v)^(~!q),(~x)) =>
     !contains_var((~p), (~q), (~x)) &&
-    binomial([(~u), (~v)], (~x)) &&
+    isbinomial([(~u), (~v)], (~x)) &&
     eq(binomial_degree((~u), (~x)) - binomial_degree((~v), (~x)), 0) &&
     !(binomial_without_simplify([(~u), (~v)], (~x))) ?
 ∫(expand_to_sum((~u), (~x))^(~p)*expand_to_sum((~v), (~x))^(~q), (~x)) : nothing)
@@ -234,7 +234,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
 ("1_3_4_35",
 @rule ∫(((~!e)*(~x))^(~!m)*(~u)^(~!p)*(~v)^(~!q),(~x)) =>
     !contains_var((~e), (~m), (~p), (~q), (~x)) &&
-    binomial([(~u), (~v)], (~x)) &&
+    isbinomial([(~u), (~v)], (~x)) &&
     eq(binomial_degree((~u), (~x)) - binomial_degree((~v), (~x)), 0) &&
     !(binomial_without_simplify([(~u), (~v)], (~x))) ?
 ∫(((~e)*(~x))^(~m)*expand_to_sum((~u), (~x))^(~p)*expand_to_sum((~v), (~x))^(~q), (~x)) : nothing)
@@ -242,7 +242,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
 ("1_3_4_36",
 @rule ∫((~u)^(~!m)*(~v)^(~!p)*(~w)^(~!q),(~x)) =>
     !contains_var((~m), (~p), (~q), (~x)) &&
-    binomial([(~u), (~v), (~w)], (~x)) &&
+    isbinomial([(~u), (~v), (~w)], (~x)) &&
     eq(binomial_degree((~u), (~x)) - binomial_degree((~v), (~x)), 0) &&
     eq(binomial_degree((~u), (~x)) - binomial_degree((~w), (~x)), 0) &&
     !(binomial_without_simplify([(~u), (~v), (~w)], (~x))) ?
@@ -251,7 +251,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
 ("1_3_4_37",
 @rule ∫(((~!g)*(~x))^(~!m)*(~u)^(~!p)*(~v)^(~!q)*(~z)^(~!r),(~x)) =>
     !contains_var((~g), (~m), (~p), (~q), (~r), (~x)) &&
-    binomial([(~u), (~v), (~z)], (~x)) &&
+    isbinomial([(~u), (~v), (~z)], (~x)) &&
     eq(binomial_degree((~u), (~x)) - binomial_degree((~v), (~x)), 0) &&
     eq(binomial_degree((~u), (~x)) - binomial_degree((~z), (~x)), 0) &&
     !(binomial_without_simplify([(~u), (~v), (~z)], (~x))) ?
@@ -261,7 +261,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
 @rule ∫(((~!c)*(~x))^(~!m)*(~Pq)*(~u)^(~!p),(~x)) =>
     !contains_var((~c), (~m), (~p), (~x)) &&
     poly((~Pq), (~x)) &&
-    binomial((~u), (~x)) &&
+    isbinomial((~u), (~x)) &&
     !(binomial_without_simplify((~u), (~x))) ?
 ∫(((~c)*(~x))^(~m)*(~Pq)*expand_to_sum((~u), (~x))^(~p), (~x)) : nothing)
 
@@ -369,7 +369,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
 ("1_3_4_50",
 @rule ∫((~u)^(~!q)*(~v)^(~!p),(~x)) =>
     !contains_var((~p), (~q), (~x)) &&
-    binomial((~u), (~x)) &&
+    isbinomial((~u), (~x)) &&
     trinomial((~v), (~x)) &&
     !(
         binomial_without_simplify((~u), (~x)) &&
@@ -380,8 +380,8 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
 ("1_3_4_51",
 @rule ∫((~u)^(~!q)*(~v)^(~!p),(~x)) =>
     !contains_var((~p), (~q), (~x)) &&
-    binomial((~u), (~x)) &&
-    binomial((~v), (~x)) &&
+    isbinomial((~u), (~x)) &&
+    isbinomial((~v), (~x)) &&
     !(
         binomial_without_simplify((~u), (~x)) &&
         binomial_without_simplify((~v), (~x))
@@ -391,7 +391,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
 ("1_3_4_52",
 @rule ∫(((~!f)*(~x))^(~!m)*(~z)^(~!q)*(~u)^(~!p),(~x)) =>
     !contains_var((~f), (~m), (~p), (~q), (~x)) &&
-    binomial((~z), (~x)) &&
+    isbinomial((~z), (~x)) &&
     trinomial((~u), (~x)) &&
     !(
         binomial_without_simplify((~z), (~x)) &&
@@ -402,8 +402,8 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
 ("1_3_4_53",
 @rule ∫(((~!f)*(~x))^(~!m)*(~z)^(~!q)*(~u)^(~!p),(~x)) =>
     !contains_var((~f), (~m), (~p), (~q), (~x)) &&
-    binomial((~z), (~x)) &&
-    binomial((~u), (~x)) &&
+    isbinomial((~z), (~x)) &&
+    isbinomial((~u), (~x)) &&
     !(
         binomial_without_simplify((~z), (~x)) &&
         binomial_without_simplify((~u), (~x))
@@ -443,7 +443,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
 ("1_3_4_58",
 @rule ∫((~z)*(~u)^(~!p),(~x)) =>
     !contains_var((~p), (~x)) &&
-    binomial((~z), (~x)) &&
+    isbinomial((~z), (~x)) &&
     generalized_trinomial((~u), (~x)) &&
     eq(binomial_degree((~z), (~x)) - generalized_trinomial_degree((~u), (~x)), 0) &&
     !(
@@ -455,7 +455,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
 ("1_3_4_59",
 @rule ∫(((~!f)*(~x))^(~!m)*(~z)*(~u)^(~!p),(~x)) =>
     !contains_var((~f), (~m), (~p), (~x)) &&
-    binomial((~z), (~x)) &&
+    isbinomial((~z), (~x)) &&
     generalized_trinomial((~u), (~x)) &&
     eq(binomial_degree((~z), (~x)) - generalized_trinomial_degree((~u), (~x)), 0) &&
     !(

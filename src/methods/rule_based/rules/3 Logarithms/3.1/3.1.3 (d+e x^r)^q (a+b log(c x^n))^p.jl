@@ -146,7 +146,7 @@ dist(((~a) + (~b)*log((~c)*(~x)^(~n))), ∫(((~d) + (~e)*(~x)^(~r))^(~q), (~x)),
 ("3_1_3_21",
 @rule ∫((~u)^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~n), (~p), (~q), (~x)) &&
-    binomial((~u), (~x)) &&
+    isbinomial((~u), (~x)) &&
     !(binomial_without_simplify((~u), (~x))) ?
 ∫(expand_to_sum((~u), (~x))^(~q)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)) : nothing)
 

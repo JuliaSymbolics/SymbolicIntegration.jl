@@ -518,8 +518,8 @@ function translate_conditions(conditions, vardefs)
 
 
         ("BinomialDegree", "binomial_degree", (2,3)),
-        ("BinomialQ", "binomial"),
-        ("BinomialMatchQ", "binomial_without_simplify"),
+        ("BinomialQ", "isbinomial"),
+        ("BinomialMatchQ", "isbinomial_without_simplify"),
 
         ("GeneralizedBinomialDegree", "generalized_binomial_degree", (2,3)),
         ("GeneralizedBinomialQ", "generalized_binomial",2),

@@ -140,14 +140,14 @@ cos((~c))*∫(cos((~d)*((~e) + (~f)*(~x))^2), (~x)) - sin((~c))*∫(sin((~d)*((~
 ("4_1_12_23",
 @rule ∫(((~!a) + (~!b)*sin((~u)))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~p), (~x)) &&
-    binomial((~u), (~x)) &&
+    isbinomial((~u), (~x)) &&
     !(binomial_without_simplify((~u), (~x))) ?
 ∫(((~a) + (~b)*sin(expand_to_sum((~u), (~x))))^(~p), (~x)) : nothing)
 
 ("4_1_12_24",
 @rule ∫(((~!a) + (~!b)*cos((~u)))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~p), (~x)) &&
-    binomial((~u), (~x)) &&
+    isbinomial((~u), (~x)) &&
     !(binomial_without_simplify((~u), (~x))) ?
 ∫(((~a) + (~b)*cos(expand_to_sum((~u), (~x))))^(~p), (~x)) : nothing)
 
@@ -548,14 +548,14 @@ ext_den((~m))⨸(~e)* int_and_subst((~x)^(ext_den((~m))*((~m) + 1) - 1)*((~a) + 
 ("4_1_12_79",
 @rule ∫(((~e)*(~x))^(~!m)*((~!a) + (~!b)*sin((~u)))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~e), (~m), (~p), (~x)) &&
-    binomial((~u), (~x)) &&
+    isbinomial((~u), (~x)) &&
     !(binomial_without_simplify((~u), (~x))) ?
 ∫(((~e)*(~x))^(~m)*((~a) + (~b)*sin(expand_to_sum((~u), (~x))))^(~p), (~x)) : nothing)
 
 ("4_1_12_80",
 @rule ∫(((~e)*(~x))^(~!m)*((~!a) + (~!b)*cos((~u)))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~e), (~m), (~p), (~x)) &&
-    binomial((~u), (~x)) &&
+    isbinomial((~u), (~x)) &&
     !(binomial_without_simplify((~u), (~x))) ?
 ∫(((~e)*(~x))^(~m)*((~a) + (~b)*cos(expand_to_sum((~u), (~x))))^(~p), (~x)) : nothing)
 

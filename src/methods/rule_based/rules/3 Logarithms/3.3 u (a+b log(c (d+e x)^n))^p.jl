@@ -270,7 +270,7 @@ end : nothing)
 ("3_3_33",
 @rule ∫((~u)^(~!q)*((~!a) + (~!b)*log((~!c)*(~v)^(~!n)))^(~!p),(~x)) =>
     !contains_var((~a), (~b), (~c), (~n), (~p), (~q), (~x)) &&
-    binomial((~u), (~x)) &&
+    isbinomial((~u), (~x)) &&
     linear((~v), (~x)) &&
     !(
         binomial_without_simplify((~u), (~x)) &&

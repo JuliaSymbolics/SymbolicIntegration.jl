@@ -253,7 +253,7 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*(~F)^((~
 @rule ∫((~u)^(~!m)*(~F)^(~v),(~x)) =>
     !contains_var((~F), (~m), (~x)) &&
     linear((~u), (~x)) &&
-    binomial((~v), (~x)) &&
+    isbinomial((~v), (~x)) &&
     !(
         linear_without_simplify((~u), (~x)) &&
         binomial_without_simplify((~v), (~x))
@@ -715,7 +715,7 @@ sqrt(π)*exp(2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F))))* SymbolicUtils.erf((
 # ("2_3_101",
 # @rule ∫((~!u)*(~F)^(~v)*(~G)^(~w),(~x)) =>
 #     !contains_var((~F), (~G), (~x)) &&
-#     binomial((~v)*log((~F)) + (~w)*log((~G)), (~x)) ||
+#     isbinomial((~v)*log((~F)) + (~w)*log((~G)), (~x)) ||
 #     poly((~v)*log((~F)) + (~w)*log((~G)), (~x)) &&
 #     le(Exponent[(~v)*log((~F)) + (~w)*log((~G)), (~x)], 2) ?
 # ∫((~u)*NormalizeIntegrand[ℯ^(~v)*log((~F)) + (~w)*log((~G)), (~x)], (~x)) : nothing)

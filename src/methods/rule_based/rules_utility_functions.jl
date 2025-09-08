@@ -486,13 +486,13 @@ function binomial_degree(u, x)
 end
 # if u is an expression equivalent to a+bx^n with a,b,n constants,
 # b and n != 0, returns true
-binomial_without_simplify(u, x) = binomial_degree(u,x) !== nothing
-binomial_without_simplify(u, x, pow) = binomial_degree(u,x) == pow
+isbinomial_without_simplify(u, x) = binomial_degree(u,x) !== nothing
+isbinomial_without_simplify(u, x, pow) = binomial_degree(u,x) == pow
 
-binomial(u, x) = binomial_without_simplify(simplify(u; expand = true),x)
-binomial(u::Vector,x) = all(binomial(e,x) for e in u)
-binomial(u, x, n) = binomial_without_simplify(simplify(u; expand = true), x, n)
-binomial(u::Vector,x,n) = all(binomial(e,x,n) for e in u)
+isbinomial(u, x) = isbinomial_without_simplify(simplify(u; expand = true),x)
+isbinomial(u::Vector,x) = all(isbinomial(e,x) for e in u)
+isbinomial(u, x, n) = isbinomial_without_simplify(simplify(u; expand = true), x, n)
+isbinomial(u::Vector,x,n) = all(isbinomial(e,x,n) for e in u)
 
 # if u is an expression equivalent to a*x^q+b*x^nwith a,b,n,q constants return n-q
 function generalized_binomial_degree(u,x)
