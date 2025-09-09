@@ -170,4 +170,4 @@ finally the rule is placed in a tuple (index, rule), and all the
 tuples are put into a array, ready to be included by load_rules
 
 ## Adding Testsuites
-There is a test suite of 27585 solved integrals taken from the RUBI package, in the folders `test/test_files/0 Independent test suites` (1796 tests) and `test/test_files/1 Algebraic functions` (25798 tests). But more test can be translated from the [RUBI testsuite](https://rulebasedintegration.org/testProblems.html). In [this](https://github.com/Bumblebee00/SymbolicIntegration.jl?tab=readme-ov-file#testing) repo there are the tests still in Mathematica syntax and a script to transalte them to julia.
+There is a test suite of 27585 solved integrals taken from the RUBI package, in the folders `test/test_files/0 Independent test suites` (1796 tests) and `test/test_files/1 Algebraic functions` (25798 tests). But more test can be translated from the [RUBI testsuite](https://rulebasedintegration.org/testProblems.html). In [this](https://github.com/Bumblebee00/SymbolicIntegration.jl?tab=readme-ov-file#testing) repo there are the tests still in Mathematica syntax and a script to translate them to julia.
