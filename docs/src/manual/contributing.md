@@ -1,3 +1,17 @@
+- [Contributing to improving RuleBasedMethod](#contributing-to-improving-rulebasedmethod)
+  - [Common problems when translating rules](#common-problems-when-translating-rules)
+    - [function not translated](#function-not-translated)
+    - [Sum function translation](#sum-function-translation)
+    - [Module syntax translation](#module-syntax-translation)
+    - [\* not present or present as \[Star\]](#-not-present-or-present-as-star)
+  - [Description of the script `src/translator_of_rules.jl`](#description-of-the-script-srctranslator_of_rulesjl)
+    - [How to use it](#how-to-use-it)
+    - [How it works internally (useful to know if you have to debug it)](#how-it-works-internally-useful-to-know-if-you-have-to-debug-it)
+      - [With syntax](#with-syntax)
+      - [replace and smart\_replace applications](#replace-and-smart_replace-applications)
+      - [Pretty indentation](#pretty-indentation)
+      - [end](#end)
+  - [Adding Testsuites](#adding-testsuites)
 
 # Contributing to improving RuleBasedMethod
 
@@ -154,3 +168,6 @@ applied automatically that rewrites the rule like this:
 #### end
 finally the rule is placed in a tuple (index, rule), and all the
 tuples are put into a array, ready to be included by load_rules
+
+## Adding Testsuites
+There is a test suite of 27585 solved integrals taken from the RUBI package, in the folders `test/test_files/0 Independent test suites` (1796 tests) and `test/test_files/1 Algebraic functions` (25798 tests). But more test can be translated from the [RUBI testsuite](https://rulebasedintegration.org/testProblems.html). In [this](https://github.com/Bumblebee00/SymbolicIntegration.jl?tab=readme-ov-file#testing) repo there are the tests still in Mathematica syntax and a script to transalte them to julia.
