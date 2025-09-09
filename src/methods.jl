@@ -203,9 +203,6 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RuleBasedMethod; 
         verbose=method.verbose, use_gamma=method.use_gamma, kwargs...)
 end
 
-function integrate(;kwargs...)
-    @warn "No integrand provided. Please provide one like this: `integrate(x^2 + 3x + 2)`"
-end 
 
 """
     method_supports_rational(method::RischMethod)
