@@ -223,6 +223,3 @@ all_rules_paths = [
 "7 Inverse hyperbolic functions/7.3 Inverse hyperbolic tangent/7.3.2 (d x)^m (a+b arctanh(c x^n))^p.jl"
 "7 Inverse hyperbolic functions/7.3 Inverse hyperbolic tangent/7.3.3 (d+e x)^m (a+b arctanh(c x^n))^p.jl"
 ]
-
-# ===== Rules loading
-load_rules()

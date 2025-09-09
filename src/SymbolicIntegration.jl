@@ -18,10 +18,10 @@ include("methods/risch/algebraic_functions.jl")
 include("methods/risch/frontend.jl")
 
 # include rule based method
-include("methods/rule_based/rules_loader.jl")
 include("methods/rule_based/general.jl")
 include("methods/rule_based/frontend.jl")
 include("methods/rule_based/rules_utility_functions.jl")
+include("methods/rule_based/rules_loader.jl")
 
 # Add method dispatch system
 include("methods.jl")

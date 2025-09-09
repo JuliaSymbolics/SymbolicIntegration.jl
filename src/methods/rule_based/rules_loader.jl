@@ -118,3 +118,6 @@ function reload_rules(;verbose = true)
 
     load_rules()
 end
+
+# TODO PrecompileTools.jl?
+load_rules()
