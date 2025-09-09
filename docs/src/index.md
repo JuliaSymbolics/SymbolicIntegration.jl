@@ -4,27 +4,7 @@
 CurrentModule = SymbolicIntegration
 ```
 
-SymbolicIntegration.jl provides Julia implementations of symbolic integration algorithms.
-
-The front-end (i.e., the user interface) uses [Symbolics.jl](https://docs.sciml.ai/Symbolics/stable/).
-The actual integration algorithms are implemented in a generic way using [AbstractAlgebra.jl](https://nemocas.github.io/AbstractAlgebra.jl/dev/).
-Some algorithms require [Nemo.jl](https://nemocas.github.io/Nemo.jl/dev/) for calculations with algebraic numbers.
-
-SymbolicIntegration.jl is based on the algorithms from the book
-
-> Manuel Bronstein, [Symbolic Integration I: Transcentental Functions](https://link.springer.com/book/10.1007/b138171), 2nd ed, Springer 2005,
-
-for which a pretty complete set of reference implementations is provided.
-
-Currently, SymbolicIntegration.jl can integrate:
-- Rational functions
-- Integrands involving transcendental elementary functions like `exp`, `log`, `sin`, etc.
-
-As in the book, integrands involving algebraic functions like `sqrt` and non-integer powers are not treated.
-
-!!! note
-    SymbolicIntegration.jl is still in an early stage of development and should not be expected to run stably in all situations.
-    It comes with absolutely no warranty whatsoever.
+SymbolicIntegration.jl lets you solve indefinite integrals (finds primitives) in Julia [Symbolics.jl](https://docs.sciml.ai/Symbolics/stable/). It does so using two symbolic integration algorithms: Risch algorithm and Rule based algorithm.
 
 ## Installation
 
@@ -37,21 +17,19 @@ julia> using Pkg; Pkg.add("SymbolicIntegration")
 ```julia
 using SymbolicIntegration, Symbolics
 
-@variables x
+@variables x a
 
 # Basic polynomial integration (uses default RischMethod)
 integrate(x^2, x)  # Returns (1//3)*(x^3)
 
-# Rational function integration with complex roots
+# Rational function integration
+integrate(1/(x^2 + 1), x)  # Returns atan(x)
 f = (x^3 + x^2 + x + 2)/(x^4 + 3*x^2 + 2)
 integrate(f, x)  # Returns (1//2)*log(2 + x^2) + atan(x)
 
 # Transcendental functions
 integrate(exp(x), x)    # Returns exp(x)
 integrate(log(x), x)    # Returns -x + x*log(x)
-
-# Complex root integration (arctangent cases)
-integrate(1/(x^2 + 1), x)  # Returns atan(x)
 
 # Method selection and configuration
 integrate(f, x, RischMethod())  # Explicit method choice
@@ -63,7 +41,7 @@ integrate(f, x, RischMethod(use_algebraic_closure=true))  # With options
 
 SymbolicIntegration.jl provides multiple integration algorithms through a flexible method dispatch system:
 
-### RischMethod (Default)
+### RischMethod
 The complete Risch algorithm for elementary function integration:
 - **Exact results**: Guaranteed correct symbolic integration
 - **Complex roots**: Produces exact arctangent terms  
@@ -78,11 +56,26 @@ integrate(f, x)
 integrate(f, x, RischMethod(use_algebraic_closure=true))
 ```
 
-### Future Methods
-The framework supports additional integration algorithms:
-- **HeuristicMethod**: Fast pattern-matching integration
-- **NumericalMethod**: Numerical integration fallbacks
-- **SymPyMethod**: SymPy backend compatibility
+Is implemented in a generic way using [AbstractAlgebra.jl](https://nemocas.github.io/AbstractAlgebra.jl/dev/). Some algorithms require [Nemo.jl](https://nemocas.github.io/Nemo.jl/dev/) for calculations with algebraic numbers.
+
+Is based on the algorithms from the book:
+
+> Manuel Bronstein, [Symbolic Integration I: Transcentental Functions](https://link.springer.com/book/10.1007/b138171), 2nd ed, Springer 2005,
+
+for which a pretty complete set of reference implementations is provided.
+
+Currently, RischMethod can integrate:
+- Rational functions
+- Integrands involving transcendental elementary functions like `exp`, `log`, `sin`, etc.
+
+As in the book, integrands involving algebraic functions like `sqrt` and non-integer powers are not treated.
+
+!!! note
+    SymbolicIntegration.jl is still in an early stage of development and should not be expected to run stably in all situations.
+    It comes with absolutely no warranty whatsoever.
+
+### RuleBased
+TODO add
 
 [→ See complete methods documentation](methods/overview.md)
 
@@ -105,7 +98,7 @@ The **RischMethod** implements the complete suite of algorithms from Bronstein's
 
 ## Contributing
 
-We welcome contributions! Please see the [Symbolics.jl contributing guidelines](https://docs.sciml.ai/Symbolics/stable/contributing/).
+We welcome contributions! Please see the [contributing](manual/contributing.md) page and the [Symbolics.jl contributing guidelines](https://docs.sciml.ai/Symbolics/stable/contributing/).
 
 ## Citation
 
@@ -132,3 +125,4 @@ Pages = [
 ]
 Depth = 2
 ```
+

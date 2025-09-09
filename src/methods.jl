@@ -204,11 +204,6 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RuleBasedMethod; 
         verbose=method.verbose, use_gamma=method.use_gamma, kwargs...)
 end
 
-<<<<<<< HEAD
-=======
-# integrate_rule_based(integrand::Number, x::Symbolics.Num; kwargs...) = integrand*x
->>>>>>> 1e1e70a (implemented review suggestions)
-
 """
     method_supports_rational(method::RischMethod)
 

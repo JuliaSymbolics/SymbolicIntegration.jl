@@ -1,21 +1,15 @@
 # Basic Usage
 
-## Creating Symbolic Variables
-
-Before integrating, you need to create symbolic variables using Symbolics.jl:
-
 ```julia
 using SymbolicIntegration, Symbolics
 
 @variables x y z
 ```
 
-## The `integrate` Function
-
 The main function for symbolic integration uses method dispatch to choose algorithms:
 
 ```julia
-# Default method (RischMethod)
+# uses a combination of methods
 integrate(expr, var)
 
 # Explicit method selection
