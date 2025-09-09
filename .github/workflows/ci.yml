@@ -68,7 +68,7 @@ jobs:
         id: count_rules
           
       - name: Commit badge data
-        if: matrix.version == '1.11' && matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main'
+        if: matrix.version == '1' && matrix.os == 'ubuntu-latest' && github.ref == 'refs/heads/main'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
