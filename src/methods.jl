@@ -207,13 +207,6 @@ function integrate(;kwargs...)
     @warn "No integrand provided. Please provide one like this: `integrate(x^2 + 3x + 2)`"
 end 
 
-# integrate_rule_based(integrand::Number, x::Symbolics.Num; kwargs...) = integrand*x
-
-
-
-
-
-
 """
     method_supports_rational(method::RischMethod)
 
