@@ -110,9 +110,7 @@ end
 function integrate_rule_based(integrand::Symbolics.Num, int_var::Symbolics.Num; use_gamma::Bool=false, verbose::Bool=true, kwargs...)
     global VERBOSE
     VERBOSE = verbose
-    result = simplify(repeated_prewalk(∫(integrand,int_var)))
-    println()
-    return result
+    return simplify(repeated_prewalk(∫(integrand,int_var)))
 end
 
 integrate_rule_based(integrand::SymbolicUtils.BasicSymbolic{Real}, int_var::SymbolicUtils.BasicSymbolic{Real}; kwargs...) =

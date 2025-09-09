@@ -89,7 +89,8 @@ No rule found for ∫(abs(x), x)
 function integrate(f::Symbolics.Num, x::Symbolics.Num; kwargs...)
     result = integrate_risch(f.val, x.val; kwargs...)
     !contains_int(result) && return result
-
+    
+    # TODO make them verbose?
     printstyled("\n > RischMethod(use_algebraic_closure=false, catch_errors=true) failed, returning $result \n";color=:red)
     printstyled(" > Trying with RuleBasedMethod(use_gamma=false, verbose=true)...\n\n"; color=:red)
     result = integrate_rule_based(f, x; kwargs...)
@@ -203,6 +204,10 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RuleBasedMethod; 
         verbose=method.verbose, use_gamma=method.use_gamma, kwargs...)
 end
 
+<<<<<<< HEAD
+=======
+# integrate_rule_based(integrand::Number, x::Symbolics.Num; kwargs...) = integrand*x
+>>>>>>> 1e1e70a (implemented review suggestions)
 
 """
     method_supports_rational(method::RischMethod)

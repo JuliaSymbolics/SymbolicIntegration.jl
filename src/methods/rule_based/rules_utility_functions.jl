@@ -433,7 +433,7 @@ function int_and_subst(integrand, int_var, from, to, rule_from_identifier)
     end
 
     result = integrate_rule_based(integrand, int_var;verbose=VERBOSE)
-    push!(SILENCE, rule_from_identifier)
+    push!(SILENCE, rule_from_identifier) # this is needed to not print again rule_from_identifier after the return of this function
     if !contains_int(result)
         return substitute(result, from => to)
     end

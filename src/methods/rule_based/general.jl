@@ -1,9 +1,5 @@
-using Symbolics
-
-
-
 # ===== Special functions from a lot of packages
-# TODO maybe transform all these imports to package extensions? so they dont get imported if not needed?
+# TODO extension to Symbolics?
 
 # function from SpecialFunctions.jl that are not yet registered
 @register_symbolic SymbolicUtils.expinti(x)
@@ -51,21 +47,6 @@ sinhintegral(x::Any) = println("hyperbolic sine integral Shi(z) function (https:
 @register_symbolic sinhintegral(x)
 coshintegral(x::Any) = println("hyperbolic cosine integral Chi(z) function (https://en.wikipedia.org/wiki/Trigonometric_integral#Hyperbolic_cosine_integral) is not implemented yet")
 @register_symbolic coshintegral(x)
-
-
-
-
-
-# ===== Include and Exports
-
-include("rules_loader.jl")
-include("frontend.jl")
-include("rules_utility_functions.jl")
-
-export reload_rules
-
-
-
 
 
 # ===== Global variables
