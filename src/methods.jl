@@ -40,13 +40,6 @@ struct RuleBasedMethod <: AbstractIntegrationMethod
     end
 end
 
-
-
-
-
-
-
-
 """
     integrate(f, x)
     
