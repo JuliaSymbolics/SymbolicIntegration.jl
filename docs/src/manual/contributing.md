@@ -2,7 +2,7 @@
 
 We welcome contributions!
 
-Below there are detailed info on how to contribute to the translation of new rules from the Mathematica rules of the RUBI package.
+Below there are detailed info on how to contribute to the translation of new rules from the Mathematica [RUBI](https://rulebasedintegration.org/) package.
 
 - [Contributing to RuleBasedMethod](#contributing-to-rulebasedmethod)
   - [Common problems when translating rules](#common-problems-when-translating-rules)
