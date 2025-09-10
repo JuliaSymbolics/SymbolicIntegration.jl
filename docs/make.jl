@@ -21,7 +21,7 @@ makedocs(
             "methods/overview.md",
             "methods/risch.md",
             "methods/risch_rational_functions.md",
-            "methods/risch_trascendental_functions.md",
+            "methods/risch_transcendental_functions.md",
             "methods/rulebased.md",
         ],
         "API Reference" => "api.md",
