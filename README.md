@@ -76,7 +76,7 @@ trigonometric functions | ? | sometimes
 hyperbolic functions  | ✅ | sometimes
 Nonelementary integrals | ❌ | most of them
 Special functions | ❌ | ❌
-more than one symbolic<br> variable in the expression  | ❌ | ✅
+multiple symbols | ❌ | ✅
 
 More info about them in the [methods documentation](TODO)
 

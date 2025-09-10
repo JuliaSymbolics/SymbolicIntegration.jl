@@ -51,7 +51,7 @@ trigonometric functions | ? | sometimes
 hyperbolic functions  | ✅ | sometimes
 Nonelementary integrals | ❌ | most of them
 Special functions | ❌ | ❌
-more than one symbolic<br> variable in the expression  | ❌ | ✅
+multiple symbols | ❌ | ✅
 
 [→ See complete methods documentation](methods/overview.md)
 
