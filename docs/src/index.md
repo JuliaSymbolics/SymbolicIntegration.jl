@@ -68,7 +68,7 @@ integrate(x^2 + 1, x, RischMethod(use_algebraic_closure=false, catch_errors=true
 - `use_algebraic_closure` does what?
 - `catch_errors` does what?
 
-[→ See detailed Risch documentation](risch.md)
+[→ See detailed Risch documentation](methods/risch.md)
 
 ### RuleBased
 This method uses a large number of integration rules that specify how to integrate various mathematical expressions.
