@@ -1,4 +1,10 @@
-- [Contributing to improving RuleBasedMethod](#contributing-to-improving-rulebasedmethod)
+# Contributing
+
+We welcome contributions!
+
+Below there are detailed info on how to contribute to the translation of new rules from the Mathematica rules of the RUBI package.
+
+- [Contributing to RuleBasedMethod](#contributing-to-rulebasedmethod)
   - [Common problems when translating rules](#common-problems-when-translating-rules)
     - [function not translated](#function-not-translated)
     - [Sum function translation](#sum-function-translation)
@@ -13,7 +19,7 @@
       - [end](#end)
   - [Adding Testsuites](#adding-testsuites)
 
-# Contributing to improving RuleBasedMethod
+# Contributing to translating new rules for RuleBasedMethod
 
 In this repo there is also some software that serves the sole purpose of helping with the translation of rules from Mathematica syntax, and not for the actual package working. The important ones are:
 - translator_of_rules.jl is a script that with regex and other string manipulations translates from Mathematica syntax to julia syntax
@@ -75,10 +81,11 @@ This script is used to translate integration rules from Mathematica syntax
 to julia Syntax.
 
 ### How to use it
+It's handy to have the Mathematica files already in the correct folders in this repo (.m files are ignored by .gitignore), so that you can use the translator script like this:
 ``` bash
 julia src/translator_of_rules.jl "src/rules/4 Trig functions/4.1 Sine/4.1.8 trig^m (a+b cos^p+c sin^q)^n.m"
 ```
-and will produce the julia file at the path `src/rules/4 Trig functions/4.1 Sine/4.1.8 trig^m (a+b cos^p+c sin^q)^n.jl`
+this will produce the julia file at the path `src/rules/4 Trig functions/4.1 Sine/4.1.8 trig^m (a+b cos^p+c sin^q)^n.jl`
 
 ### How it works internally (useful to know if you have to debug it)
 It processes line per line, so the integration rule must be all on only one 
