@@ -1,6 +1,35 @@
+- [Risch Method](#risch-method)
+  - [Overview](#overview)
+  - [Usage](#usage)
+  - [Configuration Options](#configuration-options)
+    - [Constructor](#constructor)
+    - [Options](#options)
+      - [`use_algebraic_closure::Bool` (default: `true`)](#use_algebraic_closurebool-default-true)
+      - [`catch_errors::Bool` (default: `true`)](#catch_errorsbool-default-true)
+  - [Algorithm Components](#algorithm-components)
+    - [Rational Function Integration (Chapter 2)](#rational-function-integration-chapter-2)
+    - [Transcendental Function Integration (Chapters 5-6)](#transcendental-function-integration-chapters-5-6)
+    - [Supporting Algorithms](#supporting-algorithms)
+  - [Function Classes Supported](#function-classes-supported)
+    - [Polynomial Functions](#polynomial-functions)
+    - [Rational Functions](#rational-functions)
+    - [Exponential Functions](#exponential-functions)
+    - [Logarithmic Functions](#logarithmic-functions)
+    - [Trigonometric Functions](#trigonometric-functions)
+  - [Limitations](#limitations)
+  - [Performance Considerations](#performance-considerations)
+    - [When to Use Different Options](#when-to-use-different-options)
+    - [Complexity](#complexity)
+  - [Examples](#examples)
+    - [Basic Usage](#basic-usage)
+    - [Advanced Cases](#advanced-cases)
+    - [Method Configuration](#method-configuration)
+  - [Algorithm References](#algorithm-references)
+
 # Risch Method
 
 The Risch method is a complete algorithm for symbolic integration of elementary functions. It implements the algorithms from Manuel Bronstein's "Symbolic Integration I: Transcendental Functions".
+Is implemented using [AbstractAlgebra.jl](https://nemocas.github.io/AbstractAlgebra.jl/dev/) and [Nemo.jl](https://nemocas.github.io/Nemo.jl/dev/).
 
 ## Overview
 
@@ -17,9 +46,6 @@ The Risch method is currently the primary integration method in SymbolicIntegrat
 ```julia
 using SymbolicIntegration, Symbolics
 @variables x
-
-# Default method (uses RischMethod automatically)
-integrate(x^2, x)  # (1//3)*(x^3)
 
 # Explicit Risch method
 integrate(1/(x^2 + 1), x, RischMethod())  # atan(x)

@@ -91,7 +91,7 @@ problems = [
 
 
 for prob in problems
-    result = integrate(prob[1], x)
+    result = integrate(prob[1], x, RischMethod())
     println("∫", prob[1], "dx = ", result)
     println("expected: ", prob[4])
     println("--------------------------------------------------------------------")

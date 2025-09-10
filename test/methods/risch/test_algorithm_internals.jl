@@ -4,7 +4,7 @@ using Symbolics
 using AbstractAlgebra
 using Nemo
 
-@testset "Algorithm Internals" begin
+@testset "[Risch] Algorithm Internals" begin
     # Test internal algorithm components to ensure they work with the new API
     
     @testset "Basic Derivation Setup" begin
@@ -73,7 +73,7 @@ using Nemo
             # These should work without complex root finding
             simple_cases = [x, x^2, 1/x, exp(x), log(x)]
             for expr in simple_cases
-                result = integrate(expr, x)
+                result = integrate(expr, x, RischMethod())
                 @test !isnothing(result)
             end
         catch e

@@ -983,7 +983,7 @@ function LimitedIntegrateReduce(f::F, ws::Vector{F}, D::Derivation) where
     # Note: LimitedIntegrateReduce seems to be the only algorithm in Bronstein's book,
     # where he messed something up. Already in equation (7.32) of Corollary 7.2.1 (p.247)
     # the coefficient of D(p) contains a factor hs too many. This then reproduces in the
-    # algoritm.
+    # algorithm.
     iscompatible(f, D) && all(iscompatible(w, D) for w in ws) || 
         error("rational functions f and w_i must be in the domain of derivation D")
     dn, ds = SplitFactor(denominator(f), D)

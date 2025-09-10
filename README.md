@@ -1,119 +1,105 @@
 # SymbolicIntegration.jl
 
-*A unified interface for symbolic integration methods in Julia*
-
-SymbolicIntegration.jl provides a flexible, extensible framework for symbolic integration with multiple algorithm choices. The package uses method dispatch to allow users to select the most appropriate integration algorithm for their specific needs.
-
-## Key Features
-
-- 🎯 **Multiple Integration Methods**: Extensible method dispatch system
-- ⚡ **Exact Symbolic Results**: Guaranteed correct symbolic integration  
-- 🔢 **Complex Root Handling**: Produces exact arctangent terms
-- ⚙️ **Configurable Algorithms**: Method-specific options and behavior
-- 🏗️ **Professional Interface**: SciML-style method selection
-
-## Integration Methods
-
-### RischMethod (Default)
-Complete symbolic integration using the Risch algorithm from Manuel Bronstein's "Symbolic Integration I: Transcendental Functions".
-
-**Capabilities:**
-- ✅ **Rational functions**: Complete integration with Rothstein-Trager method
-- ✅ **Transcendental functions**: Exponential, logarithmic using differential field towers
-- ✅ **Complex roots**: Exact arctangent terms for complex polynomial roots
-- ✅ **Integration by parts**: Logarithmic function integration
-- ✅ **Trigonometric functions**: Via transformation to exponential form
-
-**Function Classes:**
-- Polynomial functions: `∫x^n dx`, `∫(ax^2 + bx + c) dx`
-- Rational functions: `∫P(x)/Q(x) dx` → logarithmic and arctangent terms
-- Exponential functions: `∫exp(f(x)) dx`, `∫x*exp(x) dx`
-- Logarithmic functions: `∫log(x) dx`, `∫1/(x*log(x)) dx`
-- Trigonometric functions: `∫sin(x) dx`, `∫cos(x) dx`, `∫tan(x) dx`
-
-The framework is designed to support additional integration methods as they are developed.
+[![Build Status](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Spell Check](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/spellcheck.yml/badge.svg?branch=main)](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/spellcheck.yml)
+[![Rules](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/JuliaSymbolics/SymbolicIntegration.jl/main/.github/badges/rules-count.json&query=$.message&label=Total%20rules&color=blue)](https://github.com/JuliaSymbolics/SymbolicIntegration.jl)
 
 
+SymbolicIntegration.jl solves indefinite integrals using one of the implemented algorithms: Risch method and Rule based method
 
-## Installation
+
+# Usage
 ```julia
-julia> using Pkg; Pkg.add("SymbolicIntegration")
+julia> using Pkg; Pkg.add("SymbolicIntegration") # installation
+
+julia> using SymbolicIntegration, Symbolics
+
+julia> @variables x
+1-element Vector{Num}:
+ x
+
+julia> integrate(exp(2x) + 2x^2 + sin(x))
+(1//2)*exp(2x) + (2//3)*(x^3) - cos(x)
 ```
-
-## Usage
-
-### Basic Integration
-
-```julia
-using SymbolicIntegration, Symbolics
-@variables x
-
-# Default method (RischMethod) - most cases
-integrate(x^2, x)                    # (1//3)*(x^3)
-integrate(1/x, x)                    # log(x)
-integrate(exp(x), x)                 # exp(x)
-integrate(1/(x^2 + 1), x)           # atan(x)
-```
+The first argument is the expression to integrate, second argument is the variable of integration. If the variable is not specified, it will be guessed from the expression. The +c is omitted :)
 
 ### Method Selection
 
+You can explicitly choose a integration method like this:
 ```julia
-# Explicit method choice
-integrate(f, x, RischMethod())
-
-# Method with configuration
 risch = RischMethod(use_algebraic_closure=true, catch_errors=false)
 integrate(f, x, risch)
 ```
-
-### Complex Examples
-
+or like this:
 ```julia
-# Rational function with complex roots
-f = (x^3 + x^2 + x + 2)/(x^4 + 3*x^2 + 2)
-integrate(f, x)  # (1//2)*log(2 + x^2) + atan(x)
-
-# Integration by parts
-integrate(log(x), x)  # -x + x*log(x)
-
-# Nested transcendental functions
-integrate(1/(x*log(x)), x)  # log(log(x))
+rbm = RuleBasedMethod(verbose=true, use_gamma=false)
+integrate(f, x, rbm)
 ```
 
-## Method Framework
-
-SymbolicIntegration.jl uses a modern method dispatch system similar to other SciML packages:
-
-### Current Methods
-- **RischMethod**: Complete symbolic integration (default)
-
-### Method Configuration
+If no method is specified, first RischMethod will be tried, then RuleBasedMethod:
 ```julia
-# Research configuration (strict, complete)
-RischMethod(use_algebraic_closure=true, catch_errors=false)
+julia> integrate(sqrt(x))
+┌ Warning: NotImplementedError: integrand contains unsupported expression sqrt(x)
+└ @ SymbolicIntegration ~/.julia/dev/SymbolicIntegration.jl_official/src/methods/risch/frontend.jl:826
 
-# Production configuration (robust, graceful)  
-RischMethod(use_algebraic_closure=true, catch_errors=true)
+ > RischMethod failed returning ∫(sqrt(x), x) 
+ > Trying with RuleBasedMethod...
 
-# Performance configuration (faster, simpler)
-RischMethod(use_algebraic_closure=false, catch_errors=true)
+(2//3)*(x^(3//2))
+```
+```julia
+julia> integrate(abs(x))
+┌ Warning: NotImplementedError: integrand contains unsupported expression abs(x)
+└ @ SymbolicIntegration ~/.julia/dev/SymbolicIntegration.jl_official/src/methods/risch/frontend.jl:826
+
+ > RischMethod failed returning ∫(abs(x), x) 
+ > Trying with RuleBasedMethod...
+
+No rule found for ∫(abs(x), x)
+
+ > RuleBasedMethod failed returning ∫(abs(x), x) 
+ > Sorry we cannot integrate this expression :(
+
 ```
 
-### Extensibility
-The framework is designed for easy extension with additional integration methods. The abstract type `AbstractIntegrationMethod` provides the foundation for implementing new algorithms.
 
-## Documentation
+# Integration Methods
+Currently two algorithms are implemented: **Risch algorithm** and **Rule based integration**.
+
+feature | Risch | Rule based
+--------|-------|-----------
+rational functions | ✅ | ✅
+non integers powers | ❌ | ✅
+exponential functions | ✅ | ✅
+logarithms  | ✅ | ✅
+trigonometric functions | ? | sometimes
+hyperbolic functions  | ✅ | sometimes
+Nonelementary integrals | ❌ | most of them
+Special functions | ❌ | ❌
+more than one symbolic<br> variable in the expression  | ❌ | ✅
+
+More info about them in the [methods documentation](methods/overview.md)
+
+### Risch Method
+Complete symbolic integration using the Risch algorithm from Manuel Bronstein's "Symbolic Integration I: Transcendental Functions".
+
+### RuleBasedMethod
+
+This method uses a large number of integration rules that specify how to integrate various mathematical expressions. There are now more than 3400 rules impelmented.
+
+# Documentation
 
 Complete documentation with method selection guidance, algorithm details, and examples is available at:
 **[https://symbolicintegration.juliasymbolics.org](https://symbolicintegration.juliasymbolics.org)**
 
-## Citation
+
+# Citation
 
 If you use SymbolicIntegration.jl in your research, please cite:
 
 ```bibtex
 @software{SymbolicIntegration.jl,
-  author = {Harald Hofstätter and contributors},
+  author = {Harald Hofstätter and Mattia Micheletta Merlin and Chris Rackauckas},
   title = {SymbolicIntegration.jl: Symbolic Integration for Julia},
   url = {https://github.com/JuliaSymbolics/SymbolicIntegration.jl},
   year = {2023-2025}
