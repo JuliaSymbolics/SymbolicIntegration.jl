@@ -78,7 +78,7 @@ Nonelementary integrals | ❌ | most of them
 Special functions | ❌ | ❌
 more than one symbolic<br> variable in the expression  | ❌ | ✅
 
-More info about them in the [methods documentation](methods/overview.md)
+More info about them in the [methods documentation](TODO)
 
 ### Risch Method
 Complete symbolic integration using the Risch algorithm from Manuel Bronstein's "Symbolic Integration I: Transcendental Functions".

@@ -102,10 +102,7 @@ If you use SymbolicIntegration.jl in your research, please cite:
 
 ```@contents
 Pages = [
-    "manual/getting_started.md",
-    "manual/basic_usage.md", 
-    "manual/rational_functions.md",
-    "manual/transcendental_functions.md",
+    "manual/contributing.md",
     "api.md"
 ]
 Depth = 2
