@@ -5,29 +5,29 @@ using Symbolics
 @testset "Trigonometric Functions with Risch Method" begin
     @variables x
     
-    @testset "Issue #20: Domain compatibility fix" begin
-        # Test that trigonometric functions can be integrated with RischMethod
-        # without throwing the specific domain mismatch error from Issue #20
+    @testset "Issue #20: Basic trigonometric integration" begin
+        # Test sin(x) integration
+        sin_result = integrate(sin(x), x, RischMethod())
+        @test sin_result !== nothing
         
-        # The original error was: "ERROR: base ring of domain must be domain of D"
-        # This test verifies the fix doesn't throw that specific error
+        # Test cos(x) integration  
+        cos_result = integrate(cos(x), x, RischMethod())
+        @test cos_result !== nothing
         
-        try
-            sin_result = integrate(sin(x), x, RischMethod())
-            @test true  # If we get here without error, the fix works
-        catch e
-            # If there's an error, make sure it's NOT the domain compatibility error
-            @test !occursin("base ring of domain must be domain of D", string(e))
-            @test !occursin("base ring of domain must be compatible with domain of D", string(e))
-        end
+        # Test mathematical correctness by verifying derivatives
+        # The fundamental theorem of calculus: d/dx[∫f(x)dx] = f(x)
+        @test isequal(Symbolics.derivative(sin_result, x), sin(x))
+        @test isequal(Symbolics.derivative(cos_result, x), cos(x))
         
-        try
-            cos_result = integrate(cos(x), x, RischMethod())
-            @test true  # If we get here without error, the fix works
-        catch e
-            # If there's an error, make sure it's NOT the domain compatibility error
-            @test !occursin("base ring of domain must be domain of D", string(e))
-            @test !occursin("base ring of domain must be compatible with domain of D", string(e))
-        end
+        # Test that results are symbolic expressions
+        @test sin_result isa Union{Number, SymbolicUtils.BasicSymbolic}
+        @test cos_result isa Union{Number, SymbolicUtils.BasicSymbolic}
+    end
+    
+    @testset "Additional trigonometric functions" begin
+        # Test tan(x) integration
+        tan_result = integrate(tan(x), x, RischMethod())
+        @test tan_result !== nothing
+        @test isequal(Symbolics.derivative(tan_result, x), tan(x))
     end
 end

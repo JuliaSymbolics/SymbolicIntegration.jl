@@ -4,17 +4,27 @@ struct ComplexExtensionDerivation{T<:FieldElement, P<:PolyRingElem{T}} <: Deriva
     domain::AbstractAlgebra.ResField{P}
     D::Derivation    
     function ComplexExtensionDerivation(domain::AbstractAlgebra.ResField{P}, D::Derivation) where {T<:FieldElement, P<:PolyRingElem{T}}
-        # Modified domain compatibility check to handle complex field structures
-        # The original check was too strict for trigonometric function integration
-        expected_base = base_ring(base_ring(base_ring(domain)))
-        derivation_domain = D.domain
+        # The issue is that we need to check the correct nesting level based on the derivation type
+        # Similar to how ExtensionDerivation handles different nesting levels
         
-        # Check for direct compatibility or through base ring unwrapping
-        domain_compatible = (expected_base == derivation_domain) ||
-                          (try base_ring(derivation_domain) == expected_base; catch; false; end) ||
-                          (try base_ring(base_ring(derivation_domain)) == expected_base; catch; false; end)
+        expected_domain = base_ring(base_ring(base_ring(domain)))
+        actual_domain = D.domain
         
-        domain_compatible || error("base ring of domain must be compatible with domain of D")
+        # Check compatibility following the same pattern as ExtensionDerivation
+        domain_compatible = false
+        
+        if expected_domain == actual_domain
+            # Direct match - the expected case for basic derivations
+            domain_compatible = true
+        elseif base_ring(base_ring(domain)) == actual_domain
+            # One level less nesting - derivation on the polynomial ring level
+            domain_compatible = true  
+        elseif base_ring(domain) == actual_domain
+            # Two levels less nesting - derivation on the coefficient field level
+            domain_compatible = true
+        end
+        
+        domain_compatible || error("base ring of domain must be domain of D")
         
         m = modulus(domain)
         degree(m)==2 && isone(coeff(m, 0)) && iszero(coeff(m, 1)) && isone(coeff(m,2)) ||
