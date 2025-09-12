@@ -102,12 +102,6 @@ integrate(f, x, RuleBasedMethod(verbose=true))
 integrate(f, x, RuleBasedMethod(use_gamma=true))
 ```
 
-**RuleBasedMethod is best for:**
-- Complex trigonometric expressions
-- Functions involving special cases
-- When you need to see the integration process
-- Broader coverage of function types
-
 ### Method Comparison Example
 
 ```julia
