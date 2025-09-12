@@ -87,12 +87,6 @@ integrate(f, x, RischMethod(use_algebraic_closure=true))
 integrate(f, x, RischMethod(catch_errors=true))
 ```
 
-**RischMethod is best for:**
-- Rational functions
-- Simple exponential and logarithmic functions  
-- Cases requiring exact symbolic computation
-- When you need guaranteed elementary solutions
-
 ### RuleBasedMethod
 
 The rule-based method uses pattern matching with a large database of integration rules:
