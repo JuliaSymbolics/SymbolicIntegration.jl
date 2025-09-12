@@ -21,6 +21,7 @@ using Symbolics
     # Include Risch method test suites
     include("methods/risch/test_rational_integration.jl")
     include("methods/risch/test_complex_fields.jl") 
+    include("methods/risch/test_trigonometric_functions.jl")
     include("methods/risch/test_bronstein_examples.jl")
     include("methods/risch/test_algorithm_internals.jl")
 
