@@ -4,7 +4,33 @@ struct ComplexExtensionDerivation{T<:FieldElement, P<:PolyRingElem{T}} <: Deriva
     domain::AbstractAlgebra.ResField{P}
     D::Derivation    
     function ComplexExtensionDerivation(domain::AbstractAlgebra.ResField{P}, D::Derivation) where {T<:FieldElement, P<:PolyRingElem{T}}
-        base_ring(base_ring(base_ring(domain)))==D.domain || error("base ring of domain must be domain of D")
+        # Check for domain compatibility - we need to handle different nesting structures
+        # The residue field has structure: ResField{P} where P<:PolyRingElem{T}
+        # So base_ring(base_ring(base_ring(domain))) gives us the coefficient field T
+        expected_domain = base_ring(base_ring(base_ring(domain)))
+        
+        # Allow for different derivation domain structures
+        actual_domain = D.domain
+        domain_match = false
+        
+        # Direct match
+        if expected_domain == actual_domain
+            domain_match = true
+        # If derivation is on a fraction field, check its base ring
+        elseif isa(actual_domain, AbstractAlgebra.FracField) && base_ring(actual_domain) == expected_domain
+            domain_match = true
+        # If derivation is on a polynomial ring that matches our expected domain
+        elseif isa(actual_domain, AbstractAlgebra.PolyRing) && base_ring(actual_domain) == expected_domain
+            domain_match = true
+        # Try one more level of base ring unwrapping for complex nested structures
+        elseif isa(actual_domain, AbstractAlgebra.FracField) && 
+               isa(base_ring(actual_domain), AbstractAlgebra.PolyRing) &&
+               base_ring(base_ring(actual_domain)) == expected_domain
+            domain_match = true
+        end
+        
+        domain_match || error("base ring of domain must be compatible with domain of D: expected $expected_domain, got $actual_domain")
+        
         m = modulus(domain)
         degree(m)==2 && isone(coeff(m, 0)) && iszero(coeff(m, 1)) && isone(coeff(m,2)) ||
             error("domain must be residue field modulo X^2+1.")
