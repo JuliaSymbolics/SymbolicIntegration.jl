@@ -158,17 +158,6 @@ f_check = expand_derivatives(D(F))
 simplify(f - f_check) == 0  # Should be true
 ```
 
-## Method Selection Guidelines
-
-Choose your integration method based on the function type:
-
-| Function Type | Recommended Method | Example |
-|---------------|-------------------|---------|
-| Rational functions | `RischMethod()` | `(x^2+1)/(x^3+x)` |
-| Simple exponentials | `RischMethod()` | `x*exp(x)` |
-| Simple logarithms | `RischMethod()` | `log(x)/x` |
-| Complex trigonometric | `RuleBasedMethod()` | `sin(x)^3*cos(x)^2` |
-| Mixed transcendental | Try both methods | `exp(x)*sin(x)` |
 
 ## Common Patterns
 
