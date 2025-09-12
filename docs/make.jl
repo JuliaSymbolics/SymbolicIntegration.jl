@@ -16,15 +16,14 @@ makedocs(
         "Home" => "index.md",
         "Manual" => [
             "manual/getting_started.md",
-            "manual/basic_usage.md",
+            "manual/contributing.md",
         ],
         "Integration Methods" => [
             "methods/overview.md",
             "methods/risch.md",
-        ],
-        "Algorithm Details" => [
-            "manual/rational_functions.md",
-            "manual/transcendental_functions.md",
+            "methods/rulebased.md",
+            "methods/risch_rational_functions.md",
+            "methods/risch_transcendental_functions.md",
         ],
         "API Reference" => "api.md",
     ],
