@@ -1,4 +1,10 @@
-- [Contributing to improving RuleBasedMethod](#contributing-to-improving-rulebasedmethod)
+# Contributing
+
+We welcome contributions!
+
+Below there are detailed info on how to contribute to the translation of new rules from the Mathematica [RUBI](https://rulebasedintegration.org/) package, or translation of solved integrals to use as tests, from the same package.
+
+- [Contributing to RuleBasedMethod](#contributing-to-rulebasedmethod)
   - [Common problems when translating rules](#common-problems-when-translating-rules)
     - [function not translated](#function-not-translated)
     - [Sum function translation](#sum-function-translation)
@@ -13,10 +19,10 @@
       - [end](#end)
   - [Adding Testsuites](#adding-testsuites)
 
-# Contributing to improving RuleBasedMethod
+# Contributing to translating new rules for RuleBasedMethod
 
-In this repo there is also some software that serves the sole purpose of helping with the translation of rules from Mathematica syntax, and not for the actual package working. The important ones are:
-- translator_of_rules.jl is a script that with regex and other string manipulations translates from Mathematica syntax to julia syntax
+In the github repo of the package there is also some software that serves the sole purpose of helping with the translation of rules from Mathematica syntax, and not for the actual package working. The important ones are:
+- translator_of_rules.jl is a script that with regex and other string manipulations translates from Mathematica syntax to julia syntax (see "houw to use it" section later)
 - translator_of_testset.jl is a script that translates the testsets into julia syntax (much simpler than translator_of_rules.jl)
 - `reload_rules` function in rules_loader.jl. When developing the package using Revise is not enough because rules are defined with a macro. So this function reloads rules from a specific .jl file or from all files if called without arguments.
 
@@ -75,10 +81,11 @@ This script is used to translate integration rules from Mathematica syntax
 to julia Syntax.
 
 ### How to use it
+In the branch `rules` of the github repo of the package there are all the Mathematica files containing the untranslated rules already in the correct folders in this repo, so that you can use the translator script like this:
 ``` bash
 julia src/translator_of_rules.jl "src/rules/4 Trig functions/4.1 Sine/4.1.8 trig^m (a+b cos^p+c sin^q)^n.m"
 ```
-and will produce the julia file at the path `src/rules/4 Trig functions/4.1 Sine/4.1.8 trig^m (a+b cos^p+c sin^q)^n.jl`
+this will produce the julia file at the path `src/rules/4 Trig functions/4.1 Sine/4.1.8 trig^m (a+b cos^p+c sin^q)^n.jl`
 
 ### How it works internally (useful to know if you have to debug it)
 It processes line per line, so the integration rule must be all on only one 
@@ -170,4 +177,4 @@ finally the rule is placed in a tuple (index, rule), and all the
 tuples are put into a array, ready to be included by load_rules
 
 ## Adding Testsuites
-There is a test suite of 27585 solved integrals taken from the RUBI package, in the folders `test/test_files/0 Independent test suites` (1796 tests) and `test/test_files/1 Algebraic functions` (25798 tests). But more test can be translated from the [RUBI testsuite](https://rulebasedintegration.org/testProblems.html). In [this](https://github.com/Bumblebee00/SymbolicIntegration.jl?tab=readme-ov-file#testing) repo there are the tests still in Mathematica syntax and a script to translate them to julia.
+There is a test suite of 27585 solved integrals taken from the RUBI package, in the folders `test/test_files/0 Independent test suites` (1796 tests) and `test/test_files/1 Algebraic functions` (25798 tests). But more test can be translated from the [RUBI testsuite](https://rulebasedintegration.org/testProblems.html). In the branch `rules` of this repo there are the tests still in Mathematica syntax and a script to translate them to julia.

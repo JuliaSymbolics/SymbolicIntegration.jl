@@ -2,6 +2,9 @@
 Manifest.toml
 docs/Manifest.toml
 
+# Mathematica (useful for translation of new rules)
+*.m
+
 # Documentation build artifacts
 docs/build/
 

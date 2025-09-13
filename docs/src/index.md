@@ -51,7 +51,7 @@ trigonometric functions | ? | sometimes
 hyperbolic functions  | ✅ | sometimes
 Nonelementary integrals | ❌ | most of them
 Special functions | ❌ | ❌
-more than one symbolic<br> variable in the expression  | ❌ | ✅
+multiple symbols | ❌ | ✅
 
 [→ See complete methods documentation](methods/overview.md)
 
@@ -68,7 +68,7 @@ integrate(x^2 + 1, x, RischMethod(use_algebraic_closure=false, catch_errors=true
 - `use_algebraic_closure` does what?
 - `catch_errors` does what?
 
-[→ See detailed Risch documentation](risch.md)
+[→ See detailed Risch documentation](methods/risch.md)
 
 ### RuleBased
 This method uses a large number of integration rules that specify how to integrate various mathematical expressions.
@@ -102,10 +102,7 @@ If you use SymbolicIntegration.jl in your research, please cite:
 
 ```@contents
 Pages = [
-    "manual/getting_started.md",
-    "manual/basic_usage.md", 
-    "manual/rational_functions.md",
-    "manual/transcendental_functions.md",
+    "manual/contributing.md",
     "api.md"
 ]
 Depth = 2
