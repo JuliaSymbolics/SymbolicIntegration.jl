@@ -1,6 +1,6 @@
 # SymbolicIntegration.jl
 
-[![Build Status](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Build Status](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/ci.yml?query=branch%3Amain)
 [![Spell Check](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/spellcheck.yml/badge.svg?branch=main)](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/spellcheck.yml)
 [![Rules](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/JuliaSymbolics/SymbolicIntegration.jl/main/.github/badges/rules-count.json&query=$.message&label=Total%20rules&color=blue)](https://github.com/JuliaSymbolics/SymbolicIntegration.jl)
 
@@ -83,7 +83,7 @@ trigonometric functions | ? | sometimes
 hyperbolic functions  | ✅ | sometimes
 Nonelementary integrals | ❌ | most of them
 Special functions | ❌ | ❌
-more than one symbolic<br> variable in the expression  | ❌ | ✅
+multiple symbols | ❌ | ✅
 
 More info about them in the [methods documentation](https://docs.sciml.ai/SymbolicIntegration/dev/methods/overview/)
 
