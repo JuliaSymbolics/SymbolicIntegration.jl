@@ -39,7 +39,11 @@ integrate(f, x, RischMethod(use_algebraic_closure=true))  # With options
 
 ## Integration Methods
 
-SymbolicIntegration.jl provides two integration algorithms: Rule based and Risch method. Here is a quick table to see what they can integrate:
+SymbolicIntegration.jl provides two integration algorithms: Risch method and Rule based method.
+
+**Default Behavior:** When no method is explicitly specified, `integrate()` will first attempt the **Risch method**. If the Risch method fails (e.g., due to unsupported expressions like `sqrt(x)` or `abs(x)`), it will automatically fall back to the **Rule based method**. This ensures maximum coverage while prioritizing the theoretically complete Risch algorithm when applicable.
+
+Here is a quick table to see what each method can integrate:
 
 feature | Risch | Rule based
 --------|-------|-----------
@@ -54,6 +58,29 @@ Special functions | ❌ | ❌
 multiple symbols | ❌ | ✅
 
 [→ See complete methods documentation](methods/overview.md)
+
+### Example: Automatic Fallback Behavior
+
+When no method is specified, the integration will try Risch first, then fall back to Rule based if needed:
+
+```julia
+# This uses sqrt which is not supported by Risch, so it falls back to RuleBasedMethod
+integrate(sqrt(x))
+# ┌ Warning: NotImplementedError: integrand contains unsupported expression sqrt(x)
+# └ @ SymbolicIntegration
+#
+#  > RischMethod failed returning ∫(sqrt(x), x)
+#  > Trying with RuleBasedMethod...
+#
+# (2//3)*(x^(3//2))
+```
+
+You can also explicitly specify which method to use:
+
+```julia
+integrate(sqrt(x), x, RuleBasedMethod())  # Skip Risch, use Rule based directly
+integrate(x^2 + 1, x, RischMethod())      # Use only Risch
+```
 
 ### RischMethod
 This method is based on the algorithms from the book:
