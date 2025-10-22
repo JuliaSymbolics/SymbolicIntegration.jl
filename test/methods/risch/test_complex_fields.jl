@@ -2,7 +2,7 @@ using Test
 using SymbolicIntegration
 using Symbolics
 using AbstractAlgebra
-using Nemo
+import Nemo
 
 @testset "[Risch] Complex Fields Operations" begin
     # Note: These tests use internal SymbolicIntegration functions

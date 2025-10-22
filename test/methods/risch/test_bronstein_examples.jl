@@ -2,7 +2,7 @@ using Test
 using SymbolicIntegration
 using Symbolics
 using AbstractAlgebra
-using Nemo
+import Nemo
 
 @testset "[Risch] Bronstein Algorithm Examples" begin
     # Examples from "Symbolic Integration I: Transcendental Functions" by Manuel Bronstein

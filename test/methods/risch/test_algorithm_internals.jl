@@ -2,7 +2,7 @@ using Test
 using SymbolicIntegration
 using Symbolics
 using AbstractAlgebra
-using Nemo
+import Nemo
 
 @testset "[Risch] Algorithm Internals" begin
     # Test internal algorithm components to ensure they work with the new API

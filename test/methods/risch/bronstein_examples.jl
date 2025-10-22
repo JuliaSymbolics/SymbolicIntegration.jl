@@ -1,5 +1,5 @@
 using AbstractAlgebra
-using Nemo
+import Nemo
 using SymbolicIntegration
 SI = SymbolicIntegration
 
