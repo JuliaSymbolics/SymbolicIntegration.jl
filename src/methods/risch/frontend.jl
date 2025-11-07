@@ -661,8 +661,7 @@ Base.promote(x::MPolyRingElem{Nemo.QQBarFieldElem}, y::QQFieldElem) = promote(x,
 
 
 
-function TowerOfDifferentialFields(terms::Vector{Term})  where 
-    {T<:FieldElement, P<:MPolyRingElem{T}, F<:FracElem{P}}
+function TowerOfDifferentialFields(terms::Vector{Term})
     n = length(terms)
     MF = parent(terms[1].arg)
     MR = base_ring(MF)
