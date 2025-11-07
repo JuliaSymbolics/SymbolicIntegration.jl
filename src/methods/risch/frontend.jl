@@ -725,7 +725,7 @@ function TowerOfDifferentialFields(terms::Vector{Term})  where
 end
 
 
-@variables ∫(.., ..)
+SymbolicUtils.@syms ∫(::Any, ::Any)::Real
 
 """
     integrate(f, x; kwargs...)
