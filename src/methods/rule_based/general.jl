@@ -1,17 +1,15 @@
 # ===== Special functions from a lot of packages
-# TODO extension to Symbolics?
 
-# function from SpecialFunctions.jl that are not yet registered
-@register_symbolic SymbolicUtils.expinti(x)
-@register_symbolic SymbolicUtils.expint(nu, z)
-@register_symbolic SymbolicUtils.gamma(x, y)
-@register_symbolic SymbolicUtils.sinint(x)
-@register_symbolic SymbolicUtils.cosint(x)
-# other from SpecialFunctions.jl used:
-# SymbolicUtils.gamma(x)
-# SymbolicUtils.loggamma
-# SymbolicUtils.erfi
-# SymbolicUtils.erf
+# function from SpecialFunctions.jl used:
+# SpecialFunctions.expinti(x)
+# SpecialFunctions.expint(nu, z)
+# SpecialFunctions.gamma(x, y)
+# SpecialFunctions.sinint(x)
+# SpecialFunctions.cosint(x)
+# SpecialFunctions.gamma(x)
+# SpecialFunctions.loggamma
+# SpecialFunctions.erfi
+# SpecialFunctions.erf
 
 using Elliptic 
 @register_symbolic Elliptic.F(phi, m) # incomplete first kind
