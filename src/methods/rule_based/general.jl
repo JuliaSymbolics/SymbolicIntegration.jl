@@ -2,7 +2,6 @@
 # TODO extension to Symbolics?
 
 # function from SpecialFunctions.jl that are not yet registered
-@register_symbolic SymbolicUtils.expinti(x)
 @register_symbolic SymbolicUtils.expint(nu, z)
 @register_symbolic SymbolicUtils.gamma(x, y)
 @register_symbolic SymbolicUtils.sinint(x)
