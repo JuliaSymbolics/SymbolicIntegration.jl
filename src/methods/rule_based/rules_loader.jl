@@ -7,15 +7,15 @@ function load_rules(rules_paths)
     global IDENTIFIERS
     
     tot = length(rules_paths)
+    length_load_bar = 40 # displaysize(stdout) doesnt work here
+    print("\n\n")
     for (i, file) in enumerate(rules_paths)
         # cool print
-        n_of_equals = round(Int, (i-1) / tot * 60)
-        if i > 1
-            print("\e[2A")  # Move cursor up 2 lines
-        end
+        n_of_equals = round(Int, (i-1) / tot * length_load_bar)
+        print("\e[2A")  # Move cursor up 2 lines
         print("\e[2K")  # Clear current line
         printstyled(" $(i-1)/$tot files"; color = :light_green, bold = true)
-        print(" [" * "="^n_of_equals *">"* " "^(60 - n_of_equals) * "] ")
+        print(" [" * "="^n_of_equals *">"* " "^(length_load_bar - n_of_equals) * "] ")
         printstyled("$(length(RULES)) rules\n"; color = :light_green, bold = true)
         print("\e[2K")  # Clear current line
         printstyled(" Loading file: ", split(file,"/")[end], "\n"; color = :light_black)
