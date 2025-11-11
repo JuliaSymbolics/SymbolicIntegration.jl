@@ -438,7 +438,7 @@ function int_and_subst(integrand, int_var, from, to, rule_from_identifier)
         return substitute(result, from => to)
     end
     VERBOSE && println("Integral not solved")
-    return subst(∫(integrand, int_var), from, to)
+    return substitute_after_int(∫(integrand, int_var), from, to)
 end
 
 # distributes exp1 over exp2
