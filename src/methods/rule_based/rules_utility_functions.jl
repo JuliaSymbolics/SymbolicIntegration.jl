@@ -56,7 +56,7 @@ function complexfree(expr)
 end
 
 # to distinguish between symbolic expressions and numbers
-s(u) = isa(Symbolics.unwrap(u), Symbolics.Symbolic)
+s(u) = isa(Symbolics.unwrap(u), SymbolicUtils.BasicSymbolic)
 
 function eq(a, b)
     !s(a) && !s(b) && return isequal(a, b)
@@ -274,9 +274,9 @@ end
 neg(u) = !pos(u) && !eq(u, 0)
 
 # extended denominator
-ext_den(u::Union{Num, SymbolicUtils.Symbolic, Rational, Integer}) = denominator(u)
+ext_den(u::Union{Num, SymbolicUtils.BasicSymbolic, Rational, Integer}) = denominator(u)
 ext_den(u) = 1
-ext_num(u::Union{Num, SymbolicUtils.Symbolic, Rational, Integer}) = numerator(u)
+ext_num(u::Union{Num, SymbolicUtils.BasicSymbolic, Rational, Integer}) = numerator(u)
 ext_num(u) = u
 
 # IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is integrable wrt x in terms of non-hypergeometric functions.
@@ -764,7 +764,7 @@ end
 
 function perfect_square(expr)
     expr = Symbolics.unwrap(expr)
-    !isa(expr, Symbolics.Symbolic) && return sqrt(expr) == floor(sqrt(expr))
+    !s(expr) && return sqrt(expr) == floor(sqrt(expr))
     !iscall(expr) && return false
     (operation(expr) === ^) && iseven(arguments(expr)[2]) && return true
     return false

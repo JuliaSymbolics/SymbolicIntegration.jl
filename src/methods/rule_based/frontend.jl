@@ -113,5 +113,5 @@ function integrate_rule_based(integrand::Symbolics.Num, int_var::Symbolics.Num; 
     return simplify(repeated_prewalk(∫(integrand,int_var)))
 end
 
-integrate_rule_based(integrand::SymbolicUtils.BasicSymbolic{Real}, int_var::SymbolicUtils.BasicSymbolic{Real}; kwargs...) =
-    integrate_rule_based(Num(integrand), Num(int_var); kwargs...)
+# integrate_rule_based(integrand::SymbolicUtils.BasicSymbolic{Real}, int_var::SymbolicUtils.BasicSymbolic{Real}; kwargs...) =
+#     integrate_rule_based(Num(integrand), Num(int_var); kwargs...)
