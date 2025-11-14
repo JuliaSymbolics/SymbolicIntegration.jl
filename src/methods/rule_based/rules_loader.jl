@@ -31,7 +31,7 @@ function load_rules(rules_paths)
     println("Loaded $(length(RULES)) rules from $(length(rules_paths)) files.")
 end
 
-load_rules() = load_rules([joinpath(@__DIR__, "rules/" * f) for f in all_rules_paths])
+load_rules() = load_rules([joinpath(@__DIR__, "rules2/" * f) for f in all_rules_paths])
 
 # greater or equal function to sort identifiers
 function identifier_ge(id1, id2)
