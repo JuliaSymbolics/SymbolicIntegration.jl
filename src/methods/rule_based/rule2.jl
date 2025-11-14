@@ -1,3 +1,4 @@
+using Combinatorics: permutations
 # empty Base.ImmutableDict of the correct type
 const SymsType = SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}
 const MatchDict = Base.ImmutableDict{Symbol, SymsType}
