@@ -82,8 +82,8 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)
 end
 
 # check expression of all arguments
+# TODO add types
 function ceoaa(arg_data, arg_rule, matches::MatchDict)
-    println(typeof(arg_data), typeof(arg_rule))
     for (a, b) in zip(arg_data, arg_rule)
         matches = check_expr_r(a, b, matches)
         matches===FAIL_DICT && return FAIL_DICT::MatchDict
@@ -105,39 +105,41 @@ function check_expr_r(data::SymsType, rule::Real, matches::MatchDict)
 end
 
 """
-matches is the dictionary
-rhs is the expression to be rewritten into
-
-TODO investigate foo in rhs not working
+recursively traverse the rhs, and if it finds a expression like:
+Expr
+  head: Symbol call
+  args: Array{Any}((2,))
+    1: Symbol ~
+    2: Symbol m
+substitute it with the value found in matches dictionary.
 """
-function rewrite(matches::MatchDict, rhs::Expr)::SymsType
-    if rhs.head != :call
-        error("It happened") #it should never happen
-    end
-    # rhs is a slot or defslot
+function rewrite(matches::MatchDict, rhs::Expr)::Union{Expr, SymsType}
+    # println("called rewrite with rhs ", rhs)
+    # if a expression of a slot, change it with the matches
     if rhs.head == :call && rhs.args[1] == :(~)
         var_name = rhs.args[2]
         if haskey(matches, var_name)
-            return matches[var_name]
+            return matches[var_name]::SymsType
         else
             error("No match found for variable $(var_name)") #it should never happen
         end
     end
-    # rhs is a call, reconstruct it
-    op = eval(rhs.args[1])
-    args = SymsType[]
-    for a in rhs.args[2:end]
-        push!(args, rewrite(matches, a))
-    end
-    return op(args...)
+    # otherwise call recursively on arguments and then reconstruct expression
+    args = [rewrite(matches, a) for a in rhs.args]
+    return Expr(rhs.head, args...)::Expr
 end
 
-function rewrite(matches::MatchDict, rhs::Real)::SymsType
-    return rhs
-end
+# called every time in the rhs::Expr there is a symbol like
+# - custom function names (contains_var, ...)
+# - normal functions names (+, ^, ...)
+# - nothing
+rewrite(matches::MatchDict, rhs::Symbol) = rhs::Symbol
+# called each time in the rhs there is a real (like +1 or -2)
+rewrite(matches::MatchDict, rhs::Real) = rhs::Real
 
 function rule2(rule::Pair{Expr, Expr}, exp::SymsType)::Union{SymsType, Nothing}
     m = check_expr_r(exp, rule.first, NO_MATCHES)
-    m===FAIL_DICT && return nothing
-    return rewrite(m, rule.second)
+    m===FAIL_DICT && return nothing::Nothing
+    r = rewrite(m, rule.second)
+    return eval(r)::SymsType
 end
