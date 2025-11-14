@@ -9,8 +9,7 @@ if not, (original problem, false)
 function apply_rule(problem)
     result = nothing
     for (i, rule) in enumerate(RULES)
-        result = rule(problem)
-        # result = rule2(rule, problem)
+        result = rule2(rule, problem)
         if result !== nothing
             if result===problem
                 VERBOSE && println("Infinite cycle created by rule $(IDENTIFIERS[i]) applied on ", problem)
