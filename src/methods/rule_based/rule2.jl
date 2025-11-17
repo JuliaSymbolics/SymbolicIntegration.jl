@@ -1,3 +1,5 @@
+rv = false # rule verbose
+
 using Combinatorics: permutations
 # empty Base.ImmutableDict of the correct type
 const SymsType = SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}
@@ -20,7 +22,7 @@ Base.ImmutableDict{Symbol, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbo
 TODO matches does assigment or mutation? which is faster?
 """
 function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)
-    # println("Checking ",data," against ",rule,", with matches: ",[m for m in matches]...)
+    rv&&println("Checking ",data," against ",rule,", with matches: ",[m for m in matches]...)
     rule.head != :call && error("It happened, rule head is not a call") #it should never happen
     # rule is a slot
     if rule.head == :call && rule.args[1] == :(~)
@@ -83,8 +85,9 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)
 end
 
 # check expression of all arguments
-# TODO add types
-function ceoaa(arg_data, arg_rule, matches::MatchDict)
+# elements of arg_rule can be Expr or Real
+# TODO types of arg_data ???
+function ceoaa(arg_data, arg_rule::Vector{Any}, matches::MatchDict)
     for (a, b) in zip(arg_data, arg_rule)
         matches = check_expr_r(a, b, matches)
         matches===FAIL_DICT && return FAIL_DICT::MatchDict
@@ -114,7 +117,7 @@ Expr
     2: Symbol m
 substitute it with the value found in matches dictionary.
 """
-function rewrite(matches::MatchDict, rhs::Expr)::Union{Expr, SymsType}
+function rewrite(matches::MatchDict, rhs::Expr)
     # println("called rewrite with rhs ", rhs)
     # if a expression of a slot, change it with the matches
     if rhs.head == :call && rhs.args[1] == :(~)
@@ -140,6 +143,7 @@ rewrite(matches::MatchDict, rhs::Real) = rhs::Real
 
 function rule2(rule::Pair{Expr, Expr}, exp::SymsType)::Union{SymsType, Nothing}
     m = check_expr_r(exp, rule.first, NO_MATCHES)
+    rv&&m===FAIL_DICT && println("RULE FAILED MATCH")
     m===FAIL_DICT && return nothing::Nothing
     r = rewrite(m, rule.second)
     return eval(r)::SymsType

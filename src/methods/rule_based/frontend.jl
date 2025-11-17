@@ -48,9 +48,13 @@ x^-3
 ```
 """
 function ins(expr)
+    println("called ins with $expr, ",typeof(expr))
     t = (@rule (~u)^(~m) => ~)(expr)
-    t!==nothing && return SymbolicUtils.Term{Number}(^,[t[:u],-t[:m]])
-    return SymbolicUtils.Term{Number}(^,[expr,-1])
+    println("t is $t")
+    t!==nothing && return SymbolicUtils.Term{SymbolicUtils.SymReal}(^,[t[:u],-t[:m]])
+    tmp = SymbolicUtils.Term{SymReal}(^,[expr,-1])
+    println("the return is $tmp")
+    return SymbolicUtils.Term{SymbolicUtils.SymReal}(^,[expr,-1])
 end
 
 # TODO add threaded for speed?
