@@ -1,10 +1,8 @@
 rv = false # rule verbose
 
 using Combinatorics: permutations
-# empty Base.ImmutableDict of the correct type
 const SymsType = SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}
-const MatchDict = Base.ImmutableDict{Symbol, SymsType}
-const NO_MATCHES = MatchDict() # or {Symbol, Union{Symbol, Real}} ?
+const MatchDict = Base.ImmutableDict{Symbol, SymsType} # or {Symbol, Union{Symbol, Real}} ?
 const FAIL_DICT = MatchDict(:_fail,0)
 const op_map = Dict(:+ => 0, :* => 1, :^ => 1)
 
@@ -142,7 +140,7 @@ rewrite(matches::MatchDict, rhs::Symbol) = rhs::Symbol
 rewrite(matches::MatchDict, rhs::Real) = rhs::Real
 
 function rule2(rule::Pair{Expr, Expr}, exp::SymsType)::Union{SymsType, Nothing}
-    m = check_expr_r(exp, rule.first, NO_MATCHES)
+    m = check_expr_r(exp, rule.first, MatchDict())
     rv&&m===FAIL_DICT && println("RULE FAILED MATCH")
     m===FAIL_DICT && return nothing::Nothing
     r = rewrite(m, rule.second)
