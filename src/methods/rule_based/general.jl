@@ -133,7 +133,7 @@ all_rules_paths = [
 # 
 # 
 # 
-# "2 Exponentials/2.1 (c+d x)^m (a+b (F^(g (e+f x)))^n)^p.jl"
+"2 Exponentials/2.1 (c+d x)^m (a+b (F^(g (e+f x)))^n)^p.jl"
 # "2 Exponentials/2.2 (c+d x)^m (F^(g (e+f x)))^n (a+b (F^(g (e+f x)))^n)^p.jl"
 # "2 Exponentials/2.3 Miscellaneous exponentials.jl"
 # 
