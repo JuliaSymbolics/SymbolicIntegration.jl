@@ -292,7 +292,6 @@ end
 
 function analyze_expr(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal} , funs::Vector, vars::Vector{SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}}, 
                       args::Vector, tanArgs::Vector, expArgs::Vector)
-    println("fae called with $f")
     # Handle pure symbols
     if SymbolicUtils.issym(f)
         if hash(f) != hash(funs[1])
