@@ -27,6 +27,7 @@ function contains_var(expr, var)
             end
         end
     end
+    println("ctssvars returning false")
     return false
 end
 
@@ -59,6 +60,11 @@ end
 s(u) = isa(Symbolics.unwrap(u), SymbolicUtils.BasicSymbolic)
 
 function eq(a, b)
+    a = SymbolicUtils.unwrap_const(a)
+    b = SymbolicUtils.unwrap_const(b)
+    println(a, b)
+    println(typeof(a), typeof(b))
+    !s(a) && !s(b) && println(isequal(a, b))
     !s(a) && !s(b) && return isequal(a, b)
     return SymbolicUtils.simplify(a - b) |> SymbolicUtils._iszero
 end
@@ -236,9 +242,17 @@ function intpart(a)
 end
 
 # Greater than
-gt(u, v) = (s(u) || s(v)) ? false : u > v
+function gt(u, v)
+    u = SymbolicUtils.unwrap_const(u)
+    v = SymbolicUtils.unwrap_const(v)
+    (s(u) || s(v)) ? false : u > v
+end
 gt(u, v, w) = gt(u, v) && gt(v, w)
-ge(u, v) = (s(u) || s(v)) ? false : u >= v
+function ge(u, v)
+    u = SymbolicUtils.unwrap_const(u)
+    v = SymbolicUtils.unwrap_const(v)
+    (s(u) || s(v)) ? false : u >= v
+end
 ge(u, v, w) = ge(u, v) && ge(v, w)
 lt(u, v) = (s(u) || s(v)) ? false : u < v
 lt(u, v, w) = lt(u, v) && lt(v, w)
