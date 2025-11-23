@@ -87,17 +87,19 @@ No rule found for ∫(abs(x), x)
 ```
 """
 function integrate(f::Symbolics.Num, x::Symbolics.Num; kwargs...)
+    result = integrate_rule_based(f, x; kwargs...)
+    !contains_int(result) && return result
+
+    printstyled(" > RuleBasedMethod(use_gamma=false, verbose=true) failed, returning $result \n";color=:red)
+    printstyled(" > Sorry we cannot integrate this expression :(\n";color=:red)
+    
     result = integrate_risch(f.val, x.val; kwargs...)
     !contains_int(result) && return result
     
     # TODO make them verbose?
     printstyled("\n > RischMethod(use_algebraic_closure=false, catch_errors=true) failed, returning $result \n";color=:red)
     printstyled(" > Trying with RuleBasedMethod(use_gamma=false, verbose=true)...\n\n"; color=:red)
-    result = integrate_rule_based(f, x; kwargs...)
-    !contains_int(result) && return result
-
-    printstyled(" > RuleBasedMethod(use_gamma=false, verbose=true) failed, returning $result \n";color=:red)
-    printstyled(" > Sorry we cannot integrate this expression :(\n";color=:red)
+    
 end
 
 """
@@ -113,7 +115,7 @@ function integrate(f::Symbolics.Num, method=nothing; kwargs...)
         @warn "Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument."
         return nothing
     elseif length(vars) == 1
-        integration_variable = vars[1]
+        integration_variable = first(vars)
     else
         @warn "No integration variable provided"
         return nothing
