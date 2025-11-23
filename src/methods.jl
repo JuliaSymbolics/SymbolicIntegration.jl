@@ -35,7 +35,7 @@ struct RuleBasedMethod <: AbstractIntegrationMethod
     use_gamma::Bool
     verbose::Bool
     
-    function RuleBasedMethod(; use_gamma::Bool=false, verbose::Bool=true)
+    function RuleBasedMethod(; use_gamma::Bool=false, verbose::Bool=false)
         new(use_gamma, verbose)
     end
 end
@@ -90,7 +90,7 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num; kwargs...)
     result = integrate_rule_based(f, x; kwargs...)
     !contains_int(result) && return result
 
-    printstyled(" > RuleBasedMethod(use_gamma=false, verbose=true) failed, returning $result \n";color=:red)
+    printstyled(" > RuleBasedMethod(use_gamma=false, verbose=false) failed, returning $result \n";color=:red)
     printstyled(" > Sorry we cannot integrate this expression :(\n";color=:red)
     
     result = integrate_risch(f.val, x.val; kwargs...)
