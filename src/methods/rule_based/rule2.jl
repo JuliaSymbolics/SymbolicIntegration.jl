@@ -1,10 +1,18 @@
-rv = false # rule verbose
-
+# TODO rule condition inside the process? leads to faster cycling trough all the rules?
 using Combinatorics: permutations
+
 const SymsType = SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}
 const MatchDict = Base.ImmutableDict{Symbol, SymsType} # or {Symbol, Union{Symbol, Real}} ?
 const FAIL_DICT = MatchDict(:_fail,0)
 const op_map = Dict(:+ => 0, :* => 1, :^ => 1)
+"""
+Rule verbose level:
+0 - print nothing
+1 - print "applying rule ... on expr ..." and if the rule succeded or not
+2 - print also the result of the rewriting before eval
+3 - print also every recursive call
+"""
+vblvl = 2
 
 """
 data is a symbolic expression, we need to check if respects the rule
@@ -17,10 +25,10 @@ return value is a ImmutableDict
 3) otherwise the dictionary of old + new ones is returned that could look like:
 Base.ImmutableDict{Symbol, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}}(:x => a, :y => b)
 
-TODO matches does assigment or mutation? which is faster?
 """
+# TODO matches does assigment or mutation? which is faster?
 function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)
-    rv&&println("Checking ",data," against ",rule,", with matches: ",[m for m in matches]...)
+    vblvl>=3&&println("Checking ",data," against ",rule,", with matches: ",[m for m in matches]...)
     rule.head != :call && error("It happened, rule head is not a call") #it should never happen
     # rule is a slot
     if rule.head == :call && rule.args[1] == :(~)
@@ -51,12 +59,12 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)
         else
             error("defslot error")# it should never happen
         end
-        rv = check_expr_r(data, newr, matches)
-        rv!==FAIL_DICT && return rv::MatchDict
+        rdict = check_expr_r(data, newr, matches)
+        rdict!==FAIL_DICT && return rdict::MatchDict
         # if no normal match, check only the non-defslot part of the rule
-        rv = check_expr_r(data, rule.args[p==1 ? 3 : 2], matches)
+        rdict = check_expr_r(data, rule.args[p==1 ? 3 : 2], matches)
         # if yes match
-        rv!==FAIL_DICT && return Base.ImmutableDict(rv, rule.args[p+1].args[2].args[2], get(op_map, rule.args[1], -1))::MatchDict
+        rdict!==FAIL_DICT && return Base.ImmutableDict(rdict, rule.args[p+1].args[2].args[2], get(op_map, rule.args[1], -1))::MatchDict
         return FAIL_DICT::MatchDict
     else
         # rule is a call, check operation and arguments
@@ -138,11 +146,18 @@ end
 rewrite(matches::MatchDict, rhs::Symbol) = rhs::Symbol
 # called each time in the rhs there is a real (like +1 or -2)
 rewrite(matches::MatchDict, rhs::Real) = rhs::Real
+# called each time in the rhs there is a string, like in int_and_subst calls
+rewrite(matches::MatchDict, rhs::String) = rhs::String
+# rewrite(matches::MatchDict, rhs) = rhs <--- NOT PRESENT ON PURPOSE,
+# i want to know each type exactly
 
-function rule2(rule::Pair{Expr, Expr}, exp::SymsType)::Union{SymsType, Nothing}
-    m = check_expr_r(exp, rule.first, MatchDict())
-    rv&&m===FAIL_DICT && println("RULE FAILED MATCH")
+function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
+    vblvl>=1&&println("Applying $rule on $expr")
+    m = check_expr_r(expr, rule.first, MatchDict())
+    vblvl>=1&&m===FAIL_DICT && println("Rule failed to match")
     m===FAIL_DICT && return nothing::Nothing
+    vblvl>=1&&println("Rule matched succesfully")
     r = rewrite(m, rule.second)
-    return eval(r)::SymsType
+    vblvl>=2&&println("About to return eval of $r") 
+    return eval(r)
 end
