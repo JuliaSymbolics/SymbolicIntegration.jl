@@ -12,7 +12,7 @@ Rule verbose level:
 2 - print also the result of the rewriting before eval
 3 - print also every recursive call
 """
-vblvl = 2
+vblvl = 0
 
 """
 data is a symbolic expression, we need to check if respects the rule
@@ -69,6 +69,12 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)
     else
         # rule is a call, check operation and arguments
         # - check operation
+        if (rule.args[1] == ://) && isa(SymbolicUtils.unwrap_const(data), Rational)
+            # rational is a special case, in the integation rules is present only in between numbers, like 1//2
+            r = SymbolicUtils.unwrap_const(data)
+            r.num == rule.args[2] && r.den == rule.args[3] && return matches::MatchDict
+            return FAIL_DICT::MatchDict
+        end
         !iscall(data) && return FAIL_DICT::MatchDict
         (Symbol(operation(data)) !== rule.args[1]) && return FAIL_DICT::MatchDict
         # - check arguments
