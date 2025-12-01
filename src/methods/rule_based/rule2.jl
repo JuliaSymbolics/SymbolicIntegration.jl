@@ -2,7 +2,7 @@
 using Combinatorics: permutations
 
 const SymsType = SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}
-const MatchDict = Base.ImmutableDict{Symbol, SymsType} # or {Symbol, Union{Symbol, Real}} ?
+const MatchDict = Base.ImmutableDict{Symbol, SymsType}
 const FAIL_DICT = MatchDict(:_fail,0)
 const op_map = Dict(:+ => 0, :* => 1, :^ => 1)
 """
@@ -25,9 +25,19 @@ return value is a ImmutableDict
 3) otherwise the dictionary of old + new ones is returned that could look like:
 Base.ImmutableDict{Symbol, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}}(:x => a, :y => b)
 
+The function checks in this order:
+1) if the rule is a slot, like ~x or ~x::predicate
+    proceed with checking in the matches or adding a new one if respects the predicate
+2) if the rule contains a defslot in the arguments, like ~!a * ~x
+    check first the normal expression (~a * ~x) and if fail check the non defslot part
+3) if the rule contains a segment in the (only) argument, like +(~~x)
+    confront operation with data and return mathc
+4) otherwise for normal call confronts operation and arguments with data
+    if operation of rule = +* does commutative checks
+    do checks for negative exponent TODO
 """
 # TODO matches does assigment or mutation? which is faster?
-function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)
+function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     vblvl>=3&&println("Checking ",data," against ",rule,", with matches: ",[m for m in matches]...)
     rule.head != :call && error("It happened, rule head is not a call") #it should never happen
     # rule is a slot
@@ -37,7 +47,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)
             !isequal(matches[rule.args[2]],data) && return FAIL_DICT::MatchDict
             return matches::MatchDict
         else # if never been matched
-            # if there is a predicate rule.args[2] is a expression with ::
+            # if there is a predicate, rule.args[2] is a expression with ::
             if isa(rule.args[2], Expr)
                 # check it
                 pred = rule.args[2].args[2]
@@ -66,8 +76,15 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)
         # if yes match
         rdict!==FAIL_DICT && return Base.ImmutableDict(rdict, rule.args[p+1].args[2].args[2], get(op_map, rule.args[1], -1))::MatchDict
         return FAIL_DICT::MatchDict
+    # if there is a segment in the (only) argument
+    elseif length(rule.args)==2 && isa(rule.args[2], Expr) && rule.args[2].args[1]==:~ && isa(rule.args[2].args[2], Expr) && rule.args[2].args[2].args[1] == :~
+        # check operations
+        !iscall(data) && return FAIL_DICT::MatchDict
+        (Symbol(operation(data)) !== rule.args[1]) && return FAIL_DICT::MatchDict
+        # return the whole data (not only vector of arguments as in rule1)
+        return Base.ImmutableDict(matches, rule.args[2].args[2].args[2], data)::MatchDict
+    # rule is a normal call, check operation and arguments
     else
-        # rule is a call, check operation and arguments
         # - check operation
         if (rule.args[1] == ://) && isa(SymbolicUtils.unwrap_const(data), Rational)
             # rational is a special case, in the integation rules is present only in between numbers, like 1//2
@@ -130,7 +147,7 @@ Expr
 substitute it with the value found in matches dictionary.
 """
 function rewrite(matches::MatchDict, rhs::Expr)
-    # println("called rewrite with rhs ", rhs)
+    vblvl>=3 && println("called rewrite with rhs ", rhs)
     # if a expression of a slot, change it with the matches
     if rhs.head == :call && rhs.args[1] == :(~)
         var_name = rhs.args[2]
@@ -154,6 +171,8 @@ rewrite(matches::MatchDict, rhs::Symbol) = rhs::Symbol
 rewrite(matches::MatchDict, rhs::Real) = rhs::Real
 # called each time in the rhs there is a string, like in int_and_subst calls
 rewrite(matches::MatchDict, rhs::String) = rhs::String
+# called each time in the rhs there is a LineNumberNode, ignoring it
+rewrite(matches::MatchDict, rhs::LineNumberNode) = nothing::Nothing
 # rewrite(matches::MatchDict, rhs) = rhs <--- NOT PRESENT ON PURPOSE,
 # i want to know each type exactly
 

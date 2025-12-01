@@ -1,10 +1,6 @@
 file_rules = [
-# # (* ::Subsection::Closed:: *) 
-# # (* 9.1 Integrand simplification rules *) 
-# # (* Int[u_.*(v_+w_)^p_.,x_Symbol] := Int[u*w^p,x] /; FreeQ[p,x] && EqQ[v,0] *) 
-# ("0_1_0",
-# @rule ∫(+(~~a),~x) => sum(map(f -> ∫(f,~x), ~a)))
-# 
+("0_1_0", :(∫(+(~~a),~x)) => :(sum(map(f -> ∫(f,~x), arguments(~a)))) )
+
 # ("0_1_6",
 # @rule ∫((~!u)*((~!a)*(~v) + (~!b)*(~v) + (~!w))^(~!p),(~x)) =>
 #     !contains_var((~a), (~b), (~x)) &&
@@ -24,15 +20,15 @@ file_rules = [
     !contains_var((~a), (~x)) ?
 (~a)*(~x) : nothing))
 
-# ("0_1_12",
-# @rule ∫(*(~~a),~x) =>
-# let
-#     out = prod([contains_var(el,~x) ? 1 : el for el in ~a])
-#     eq(out,1) ? (return nothing) : (return out*∫(prod([contains_var(el,~x) ? el : 1 for el in ~a]),~x))
-# end : nothing
-# )
-# 
-# # TODO if pattern matching was better 0_1_12_[1,2,3] would be handled by 0_1_12
+("0_1_12",
+:(∫(*(~~a),~x)) => :(
+let
+    out = prod([contains_var(el,~x) ? 1 : el for el in arguments(~a)])
+    eq(out,1) ? (return nothing) : (return out*∫(prod([contains_var(el,~x) ? el : 1 for el in arguments(~a)]),~x))
+end
+))
+
+# TODO if pattern matching was better 0_1_12_[1,2,3] would be handled by 0_1_12
 ("0_1_12_1",
 :(∫((~a)/(~u),(~x)) ) => :(
     !contains_var(~a, ~x) &&
