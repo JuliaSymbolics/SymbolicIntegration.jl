@@ -249,9 +249,17 @@ function ge(u, v)
     (s(u) || s(v)) ? false : u >= v
 end
 ge(u, v, w) = ge(u, v) && ge(v, w)
-lt(u, v) = (s(u) || s(v)) ? false : u < v
+function lt(u, v)
+    u = SymbolicUtils.unwrap_const(u)
+    v = SymbolicUtils.unwrap_const(v)
+    (s(u) || s(v)) ? false : u < v
+end
 lt(u, v, w) = lt(u, v) && lt(v, w)
-le(u, v) = (s(u) || s(v)) ? false : u <= v
+function le(u, v)
+    u = SymbolicUtils.unwrap_const(u)
+    v = SymbolicUtils.unwrap_const(v)
+    (s(u) || s(v)) ? false : u <= v
+end
 le(u, v, w) = le(u, v) && le(v, w)
 
 # If a is an integer and a>b, igtQ(a,b) returns true, else it returns false.
