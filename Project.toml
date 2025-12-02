@@ -25,10 +25,10 @@ Combinatorics = "1.0.2"
 Elliptic = "1.0.1"
 FresnelIntegrals = "0.2.0"
 HypergeometricFunctions = "0.3.28"
-Nemo = "0.51, 0.52"
+Nemo = "0.51, 0.52, 0.53"
 PolyLog = "2.6.0"
-SymbolicUtils = "3"
-Symbolics = "6"
+SymbolicUtils = "3, 4.7"
+Symbolics = "6, 7.1"
 julia = "1.10"
 
 [extras]
