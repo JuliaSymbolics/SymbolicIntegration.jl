@@ -1,14 +1,30 @@
 using Test
 
-@syms a
+e(x,y) = SymbolicUtils.unwrap_const(x)===SymbolicUtils.unwrap_const(y)
 
-@testset begin
+@testset "General" begin
+    @syms a
+
     r1 = :(sin(2*~x)) => :(2sin(~x)*cos(~x))
 
     @test SymbolicIntegration.rule2(r1, sin(2a)) !== nothing
+end
 
-    r_defslot = :((~x)^(~!m)) => :(((~x)^(~m+1)/(~m+1)))
+@testset "defslot" begin
+    @syms x
+    rp = :(~!a + ~x) => :(~a)
+    @test e(SymbolicIntegration.rule2(rp, x), 0)
+    @test e(SymbolicIntegration.rule2(rp, x+3), 3)
+    rt = :(~!a * ~x) => :(~a)
+    @test e(SymbolicIntegration.rule2(rt, x), 1)
+    @test e(SymbolicIntegration.rule2(rt, x*3), 3)
+    rpo = :((~x)^(~!a)) => :(~a)
+    @test e(SymbolicIntegration.rule2(rpo, x), 1)
+    @test e(SymbolicIntegration.rule2(rpo, x^3), 3)
+end
 
-    @test SymbolicIntegration.rule2(r_defslot, a^2) !== nothing
-    @test SymbolicIntegration.rule2(r_defslot, a) !== nothing
+@testset "Segment" begin
+    @syms x y z
+    r = :(sin(+(~~a))) => :(~a)
+    @test e(SymbolicIntegration.rule2(r, sin(1+x+y+z)), 1+x+y+z)
 end
