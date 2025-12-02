@@ -38,7 +38,7 @@ The function checks in this order:
 """
 # TODO matches does assigment or mutation? which is faster?
 function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
-    vblvl>=3&&println("Checking ",data," against ",rule,", with matches: ",[m for m in matches]...)
+    vblvl>=3&&println("Checking ",data," against ",rule,", with matches: ",matches...)
     rule.head != :call && error("It happened, rule head is not a call") #it should never happen
     # rule is a slot
     if rule.head == :call && rule.args[1] == :(~)
@@ -106,6 +106,18 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
             end
             # if all perm failed
             return FAIL_DICT::MatchDict
+        elseif rule.args[1]===:^
+            # try first normal checks
+            rdict = ceoaa(arg_data, arg_rule, matches)
+            rdict!==FAIL_DICT && return rdict::MatchDict
+            # try building frankestein
+            frankestein = nothing
+            # if ....
+            # ...
+            
+            return FAIL_DICT
+        # elseif rule.args[1]===:sqrt
+        # elseif rule.args[1]===:exp
         else
             # normal checks
             return ceoaa(arg_data, arg_rule, matches)::MatchDict
@@ -127,7 +139,7 @@ end
 
 # for when the rule contains a constant, a literal number
 function check_expr_r(data::SymsType, rule::Real, matches::MatchDict)
-    # println("Checking ",data," against the real ",rule,", with matches: ",[m for m in matches]...)
+    vblvl>=3&&println("Checking ",data," against the real ",rule,", with matches: ",matches...)
     unw = unwrap_const(data)
     if isa(unw, Real)
         unw!==rule && return FAIL_DICT::MatchDict
