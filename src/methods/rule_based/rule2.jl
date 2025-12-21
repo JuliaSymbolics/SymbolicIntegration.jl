@@ -11,8 +11,19 @@ Rule verbose level:
 1 - print "applying rule ... on expr ..." and if the rule succeded or not
 2 - print also the result of the rewriting before eval
 3 - print also every recursive call
+4 - print also details of execution like defsolt and permutations
+5 - print also every permutation of the commutative checks
 """
 vblvl = 0
+# used for indentation
+zerolvl=0
+function get_indentation(n)
+    i::String = ""
+    for k in 1:n
+        i=i*"$(k%10) "
+    end
+    return i
+end
 
 """
 data is a symbolic expression, we need to check if respects the rule
@@ -40,7 +51,8 @@ The function checks in this order:
 # TODO ~a*(~b*~c) currently will not match a*b*c . a fix is possible
 # TODO rules with symbols like ~b * a currently cause error
 function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
-    vblvl>=3&&println("Checking ",data," against ",rule,", with matches: ",matches...)
+    indent = get_indentation(length(stacktrace()) - zerolvl - 1)
+    vblvl>=3&&println(indent,"Checking ",data," against ",rule,", with matches: ", matches...)
     rule.head != :call && error("It happened, rule head is not a call") #it should never happen
     # rule is a slot
     if rule.head == :call && rule.args[1] == :(~)
@@ -64,14 +76,23 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     p=findfirst(a->isa(a, Expr) && a.args[1] == :~ && isa(a.args[2], Expr) && a.args[2].args[1] == :!,rule.args[2:end])
     if p!==nothing
         # build rule expr without defslot and check it
-        if p==1 newr = Expr(:call, rule.args[1], :(~$(rule.args[2].args[2].args[2])), rule.args[3])
-        elseif p==2 newr = Expr(:call, rule.args[1], rule.args[2], :(~$(rule.args[3].args[2].args[2])))
-        else error("defslot error") # it should never happen
-        end
+        tmp = rule.args[2:end]; tmp[p] = :(~$(rule.args[p+1].args[2].args[2]))
+        newr = Expr(:call, rule.args[1], tmp...)
+        vblvl>=4 && println(indent, "$(rule.args[p+1]) deflost detected. first trying normal match")
         rdict = check_expr_r(data, newr, matches)
         rdict!==FAIL_DICT && return rdict::MatchDict
+        vblvl>=4 && println(indent, "normal match failed, trying modified one")
         # if no normal match, check only the non-defslot part of the rule
-        rdict = check_expr_r(data, rule.args[p==1 ? 3 : 2], matches)
+        if length(tmp)==2 # if defslot + other + nothing else
+            tmp = rule.args[2:end]
+            deleteat!(tmp, p)
+            tmp = tmp[1]
+        else
+            tmp = copy(rule)
+            deleteat!(tmp.args,p+1)
+        end
+
+        rdict = check_expr_r(data, tmp, matches)
         # if yes match
         rdict!==FAIL_DICT && return Base.ImmutableDict(rdict, rule.args[p+1].args[2].args[2], get(op_map, rule.args[1], -1))::MatchDict
         return FAIL_DICT::MatchDict
@@ -153,13 +174,14 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         else (operation(n) === ^)
             arg_data = SymsType[n, sostituto]
         end
-        vblvl>=3 && println("Apllying neim trick, new arg_data is $arg_data")
+        vblvl>=4 && println(indent,"Apllying neim trick, new arg_data is $arg_data")
     end
     ((Symbol(operation(data)) !== rule.args[1]) && !neim_pass) && return FAIL_DICT::MatchDict
     (length(arg_data) != length(arg_rule)) && return FAIL_DICT::MatchDict
     if (rule.args[1]===:+) || (rule.args[1]===:*)
         # commutative checks
         for perm_arg_data in permutations(arg_data) # is the same if done on arg_rule right?
+            vblvl>=5 && println(indent,"trying this permutation $perm_arg_data")
             matches_this_perm = ceoaa(perm_arg_data, arg_rule, matches)
             matches_this_perm!==FAIL_DICT && return matches_this_perm::MatchDict
             # else try with next perm
@@ -175,6 +197,8 @@ end
 # elements of arg_rule can be Expr or Real
 # TODO types of arg_data ??? SymsType[]
 function ceoaa(arg_data, arg_rule::Vector{Any}, matches::MatchDict)
+    indent = get_indentation(length(stacktrace()) - zerolvl - 1)
+    vblvl>=4 && println(indent,"ceoaa:")
     for (a, b) in zip(arg_data, arg_rule)
         matches = check_expr_r(a, b, matches)
         matches===FAIL_DICT && return FAIL_DICT::MatchDict
@@ -185,7 +209,8 @@ end
 
 # for when the rule contains a constant, a literal number
 function check_expr_r(data::SymsType, rule::Real, matches::MatchDict)
-    vblvl>=3&&println("Checking ",data," against the real ",rule,", with matches: ",matches...)
+    indent = get_indentation(length(stacktrace()) - zerolvl - 1)
+    vblvl>=3&&println(indent,"Checking ",data," against the real ",rule,", with matches: ",matches...)
     unw = unwrap_const(data)
     if isa(unw, Real)
         unw!==rule && return FAIL_DICT::MatchDict
@@ -227,21 +252,23 @@ end
 rewrite(matches::MatchDict, rhs::Symbol) = rhs::Symbol
 # called each time in the rhs there is a real (like +1 or -2)
 rewrite(matches::MatchDict, rhs::Real) = rhs::Real
-# called each time in the rhs there is a string, like in int_and_subst calls
+# string, like in int_and_subst calls
 rewrite(matches::MatchDict, rhs::String) = rhs::String
-# called each time in the rhs there is a LineNumberNode, ignoring it
+# LineNumberNode, ignoring it
 rewrite(matches::MatchDict, rhs::LineNumberNode) = nothing::Nothing
+# Symbolics.derivative, or other stuff with .
+rewrite(matches::MatchDict, rhs::QuoteNode) = rhs::QuoteNode
 # rewrite(matches::MatchDict, rhs) = rhs <--- NOT PRESENT ON PURPOSE,
 # i want to know each type exactly
 
 function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
+    global zerolvl = length(stacktrace())
     vblvl>=1&&println("Applying $rule on $expr")
     m = check_expr_r(expr, rule.first, MatchDict())
     vblvl>=1&&m===FAIL_DICT && println("Rule failed to match")
     m===FAIL_DICT && return nothing::Nothing
     vblvl>=1&&println("Rule matched succesfully")
-    # useful for debug
-    rule.second==:(~~) && return m
+    rule.second==:(~~) && return m # useful for debug
     r = rewrite(m, rule.second)
     vblvl>=2&&println("About to return eval of $r") 
     return eval(r)
