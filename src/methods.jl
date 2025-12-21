@@ -87,7 +87,7 @@ No rule found for ∫(abs(x), x)
 ```
 """
 function integrate(f::Symbolics.Num, x::Symbolics.Num; verbose=true, kwargs...)
-    result = integrate_rule_based(f, x; kwargs...)
+    result = integrate_rule_based(f, x; verbose=true, kwargs...)
     !contains_int(result) && return result
 
     verbose && printstyled(" > RuleBasedMethod(use_gamma=false, verbose=false) failed, returning $result \n";color=:red)
@@ -96,7 +96,6 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num; verbose=true, kwargs...)
     result = integrate_risch(f.val, x.val; kwargs...)
     !contains_int(result) && return result
     
-    # TODO make them verbose?
     verbose && printstyled("\n > RischMethod(use_algebraic_closure=false, catch_errors=true) failed, returning $result \n";color=:red)
     verbose && printstyled(" > Sorry we cannot integrate this expression :(\n";color=:red)
     
