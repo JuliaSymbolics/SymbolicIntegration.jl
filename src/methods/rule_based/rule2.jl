@@ -12,7 +12,7 @@ Rule verbose level:
 2 - print also the result of the rewriting before eval
 3 - print also every recursive call
 """
-vblvl = 3
+vblvl = 0
 
 """
 data is a symbolic expression, we need to check if respects the rule
@@ -132,12 +132,13 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         end
         return ceoaa(tocheck, arg_rule, matches)::MatchDict
     end
-    # (length(arg_data) != length(arg_rule)) && return FAIL_DICT::MatchDict this is a optimization
     neim_pass = false
-    # Neim solution:
+    # gimmick to make Neim work in some cases: (the final solution would be remove divisions form rules)
     # if the rule is product of powers
-    if (rule.args[1]===:*) && all(x->(isa(x,Expr) && x.head===:call && x.args[1]===:^), arg_rule) && (operation(data)===/) && (operation(denominator(data)) !== *)
-        d = denominator(data)
+    if (rule.args[1]===:*) && all(x->(isa(x,Expr) && x.head===:call && x.args[1]===:^), arg_rule) && (operation(data)===/) && !(iscall(denominator(data)) && (operation(denominator(data)) === *))
+        # maybe use any
+        n = arguments(data)[1]
+        d = arguments(data)[2]
         neim_pass = true
         # then push the denominator up with negative power
         if iscall(d) && (operation(d)==^)
@@ -145,16 +146,17 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         else sostituto = SymbolicUtils.Term{SymReal}(^, [d, -1])
         end
         # if numerator of data is a product (of powers)
-        if operation(numerator(data)) === *
-            arg_data2 = SymsType[x for x in arguments(numerator(data))]; push!(arg_data2, sostituto)
+        if operation(n) === *
+            arg_data2 = SymsType[x for x in arguments(n)]; push!(arg_data2, sostituto)
             arg_data = arg_data2
         # or a power divided by something
-        else (operation(numerator(data)) === ^)
-            arg_data = SymsType[numerator(data), sostituto]
+        else (operation(n) === ^)
+            arg_data = SymsType[n, sostituto]
         end
         vblvl>=3 && println("Apllying neim trick, new arg_data is $arg_data")
     end
     ((Symbol(operation(data)) !== rule.args[1]) && !neim_pass) && return FAIL_DICT::MatchDict
+    (length(arg_data) != length(arg_rule)) && return FAIL_DICT::MatchDict
     if (rule.args[1]===:+) || (rule.args[1]===:*)
         # commutative checks
         for perm_arg_data in permutations(arg_data) # is the same if done on arg_rule right?

@@ -121,16 +121,17 @@ end
 # end
 
 @testset "Neim Problem" begin
-    @syms x y
+    @syms x y z
     r = :((~a)^2/(~b)^~n)=>:(~n)
     r2 = :((~a)^2*(~b)^~n)=>:(~n)
     r3 = :((~c)^2*(~a)^3/(~b)^~n)=>:(~n)
     r4 = :((~c)^2*(~a)^3*(~b)^~n)=>:(~n)
+    r5 = :((~c)^~m*(~a)^3/(~b))=>:(~b)
     @test e(SymbolicIntegration.rule2(r, x^2/y^3), 3)
     @test e(SymbolicIntegration.rule2(r2, x^2*y^3), 3)
     @test e(SymbolicIntegration.rule2(r2, x^2/y^3), -3)
     @test e(SymbolicIntegration.rule2(r3, x^2*y^3/z^8), 8)
     @test e(SymbolicIntegration.rule2(r4, x^2*y^3*z^8), 8)
     @test e(SymbolicIntegration.rule2(r4, x^2*y^3/z^8), -8)
+    # @test e(SymbolicIntegration.rule2(r5, (y)^3/(x*z^2)), x) this still doesnt work
 end
-# (exp(~l) + exp(~d) ^ exp(~z)) * (~w + ~n + ~p) * (~p) ^ ~j against (n + p + w)*(exp(d)^exp(z) + exp(l))*(p^j)
