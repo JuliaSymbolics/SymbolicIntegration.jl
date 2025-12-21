@@ -83,74 +83,71 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         (Symbol(operation(data)) !== rule.args[1]) && return FAIL_DICT::MatchDict
         # return the whole data (not only vector of arguments as in rule1)
         return Base.ImmutableDict(matches, rule.args[2].args[2].args[2], data)::MatchDict
-    # rule is a normal call, check operation and arguments
-    else
-        # - check operation
-        if (rule.args[1] == ://) && isa(SymbolicUtils.unwrap_const(data), Rational)
-            # rational is a special case, in the integation rules is present only in between numbers, like 1//2
-            r = SymbolicUtils.unwrap_const(data)
-            r.num == rule.args[2] && r.den == rule.args[3] && return matches::MatchDict
-            return FAIL_DICT::MatchDict
-        end
-        !iscall(data) && return FAIL_DICT::MatchDict
-        arg_data = arguments(data); arg_rule = rule.args[2:end];
-        if rule.args[1]===:^
-            # try first normal checks
-            if Symbol(operation(data)) == :^
-                rdict = ceoaa(arg_data, arg_rule, matches)
-                rdict!==FAIL_DICT && return rdict::MatchDict
-            end
-            # try building frankestein arg_data (fad)
-            fad = SymsType[]
-            if (operation(data) === /) && SymbolicUtils._isone(arg_data[1]) && iscall(arg_data[2]) && (operation(arg_data[2]) === ^)
-                # if data is of the alternative form 1/(...)^(...)
-                push!(fad, arguments(arg_data[2])[1], -1*arguments(arg_data[2])[2])
-            elseif (operation(data) === ^) && iscall(arg_data[1]) && (operation(arg_data[1]) === /) && _isone(arguments(arg_data[1])[1])
-                # if data is of the alternative form (1/...)^(...)
-                push!(fad, arguments(arg_data[1])[2], arg_data[2])
-            elseif (operation(data) === /) && SymbolicUtils._isone(arg_data[1])
-                # if data is of the alternative form 1/(...), it might match with exponent = -1
-                push!(fad, arg_data[2], -1)
-            elseif operation(data)===exp
-                # if data is a exp call, it might match with base e
-                push!(fad, ℯ, arg_data[1])
-            elseif operation(data)===sqrt
-                # if data is a sqrt call, it might match with exponent 1//2
-                push!(fad, arg_data[1], 1//2)
-            end
-            
-            return ceoaa(fad, arg_rule, matches)::MatchDict
-        elseif rule.args[1] === :sqrt
-            if (operation(data) === sqrt) tocheck = arg_data # normal checks
-            elseif (operation(data) === ^) && (unwrap_const(arg_data[2]) === 1//2) tocheck = arg_data[1]
-            else return FAIL_DICT::MatchDict
-            end
-            return ceoaa(tocheck, arg_rule, matches)::MatchDict
-        elseif rule.args[1] === :exp
-            if (operation(data) === exp) tocheck = arg_data # normal checks
-            elseif (operation(data) === ^) && (unwrap_const(arg_data[1]) === ℯ) tocheck = arg_data[2]
-            else return FAIL_DICT::MatchDict
-            end
-            return ceoaa(tocheck, arg_rule, matches)::MatchDict
-        end
-        (Symbol(operation(data)) !== rule.args[1]) && return FAIL_DICT::MatchDict
-        # - check arguments
-        (length(arg_data) != length(arg_rule)) && return FAIL_DICT::MatchDict
-        if (rule.args[1]===:+) || (rule.args[1]===:*)
-            # commutative checks
-            for perm_arg_data in permutations(arg_data) # is the same if done on arg_rule right?
-                matches_this_perm = ceoaa(perm_arg_data, arg_rule, matches)
-                matches_this_perm!==FAIL_DICT && return matches_this_perm::MatchDict
-                # else try with next perm
-            end
-            # if all perm failed
-            return FAIL_DICT::MatchDict
-        # elseif rule.args[1]===:sqrt
-        # elseif rule.args[1]===:exp
-        end
-        # normal checks
-        return ceoaa(arg_data, arg_rule, matches)::MatchDict
     end
+    # rule is a normal call, check operation and arguments
+    if (rule.args[1] == ://) && isa(SymbolicUtils.unwrap_const(data), Rational)
+        # rational is a special case, in the integation rules is present only in between numbers, like 1//2
+        r = SymbolicUtils.unwrap_const(data)
+        r.num == rule.args[2] && r.den == rule.args[3] && return matches::MatchDict
+        return FAIL_DICT::MatchDict
+    end
+    !iscall(data) && return FAIL_DICT::MatchDict
+    arg_data = arguments(data); arg_rule = rule.args[2:end];
+    if rule.args[1]===:^
+        # try first normal checks
+        if Symbol(operation(data)) == :^
+            rdict = ceoaa(arg_data, arg_rule, matches)
+            rdict!==FAIL_DICT && return rdict::MatchDict
+        end
+        # try building frankestein arg_data (fad)
+        fad = SymsType[]
+        if (operation(data) === /) && SymbolicUtils._isone(arg_data[1]) && iscall(arg_data[2]) && (operation(arg_data[2]) === ^)
+            # if data is of the alternative form 1/(...)^(...)
+            push!(fad, arguments(arg_data[2])[1], -1*arguments(arg_data[2])[2])
+        elseif (operation(data) === ^) && iscall(arg_data[1]) && (operation(arg_data[1]) === /) && _isone(arguments(arg_data[1])[1])
+            # if data is of the alternative form (1/...)^(...)
+            push!(fad, arguments(arg_data[1])[2], arg_data[2])
+        elseif (operation(data) === /) && SymbolicUtils._isone(arg_data[1])
+            # if data is of the alternative form 1/(...), it might match with exponent = -1
+            push!(fad, arg_data[2], -1)
+        elseif operation(data)===exp
+            # if data is a exp call, it might match with base e
+            push!(fad, ℯ, arg_data[1])
+        elseif operation(data)===sqrt
+            # if data is a sqrt call, it might match with exponent 1//2
+            push!(fad, arg_data[1], 1//2)
+        else return FAIL_DICT::MatchDict
+        end
+        
+        return ceoaa(fad, arg_rule, matches)::MatchDict
+    elseif rule.args[1] === :sqrt
+        if (operation(data) === sqrt) tocheck = arg_data # normal checks
+        elseif (operation(data) === ^) && (unwrap_const(arg_data[2]) === 1//2) tocheck = arg_data[1]
+        else return FAIL_DICT::MatchDict
+        end
+        return ceoaa(tocheck, arg_rule, matches)::MatchDict
+    elseif rule.args[1] === :exp
+        if (operation(data) === exp) tocheck = arg_data # normal checks
+        elseif (operation(data) === ^) && (unwrap_const(arg_data[1]) === ℯ) tocheck = arg_data[2]
+        else return FAIL_DICT::MatchDict
+        end
+        return ceoaa(tocheck, arg_rule, matches)::MatchDict
+    end
+    # after this is not possible that operation(data) != opeeration rule, so check it now
+    (Symbol(operation(data)) !== rule.args[1]) && return FAIL_DICT::MatchDict
+    (length(arg_data) != length(arg_rule)) && return FAIL_DICT::MatchDict
+    if (rule.args[1]===:+) || (rule.args[1]===:*)
+        # commutative checks
+        for perm_arg_data in permutations(arg_data) # is the same if done on arg_rule right?
+            matches_this_perm = ceoaa(perm_arg_data, arg_rule, matches)
+            matches_this_perm!==FAIL_DICT && return matches_this_perm::MatchDict
+            # else try with next perm
+        end
+        # if all perm failed
+        return FAIL_DICT::MatchDict
+    end
+    # normal checks
+    return ceoaa(arg_data, arg_rule, matches)::MatchDict
 end
 
 # check expression of all arguments
