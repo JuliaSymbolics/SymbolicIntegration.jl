@@ -120,6 +120,18 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
             end
             
             return ceoaa(fad, arg_rule, matches)::MatchDict
+        elseif rule.args[1] === :sqrt
+            if (operation(data) === sqrt) tocheck = arg_data # normal checks
+            elseif (operation(data) === ^) && (unwrap_const(arg_data[2]) === 1//2) tocheck = arg_data[1]
+            else return FAIL_DICT::MatchDict
+            end
+            return ceoaa(tocheck, arg_rule, matches)::MatchDict
+        elseif rule.args[1] === :exp
+            if (operation(data) === exp) tocheck = arg_data # normal checks
+            elseif (operation(data) === ^) && (unwrap_const(arg_data[1]) === ℯ) tocheck = arg_data[2]
+            else return FAIL_DICT::MatchDict
+            end
+            return ceoaa(tocheck, arg_rule, matches)::MatchDict
         end
         (Symbol(operation(data)) !== rule.args[1]) && return FAIL_DICT::MatchDict
         # - check arguments
