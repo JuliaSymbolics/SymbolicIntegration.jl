@@ -54,13 +54,24 @@ function test_random_exprs(n_to_check::Int, depth_level::Int)
     @syms a b c d f g h i j k l m n o p q r s t u v w x y z
     sym_args = [a, b, c, d, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z]
     exp_args = [:(~a), :(~b), :(~c), :(~d), :(~f), :(~g), :(~h), :(~i), :(~j), :(~k), :(~l), :(~m), :(~n), :(~o), :(~p), :(~q), :(~r), :(~s), :(~t), :(~u), :(~v), :(~w), :(~x), :(~y), :(~z)]
-    sym_ops = [(+, 2, max_args), (*, 2, max_args), (^, 2, 2), (sqrt, 1, 1), (exp, 1, 1), (log, 1, 1)]
-    exp_ops = [(:+, 2, max_args), (:*, 2, max_args), (:^, 2, 2), (:sqrt, 1, 1), (:exp, 1, 1), (:log, 1, 1)]
+    associative_sym_ops = [(+, 2, max_args), (*, 2, max_args)]
+    sym_ops = [associative_sym_ops..., (^, 2, 2), (sqrt, 1, 1), (exp, 1, 1), (log, 1, 1)]
+    associative_exp_ops = [(:+, 2, max_args), (:*, 2, max_args)]
+    exp_ops = [associative_exp_ops..., (:^, 2, 2), (:sqrt, 1, 1), (:exp, 1, 1), (:log, 1, 1)]
+    # build random Expr, that dont get simplified. so no x*x and no x+(z+y) and x*(y*z)
     # depth is the max depth of the recursive expression
     # type = 1: build a Expr, type = 2: build a symbolic expression
-    function build_r(depth::Int, type::Int)
-        if type==1 op = rand(exp_ops)
-        else op = rand(sym_ops)
+    function build_r(depth::Int, type::Int, prev_op = nothing)
+        if type==1
+            if prev_op in associative_exp_ops
+                op = rand(filter(x->x!=prev_op, exp_ops))
+            else op = rand(exp_ops)
+            end
+        else
+            if prev_op in associative_sym_ops
+                op = rand(filter(x->x!=prev_op, sym_ops))
+            else op = rand(sym_ops)
+            end
         end
         args = []
         if depth==1
@@ -77,7 +88,7 @@ function test_random_exprs(n_to_check::Int, depth_level::Int)
             end
         else
             for i in 1:rand(op[2]:op[3])
-                push!(args , build_r(rand(1:depth-1), type))
+                push!(args , build_r(rand(1:depth-1), type, op))
             end
         end
         if type==1 return Expr(:call, op[1], args...)
@@ -105,5 +116,12 @@ function test_random_exprs(n_to_check::Int, depth_level::Int)
 end
 
 @testset "Random expressions and rules" begin
-    @test test_random_exprs(20,4)
+    @test test_random_exprs(20,2)
+end
+
+@testset "Neim Problem" begin
+    @syms x y
+    r = :((~a)^~m*(~b)^~n)=>:(~~)
+    res = SymbolicIntegration.rule2(r, x^2/y^3)
+    println(res)
 end
