@@ -37,6 +37,7 @@ The function checks in this order:
     do checks for negative exponent TODO
 """
 # TODO matches does assigment or mutation? which is faster?
+# TODO ~a*(~b*~c) currently will not match a*b*c . a fix is possible
 function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     vblvl>=3&&println("Checking ",data," against ",rule,", with matches: ",matches...)
     rule.head != :call && error("It happened, rule head is not a call") #it should never happen
@@ -219,6 +220,8 @@ function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
     vblvl>=1&&m===FAIL_DICT && println("Rule failed to match")
     m===FAIL_DICT && return nothing::Nothing
     vblvl>=1&&println("Rule matched succesfully")
+    # useful for debug
+    rule.second==:(~~) && return m
     r = rewrite(m, rule.second)
     vblvl>=2&&println("About to return eval of $r") 
     return eval(r)
