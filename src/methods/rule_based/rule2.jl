@@ -31,7 +31,7 @@ The function checks in this order:
 2) if the rule contains a defslot in the arguments, like ~!a * ~x
     check first the normal expression (~a * ~x) and if fail check the non defslot part
 3) if the rule contains a segment in the (only) argument, like +(~~x)
-    confront operation with data and return mathc
+    confront operation with data and return match
 4) otherwise for normal call confronts operation and arguments with data
     if operation of rule = +* does commutative checks
     do checks for negative exponent TODO
@@ -93,9 +93,36 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
             return FAIL_DICT::MatchDict
         end
         !iscall(data) && return FAIL_DICT::MatchDict
+        arg_data = arguments(data); arg_rule = rule.args[2:end];
+        if rule.args[1]===:^
+            # try first normal checks
+            if Symbol(operation(data)) == :^
+                rdict = ceoaa(arg_data, arg_rule, matches)
+                rdict!==FAIL_DICT && return rdict::MatchDict
+            end
+            # try building frankestein arg_data (fad)
+            fad = SymsType[]
+            if (operation(data) === /) && SymbolicUtils._isone(arg_data[1]) && iscall(arg_data[2]) && (operation(arg_data[2]) === ^)
+                # if data is of the alternative form 1/(...)^(...)
+                push!(fad, arguments(arg_data[2])[1], -1*arguments(arg_data[2])[2])
+            elseif (operation(data) === ^) && iscall(arg_data[1]) && (operation(arg_data[1]) === /) && _isone(arguments(arg_data[1])[1])
+                # if data is of the alternative form (1/...)^(...)
+                push!(fad, arguments(arg_data[1])[2], arg_data[2])
+            elseif (operation(data) === /) && SymbolicUtils._isone(arg_data[1])
+                # if data is of the alternative form 1/(...), it might match with exponent = -1
+                push!(fad, arg_data[2], -1)
+            elseif operation(data)===exp
+                # if data is a exp call, it might match with base e
+                push!(fad, ℯ, arg_data[1])
+            elseif operation(data)===sqrt
+                # if data is a sqrt call, it might match with exponent 1//2
+                push!(fad, arg_data[1], 1//2)
+            end
+            
+            return ceoaa(fad, arg_rule, matches)::MatchDict
+        end
         (Symbol(operation(data)) !== rule.args[1]) && return FAIL_DICT::MatchDict
         # - check arguments
-        arg_data = arguments(data); arg_rule = rule.args[2:end];
         (length(arg_data) != length(arg_rule)) && return FAIL_DICT::MatchDict
         if (rule.args[1]===:+) || (rule.args[1]===:*)
             # commutative checks
@@ -106,28 +133,17 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
             end
             # if all perm failed
             return FAIL_DICT::MatchDict
-        elseif rule.args[1]===:^
-            # try first normal checks
-            rdict = ceoaa(arg_data, arg_rule, matches)
-            rdict!==FAIL_DICT && return rdict::MatchDict
-            # try building frankestein
-            frankestein = nothing
-            # if ....
-            # ...
-            
-            return FAIL_DICT
         # elseif rule.args[1]===:sqrt
         # elseif rule.args[1]===:exp
-        else
-            # normal checks
-            return ceoaa(arg_data, arg_rule, matches)::MatchDict
         end
+        # normal checks
+        return ceoaa(arg_data, arg_rule, matches)::MatchDict
     end
 end
 
 # check expression of all arguments
 # elements of arg_rule can be Expr or Real
-# TODO types of arg_data ???
+# TODO types of arg_data ??? SymsType[]
 function ceoaa(arg_data, arg_rule::Vector{Any}, matches::MatchDict)
     for (a, b) in zip(arg_data, arg_rule)
         matches = check_expr_r(a, b, matches)

@@ -23,6 +23,16 @@ end
     @test e(SymbolicIntegration.rule2(rpo, x^3), 3)
 end
 
+@testset "neg exponent" begin
+    @syms x
+    r = :((~x) ^ ~m) => :(~m)
+    @test e(SymbolicIntegration.rule2(r, 1/(x^3)), -3)
+    @test e(SymbolicIntegration.rule2(r, (1/x)^3), -3)
+    @test e(SymbolicIntegration.rule2(r, 1/x), -1)
+    @test e(SymbolicIntegration.rule2(r, exp(x)), x)
+    @test e(SymbolicIntegration.rule2(r, sqrt(x)), 1//2)
+end
+
 @testset "Segment" begin
     @syms x y z
     r = :(sin(+(~~a))) => :(~a)
