@@ -12,7 +12,7 @@ Rule verbose level:
 2 - print also the result of the rewriting before eval
 3 - print also every recursive call
 """
-vblvl = 0
+vblvl = 3
 
 """
 data is a symbolic expression, we need to check if respects the rule
@@ -38,6 +38,7 @@ The function checks in this order:
 """
 # TODO matches does assigment or mutation? which is faster?
 # TODO ~a*(~b*~c) currently will not match a*b*c . a fix is possible
+# TODO rules with symbols like ~b * a currently cause error
 function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     vblvl>=3&&println("Checking ",data," against ",rule,", with matches: ",matches...)
     rule.head != :call && error("It happened, rule head is not a call") #it should never happen
@@ -63,12 +64,9 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     p=findfirst(a->isa(a, Expr) && a.args[1] == :~ && isa(a.args[2], Expr) && a.args[2].args[1] == :!,rule.args[2:end])
     if p!==nothing
         # build rule expr without defslot and check it
-        if p==1
-            newr = Expr(:call, rule.args[1], :(~$(rule.args[2].args[2].args[2])), rule.args[3])
-        elseif p==2
-            newr = Expr(:call, rule.args[1], rule.args[2], :(~$(rule.args[3].args[2].args[2])))
-        else
-            error("defslot error")# it should never happen
+        if p==1 newr = Expr(:call, rule.args[1], :(~$(rule.args[2].args[2].args[2])), rule.args[3])
+        elseif p==2 newr = Expr(:call, rule.args[1], rule.args[2], :(~$(rule.args[3].args[2].args[2])))
+        else error("defslot error") # it should never happen
         end
         rdict = check_expr_r(data, newr, matches)
         rdict!==FAIL_DICT && return rdict::MatchDict
@@ -134,9 +132,29 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         end
         return ceoaa(tocheck, arg_rule, matches)::MatchDict
     end
-    # after this is not possible that operation(data) != opeeration rule, so check it now
-    (Symbol(operation(data)) !== rule.args[1]) && return FAIL_DICT::MatchDict
-    (length(arg_data) != length(arg_rule)) && return FAIL_DICT::MatchDict
+    # (length(arg_data) != length(arg_rule)) && return FAIL_DICT::MatchDict this is a optimization
+    neim_pass = false
+    # Neim solution:
+    # if the rule is product of powers
+    if (rule.args[1]===:*) && all(x->(isa(x,Expr) && x.head===:call && x.args[1]===:^), arg_rule) && (operation(data)===/) && (operation(denominator(data)) !== *)
+        d = denominator(data)
+        neim_pass = true
+        # then push the denominator up with negative power
+        if iscall(d) && (operation(d)==^)
+            sostituto = SymbolicUtils.Term{SymReal}(^, [arguments(d)[1], -arguments(d)[2]])
+        else sostituto = SymbolicUtils.Term{SymReal}(^, [d, -1])
+        end
+        # if numerator of data is a product (of powers)
+        if operation(numerator(data)) === *
+            arg_data2 = SymsType[x for x in arguments(numerator(data))]; push!(arg_data2, sostituto)
+            arg_data = arg_data2
+        # or a power divided by something
+        else (operation(numerator(data)) === ^)
+            arg_data = SymsType[numerator(data), sostituto]
+        end
+        vblvl>=3 && println("Apllying neim trick, new arg_data is $arg_data")
+    end
+    ((Symbol(operation(data)) !== rule.args[1]) && !neim_pass) && return FAIL_DICT::MatchDict
     if (rule.args[1]===:+) || (rule.args[1]===:*)
         # commutative checks
         for perm_arg_data in permutations(arg_data) # is the same if done on arg_rule right?
