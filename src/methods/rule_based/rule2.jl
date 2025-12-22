@@ -165,13 +165,13 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
             sostituto = SymbolicUtils.Term{SymReal}(^, [arguments(d)[1], -arguments(d)[2]])
         else sostituto = SymbolicUtils.Term{SymReal}(^, [d, -1])
         end
+        # if numerator of data is a symbol or a power divided by something
+        if !iscall(n) || (operation(n) === ^)
+            arg_data = SymsType[n, sostituto]
         # if numerator of data is a product (of powers)
-        if operation(n) === *
+        elseif operation(n) === *
             arg_data2 = SymsType[x for x in arguments(n)]; push!(arg_data2, sostituto)
             arg_data = arg_data2
-        # or a power divided by something
-        else (operation(n) === ^)
-            arg_data = SymsType[n, sostituto]
         end
         printdb(4,"Apllying neim trick, new arg_data is $arg_data")
     end
