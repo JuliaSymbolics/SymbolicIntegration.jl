@@ -104,7 +104,6 @@ function repeated_prewalk(expr)
         end
         
         success && return repeated_prewalk(new_expr)
-
     end
 
     expr = SymbolicUtils.maketerm(
@@ -117,8 +116,8 @@ function repeated_prewalk(expr)
     return expr
 end
 
-function integrate_rule_based(integrand::Symbolics.Num, int_var::Symbolics.Num; use_gamma::Bool=false, verbose::Bool=false, kwargs...)
+function integrate_rule_based(integrand::SymsType, int_var::SymsType; use_gamma::Bool=false, verbose::Bool=false, kwargs...)
     global VERBOSE
     VERBOSE = verbose
-    return simplify(repeated_prewalk(∫(integrand,int_var)))
+    return repeated_prewalk(∫(integrand,int_var))
 end

@@ -87,7 +87,7 @@ No rule found for ∫(abs(x), x)
 ```
 """
 function integrate(f::Symbolics.Num, x::Symbolics.Num; verbose=false, kwargs...)
-    result = integrate_rule_based(f, x; verbose=verbose, kwargs...)
+    result = integrate_rule_based(f.val, x.val; verbose=verbose, kwargs...)
     !contains_int(result) && return result
 
     verbose && printstyled(" > RuleBasedMethod(use_gamma=false, verbose=false) failed, returning $result \n";color=:red)
@@ -202,7 +202,7 @@ julia> integrate(1/sqrt(1 + x), x, rbm)
 ```
 """
 function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RuleBasedMethod; kwargs...)
-    return integrate_rule_based(f, x;
+    return integrate_rule_based(f.val, x.val;
         verbose=method.verbose, use_gamma=method.use_gamma, kwargs...)
 end
 
