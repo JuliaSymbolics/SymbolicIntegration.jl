@@ -1,4 +1,7 @@
+using SymbolicIntegration
+
 const STATS_FILE = "rules_statistics.txt"
+const OUTPUT_FILE = "elaborated_stats.txt"
 
 function main()
     # Dictionary to store integrals for each identifier
@@ -57,13 +60,22 @@ function main()
 
     sorted_ids = sort(collect(keys(data)), by=parse_id)
 
-    # Print the results
-    for id in sorted_ids
-        integrals = data[id]
-        count = length(integrals)
-        # Join all integrals with a space
-        integrals_str = join(integrals, " ")
-        println("$id $count $integrals_str")
+    open(OUTPUT_FILE, "w") do io
+        for id in sorted_ids
+            integrals = data[id]
+            count = length(integrals)
+            # Join all integrals with a space
+            integrals_str = join(integrals, " ")
+            println(io, "$id $count $integrals_str")
+        end
+
+        # Check for missing identifiers
+        println(io, "\nMissing identifiers (=never used rules):")
+        missing_ids = setdiff(SymbolicIntegration.IDENTIFIERS, keys(data))
+        sorted_missing = sort(collect(missing_ids), by=parse_id)
+        for id in sorted_missing
+            println(io, id)
+        end
     end
 end
 
