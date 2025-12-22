@@ -116,7 +116,7 @@ function repeated_prewalk(expr)
     return expr
 end
 
-function integrate_rule_based(integrand::SymsType, int_var::SymsType; use_gamma::Bool=false, verbose::Bool=false, kwargs...)
+function integrate_rule_based(integrand::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, int_var::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}; use_gamma::Bool=false, verbose::Bool=false, kwargs...)
     global VERBOSE
     VERBOSE = verbose
     return repeated_prewalk(∫(integrand,int_var))
