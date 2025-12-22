@@ -154,8 +154,9 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     end
     neim_pass = false
     # gimmick to make Neim work in some cases: (the final solution would be remove divisions form rules)
-    # if the rule is product of powers
-    if (rule.args[1]===:*) && all(x->(isa(x,Expr) && x.head===:call && x.args[1]===:^), arg_rule) && (operation(data)===/) && !(iscall(denominator(data)) && (operation(denominator(data)) === *))
+    # if the rule has at least a of powers
+    # (and denomiator is not a product, bc for now neim trick cannot handle products)
+    if (rule.args[1]===:*) && any(x->(isa(x,Expr) && x.head===:call && x.args[1]===:^), arg_rule) && (operation(data)===/) && !(iscall(denominator(data)) && (operation(denominator(data)) === *))
         # maybe use any
         n = arguments(data)[1]
         d = arguments(data)[2]
