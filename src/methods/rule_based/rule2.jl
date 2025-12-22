@@ -8,7 +8,7 @@ const op_map = Dict(:+ => 0, :* => 1, :^ => 1)
 """
 Rule verbose level:
 0 - print nothing
-1 - print "applying rule ... on expr ..." and if the rule succeded or not
+1 - print "applying rule ... on expr ..." and if the rule succeeded or not
 2 - print also the result of the rewriting before eval
 3 - print also every recursive call
 4 - print also details of execution like defsolt and permutations
@@ -32,7 +32,7 @@ matches is the dictionary of the matches found so far
 
 return value is a ImmutableDict
 1) if a mismatch is found, FAIL_DICT is returned.
-2) if no mismatch is found but no new matches either (for example in mathcing ^2), the original matches is returned
+2) if no mismatch is found but no new matches either (for example in matching ^2), the original matches is returned
 3) otherwise the dictionary of old + new ones is returned that could look like:
 Base.ImmutableDict{Symbol, SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{SymReal}}(:x => a, :y => b)
 
@@ -47,7 +47,7 @@ The function checks in this order:
     if operation of rule = +* does commutative checks
     do checks for negative exponent TODO
 """
-# TODO matches does assigment or mutation? which is faster?
+# TODO matches does assignment or mutation? which is faster?
 # TODO ~a*(~b*~c) currently will not match a*b*c . a fix is possible
 # TODO rules with symbols like ~b * a currently cause error
 function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
@@ -56,7 +56,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     # rule is a slot
     if rule.head == :call && rule.args[1] == :(~)
         if rule.args[2] in keys(matches) # if the slot has already been matched
-            # check if it mached the same symbolic expression
+            # check if it matched the same symbolic expression
             !isequal(matches[rule.args[2]],data) && return FAIL_DICT::MatchDict
             return matches::MatchDict
         else # if never been matched
@@ -105,7 +105,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     end
     # rule is a normal call, check operation and arguments
     if (rule.args[1] == ://) && isa(SymbolicUtils.unwrap_const(data), Rational)
-        # rational is a special case, in the integation rules is present only in between numbers, like 1//2
+        # rational is a special case, in the integration rules is present only in between numbers, like 1//2
         r = SymbolicUtils.unwrap_const(data)
         r.num == rule.args[2] && r.den == rule.args[3] && return matches::MatchDict
         return FAIL_DICT::MatchDict
@@ -174,7 +174,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
             arg_data2 = SymsType[x for x in arguments(n)]; push!(arg_data2, sostituto)
             arg_data = arg_data2
         end
-        printdb(4,"Apllying neim trick, new arg_data is $arg_data")
+        printdb(4,"Applying neim trick, new arg_data is $arg_data")
     end
     ((Symbol(operation(data)) !== rule.args[1]) && !neim_pass) && return FAIL_DICT::MatchDict
     (length(arg_data) != length(arg_rule)) && return FAIL_DICT::MatchDict
@@ -213,7 +213,7 @@ function check_expr_r(data::SymsType, rule::Symbol, matches::MatchDict)
         SymbolicUtils.unwrap_const(data)===ℯ && return matches::MatchDict
         return FAIL_DICT::MatchDict
     end
-    # this could also be extended easly to all symbols...
+    # this could also be extended easily to all symbols...
     error("rule is a symbol that is not ℯ")
 end
 # for when the rule contains a constant, a literal number
@@ -275,7 +275,7 @@ function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
     m = check_expr_r(expr, rule.first, MatchDict())
     m===FAIL_DICT && printdb(1,"Rule failed to match")
     m===FAIL_DICT && return nothing::Nothing
-    printdb(1,"Rule matched succesfully")
+    printdb(1,"Rule matched successfully")
     rule.second==:(~~) && return m # useful for debug
     r = rewrite(m, rule.second)
     printdb(2,"About to return eval of $r") 
