@@ -205,6 +205,16 @@ function ceoaa(arg_data, arg_rule::Vector{Any}, matches::MatchDict)
     return matches::MatchDict
 end
 
+# for when the rule contains a symbol, like ℯ
+function check_expr_r(data::SymsType, rule::Symbol, matches::MatchDict)
+    printdb(3,"Checking $data against ℯ, with matches: $(matches...)")
+    if rule == :ℯ
+        SymbolicUtils.unwrap_const(data)===ℯ && return matches::MatchDict
+        return FAIL_DICT::MatchDict
+    end
+    # this could also be extended easly to all symbols...
+    error("rule is a symbol that is not ℯ")
+end
 # for when the rule contains a constant, a literal number
 function check_expr_r(data::SymsType, rule::Real, matches::MatchDict)
     printdb(3,"Checking $data against the real $rule, with matches: $(matches...)")

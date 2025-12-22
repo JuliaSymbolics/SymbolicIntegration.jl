@@ -587,7 +587,7 @@ ext_den(simplify(((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)*log((~
 sqrt(π)*exp(2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F))))* SymbolicUtils.erf((sqrt(-(~a)*log((~F))) + sqrt(-(~b)*log((~F)))*(~x)^2)⨸(~x))⨸ (4*sqrt(-(~b)*log((~F)))) - sqrt(π)*exp(-2*sqrt(-(~a)*log((~F)))*sqrt(-(~b)*log((~F))))* SymbolicUtils.erf((sqrt(-(~a)*log((~F))) - sqrt(-(~b)*log((~F)))*(~x)^2)⨸(~x))⨸ (4*sqrt(-(~b)*log((~F)))) : nothing)
 
 ("2_3_81",
-@rule ∫((~x)^(~!m)*(E^(~x) + (~x)^(~!m))^(~n),(~x)) =>
+@rule ∫((~x)^(~!m)*(ℯ^(~x) + (~x)^(~!m))^(~n),(~x)) =>
     isrational((~m), (~n)) &&
     gt((~m), 0) &&
     lt((~n), 0) &&
