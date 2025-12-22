@@ -86,8 +86,8 @@ No rule found for ∫(abs(x), x)
 
 ```
 """
-function integrate(f::Symbolics.Num, x::Symbolics.Num; verbose=true, kwargs...)
-    result = integrate_rule_based(f, x; verbose=true, kwargs...)
+function integrate(f::Symbolics.Num, x::Symbolics.Num; verbose=false, kwargs...)
+    result = integrate_rule_based(f, x; verbose=verbose, kwargs...)
     !contains_int(result) && return result
 
     verbose && printstyled(" > RuleBasedMethod(use_gamma=false, verbose=false) failed, returning $result \n";color=:red)
