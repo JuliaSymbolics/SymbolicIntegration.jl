@@ -232,7 +232,7 @@ function rewrite(matches::MatchDict, rhs::Expr)
     if rhs.head == :call && rhs.args[1] == :(~)
         var_name = rhs.args[2]
         if haskey(matches, var_name)
-            return matches[var_name]::SymsType
+            return SymbolicUtils.unwrap_const(matches[var_name])
         else
             error("No match found for variable $(var_name)") #it should never happen
         end
