@@ -166,11 +166,11 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
             sostituto = SymbolicUtils.Term{SymReal}(^, [arguments(d)[1], -arguments(d)[2]])
         else sostituto = SymbolicUtils.Term{SymReal}(^, [d, -1])
         end
-        # if numerator of data is a symbol or a power divided by something
-        if !iscall(n) || (operation(n) === ^)
+        # if numerator of data is a symbol or a operation that is not multiplication divided by something
+        if !iscall(n) || (operation(n) !== *)
             arg_data = SymsType[n, sostituto]
         # if numerator of data is a product (of powers)
-        elseif operation(n) === *
+        elseif iscall(n)&&operation(n) === *
             arg_data2 = SymsType[x for x in arguments(n)]; push!(arg_data2, sostituto)
             arg_data = arg_data2
         end

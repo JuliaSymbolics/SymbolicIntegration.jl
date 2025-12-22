@@ -122,11 +122,13 @@ end
 
 @testset "Neim Problem" begin
     @syms x y z
-    r = :((~a)^2/(~b)^~n)=>:(~n)
-    r2 = :((~a)^2*(~b)^~n)=>:(~n)
-    r3 = :((~c)^2*(~a)^3/(~b)^~n)=>:(~n)
-    r4 = :((~c)^2*(~a)^3*(~b)^~n)=>:(~n)
+    r = :((~a)^2/(~b)^~n)=>:(~n) # normal rule, neim trick not applied
+    r2 = :((~a)^2*(~b)^~n)=>:(~n) # prod of powers
+    r3 = :((~c)^2*(~a)^3/(~b)^~n)=>:(~n) # normal rule, neim trick not applied
+    r4 = :((~c)^2*(~a)^3*(~b)^~n)=>:(~n) # prod of 3 powers
     r5 = :((~c)^~m*(~a)^3/(~b))=>:(~b)
+    r6 = :((~d + ~x) * (~(!a) + ~(!b) * ~x) ^ ~(!p)) => :(~p) # prod of not all powers
+    r7 = :((~c)*(~a)*(~b)^~n)=>:(~n) # prod of not all powers
     @test e(SymbolicIntegration.rule2(r, x^2/y^3), 3)
     @test e(SymbolicIntegration.rule2(r2, x^2*y^3), 3)
     @test e(SymbolicIntegration.rule2(r2, x^2/y^3), -3)
@@ -134,4 +136,6 @@ end
     @test e(SymbolicIntegration.rule2(r4, x^2*y^3*z^8), 8)
     @test e(SymbolicIntegration.rule2(r4, x^2*y^3/z^8), -8)
     # @test e(SymbolicIntegration.rule2(r5, (y)^3/(x*z^2)), x) this still doesnt work
+    @test e(SymbolicIntegration.rule2(r6, (1 + x) / ((2 + 2x)^3)), -3) # numerator is not a product
+    @test e(SymbolicIntegration.rule2(r7, (x*y) / ((2 + 2x)^3)), -3) # numerator is a product
 end
