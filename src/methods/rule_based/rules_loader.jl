@@ -7,7 +7,7 @@ function load_rules(rules_paths)
     global IDENTIFIERS
     
     tot = length(rules_paths)
-    width = displaysize(stdout)[2]
+    width = min(displaysize(stdout)[2],80)
     length_load_bar = width-28
     print("\n\n")
     for (i, file) in enumerate(rules_paths)
