@@ -126,8 +126,8 @@ all_rules_paths = [
 "1 Algebraic functions/1.2 Trinomial products/1.2.2 Quartic/1.2.2.5 P(x) (a+b x^2+c x^4)^p.jl"
 "1 Algebraic functions/1.2 Trinomial products/1.2.2 Quartic/1.2.2.4 (f x)^m (d+e x^2)^q (a+b x^2+c x^4)^p.jl"
 # 
-# "1 Algebraic functions/1.1 Binomial products/1.1.3 General/1.1.3.7 P(x) (a+b x^n)^p.jl"
-# "1 Algebraic functions/1.1 Binomial products/1.1.3 General/1.1.3.8 P(x) (c x)^m (a+b x^n)^p.jl"
+"1 Algebraic functions/1.1 Binomial products/1.1.3 General/1.1.3.7 P(x) (a+b x^n)^p.jl"
+"1 Algebraic functions/1.1 Binomial products/1.1.3 General/1.1.3.8 P(x) (c x)^m (a+b x^n)^p.jl"
 # 
 # # TODO 1.3.4 quale?
 # 
@@ -150,30 +150,30 @@ all_rules_paths = [
 "3 Logarithms/3.2/3.2.1 (f+g x)^m (A+B log(e ((a+b x) over (c+d x))^n))^p.jl"
 "3 Logarithms/3.2/3.2.2 (f+g x)^m (h+i x)^q (A+B log(e ((a+b x) over (c+d x))^n))^p.jl"
 "3 Logarithms/3.2/3.2.3 u log(e (f (a+b x)^p (c+d x)^q)^r)^s.jl"
-# "3 Logarithms/3.3 u (a+b log(c (d+e x)^n))^p.jl"
-# "3 Logarithms/3.4 u (a+b log(c (d+e x^m)^n))^p.jl"
-# "3 Logarithms/3.5 Miscellaneous logarithms.jl"
+"3 Logarithms/3.3 u (a+b log(c (d+e x)^n))^p.jl"
+"3 Logarithms/3.4 u (a+b log(c (d+e x^m)^n))^p.jl"
+"3 Logarithms/3.5 Miscellaneous logarithms.jl"
 # 
 # 
 # 
 # 
 # 
-# "4 Trig functions/4.1 Sine/4.1.0/4.1.0.1 (a sin)^m (b trg)^n.jl"
-# "4 Trig functions/4.1 Sine/4.1.0/4.1.0.2 (a trg)^m (b tan)^n.jl"
-# "4 Trig functions/4.1 Sine/4.1.0/4.1.0.3 (a csc)^m (b sec)^n.jl"
+"4 Trig functions/4.1 Sine/4.1.0/4.1.0.1 (a sin)^m (b trg)^n.jl"
+"4 Trig functions/4.1 Sine/4.1.0/4.1.0.2 (a trg)^m (b tan)^n.jl"
+"4 Trig functions/4.1 Sine/4.1.0/4.1.0.3 (a csc)^m (b sec)^n.jl"
 # 
-# "4 Trig functions/4.1 Sine/4.1.1/4.1.1.1 (a+b sin)^n.jl"
-# "4 Trig functions/4.1 Sine/4.1.1/4.1.1.2 (g cos)^p (a+b sin)^m.jl"
-# "4 Trig functions/4.1 Sine/4.1.1/4.1.1.3 (g tan)^p (a+b sin)^m.jl"
+"4 Trig functions/4.1 Sine/4.1.1/4.1.1.1 (a+b sin)^n.jl"
+"4 Trig functions/4.1 Sine/4.1.1/4.1.1.2 (g cos)^p (a+b sin)^m.jl"
+"4 Trig functions/4.1 Sine/4.1.1/4.1.1.3 (g tan)^p (a+b sin)^m.jl"
 # 
-# "4 Trig functions/4.1 Sine/4.1.2/4.1.2.1 (a+b sin)^m (c+d sin)^n.jl"
-# "4 Trig functions/4.1 Sine/4.1.2/4.1.2.2 (g cos)^p (a+b sin)^m (c+d sin)^n.jl"
-# "4 Trig functions/4.1 Sine/4.1.2/4.1.2.3 (g sin)^p (a+b sin)^m (c+d sin)^n.jl"
+"4 Trig functions/4.1 Sine/4.1.2/4.1.2.1 (a+b sin)^m (c+d sin)^n.jl"
+"4 Trig functions/4.1 Sine/4.1.2/4.1.2.2 (g cos)^p (a+b sin)^m (c+d sin)^n.jl"
+"4 Trig functions/4.1 Sine/4.1.2/4.1.2.3 (g sin)^p (a+b sin)^m (c+d sin)^n.jl"
 # 
-# "4 Trig functions/4.1 Sine/4.1.3 (a+b sin)^m (c+d sin)^n (A+B sin).jl"
+"4 Trig functions/4.1 Sine/4.1.3 (a+b sin)^m (c+d sin)^n (A+B sin).jl"
 # 
-# "4 Trig functions/4.1 Sine/4.1.4/4.1.4.1 (a+b sin)^m (A+B sin+C sin^2).jl"
-# "4 Trig functions/4.1 Sine/4.1.4/4.1.4.2 (a+b sin)^m (c+d sin)^n (A+B sin+C sin^2).jl"
+"4 Trig functions/4.1 Sine/4.1.4/4.1.4.1 (a+b sin)^m (A+B sin+C sin^2).jl"
+"4 Trig functions/4.1 Sine/4.1.4/4.1.4.2 (a+b sin)^m (c+d sin)^n (A+B sin+C sin^2).jl"
 # 
 # "4 Trig functions/4.1 Sine/4.1.5 trig^m (a cos+b sin)^n.jl"
 # "4 Trig functions/4.1 Sine/4.1.6 (a+b cos+c sin)^n.jl"
