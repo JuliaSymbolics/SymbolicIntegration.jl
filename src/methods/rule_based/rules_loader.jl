@@ -7,23 +7,28 @@ function load_rules(rules_paths)
     global IDENTIFIERS
     
     tot = length(rules_paths)
-    length_load_bar = 40 # displaysize(stdout) doesnt work here
+    width = displaysize(stdout)[2]
+    length_load_bar = width-28
     print("\n\n")
     for (i, file) in enumerate(rules_paths)
         # cool print
-        n_of_equals = round(Int, (i-1) / tot * length_load_bar)
-        print("\e[2A")  # Move cursor up 2 lines
-        print("\e[2K")  # Clear current line
-        printstyled(" $(i-1)/$tot files"; color = :light_green, bold = true)
-        print(" [" * "="^n_of_equals *">"* " "^(length_load_bar - n_of_equals) * "] ")
-        printstyled("$(length(RULES)) rules\n"; color = :light_green, bold = true)
-        print("\e[2K")  # Clear current line
-        printstyled(" Loading file: ", split(file,"/")[end], "\n"; color = :light_black)
+        if length_load_bar>0
+            n_of_equals = round(Int, (i-1) / tot * length_load_bar)
+            print("\e[2A")  # Move cursor up 2 lines
+            print("\e[2K")  # Clear current line
+            printstyled(" $(i-1)/$tot files"; color = :light_green, bold = true)
+            print(" [" * "="^n_of_equals *">"* " "^(length_load_bar - n_of_equals) * "] ")
+            printstyled("$(length(RULES)) rules\n"; color = :light_green, bold = true)
+            print("\e[2K")  # Clear current line
+            path = split(file,"/")[end]
+            if length(path)>width-9 path = path[1:width-12] * "..."
+            end
+            printstyled("Loading: ", path, "\n"; color = :light_black)
+        end
 
         # add rules
-        include(file) # most of the time is spent here
-        # Use Base.invokelatest to handle world age issues in Julia 1.12+
-        local_file_rules = Base.invokelatest(() -> file_rules)
+        include(file)
+        local_file_rules = Base.invokelatest(() -> file_rules) # Use Base.invokelatest to handle world age issues in Julia 1.12+
         append!(RULES, [x[2] for x in local_file_rules])
         append!(IDENTIFIERS, [x[1] for x in local_file_rules])
     end
