@@ -163,8 +163,10 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         neim_pass = true
         # then push the denominator up with negative power
         if iscall(d) && (operation(d)==^)
-            sostituto = SymbolicUtils.Term{SymReal}(^, [arguments(d)[1], -arguments(d)[2]])
-        else sostituto = SymbolicUtils.Term{SymReal}(^, [d, -1])
+            sostituto = arguments(d)[1]^-arguments(d)[2]
+            # sostituto = SymbolicUtils.Term{SymReal}(^, [arguments(d)[1], -arguments(d)[2]])
+        else sostituto = d^-1
+        # else sostituto = SymbolicUtils.Term{SymReal}(^, [d, -1]) prob works the same without .Term
         end
         # if numerator of data is a symbol or a operation that is not multiplication divided by something
         if !iscall(n) || (operation(n) !== *)
