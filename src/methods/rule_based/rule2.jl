@@ -64,7 +64,8 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
             if isa(rule.args[2], Expr)
                 # check it
                 pred = rule.args[2].args[2]
-                !eval(pred)(SymbolicUtils.unwrap_const(data)) && return FAIL_DICT
+                printdb(5,"about to check predicate $pred with eval")
+                !Base.invokelatest(eval(pred),SymbolicUtils.unwrap_const(data)) && return FAIL_DICT
                 return Base.ImmutableDict(matches, rule.args[2].args[1], data)::MatchDict
             end
             # if no predicate add match
