@@ -153,29 +153,32 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         return ceoaa(tocheck, arg_rule, matches)::MatchDict
     end
     neim_pass = false
-    # gimmick to make Neim work in some cases: (the final solution would be remove divisions form rules)
-    # if the rule has at least a of powers
-    # (and denomiator is not a product, bc for now neim trick cannot handle products)
-    if (rule.args[1]===:*) && any(x->(isa(x,Expr) && x.head===:call && x.args[1]===:^), arg_rule) && (operation(data)===/) && !(iscall(denominator(data)) && (operation(denominator(data)) === *))
-        # maybe use any
-        n = arguments(data)[1]
-        d = arguments(data)[2]
+    # gimmick to make Neim work in some cases: if data is a division transform it to a multiplication
+    # (the final solution would be remove divisions form rules)
+    # if the rule is a product, at least one of the factors is a power, and data is a division
+    if (rule.args[1]===:*) && any(x->(isa(x,Expr) && x.head===:call && x.args[1]===:^), arg_rule) && (operation(data)===/)
         neim_pass = true
-        # then push the denominator up with negative power
+        n = arguments(data)[1]; d = arguments(data)[2]
+        # then push the denominator of data up with negative power
+        sostituto = SymsType[]
         if iscall(d) && (operation(d)==^)
-            sostituto = arguments(d)[1]^-arguments(d)[2]
-            # sostituto = SymbolicUtils.Term{SymReal}(^, [arguments(d)[1], -arguments(d)[2]])
-        else sostituto = d^-1
-        # else sostituto = SymbolicUtils.Term{SymReal}(^, [d, -1]) prob works the same without .Term
+            push!(sostituto, arguments(d)[1]^(-arguments(d)[2]))
+        elseif iscall(d) && (operation(d)===*)
+            # push!(sostituto, map(x->x^-1,arguments(d))...)
+            for factor in arguments(d)
+                push!(sostituto, factor^-1)
+            end
+        else
+            push!(sostituto, d^-1)
         end
-        # if numerator of data is a symbol or a operation that is not multiplication divided by something
-        if !iscall(n) || (operation(n) !== *)
-            arg_data = SymsType[n, sostituto]
-        # if numerator of data is a product (of powers)
-        elseif iscall(n)&&operation(n) === *
-            arg_data2 = SymsType[x for x in arguments(n)]; push!(arg_data2, sostituto)
-            arg_data = arg_data2
+        new_arg_data = SymsType[]
+        if (!iscall(n) && SymbolicUtils.unwrap_const(n)!==1) || (operation(n) !== *)
+            push!(new_arg_data, n)
+        elseif iscall(n) && (operation(n) === *)
+            append!(new_arg_data, arguments(n))
         end
+        append!(new_arg_data, sostituto)
+        arg_data = new_arg_data
         printdb(4,"Applying neim trick, new arg_data is $arg_data")
     end
     ((Symbol(operation(data)) !== rule.args[1]) && !neim_pass) && return FAIL_DICT::MatchDict
