@@ -103,7 +103,7 @@ function repeated_prewalk(expr)
             end
         end
         
-        success && return repeated_prewalk(new_expr)
+        return repeated_prewalk(new_expr)
     end
 
     expr = SymbolicUtils.maketerm(
