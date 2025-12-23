@@ -1,8 +1,7 @@
 using Test
 using Symbolics
-using SymbolicIntegration
+using SymbolicIntegration: eq
 
-e(x,y) = SymbolicUtils.unwrap_const(x)===SymbolicUtils.unwrap_const(y)
 
 @testset "General" begin
     @syms a
@@ -15,40 +14,42 @@ end
 @testset "defslot" begin
     @syms x
     rp = :(~!a + ~x) => :(~a)
-    @test e(SymbolicIntegration.rule2(rp, x), 0)
-    @test e(SymbolicIntegration.rule2(rp, x+3), 3)
+    @test eq(SymbolicIntegration.rule2(rp, x), 0)
+    @test eq(SymbolicIntegration.rule2(rp, x+3), 3)
     rt = :(~!a * ~x) => :(~a)
-    @test e(SymbolicIntegration.rule2(rt, x), 1)
-    @test e(SymbolicIntegration.rule2(rt, x*3), 3)
+    @test eq(SymbolicIntegration.rule2(rt, x), 1)
+    @test eq(SymbolicIntegration.rule2(rt, x*3), 3)
     rpo = :((~x)^(~!a)) => :(~a)
-    @test e(SymbolicIntegration.rule2(rpo, x), 1)
-    @test e(SymbolicIntegration.rule2(rpo, x^3), 3)
+    @test eq(SymbolicIntegration.rule2(rpo, x), 1)
+    @test eq(SymbolicIntegration.rule2(rpo, x^3), 3)
 end
 
 @testset "neg exponent" begin
     @syms x
     r = :((~x) ^ ~m) => :(~m)
-    @test e(SymbolicIntegration.rule2(r, 1/(x^3)), -3)
-    @test e(SymbolicIntegration.rule2(r, (1/x)^3), -3)
-    @test e(SymbolicIntegration.rule2(r, 1/x), -1)
-    @test e(SymbolicIntegration.rule2(r, exp(x)), x)
-    @test e(SymbolicIntegration.rule2(r, sqrt(x)), 1//2)
+    @test eq(SymbolicIntegration.rule2(r, 1/(x^3)), -3)
+    @test eq(SymbolicIntegration.rule2(r, (1/x)^3), -3)
+    @test eq(SymbolicIntegration.rule2(r, 1/x), -1)
+    @test eq(SymbolicIntegration.rule2(r, exp(x)), x)
+    @test eq(SymbolicIntegration.rule2(r, sqrt(x)), 1//2)
+    @test eq(SymbolicIntegration.rule2(r, 1/sqrt(x)), -1//2)
+    @test eq(SymbolicIntegration.rule2(r, 1/exp(x)), -x)
 end
 
 @testset "special functions in rules" begin
     @syms x
     rs = :(sqrt(~x)) => :(~x)
-    @test e(SymbolicIntegration.rule2(rs, sqrt(x)), x)
-    @test e(SymbolicIntegration.rule2(rs, x^(1//2)), x)
+    @test eq(SymbolicIntegration.rule2(rs, sqrt(x)), x)
+    @test eq(SymbolicIntegration.rule2(rs, x^(1//2)), x)
     rs = :(exp(~x)) => :(~x)
-    @test e(SymbolicIntegration.rule2(rs, exp(x+1)), x+1)
-    @test e(SymbolicIntegration.rule2(rs, ℯ^x), x)
+    @test eq(SymbolicIntegration.rule2(rs, exp(x+1)), x+1)
+    @test eq(SymbolicIntegration.rule2(rs, ℯ^x), x)
 end
 
 @testset "Segment" begin
     @syms x y z
     r = :(sin(+(~~a))) => :(~a)
-    @test e(SymbolicIntegration.rule2(r, sin(1+x+y+z)), 1+x+y+z)
+    @test eq(SymbolicIntegration.rule2(r, sin(1+x+y+z)), 1+x+y+z)
 end
 
 function test_random_exprs(n_to_check::Int, depth_level::Int)
@@ -131,13 +132,13 @@ end
     r5 = :((~c)^~m*(~a)^3/(~b))=>:(~b)
     r6 = :((~d + ~x) * (~(!a) + ~(!b) * ~x) ^ ~(!p)) => :(~p) # prod of not all powers
     r7 = :((~c)*(~a)*(~b)^~n)=>:(~n) # prod of not all powers
-    @test e(SymbolicIntegration.rule2(r, x^2/y^3), 3)
-    @test e(SymbolicIntegration.rule2(r2, x^2*y^3), 3)
-    @test e(SymbolicIntegration.rule2(r2, x^2/y^3), -3)
-    @test e(SymbolicIntegration.rule2(r3, x^2*y^3/z^8), 8)
-    @test e(SymbolicIntegration.rule2(r4, x^2*y^3*z^8), 8)
-    @test e(SymbolicIntegration.rule2(r4, x^2*y^3/z^8), -8)
-    # @test e(SymbolicIntegration.rule2(r5, (y)^3/(x*z^2)), x) this still doesnt work
-    @test e(SymbolicIntegration.rule2(r6, (1 + x) / ((2 + 2x)^3)), -3) # numerator is not a product
-    @test e(SymbolicIntegration.rule2(r7, (x*y) / ((2 + 2x)^3)), -3) # numerator is a product
+    @test eq(SymbolicIntegration.rule2(r, x^2/y^3), 3)
+    @test eq(SymbolicIntegration.rule2(r2, x^2*y^3), 3)
+    @test eq(SymbolicIntegration.rule2(r2, x^2/y^3), -3)
+    @test eq(SymbolicIntegration.rule2(r3, x^2*y^3/z^8), 8)
+    @test eq(SymbolicIntegration.rule2(r4, x^2*y^3*z^8), 8)
+    @test eq(SymbolicIntegration.rule2(r4, x^2*y^3/z^8), -8)
+    # @test eq(SymbolicIntegration.rule2(r5, (y)^3/(x*z^2)), x) this still doesnt work
+    @test eq(SymbolicIntegration.rule2(r6, (1 + x) / ((2 + 2x)^3)), -3) # numerator is not a product
+    @test eq(SymbolicIntegration.rule2(r7, (x*y) / ((2 + 2x)^3)), -3) # numerator is a product
 end

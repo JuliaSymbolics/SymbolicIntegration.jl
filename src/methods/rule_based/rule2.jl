@@ -114,21 +114,28 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     arg_data = arguments(data); arg_rule = rule.args[2:end];
     if rule.args[1]===:^
         # try first normal checks
-        if Symbol(operation(data)) == :^
+        if (operation(data) === ^)
             rdict = ceoaa(arg_data, arg_rule, matches)
             rdict!==FAIL_DICT && return rdict::MatchDict
         end
         # try building frankestein arg_data (fad)
         fad = SymsType[]
-        if (operation(data) === /) && SymbolicUtils._isone(arg_data[1]) && iscall(arg_data[2]) && (operation(arg_data[2]) === ^)
+        is1divsmth = (operation(data) === /) && SymbolicUtils._isone(arg_data[1])
+        if is1divsmth && iscall(arg_data[2]) && (operation(arg_data[2]) === ^)
             # if data is of the alternative form 1/(...)^(...)
             push!(fad, arguments(arg_data[2])[1], -1*arguments(arg_data[2])[2])
+        elseif is1divsmth && iscall(arg_data[2]) && (operation(arg_data[2]) === sqrt)
+            # if data is of the alternative form 1/sqrt(...), it might match with exponent -1//2
+            push!(fad, arguments(arg_data[2])[1], -1//2)
+        elseif is1divsmth && iscall(arg_data[2]) && (operation(arg_data[2]) === exp)
+            # if data is of the alternative form 1/exp(...), it might match ℯ ^ -...
+            push!(fad, ℯ, -arguments(arg_data[2])[1])
+        elseif is1divsmth
+            # if data is of the alternative form 1/(...), it might match with exponent = -1
+            push!(fad, arg_data[2], -1)
         elseif (operation(data) === ^) && iscall(arg_data[1]) && (operation(arg_data[1]) === /) && _isone(arguments(arg_data[1])[1])
             # if data is of the alternative form (1/...)^(...)
             push!(fad, arguments(arg_data[1])[2], arg_data[2])
-        elseif (operation(data) === /) && SymbolicUtils._isone(arg_data[1])
-            # if data is of the alternative form 1/(...), it might match with exponent = -1
-            push!(fad, arg_data[2], -1)
         elseif operation(data)===exp
             # if data is a exp call, it might match with base e
             push!(fad, ℯ, arg_data[1])
