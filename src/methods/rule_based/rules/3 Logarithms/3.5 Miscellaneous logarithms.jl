@@ -62,13 +62,13 @@ log((~d) + (~e)*(~x))*((~a) + (~b)*log((~c)*(~Rx)^(~p)))^(~n)⨸(~e) - (~b)*(~n)
     !(poly((~Rx), (~x))) ?
 ∫(1⨸((~d) + (~e)*(~x)^2), (~x))*log((~c)*(~Rx)^(~n)) - (~n)*∫(ext_simplify(∫(1⨸((~d) + (~e)*(~x)^2), (~x))*Symbolics.derivative((~Rx), (~x))⨸(~Rx), (~x)), (~x)) : nothing)
 
-("3_5_10",
-@rule ∫(log((~!c)*(~Px)^(~!n))/(~Qx),(~x)) =>
-    !contains_var((~c), (~n), (~x)) &&
-    quadratic((~Qx), (~x)) &&
-    quadratic((~Px), (~x)) &&
-    eq((~D)[(~Px)/(~Qx), (~x)], 0) ?
-∫(1⨸(~Qx), (~x))*log((~c)*(~Px)^(~n)) - (~n)*∫(ext_simplify(∫(1⨸(~Qx), (~x))*Symbolics.derivative((~Px), (~x))⨸(~Px), (~x)), (~x)) : nothing)
+# ("3_5_10",
+# @rule ∫(log((~!c)*(~Px)^(~!n))/(~Qx),(~x)) =>
+#     !contains_var((~c), (~n), (~x)) &&
+#     quadratic((~Qx), (~x)) &&
+#     quadratic((~Px), (~x)) &&
+#     eq((~D)[(~Px)/(~Qx), (~x)], 0) ?
+# ∫(1⨸(~Qx), (~x))*log((~c)*(~Px)^(~n)) - (~n)*∫(ext_simplify(∫(1⨸(~Qx), (~x))*Symbolics.derivative((~Px), (~x))⨸(~Px), (~x)), (~x)) : nothing)
 
 ("3_5_11",
 @rule ∫((~Gx)*((~!a) + (~!b)*log((~!c)*(~Rx)^(~!p)))^(~!n),(~x)) =>
