@@ -179,10 +179,15 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
             push!(sostituto, d^-1)
         end
         new_arg_data = SymsType[]
-        if (!iscall(n) && SymbolicUtils.unwrap_const(n)!==1) || (operation(n) !== *)
+        if iscall(n)
+            if operation(n)===*
+                append!(new_arg_data, arguments(n))
+            else
+                push!(new_arg_data, n)
+            end
+        elseif SymbolicUtils.unwrap_const(n)!==1
             push!(new_arg_data, n)
-        elseif iscall(n) && (operation(n) === *)
-            append!(new_arg_data, arguments(n))
+        # else dont push anything bc *1 gets canceled
         end
         append!(new_arg_data, sostituto)
         arg_data = new_arg_data
