@@ -435,7 +435,7 @@ end
 also `substitute(integrate(integrand, int_var), from => to)` works
 but using a custom function is better because
 - if the integral is not solved, substitute does bad things like substituting the integration variable
-- if the rule is stupid and does a substitution in wich from and to are equal, we can stop it
+- if the rule is stupid and does a substitution in which from and to are equal, we can stop it
 - we can print rule application
 =#
 function int_and_subst(

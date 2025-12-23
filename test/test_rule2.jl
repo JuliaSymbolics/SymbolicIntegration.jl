@@ -1,4 +1,6 @@
 using Test
+using Symbolics
+using SymbolicIntegration
 
 e(x,y) = SymbolicUtils.unwrap_const(x)===SymbolicUtils.unwrap_const(y)
 

@@ -103,7 +103,7 @@ function repeated_prewalk(expr)
         # end
         if success
             # cannot directly return new_expr because even if a rule
-            # is applyied the result could still contain integrals
+            # is applied the result could still contain integrals
             return repeated_prewalk(new_expr)
         else
             # TODO Can this be a bad idea sometimes?
