@@ -15,7 +15,7 @@ testset_paths = [
 # "each_rule_tests.jl"
 
 # Independent test suites
-# "0 Independent test suites/Apostol Problems.jl"
+"0 Independent test suites/Apostol Problems.jl"
 # "0 Independent test suites/Bondarenko Problems.jl"
 # "0 Independent test suites/Bronstein Problems.jl"
 # "0 Independent test suites/Charlwood Problems.jl"
@@ -126,8 +126,12 @@ function test_from_file(path)
                 succeeded += 1
             end
         catch exceptionz
-            dual_printstyled("[except] exception during ∫( $(tuple[1]) )d$(tuple[3]) : $(exceptionz)\n"; color=:magenta)
-            errored += 1
+            if isa(exceptionz, InterruptException)
+                rethrow(exceptionz)
+            else
+                dual_printstyled("[except] exception during ∫( $(tuple[1]) )d$(tuple[3]) : $(exceptionz)\n"; color=:magenta)
+                errored += 1
+            end
         end
         
     end
