@@ -435,9 +435,17 @@ end
 also `substitute(integrate(integrand, int_var), from => to)` works
 but using a custom function is better because
 - if the integral is not solved, substitute does bad things like substituting the integration variable
+- if the rule is stupid and does a substitution in wich from and to are equal, we can stop it
 - we can print rule application
 =#
-function int_and_subst(integrand, int_var, from, to, rule_from_identifier)
+function int_and_subst(
+    integrand::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal},
+    int_var::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal},
+    from::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal},
+    to::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal},
+    rule_from_identifier::String)
+
+    (from===to) && return ∫(integrand, int_var)
     if VERBOSE
         printstyled("┌-------Applied rule $rule_from_identifier (change of variables):";);
         for ss in split(pretty_print_rule(rule_from_identifier), '\n')
@@ -455,6 +463,7 @@ function int_and_subst(integrand, int_var, from, to, rule_from_identifier)
         return substitute(result, from => to)
     end
     VERBOSE && println("Integral not solved")
+    # substitute_after_int is a placeholder symbolic function
     return substitute_after_int(∫(integrand, int_var), from, to)
 end
 

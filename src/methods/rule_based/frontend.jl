@@ -63,9 +63,16 @@ end
 #     return SymbolicUtils.Term{SymbolicUtils.SymReal}(^,[expr,-1])
 # end
 
+"""
+recursively visits the expression tree.
+if it finds a symbol or a real (!iscall) stop the recursion
+if it finds a ∫ operation call apply_rule
+if it finds another operation continue the recursion in the arguments. (for cases
+    like 1+∫(...) )
+"""
 # TODO add threaded for speed?
 function repeated_prewalk(expr)
-    !iscall(expr) && return expr
+    !iscall(expr) && return expr # termination condition
     
     if operation(expr)===∫
         (new_expr,success) = apply_rule(expr)
@@ -94,16 +101,22 @@ function repeated_prewalk(expr)
         #         end
         #     end
         # end
-        if !success
+        if success
+            # cannot directly return new_expr because even if a rule
+            # is applyied the result could still contain integrals
+            return repeated_prewalk(new_expr)
+        else
             # TODO Can this be a bad idea sometimes?
             simplified_expr = simplify(expr, expand=true)
             if simplified_expr !== expr
                 VERBOSE && println("integration of ", expr, " failed, trying with the expanded version:\n", simplified_expr)
                 (new_expr,success) = apply_rule(simplified_expr)
+                if !success
+                    return new_expr
+                end
             end
+            return new_expr
         end
-        
-        return repeated_prewalk(new_expr)
     end
 
     expr = SymbolicUtils.maketerm(
