@@ -11,11 +11,11 @@ using Symbolics
     @testset "[Both methods] Integration of simple functions" begin
         @variables x
         
-        @test isequal(integrate(x, x)      - (1//2)*(x^2)    , 0)
-        @test isequal(integrate(x^2, x)    - (1//3)*(x^3)    , 0)
-        @test isequal(integrate(1/x, x)    - log(x)          , 0)
-        @test isequal(integrate(exp(x), x) - exp(x)          , 0)
-        @test isequal(integrate(log(x), x) - (-x + x*log(x)) , 0)
+        @test isequal(simplify(integrate(x, x)      - (1//2)*(x^2)    ;expand=true), 0)
+        @test isequal(simplify(integrate(x^2, x)    - (1//3)*(x^3)    ;expand=true), 0)
+        @test isequal(simplify(integrate(1/x, x)    - log(x)          ;expand=true), 0)
+        @test isequal(simplify(integrate(exp(x), x) - exp(x)          ;expand=true), 0)
+        @test isequal(simplify(integrate(log(x), x) - (-x + x*log(x)) ;expand=true), 0)
     end
     
     # Include Risch method test suites

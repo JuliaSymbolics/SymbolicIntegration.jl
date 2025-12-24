@@ -221,7 +221,7 @@ function subst_tower(f::F, vars::Vector, h::Int) where
     if isone(denominator(f))
         return subst_tower(numerator(f), vars, h)
     else
-        return subst_tower(numerator(f), vars, h)//subst_tower(denominator(f), vars, h)
+        return subst_tower(numerator(f), vars, h)/subst_tower(denominator(f), vars, h)
     end
 end
 

@@ -1,0 +1,78 @@
+========Test results of =================================================
+ _____                 _           _ _                        ,______.   
+/  ___|               | |         | (_)                  by  / Mattia \  
+\ `--. _   _ _ __ ___ | |__   ___ | |_  ___                 (Micheletta) 
+ `--. \ | | | '_ ` _ \| '_ \ / _ \| | |/ __|                 \ Merlin /  
+/\__/ / |_| | | | | | | |_) | (_) | | | (__                   '‾‾‾‾‾‾°   
+\____/ \__, |_| |_| |_|____/ \___/|_|_|\___|                            
+        __/ | _____      _                       _   _               _ _ 
+       |___/ |_   _|    | |                     | | (_)             (_) |
+               | | _ __ | |_ ___  __ _ _ __ __ _| |_ _  ___  _ __    _| |
+               | || '_ \| __/ _ \/ _` | '__/ _` | __| |/ _ \| '_ \  | | |
+              _| || | | | ||  __/ (_| | | | (_| | |_| | (_) | | | |_| | |
+              \___/_| |_|\__\___|\__, |_|  \__,_|\__|_|\___/|_| |_(_) |_|
+                                  __/ |                            _/ |  
+                                 |___/                            |__/   
+Date: 2025-12-24 00:53:13
+Package Version: 3.2.0
+Julia Version: 1.11.6
+Computer: MacBookAir.homenet.telecomitalia.it
+OS: Darwin aarch64
+CPU Threads: 1
+Memory: 8.0 GB
+About to test SymbolicIntegration.jl with 2 test sets
+==========================================================================
+
+
+
+Loading tests from test/methods/rule_based/test_files/easy.jl...
+Testing 3 integrals...
+[  ok  ]∫( 2x )dx = x^2 (0.2473s)
+[  ok  ]∫( 1 / (1 + x^2) )dx = atan(x) (1.0704s)
+[  ok  ]∫( sin(x) )dx = -cos(x) (5.0003s)
+3 tests succeeded, 0 failed, 0 maybe failed, 0 errored, out of 3 tests of test/methods/rule_based/test_files/easy.jl
+Total=6.318s, Avg=2.106s, Min=0.2473s, Max=5.0003s
+
+
+
+Loading tests from test/methods/rule_based/test_files/0 Independent test suites/Apostol Problems.jl...
+Testing 175 integrals...
+[  ok  ]∫( sqrt(1 + 2x) )dx = 1//3*((1 + 2x)^(3//2)) (0.2723s)
+[  ok  ]∫( x*sqrt(1 + 3x) )dx = -(2//27)*((1 + 3x)^(3//2)) + 2//45*((1 + 3x)^(5//2)) (1.8059s)
+[  ok  ]∫( (x^2)*sqrt(1 + x) )dx = 2//3*((1 + x)^(3//2)) - (4//5)*((1 + x)^(5//2)) + 2//7*((1 + x)^(7//2)) (0.6875s)
+[  ok  ]∫( x / sqrt(2 - 3x) )dx = -(4//9)*sqrt(2 - 3x) + 2//27*((2 - 3x)^(3//2)) (0.8182s)
+[  ok  ]∫( (1 + x) / ((2 + 2x + x^2)^3) )dx = -1 / (4((2 + 2x + x^2)^2)) (2.1834s)
+[  ok  ]∫( sin(x)^3 )dx = -cos(x) + (cos(x)^3) / 3 (8.0656s)
+[  ok  ]∫( ((-1 + z)^(1//3))*z )dz = 3//4*((-1 + z)^(4//3)) + 3//7*((-1 + z)^(7//3)) (4.3055s)
+[ fail?]∫( cos(x) / (sin(x)^3) )dx = -1//2*(csc(x)^2) but got:
+      (cos(x)^2) / (-2(sin(x)^2)) (4.8305s)
+[  ok  ]∫( sqrt(4 - sin(2x))*cos(2x) )dx = -1//3*((4 - sin(2x))^(3//2)) (5.4007s)
+[ fail ]∫( sin(x) / ((3 + cos(x))^2) )dx = 1 / (3 + cos(x)) but got:
+      ∫(sin(x) / (9 + 6cos(x) + cos(x)^2), x) (19.2394s)
+[ fail ]∫( sin(x) / sqrt(cos(x)^3) )dx = (2cos(x)) / sqrt(cos(x)^3) but got:
+      ∫(sin(x) / sqrt(cos(x)^3), x) (8.8103s)
+[  ok  ]∫( sin(sqrt(1 + x)) / sqrt(1 + x) )dx = -2cos(sqrt(1 + x)) (12.5588s)
+[ fail ]∫( (x^(-1 + n))*sin(x^n) )dx = (-cos(x^n)) / n but got:
+      ∫((x^(-1 + n))*sin(x^n), x) (8.8146s)
+[  ok  ]∫( (x^5) / sqrt(1 - (x^6)) )dx = -1//3*sqrt(1 - (x^6)) (1.0497s)
+[  ok  ]∫( ((1 + t)^(1//4))*t )dt = -(4//5)*((1 + t)^(5//4)) + 4//9*((1 + t)^(9//4)) (0.4763s)
+[  ok  ]∫( 1 / ((1 + x^2)^(3//2)) )dx = x / sqrt(1 + x^2) (0.5279s)
+[  ok  ]∫( ((27 + 8(x^3))^(2//3))*(x^2) )dx = 1//40*((27 + 8(x^3))^(5//3)) (1.1687s)
+[  ok  ]∫( (cos(x) + sin(x)) / ((-cos(x) + sin(x))^(1//3)) )dx = 3//2*((-cos(x) + sin(x))^(2//3)) (7.656s)
+[ fail ]∫( x / sqrt(1 + x^2 + (1 + x^2)^(3//2)) )dx = (2sqrt((1 + x^2)*(1 + sqrt(1 + x^2)))) / sqrt(1 + x^2) but got:
+      ∫(x / sqrt(1 + x^2 + (1 + x^2)^(3//2)), x) (8.9558s)
+[ fail ]∫( x / (sqrt(1 + sqrt(1 + x^2))*sqrt(1 + x^2)) )dx = 2sqrt(1 + sqrt(1 + x^2)) but got:
+      ∫(x / (sqrt(1 + sqrt(1 + x^2))*sqrt(1 + x^2)), x) (11.068s)
+[  ok  ]∫( ((1 - 2x + x^2)^(1//5)) / (1 - x) )dx = -5//2*((1 - 2x + x^2)^(1//5)) (4.0951s)
+[  ok  ]∫( x*sin(x) )dx = sin(x) - x*cos(x) (11.6241s)
+[ fail?]∫( (x^2)*sin(x) )dx = 2cos(x) + 2x*sin(x) - (x^2)*cos(x) but got:
+      2(-cos(x) + x*sin(x)) - (x^2)*cos(x) (19.265s)
+[ fail?]∫( (x^3)*cos(x) )dx = -6cos(x) - 6x*sin(x) + 3(x^2)*cos(x) + (x^3)*sin(x) but got:
+      3(2(-cos(x) + x*sin(x)) - (x^2)*cos(x)) + (x^3)*sin(x) (27.8052s)
+[ fail?]∫( (x^3)*sin(x) )dx = -6sin(x) + 6x*cos(x) + 3(x^2)*sin(x) - (x^3)*cos(x) but got:
+      3(2(sin(x) - x*cos(x)) + (x^2)*sin(x)) - (x^3)*cos(x) (27.4691s)
+[  ok  ]∫( cos(x)*sin(x) )dx = (sin(x)^2) / 2 (4.8764s)
+[  ok  ]∫( x*cos(x)*sin(x) )dx = -(1//4)*x + 1//4*cos(x)*sin(x) + 1//2*x*(sin(x)^2) (12.5146s)
+[  ok  ]∫( sin(x)^2 )dx = x / 2 - (1//2)*cos(x)*sin(x) (4.8365s)
+[  ok  ]∫( sin(x)^3 )dx = -cos(x) + (cos(x)^3) / 3 (5.5014s)
+[  ok  ]∫( sin(x)^4 )dx = 3//8*x - (3//8)*cos(x)*sin(x) - (1//4)*cos(x)*(sin(x)^3) (10.2494s)
