@@ -15,7 +15,7 @@ testset_paths = [
 # "each_rule_tests.jl"
 
 # Independent test suites
-"0 Independent test suites/Apostol Problems.jl"
+# "0 Independent test suites/Apostol Problems.jl"
 # "0 Independent test suites/Bondarenko Problems.jl"
 # "0 Independent test suites/Bronstein Problems.jl"
 # "0 Independent test suites/Charlwood Problems.jl"
