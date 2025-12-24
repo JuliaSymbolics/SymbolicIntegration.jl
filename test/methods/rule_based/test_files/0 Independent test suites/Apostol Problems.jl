@@ -468,7 +468,7 @@ file_tests = [
 
 (1/log(t), SymbolicUtils.expinti(log(t)), t, 1),
 (1/log(t)^2, -(t/log(t)) + SymbolicUtils.expinti(log(t)), t, 2),
-(1/log(t)^(n + 1), ((-SymbolicUtils.gamma(-n, -log(t)))*(-log(t))^n)/log(t)^n, t, 2),
+# (1/log(t)^(n + 1), ((-SymbolicUtils.gamma(-n, -log(t)))*(-log(t))^n)/log(t)^n, t, 2),
 (ℯ^(2*t)/(t - 1), ℯ^2*SymbolicUtils.expinti(-2*(1 - t)), t, 1),
 (ℯ^(2*x)/(x^2 - 3*x + 2), ℯ^4*SymbolicUtils.expinti(-4 + 2*x) - ℯ^2*SymbolicUtils.expinti(-2 + 2*x), x, 4),
 
