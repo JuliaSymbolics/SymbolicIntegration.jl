@@ -366,7 +366,7 @@ readable way
 """
 function pretty_print_rule(rule, identifier)
     # manage special cases
-    identifier == "0_1_0" && return "∫( +(a...), x) => sum([ ∫(f, x) for f in a ])"
+    identifier == "0_1_0" && return "∫( a + b + ..., x) => ∫(a,x) + ∫(b,x) + ..."
     identifier == "0_1_12" && return "∫ a*f(x) dx => a*∫ f(x) dx"
 
     s = string(rule.first) *" => "* string(rule.second)
@@ -410,6 +410,9 @@ function pretty_print_rule(rule, identifier)
     s = replace(s, r".*#=.*=#.*\n" => "")
     # manage functions from other packages
     s = replace(s, "SymbolicUtils."=>"")
+    # manages eq function
+    s = replace(s, r"!\(eq\((.*?)\s*,\s*(.*?)\)\)"=>s"\1 !== \2")
+    s = replace(s, r"eq\((.*?)\s*,\s*(.*?)\)"=>s"\1 == \2")
 
     return s
 end
