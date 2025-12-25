@@ -5,25 +5,26 @@ const SymsType = SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}
 const MatchDict = Base.ImmutableDict{Symbol, SymsType}
 const FAIL_DICT = MatchDict(:_fail,0)
 const op_map = Dict(:+ => 0, :* => 1, :^ => 1)
-"""
-Rule verbose level:
-0 - print nothing
-1 - print "applying rule ... on expr ..." and if the rule succeeded or not
-2 - print also the result of the rewriting before eval
-3 - print also every recursive call
-4 - print also details of execution like defsolt and permutations
-5 - print also every permutation of the commutative checks
-"""
-verbose_level::Int = 0
-indentation_zero::Int=0
-function printdb(l::Int, s::String)
-    verbose_level<l && return;
-    indent::String = ""
-    for k in 1:(length(stacktrace()) - indentation_zero - 2)
-        indent*="$(k%10) "
-    end
-    println(indent, s)
-end
+
+# """
+# Rule verbose level:
+# 0 - print nothing
+# 1 - print "applying rule ... on expr ..." and if the rule succeeded or not
+# 2 - print also the result of the rewriting before eval
+# 3 - print also every recursive call
+# 4 - print also details of execution like defsolt and permutations
+# 5 - print also every permutation of the commutative checks
+# """
+# verbose_level::Int = 0
+# indentation_zero::Int=0
+# function # printdb(l::Int, s::String)
+#     verbose_level<l && return;
+#     indent::String = ""
+#     for k in 1:(length(stacktrace()) - indentation_zero - 2)
+#         indent*="$(k%10) "
+#     end
+#     println(indent, s)
+# end
 
 """
 data is a symbolic expression, we need to check if respects the rule
@@ -51,7 +52,7 @@ The function checks in this order:
 # TODO ~a*(~b*~c) currently will not match a*b*c . a fix is possible
 # TODO rules with symbols like ~b * a currently cause error
 function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
-    printdb(3,"Checking $data against $rule, with matches: $(matches...)")
+    # printdb(3,"Checking $data against $rule, with matches: $(matches...)")
     rule.head != :call && error("It happened, rule head is not a call") #it should never happen
     # rule is a slot
     if rule.head == :call && rule.args[1] == :(~)
@@ -64,7 +65,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
             if isa(rule.args[2], Expr)
                 # check it
                 pred = rule.args[2].args[2]
-                printdb(5,"about to check predicate $pred with eval")
+                # printdb(5,"about to check predicate $pred with eval")
                 !Base.invokelatest(eval(pred),SymbolicUtils.unwrap_const(data)) && return FAIL_DICT
                 return Base.ImmutableDict(matches, rule.args[2].args[1], data)::MatchDict
             end
@@ -78,10 +79,10 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         # build rule expr without defslot and check it
         tmp = rule.args[2:end]; tmp[p] = :(~$(rule.args[p+1].args[2].args[2]))
         newr = Expr(:call, rule.args[1], tmp...)
-        printdb(4, "$(rule.args[p+1]) deflost detected. first trying normal match")
+        # printdb(4, "$(rule.args[p+1]) deflost detected. first trying normal match")
         rdict = check_expr_r(data, newr, matches)
         rdict!==FAIL_DICT && return rdict::MatchDict
-        printdb(4, "normal match failed, trying modified one")
+        # printdb(4, "normal match failed, trying modified one")
         # if no normal match, check only the non-defslot part of the rule
         if length(tmp)==2 # if defslot + other + nothing else
             tmp = rule.args[2:end]
@@ -192,14 +193,14 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         end
         append!(new_arg_data, sostituto)
         arg_data = new_arg_data
-        printdb(4,"Applying neim trick, new arg_data is $arg_data")
+        # printdb(4,"Applying neim trick, new arg_data is $arg_data")
     end
     ((Symbol(operation(data)) !== rule.args[1]) && !neim_pass) && return FAIL_DICT::MatchDict
     (length(arg_data) != length(arg_rule)) && return FAIL_DICT::MatchDict
     if (rule.args[1]===:+) || (rule.args[1]===:*)
         # commutative checks
         for perm_arg_data in permutations(arg_data) # is the same if done on arg_rule right?
-            printdb(5,"trying this permutation $perm_arg_data")
+            # printdb(5,"trying this permutation $perm_arg_data")
             matches_this_perm = ceoaa(perm_arg_data, arg_rule, matches)
             matches_this_perm!==FAIL_DICT && return matches_this_perm::MatchDict
             # else try with next perm
@@ -215,7 +216,7 @@ end
 # elements of arg_rule can be Expr or Real
 # TODO types of arg_data ??? SymsType[]
 function ceoaa(arg_data, arg_rule::Vector{Any}, matches::MatchDict)
-    printdb(4,"ceoaa:")
+    # printdb(4,"ceoaa:")
     for (a, b) in zip(arg_data, arg_rule)
         matches = check_expr_r(a, b, matches)
         matches===FAIL_DICT && return FAIL_DICT::MatchDict
@@ -226,7 +227,7 @@ end
 
 # for when the rule contains a symbol, like ℯ
 function check_expr_r(data::SymsType, rule::Symbol, matches::MatchDict)
-    printdb(3,"Checking $data against ℯ, with matches: $(matches...)")
+    # printdb(3,"Checking $data against ℯ, with matches: $(matches...)")
     if rule == :ℯ
         SymbolicUtils.unwrap_const(data)===ℯ && return matches::MatchDict
         return FAIL_DICT::MatchDict
@@ -236,7 +237,7 @@ function check_expr_r(data::SymsType, rule::Symbol, matches::MatchDict)
 end
 # for when the rule contains a constant, a literal number
 function check_expr_r(data::SymsType, rule::Real, matches::MatchDict)
-    printdb(3,"Checking $data against the real $rule, with matches: $(matches...)")
+    # printdb(3,"Checking $data against the real $rule, with matches: $(matches...)")
     unw = unwrap_const(data)
     if isa(unw, Real)
         unw!==rule && return FAIL_DICT::MatchDict
@@ -256,7 +257,7 @@ Expr
 substitute it with the value found in matches dictionary.
 """
 function rewrite(matches::MatchDict, rhs::Expr)
-    printdb(3, "called rewrite with rhs $rhs")
+    # printdb(3, "called rewrite with rhs $rhs")
     # if a expression of a slot, change it with the matches
     if rhs.head == :call && rhs.args[1] == :(~)
         var_name = rhs.args[2]
@@ -288,14 +289,14 @@ rewrite(matches::MatchDict, rhs::QuoteNode) = rhs::QuoteNode
 # i want to know each type exactly
 
 function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
-    global indentation_zero = length(stacktrace())
-    printdb(1, "Applying $rule on $expr")
+    # global indentation_zero = length(stacktrace())
+    # printdb(1, "Applying $rule on $expr")
     m = check_expr_r(expr, rule.first, MatchDict())
-    m===FAIL_DICT && printdb(1,"Rule failed to match")
+    m===FAIL_DICT && # printdb(1,"Rule failed to match")
     m===FAIL_DICT && return nothing::Nothing
-    printdb(1,"Rule matched successfully")
+    # printdb(1,"Rule matched successfully")
     rule.second==:(~~) && return m # useful for debug
     r = rewrite(m, rule.second)
-    printdb(2,"About to return eval of $r") 
+    # printdb(2,"About to return eval of $r") 
     return eval(r)
 end

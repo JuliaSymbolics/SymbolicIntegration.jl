@@ -58,14 +58,20 @@ function main()
         end
     end
 
-    sorted_ids = sort(collect(keys(data)), by=parse_id)
+    # Create a list to store the output data
+    output_list = []
+    for id in keys(data)
+        integrals = data[id]
+        count = length(integrals)
+        integrals_str = join(integrals, " ")
+        push!(output_list, (id, count, integrals_str))
+    end
+
+    # Sort by count
+    sort!(output_list, by = x -> -x[2])
 
     open(OUTPUT_FILE, "w") do io
-        for id in sorted_ids
-            integrals = data[id]
-            count = length(integrals)
-            # Join all integrals with a space
-            integrals_str = join(integrals, " ")
+        for (id, count, integrals_str) in output_list
             println(io, "$id $count $integrals_str")
         end
 
