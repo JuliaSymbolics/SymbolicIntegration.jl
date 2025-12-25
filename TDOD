@@ -1,0 +1,6 @@
+remove all the unwrap from utility functions
+
+julia> @syms y
+julia> SymbolicUtils.gamma(y,y)
+ERROR: MethodError: no method matching gamma(::SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{…}, ::SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{…})
+The function `gamma` exists, but no method is defined for this combination of argument types.

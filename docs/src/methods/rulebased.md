@@ -2,19 +2,25 @@
 [![Rules](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/Bumblebee00/SymbolicIntegration.jl/main/.github/badges/rules-count.json&query=$.message&label=Total%20rules&color=blue)](https://github.com/Bumblebee00/SymbolicIntegration.jl)
 
 
-- [Usage](#usage)
-  - [Configuration options](#configuration-options)
+- [Rule based method](#rule-based-method)
+    - [Configuration options](#configuration-options)
 - [How it works internally](#how-it-works-internally)
 - [Problems](#problems)
   - [Serious](#serious)
+    - [neim problem](#neim-problem)
   - [Mild](#mild)
+    - [mild problem: oooomm](#mild-problem-oooomm)
+      - [Example in intgeration](#example-in-intgeration)
+      - [another example](#another-example)
   - [Minor](#minor)
+- [Testing](#testing)
+- [Contributing](#contributing)
 
+# Rule based method
 This method uses a large number of integration rules that specify how to integrate various mathematical expressions. The rules were originally taken from the Mathematica package [RUBI](https://rulebasedintegration.org/) but later translated into julia.
 
-# Usage
 ```
-julia> integrate(sqrt(4 - 12*x + 9*x^2)+sqrt(1+x), x, RuleBasedMethod())
+julia> integrate(sqrt(4 - 12*x + 9*x^2)+sqrt(1+x), RuleBasedMethod(verbose=true))
 ┌-------Applied rule 0_1_0 on ∫(sqrt(1 + x) + sqrt(4 - 12x + 9(x^2)), x)
 | ∫( a + b + ..., x) => ∫(a,x) + ∫(b,x) + ...
 └-------with result: ∫(sqrt(4 - 12x + 9(x^2)), x) + ∫(sqrt(1 + x), x)
@@ -34,9 +40,13 @@ julia> integrate(sqrt(4 - 12*x + 9*x^2)+sqrt(1+x), x, RuleBasedMethod())
 | ((b + 2 * c * x) * (a + b * x + c * x ^ 2) ^ p) / (2 * c * (2 * p + 1))
 └-------with result: (1//36)*(-12 + 18x)*((4 - 12x + 9(x^2))^(1//2))
 (2//3)*((1 + x)^(3//2)) + (1//36)*(-12 + 18x)*sqrt(4 - 12x + 9(x^2))
+
+julia> rbm = RuleBasedMethod(verbose=false)
+julia> integrate(1/sqrt(1 + x), x, rbm)
+(2//1)*sqrt(1 + x)
 ```
-## Configuration options
-- `verbose` specifies whether to print or not the integration rules applied (default true)
+### Configuration options
+- `verbose` specifies whether to print or not the integration rules applied (really helpful)
 - `use_gamma` specifies whether to use rules with the gamma function in the result, or not (default false)
 
 # How it works internally
@@ -58,28 +68,6 @@ Here are the problems holding back the most number of expressions to be integrat
 Serious problems are problems that strongly impact the correct functioning of the rule based symbolic integrator and are difficult to fix. Here are the ones i encountered so far:
 
 - **general rules for trigonometric functions**: when integrating some expressions with trigonometric functions in Mathematica I see that strange rules are applied. Instead of the rule number "General" is showed, and they are strange because involve a level of pattern matching that is out of this world. For example integrating `sin(x^2)` the applied rule is `F(tan(a + bx)` where F gets automatically matched to `exp(x^2/(1 + x^2)`. I mean is correct but how on earth could pattern matching know that...
-
-### neim problem
-neim stands for negative exponents in multiplications
-
-If I define a rule with this pattern `@rule ((~!a) + (~!b)*(~x))^(~m)*((~!c) + (~!d)*(~x))^(~n)~))` it can correctly match something like `(1+2x)^2 * (3+4x)^3`. But when one of the two exponents is negative, let's say -3, this expression is represented in julia as `(1+2x)^2 / (3+4x)^3)`. Or when both are negative, the expression is represented as `1 / ( (1+2x)^2 * (3+4x)^3 )`. The matcher inside the rule instead, searches for a * as first operation, and thus doesn't recognize the expression. For this reason `(1 + 3x)^2 / (1 + 2x))`, `(x^6) / (1 + 2(x^6))` and many other expressions dont get integrated. For more info you can read [the issue](https://github.com/JuliaSymbolics/SymbolicUtils.jl/issues/777) or see this [WIP pr](https://github.com/JuliaSymbolics/SymbolicUtils.jl/pull/778) in which i try to implement a solution.
-
-A workaround I implemented is this:
-```
-julia> ins(expr) = SymbolicUtils.Term{Number}(^,[expr,-1])
-ins (generic function with 1 method)
-
-julia> r = @rule (~n)/*(~d) => ~n*ins(~d)
-~n / (*)(~(~d)) => ~n * prod([ins(el) for el = ~(~d)])
-
-julia> r(a*b/(c*x))
-a*b*(c^-1)*(x^-1)
-```
-creating a power with negative exponent, with `Term` and not with `^`, doesnt autosimplify it to a division with positive exponent. So the rule can be applied. But is not good enough. here is a list of expressions not integrating due to this problem
-- log(x) / (x*sqrt(1 + log(x))) rule 3_1_5_36 
-- 1 / (x*sqrt(1 - (x^2))
-- log(1 - t) / (1 - t)
-- (1 + x^2) / x
 
 
 ## Mild
@@ -158,6 +146,12 @@ so the rule returns but then the condition `linear(x, a)` fails
 ```
 but the second condition is true only for `200*2 - 1*(-1) = 401 > 0` and not for `(-1)*1 - 2*200 = -401 not > 0`
 
+### neim problem
+neim stands for negative exponents in multiplications
+
+If I define a rule with this pattern `@rule ((~!a) + (~!b)*(~x))^(~m)*((~!c) + (~!d)*(~x))^(~n)~))` it can correctly match something like `(1+2x)^2 * (3+4x)^3`. But when one of the two exponents is negative, let's say -3, this expression is represented in julia as `(1+2x)^2 / (3+4x)^3)`. Or when both are negative, the expression is represented as `1 / ( (1+2x)^2 * (3+4x)^3 )`. The matcher inside the rule instead, searches for a * as first operation, and thus doesn't recognize the expression. For this reason `(1 + 3x)^2 / (1 + 2x))`, `(x^6) / (1 + 2(x^6))` and many other expressions dont get integrated. For more info you can read [the issue](https://github.com/JuliaSymbolics/SymbolicUtils.jl/issues/777). In the new version of rules tho some cases of the problem are solved with some tricks
+
+
 ## Minor
 - in runtests, exp(x) is not recognized as ℯ^x. This is because integration produces a ℯ^x that doesnt get automatically translated into exp(x) like happens in the REPL
 - roots of numbers are not treated simbolically but immediately calculated. So instead of the beautiful `integrate(1/(sqrt(1+2x)*sqrt(3+4x))) = asinh(sqrt(2)*sqrt(1+2x))/sqrt(2)`, i have ` = 0.7071067811865475asinh(1.414213562373095sqrt(1 + 2x))`. Or instead of `integrate(2^x) = 2^x / log(2)`, i have `integrate(2^x) = 1.4426950408889634*2^x`. Or instead of `integrate((2/sqrt(π))*exp(-x^2)) = SpecialFunctions.erf(x)` I have  `integrate((2/sqrt(π))*exp(-x^2)) = 0.9999999999999999SpecialFunctions.erf(x)`
@@ -202,4 +196,4 @@ find "test/test_files/0 Independent test suites" -type f -exec grep -c '^(' {} \
 ```
 
 # Contributing
-see this [docs page]()
+see this [docs page](../manual/contributing.md)
