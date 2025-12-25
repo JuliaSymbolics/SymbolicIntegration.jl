@@ -62,6 +62,11 @@ The rule left hand side pattern is the symbolic function `∫(var1, var2)` where
 
 The infix operator `⨸` is used to represent a custom division function, if called on integers returns a rational and if called on floats returns a float. This is done because // operator does not support floats. This specific character was chosen because it resembles the division symbol and because it has the same precedence as /.
 
+# Rules statistic
+Every time a rule gets applied on a expression it gets saved to a txt file for continug wich rules are actually used. to elaborate the file you can run
+```
+julia --project=. elaborate_statistics.jl 
+```
 # Problems
 Here are the problems holding back the most number of expressions to be integrated
 ## Serious
