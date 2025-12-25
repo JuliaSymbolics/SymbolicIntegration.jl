@@ -1,7 +1,6 @@
 # Integration Methods Overview
 
-SymbolicIntegration.jl uses a flexible method dispatch system that allows you to choose different integration algorithms. Two methods are implemented, [Rule based method](rulebased.md) and [Risch method](risch.md).
-
+SymbolicIntegration.jl uses a flexible method dispatch system that allows you to choose different integration algorithms. Two methods are implemented:
 
 ## RischMethod
 

@@ -56,10 +56,11 @@ function complexfree(expr)
 end
 
 # to distinguish between symbolic expressions and numbers
-s(u) = isa(Symbolics.unwrap(u), Symbolics.Symbolic)
+s(u) = isa(Symbolics.unwrap(u), SymbolicUtils.BasicSymbolic)
 
 function eq(a, b)
-    !s(a) && !s(b) && return isequal(a, b)
+    a = SymbolicUtils.unwrap_const(a)
+    b = SymbolicUtils.unwrap_const(b)
     return SymbolicUtils.simplify(a - b) |> SymbolicUtils._iszero
 end
 
@@ -236,13 +237,29 @@ function intpart(a)
 end
 
 # Greater than
-gt(u, v) = (s(u) || s(v)) ? false : u > v
+function gt(u, v)
+    u = SymbolicUtils.unwrap_const(u)
+    v = SymbolicUtils.unwrap_const(v)
+    (s(u) || s(v)) ? false : u > v
+end
 gt(u, v, w) = gt(u, v) && gt(v, w)
-ge(u, v) = (s(u) || s(v)) ? false : u >= v
+function ge(u, v)
+    u = SymbolicUtils.unwrap_const(u)
+    v = SymbolicUtils.unwrap_const(v)
+    (s(u) || s(v)) ? false : u >= v
+end
 ge(u, v, w) = ge(u, v) && ge(v, w)
-lt(u, v) = (s(u) || s(v)) ? false : u < v
+function lt(u, v)
+    u = SymbolicUtils.unwrap_const(u)
+    v = SymbolicUtils.unwrap_const(v)
+    (s(u) || s(v)) ? false : u < v
+end
 lt(u, v, w) = lt(u, v) && lt(v, w)
-le(u, v) = (s(u) || s(v)) ? false : u <= v
+function le(u, v)
+    u = SymbolicUtils.unwrap_const(u)
+    v = SymbolicUtils.unwrap_const(v)
+    (s(u) || s(v)) ? false : u <= v
+end
 le(u, v, w) = le(u, v) && le(v, w)
 
 # If a is an integer and a>b, igtQ(a,b) returns true, else it returns false.
@@ -274,9 +291,9 @@ end
 neg(u) = !pos(u) && !eq(u, 0)
 
 # extended denominator
-ext_den(u::Union{Num, SymbolicUtils.Symbolic, Rational, Integer}) = denominator(u)
+ext_den(u::Union{Num, SymbolicUtils.BasicSymbolic, Rational, Integer}) = denominator(u)
 ext_den(u) = 1
-ext_num(u::Union{Num, SymbolicUtils.Symbolic, Rational, Integer}) = numerator(u)
+ext_num(u::Union{Num, SymbolicUtils.BasicSymbolic, Rational, Integer}) = numerator(u)
 ext_num(u) = u
 
 # IntLinearQ[a,b,c,d,m,n,x] returns True iff (a+b*x)^m*(c+d*x)^n is integrable wrt x in terms of non-hypergeometric functions.
@@ -418,9 +435,17 @@ end
 also `substitute(integrate(integrand, int_var), from => to)` works
 but using a custom function is better because
 - if the integral is not solved, substitute does bad things like substituting the integration variable
+- if the rule is stupid and does a substitution in which from and to are equal, we can stop it
 - we can print rule application
 =#
-function int_and_subst(integrand, int_var, from, to, rule_from_identifier)
+function int_and_subst(
+    integrand::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal},
+    int_var::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal},
+    from::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal},
+    to::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal},
+    rule_from_identifier::String)
+
+    (from===to) && return ∫(integrand, int_var)
     if VERBOSE
         printstyled("┌-------Applied rule $rule_from_identifier (change of variables):";);
         for ss in split(pretty_print_rule(rule_from_identifier), '\n')
@@ -438,6 +463,7 @@ function int_and_subst(integrand, int_var, from, to, rule_from_identifier)
         return substitute(result, from => to)
     end
     VERBOSE && println("Integral not solved")
+    # substitute_after_int is a placeholder symbolic function
     return substitute_after_int(∫(integrand, int_var), from, to)
 end
 
@@ -764,7 +790,7 @@ end
 
 function perfect_square(expr)
     expr = Symbolics.unwrap(expr)
-    !isa(expr, Symbolics.Symbolic) && return sqrt(expr) == floor(sqrt(expr))
+    !s(expr) && return sqrt(expr) == floor(sqrt(expr))
     !iscall(expr) && return false
     (operation(expr) === ^) && iseven(arguments(expr)[2]) && return true
     return false

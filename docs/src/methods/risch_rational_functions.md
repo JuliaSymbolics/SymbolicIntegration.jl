@@ -1,4 +1,4 @@
-# Rational Function Integration
+# Rational Function Integration with Risch algorithm
 
 SymbolicIntegration.jl implements the complete algorithm for integrating rational functions based on Bronstein's book Chapter 2.
 

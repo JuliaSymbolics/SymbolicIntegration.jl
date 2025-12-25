@@ -1,0 +1,147 @@
+========Test results of =================================================
+ _____                 _           _ _                        ,______.   
+/  ___|               | |         | (_)                  by  / Mattia \  
+\ `--. _   _ _ __ ___ | |__   ___ | |_  ___                 (Micheletta) 
+ `--. \ | | | '_ ` _ \| '_ \ / _ \| | |/ __|                 \ Merlin /  
+/\__/ / |_| | | | | | | |_) | (_) | | | (__                   '‾‾‾‾‾‾°   
+\____/ \__, |_| |_| |_|____/ \___/|_|_|\___|                            
+        __/ | _____      _                       _   _               _ _ 
+       |___/ |_   _|    | |                     | | (_)             (_) |
+               | | _ __ | |_ ___  __ _ _ __ __ _| |_ _  ___  _ __    _| |
+               | || '_ \| __/ _ \/ _` | '__/ _` | __| |/ _ \| '_ \  | | |
+              _| || | | | ||  __/ (_| | | | (_| | |_| | (_) | | | |_| | |
+              \___/_| |_|\__\___|\__, |_|  \__,_|\__|_|\___/|_| |_(_) |_|
+                                  __/ |                            _/ |  
+                                 |___/                            |__/   
+Date: 2025-12-23 12:04:17
+Package Version: 3.2.0
+Julia Version: 1.11.6
+Computer: MacBookAir.homenet.telecomitalia.it
+OS: Darwin aarch64
+CPU Threads: 1
+Memory: 8.0 GB
+About to test SymbolicIntegration.jl with 1 test sets
+==========================================================================
+
+
+
+Loading tests from test/methods/rule_based/test_files/0 Independent test suites/Apostol Problems.jl...
+Testing 175 integrals...
+[  ok  ]∫( sqrt(1 + 2x) )dx = 1//3*((1 + 2x)^(3//2)) (0.3202s)
+[  ok  ]∫( x*sqrt(1 + 3x) )dx = -(2//27)*((1 + 3x)^(3//2)) + 2//45*((1 + 3x)^(5//2)) (1.8359s)
+[  ok  ]∫( (x^2)*sqrt(1 + x) )dx = 2//3*((1 + x)^(3//2)) - (4//5)*((1 + x)^(5//2)) + 2//7*((1 + x)^(7//2)) (0.6681s)
+[  ok  ]∫( x / sqrt(2 - 3x) )dx = -(4//9)*sqrt(2 - 3x) + 2//27*((2 - 3x)^(3//2)) (9.0129s)
+[  ok  ]∫( (1 + x) / ((2 + 2x + x^2)^3) )dx = -1 / (4((2 + 2x + x^2)^2)) (2.2557s)
+[  ok  ]∫( sin(x)^3 )dx = -cos(x) + (cos(x)^3) / 3 (8.3852s)
+[  ok  ]∫( ((-1 + z)^(1//3))*z )dz = 3//4*((-1 + z)^(4//3)) + 3//7*((-1 + z)^(7//3)) (4.0669s)
+[ fail?]∫( cos(x) / (sin(x)^3) )dx = -1//2*(csc(x)^2) but got:
+      (cos(x)^2) / (-2(sin(x)^2)) (4.9732s)
+[  ok  ]∫( sqrt(4 - sin(2x))*cos(2x) )dx = -1//3*((4 - sin(2x))^(3//2)) (7.1869s)
+[ fail ]∫( sin(x) / ((3 + cos(x))^2) )dx = 1 / (3 + cos(x)) but got:
+      ∫(sin(x) / (9 + 6cos(x) + cos(x)^2), x) (20.192s)
+[ fail ]∫( sin(x) / sqrt(cos(x)^3) )dx = (2cos(x)) / sqrt(cos(x)^3) but got:
+      ∫(sin(x) / sqrt(cos(x)^3), x) (8.4687s)
+[ fail ]∫( sin(sqrt(1 + x)) / sqrt(1 + x) )dx = -2cos(sqrt(1 + x)) but got:
+      ∫(sin(sqrt(1 + x)) / sqrt(1 + x), x) (8.6316s)
+[ fail ]∫( (x^(-1 + n))*sin(x^n) )dx = (-cos(x^n)) / n but got:
+      ∫((x^(-1 + n))*sin(x^n), x) (8.4248s)
+[  ok  ]∫( (x^5) / sqrt(1 - (x^6)) )dx = -1//3*sqrt(1 - (x^6)) (4.2709s)
+[  ok  ]∫( ((1 + t)^(1//4))*t )dt = -(4//5)*((1 + t)^(5//4)) + 4//9*((1 + t)^(9//4)) (0.425s)
+[  ok  ]∫( 1 / ((1 + x^2)^(3//2)) )dx = x / sqrt(1 + x^2) (0.5128s)
+[  ok  ]∫( ((27 + 8(x^3))^(2//3))*(x^2) )dx = 1//40*((27 + 8(x^3))^(5//3)) (1.0671s)
+[  ok  ]∫( (cos(x) + sin(x)) / ((-cos(x) + sin(x))^(1//3)) )dx = 3//2*((-cos(x) + sin(x))^(2//3)) (7.77s)
+[ fail ]∫( x / sqrt(1 + x^2 + (1 + x^2)^(3//2)) )dx = (2sqrt((1 + x^2)*(1 + sqrt(1 + x^2)))) / sqrt(1 + x^2) but got:
+      ∫(x / sqrt(1 + x^2 + (1 + x^2)^(3//2)), x) (8.4033s)
+[ fail ]∫( x / (sqrt(1 + sqrt(1 + x^2))*sqrt(1 + x^2)) )dx = 2sqrt(1 + sqrt(1 + x^2)) but got:
+      ∫(x / (sqrt(1 + sqrt(1 + x^2))*sqrt(1 + x^2)), x) (8.607s)
+[  ok  ]∫( ((1 - 2x + x^2)^(1//5)) / (1 - x) )dx = -5//2*((1 - 2x + x^2)^(1//5)) (3.9197s)
+[  ok  ]∫( x*sin(x) )dx = sin(x) - x*cos(x) (11.3826s)
+[ fail?]∫( (x^2)*sin(x) )dx = 2cos(x) + 2x*sin(x) - (x^2)*cos(x) but got:
+      2(-cos(x) + x*sin(x)) - (x^2)*cos(x) (18.5833s)
+[ fail?]∫( (x^3)*cos(x) )dx = -6cos(x) - 6x*sin(x) + 3(x^2)*cos(x) + (x^3)*sin(x) but got:
+      3(2(-cos(x) + x*sin(x)) - (x^2)*cos(x)) + (x^3)*sin(x) (26.5394s)
+[ fail?]∫( (x^3)*sin(x) )dx = -6sin(x) + 6x*cos(x) + 3(x^2)*sin(x) - (x^3)*cos(x) but got:
+      3(2(sin(x) - x*cos(x)) + (x^2)*sin(x)) - (x^3)*cos(x) (99.6697s)
+[  ok  ]∫( cos(x)*sin(x) )dx = (sin(x)^2) / 2 (5.2104s)
+[  ok  ]∫( x*cos(x)*sin(x) )dx = -(1//4)*x + 1//4*cos(x)*sin(x) + 1//2*x*(sin(x)^2) (12.6415s)
+[  ok  ]∫( sin(x)^2 )dx = x / 2 - (1//2)*cos(x)*sin(x) (4.7862s)
+[  ok  ]∫( sin(x)^3 )dx = -cos(x) + (cos(x)^3) / 3 (5.1161s)
+[  ok  ]∫( sin(x)^4 )dx = 3//8*x - (3//8)*cos(x)*sin(x) - (1//4)*cos(x)*(sin(x)^3) (10.2468s)
+[  ok  ]∫( sin(x)^5 )dx = -cos(x) + 2//3*(cos(x)^3) - (1//5)*(cos(x)^5) (4.9935s)
+[  ok  ]∫( sin(x)^6 )dx = 5//16*x - (5//16)*cos(x)*sin(x) - (5//24)*cos(x)*(sin(x)^3) - (1//6)*cos(x)*(sin(x)^5) (17.8705s)
+[  ok  ]∫( x*(sin(x)^2) )dx = (x^2) / 4 + (sin(x)^2) / 4 - (1//2)*x*cos(x)*sin(x) (7.4421s)
+[  ok  ]∫( x*(sin(x)^3) )dx = 2//3*sin(x) - (2//3)*x*cos(x) + (sin(x)^3) / 9 - (1//3)*x*cos(x)*(sin(x)^2) (19.343s)
+[  ok  ]∫( (x^2)*(sin(x)^2) )dx = -(1//4)*x + 1//4*cos(x)*sin(x) + (x^3) / 6 + 1//2*x*(sin(x)^2) - (1//2)*(x^2)*cos(x)*sin(x) (12.0936s)
+[ fail ]∫( cos(x)^2 )dx = x / 2 + 1//2*cos(x)*sin(x) but got:
+      ∫(cos(x)^2, x) (8.5795s)
+[ fail ]∫( cos(x)^3 )dx = sin(x) - (1//3)*(sin(x)^3) but got:
+      ∫(cos(x)^3, x) (8.1406s)
+[ fail ]∫( cos(x)^4 )dx = 3//8*x + 3//8*cos(x)*sin(x) + 1//4*(cos(x)^3)*sin(x) but got:
+      ∫(cos(x)^4, x) (8.0901s)
+[ fail ]∫( (a^2 - (x^2))^(5//2) )dx = 1//6*((a^2 - (x^2))^(5//2))*x + 5//16*(a^4)*x*sqrt(a^2 - (x^2)) + 5//24*(a^2)*((a^2 - (x^2))^(3//2))*x + 5//16*(a^6)*atan(x / sqrt(a^2 - (x^2))) but got:
+      ∫((a^2 - (x^2))^(5//2), x) (8.2219s)
+[ fail ]∫( (x^5) / sqrt(5 + x^2) )dx = 25sqrt(5 + x^2) - (10//3)*((5 + x^2)^(3//2)) + 1//5*((5 + x^2)^(5//2)) but got:
+      ∫((x^5) / sqrt(5 + x^2), x) (8.6038s)
+[ fail?]∫( (t^3) / ((4 + t^3)^(1//2)) )dt = (-24.53298676439231(1.5874010519681994 + t)*Elliptic.F(asin((-1.1620582220290054 + t) / (4.336860325965405 + t)), -13.928203230275509)*sqrt((2.5198420997897464 - 1.5874010519681994t + t^2) / ((4.336860325965405 + t)^2))) / (6.580370064762462sqrt(4 + t^3)*sqrt((1.5874010519681994 + t) / ((4.336860325965405 + t)^2))) + 2//5*t*sqrt(4 + t^3) but got:
+      (-6.181925288250038(1 + 0.6299605249474366t)*sqrt((1 - 0.6299605249474366t + 0.3968502629920499(t^2)) / ((2.732050807568877 + 0.6299605249474366t)^2))*Elliptic.F(asin((-0.7320508075688772 + 0.6299605249474366t) / (2.732050807568877 + 0.6299605249474366t)), -13.928203230275509)) / (0.8290746760692316sqrt(4 + t^3)*sqrt((1 + 0.6299605249474366t) / ((2.732050807568877 + 0.6299605249474366t)^2))) + 2//5*t*((4 + t^3)^(1//2)) (2.714s)
+[  ok  ]∫( tan(x)^2 )dx = -x + tan(x) (6.6402s)
+[  ok  ]∫( tan(x)^4 )dx = x - tan(x) + (tan(x)^3) / 3 (13.7488s)
+[ fail ]∫( cot(x)^2 )dx = -x - cot(x) but got:
+      ∫(cot(x)^2, x) (8.1697s)
+[ fail ]∫( cot(x)^4 )dx = x + cot(x) - (1//3)*(cot(x)^3) but got:
+      ∫(cot(x)^4, x) (8.0588s)
+[  ok  ]∫( (2 + 3x)*sin(5x) )dx = 3//25*sin(5x) - (1//5)*(2 + 3x)*cos(5x) (11.7228s)
+[  ok  ]∫( x*sqrt(1 + x^2) )dx = 1//3*((1 + x^2)^(3//2)) (0.591s)
+[  ok  ]∫( x*((-1 + x^2)^9) )dx = 1//20*((1 - (x^2))^10) (0.5865s)
+[  ok  ]∫( (3 + 2x) / ((7 + 6x)^3) )dx = (-((3 + 2x)^2)) / (8((7 + 6x)^2)) (0.0877s)
+[  ok  ]∫( (x^4)*((1 + x^5)^5) )dx = 1//30*((1 + x^5)^6) (1.0589s)
+[  ok  ]∫( (x^4)*((1 - x)^20) )dx = -(1//21)*((1 - x)^21) + 2//11*((1 - x)^22) - (6//23)*((1 - x)^23) + 1//6*((1 - x)^24) - (1//25)*((1 - x)^25) (0.8954s)
+[  ok  ]∫( sin(1 / x) / (x^2) )dx = cos(1 / x) (12.0638s)
+[ fail?]∫( sin((-1 + x)^(1//4)) )dx = -24sin((-1 + x)^(1//4)) + 24((-1 + x)^(1//4))*cos((-1 + x)^(1//4)) - 4((-1 + x)^(3//4))*cos((-1 + x)^(1//4)) + 12sqrt(-1 + x)*sin((-1 + x)^(1//4)) but got:
+      4(3(2(sin((-1 + x)^(1//4)) - ((-1 + x)^(1//4))*cos((-1 + x)^(1//4))) + ((-1 + x)^(1//2))*sin((-1 + x)^(1//4))) - ((-1 + x)^(3//4))*cos((-1 + x)^(1//4))) (35.0217s)
+[  ok  ]∫( x*cos(x^2)*sin(x^2) )dx = 1//4*(sin(x^2)^2) (6.9383s)
+[ fail ]∫( sin(2x)*sqrt(1 + 3(cos(x)^2)) )dx = -2//9*((4 - 3(sin(x)^2))^(3//2)) but got:
+      ∫(sin(2x)*sqrt(1 + 3(cos(x)^2)), x) (8.7743s)
+[  ok  ]∫( 1 / (2 + 3x) )dx = 1//3*log(2 + 3x) (0.0747s)
+[  ok  ]∫( log(x)^2 )dx = 2x - 2x*log(x) + x*(log(x)^2) (8.1871s)
+[  ok  ]∫( x*log(x) )dx = -(1//4)*(x^2) + 1//2*(x^2)*log(x) (4.0493s)
+[  ok  ]∫( x*(log(x)^2) )dx = (x^2) / 4 - (1//2)*(x^2)*log(x) + 1//2*(x^2)*(log(x)^2) (8.4305s)
+[  ok  ]∫( 1 / (1 + t) )dt = log(1 + t) (0.0699s)
+[ fail ]∫( cot(x) )dx = log(sin(x)) but got:
+      ∫(cot(x), x) (8.0062s)
+[  ok  ]∫( log(a*x)*(x^n) )dx = (log(a*x)*(x^(1 + n))) / (1 + n) + (-(x^(1 + n))) / ((1 + n)^2) (4.1575s)
+[  ok  ]∫( (x^2)*(log(x)^2) )dx = 2//27*(x^3) - (2//9)*(x^3)*log(x) + 1//3*(x^3)*(log(x)^2) (8.5917s)
+[ fail ]∫( 1 / (x*log(x)) )dx = log(log(x)) but got:
+      ∫(1 / (x*log(x)), x) (8.6608s)
+[  ok  ]∫( log(1 - t) / (1 - t) )dt = -1//2*(log(1 - t)^2) (9.14s)
+[except] exception during ∫( log(x) / (x*sqrt(1 + log(x))) )dx : DomainError(-1, "Cannot raise an integer x to a negative power -1.\nConvert input to float.")
+[  ok  ]∫( (x^3)*(log(x)^3) )dx = -(3//128)*(x^4) + 3//32*(x^4)*log(x) - (3//16)*(x^4)*(log(x)^2) + 1//4*(x^4)*(log(x)^3) (13.2356s)
+[  ok  ]∫( (x^2)*exp(x^3) )dx = exp(x^3) / 3 (4.1246s)
+[ fail ]∫( (2^sqrt(x)) / sqrt(x) )dx = (2^(1 + sqrt(x))) / 0.6931471805599453 but got:
+      ∫((2^sqrt(x)) / sqrt(x), x) (8.6144s)
+[ fail ]∫( cos(x)*exp(2sin(x)) )dx = 1//2*exp(2sin(x)) but got:
+      ∫(cos(x)*exp(2sin(x)), x) (8.4512s)
+[  ok  ]∫( exp(x)*sin(x) )dx = -(1//2)*cos(x)*exp(x) + 1//2*exp(x)*sin(x) (7.4431s)
+[  ok  ]∫( cos(x)*exp(x) )dx = 1//2*cos(x)*exp(x) + 1//2*exp(x)*sin(x) (7.4481s)
+[ fail ]∫( 1 / (1 + exp(x)) )dx = x - log(1 + exp(x)) but got:
+      ∫(1 / (1 + exp(x)), x) (8.5518s)
+[  ok  ]∫( x*exp(x) )dx = -exp(x) + x*exp(x) (7.8025s)
+[ fail?]∫( x*exp(-x) )dx = -exp(-x) + (-x) / exp(x) but got:
+      -(ℯ^(-x)) - x*(ℯ^(-x)) (7.6828s)
+[  ok  ]∫( (x^2)*exp(x) )dx = 2exp(x) - 2x*exp(x) + (x^2)*exp(x) (12.0696s)
+[ fail?]∫( (x^2)*exp(-2x) )dx = (-1//2*(x^2)) / exp(2x) + (-1//2*x) / exp(2x) + -1//4 / exp(2x) but got:
+      -(1//4)*(ℯ^(-2x)) - (1//2)*x*(ℯ^(-2x)) - (1//2)*(x^2)*(ℯ^(-2x)) (11.9429s)
+[  ok  ]∫( exp(sqrt(x)) )dx = -2exp(sqrt(x)) + 2exp(sqrt(x))*sqrt(x) (12.1921s)
+[ fail?]∫( (x^3)*exp(-(x^2)) )dx = (-1//2*(x^2)) / exp(x^2) + -1 / (2exp(x^2)) but got:
+      (ℯ^(-(x^2))) / -2 - (1//2)*(x^2)*(ℯ^(-(x^2))) (7.9574s)
+[ fail ]∫( exp(a*x)*cos(b*x) )dx = (b*sin(b*x)*exp(a*x)) / (a^2 + b^2) + (a*exp(a*x)*cos(b*x)) / (a^2 + b^2) but got:
+      ∫(exp(a*x)*cos(b*x), x) (8.4921s)
+[ fail ]∫( sin(b*x)*exp(a*x) )dx = (a*sin(b*x)*exp(a*x)) / (a^2 + b^2) + (-b*exp(a*x)*cos(b*x)) / (a^2 + b^2) but got:
+      ∫(sin(b*x)*exp(a*x), x) (8.498s)
+[  ok  ]∫( acot(x) )dx = 1//2*log(1 + x^2) + x*acot(x) (8.2249s)
+[ fail ]∫( asec(x) )dx = -atanh(sqrt(1 + -1 / (x^2))) + x*asec(x) but got:
+      ∫(asec(x), x) (8.0656s)
+[ fail ]∫( acsc(x) )dx = atanh(sqrt(1 + -1 / (x^2))) + x*acsc(x) but got:
+      ∫(acsc(x), x) (8.0141s)
+[ fail ]∫( asin(x)^2 )dx = -2x + 2sqrt(1 - (x^2))*asin(x) + x*(asin(x)^2) but got:
+      -2∫((x*asin(x)) / sqrt(1 - (x^2)), x) + x*(asin(x)^2) (16.5608s)

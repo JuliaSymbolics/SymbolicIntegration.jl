@@ -1,0 +1,218 @@
+========Test results of =================================================
+ _____                 _           _ _                        ,______.   
+/  ___|               | |         | (_)                  by  / Mattia \  
+\ `--. _   _ _ __ ___ | |__   ___ | |_  ___                 (Micheletta) 
+ `--. \ | | | '_ ` _ \| '_ \ / _ \| | |/ __|                 \ Merlin /  
+/\__/ / |_| | | | | | | |_) | (_) | | | (__                   '‾‾‾‾‾‾°   
+\____/ \__, |_| |_| |_|____/ \___/|_|_|\___|                            
+        __/ | _____      _                       _   _               _ _ 
+       |___/ |_   _|    | |                     | | (_)             (_) |
+               | | _ __ | |_ ___  __ _ _ __ __ _| |_ _  ___  _ __    _| |
+               | || '_ \| __/ _ \/ _` | '__/ _` | __| |/ _ \| '_ \  | | |
+              _| || | | | ||  __/ (_| | | | (_| | |_| | (_) | | | |_| | |
+              \___/_| |_|\__\___|\__, |_|  \__,_|\__|_|\___/|_| |_(_) |_|
+                                  __/ |                            _/ |  
+                                 |___/                            |__/   
+Date: 2025-12-23 11:36:44
+Package Version: 3.2.0
+Julia Version: 1.11.6
+Computer: MacBookAir.homenet.telecomitalia.it
+OS: Darwin aarch64
+CPU Threads: 1
+Memory: 8.0 GB
+About to test SymbolicIntegration.jl with 1 test sets
+==========================================================================
+
+
+
+Loading tests from test/methods/rule_based/test_files/0 Independent test suites/Apostol Problems.jl...
+Testing 175 integrals...
+[  ok  ]∫( sqrt(1 + 2x) )dx = 1//3*((1 + 2x)^(3//2)) (0.1029s)
+[  ok  ]∫( x*sqrt(1 + 3x) )dx = -(2//27)*((1 + 3x)^(3//2)) + 2//45*((1 + 3x)^(5//2)) (1.7838s)
+[  ok  ]∫( (x^2)*sqrt(1 + x) )dx = 2//3*((1 + x)^(3//2)) - (4//5)*((1 + x)^(5//2)) + 2//7*((1 + x)^(7//2)) (0.7099s)
+[  ok  ]∫( x / sqrt(2 - 3x) )dx = -(4//9)*sqrt(2 - 3x) + 2//27*((2 - 3x)^(3//2)) (10.8669s)
+[  ok  ]∫( (1 + x) / ((2 + 2x + x^2)^3) )dx = -1 / (4((2 + 2x + x^2)^2)) (2.3696s)
+[  ok  ]∫( sin(x)^3 )dx = -cos(x) + (cos(x)^3) / 3 (6.8455s)
+[  ok  ]∫( ((-1 + z)^(1//3))*z )dz = 3//4*((-1 + z)^(4//3)) + 3//7*((-1 + z)^(7//3)) (4.5712s)
+[ fail?]∫( cos(x) / (sin(x)^3) )dx = -1//2*(csc(x)^2) but got:
+      (cos(x)^2) / (-2(sin(x)^2)) (5.5209s)
+[  ok  ]∫( sqrt(4 - sin(2x))*cos(2x) )dx = -1//3*((4 - sin(2x))^(3//2)) (5.9174s)
+[ fail ]∫( sin(x) / ((3 + cos(x))^2) )dx = 1 / (3 + cos(x)) but got:
+      ∫(sin(x) / (9 + 6cos(x) + cos(x)^2), x) (21.753s)
+[ fail ]∫( sin(x) / sqrt(cos(x)^3) )dx = (2cos(x)) / sqrt(cos(x)^3) but got:
+      ∫(sin(x) / sqrt(cos(x)^3), x) (10.1503s)
+[ fail ]∫( sin(sqrt(1 + x)) / sqrt(1 + x) )dx = -2cos(sqrt(1 + x)) but got:
+      ∫(sin(sqrt(1 + x)) / sqrt(1 + x), x) (9.6679s)
+[except] exception during ∫( (x^(-1 + n))*sin(x^n) )dx : InterruptException()
+[except] exception during ∫( (x^5) / sqrt(1 - (x^6)) )dx : InterruptException()
+[except] exception during ∫( ((1 + t)^(1//4))*t )dt : InterruptException()
+[except] exception during ∫( 1 / ((1 + x^2)^(3//2)) )dx : InterruptException()
+[except] exception during ∫( ((27 + 8(x^3))^(2//3))*(x^2) )dx : InterruptException()
+[except] exception during ∫( (cos(x) + sin(x)) / ((-cos(x) + sin(x))^(1//3)) )dx : InterruptException()
+[except] exception during ∫( x / sqrt(1 + x^2 + (1 + x^2)^(3//2)) )dx : InterruptException()
+[except] exception during ∫( x / (sqrt(1 + sqrt(1 + x^2))*sqrt(1 + x^2)) )dx : InterruptException()
+[except] exception during ∫( ((1 - 2x + x^2)^(1//5)) / (1 - x) )dx : InterruptException()
+[except] exception during ∫( x*sin(x) )dx : InterruptException()
+[except] exception during ∫( (x^2)*sin(x) )dx : InterruptException()
+[except] exception during ∫( (x^3)*cos(x) )dx : InterruptException()
+[except] exception during ∫( (x^3)*sin(x) )dx : InterruptException()
+[except] exception during ∫( cos(x)*sin(x) )dx : InterruptException()
+[except] exception during ∫( x*cos(x)*sin(x) )dx : InterruptException()
+[except] exception during ∫( sin(x)^2 )dx : InterruptException()
+[except] exception during ∫( sin(x)^3 )dx : InterruptException()
+[except] exception during ∫( sin(x)^4 )dx : InterruptException()
+[except] exception during ∫( sin(x)^5 )dx : InterruptException()
+[except] exception during ∫( sin(x)^6 )dx : InterruptException()
+[except] exception during ∫( x*(sin(x)^2) )dx : InterruptException()
+[except] exception during ∫( x*(sin(x)^3) )dx : InterruptException()
+[except] exception during ∫( (x^2)*(sin(x)^2) )dx : InterruptException()
+[except] exception during ∫( cos(x)^2 )dx : InterruptException()
+[except] exception during ∫( cos(x)^3 )dx : InterruptException()
+[except] exception during ∫( cos(x)^4 )dx : InterruptException()
+[except] exception during ∫( (a^2 - (x^2))^(5//2) )dx : InterruptException()
+[except] exception during ∫( (x^5) / sqrt(5 + x^2) )dx : InterruptException()
+[except] exception during ∫( (t^3) / ((4 + t^3)^(1//2)) )dt : InterruptException()
+[except] exception during ∫( tan(x)^2 )dx : InterruptException()
+[except] exception during ∫( tan(x)^4 )dx : InterruptException()
+[except] exception during ∫( cot(x)^2 )dx : InterruptException()
+[except] exception during ∫( cot(x)^4 )dx : InterruptException()
+[except] exception during ∫( (2 + 3x)*sin(5x) )dx : InterruptException()
+[except] exception during ∫( x*sqrt(1 + x^2) )dx : InterruptException()
+[except] exception during ∫( x*((-1 + x^2)^9) )dx : InterruptException()
+[except] exception during ∫( (3 + 2x) / ((7 + 6x)^3) )dx : InterruptException()
+[except] exception during ∫( (x^4)*((1 + x^5)^5) )dx : InterruptException()
+[except] exception during ∫( (x^4)*((1 - x)^20) )dx : InterruptException()
+[except] exception during ∫( sin(1 / x) / (x^2) )dx : InterruptException()
+[except] exception during ∫( sin((-1 + x)^(1//4)) )dx : InterruptException()
+[except] exception during ∫( x*cos(x^2)*sin(x^2) )dx : InterruptException()
+[except] exception during ∫( sin(2x)*sqrt(1 + 3(cos(x)^2)) )dx : InterruptException()
+[except] exception during ∫( 1 / (2 + 3x) )dx : InterruptException()
+[except] exception during ∫( log(x)^2 )dx : InterruptException()
+[except] exception during ∫( x*log(x) )dx : InterruptException()
+[except] exception during ∫( x*(log(x)^2) )dx : InterruptException()
+[except] exception during ∫( 1 / (1 + t) )dt : InterruptException()
+[except] exception during ∫( cot(x) )dx : InterruptException()
+[except] exception during ∫( log(a*x)*(x^n) )dx : InterruptException()
+[except] exception during ∫( (x^2)*(log(x)^2) )dx : InterruptException()
+[except] exception during ∫( 1 / (x*log(x)) )dx : InterruptException()
+[except] exception during ∫( log(1 - t) / (1 - t) )dt : InterruptException()
+[except] exception during ∫( log(x) / (x*sqrt(1 + log(x))) )dx : InterruptException()
+[except] exception during ∫( (x^3)*(log(x)^3) )dx : InterruptException()
+[except] exception during ∫( (x^2)*exp(x^3) )dx : InterruptException()
+[except] exception during ∫( (2^sqrt(x)) / sqrt(x) )dx : InterruptException()
+[except] exception during ∫( cos(x)*exp(2sin(x)) )dx : InterruptException()
+[except] exception during ∫( exp(x)*sin(x) )dx : InterruptException()
+[except] exception during ∫( cos(x)*exp(x) )dx : InterruptException()
+[except] exception during ∫( 1 / (1 + exp(x)) )dx : InterruptException()
+[except] exception during ∫( x*exp(x) )dx : InterruptException()
+[except] exception during ∫( x*exp(-x) )dx : InterruptException()
+[except] exception during ∫( (x^2)*exp(x) )dx : InterruptException()
+[except] exception during ∫( (x^2)*exp(-2x) )dx : InterruptException()
+[except] exception during ∫( exp(sqrt(x)) )dx : InterruptException()
+[except] exception during ∫( (x^3)*exp(-(x^2)) )dx : InterruptException()
+[except] exception during ∫( exp(a*x)*cos(b*x) )dx : InterruptException()
+[except] exception during ∫( sin(b*x)*exp(a*x) )dx : InterruptException()
+[except] exception during ∫( acot(x) )dx : InterruptException()
+[except] exception during ∫( asec(x) )dx : InterruptException()
+[except] exception during ∫( acsc(x) )dx : InterruptException()
+[except] exception during ∫( asin(x)^2 )dx : InterruptException()
+[except] exception during ∫( asin(x) / (x^2) )dx : InterruptException()
+[except] exception during ∫( 1 / sqrt(a^2 - (x^2)) )dx : InterruptException()
+[except] exception during ∫( 1 / sqrt(1 - 2x - (x^2)) )dx : InterruptException()
+[except] exception during ∫( 1 / (a^2 + x^2) )dx : InterruptException()
+[except] exception during ∫( 1 / (a + b*(x^2)) )dx : InterruptException()
+[except] exception during ∫( 1 / (2 - x + x^2) )dx : InterruptException()
+[except] exception during ∫( x*atan(x) )dx : InterruptException()
+[except] exception during ∫( (x^2)*acos(x) )dx : InterruptException()
+[except] exception during ∫( x*(atan(x)^2) )dx : InterruptException()
+[except] exception during ∫( atan(sqrt(x)) )dx : InterruptException()
+[except] exception during ∫( atan(sqrt(x)) / ((1 + x)*sqrt(x)) )dx : InterruptException()
+[except] exception during ∫( sqrt(1 - (x^2)) )dx : InterruptException()
+[except] exception during ∫( (x*exp(atan(x))) / ((1 + x^2)^(3//2)) )dx : InterruptException()
+[except] exception during ∫( exp(atan(x)) / ((1 + x^2)^(3//2)) )dx : InterruptException()
+[except] exception during ∫( (x^2) / ((1 + x^2)^2) )dx : InterruptException()
+[except] exception during ∫( exp(x) / (1 + exp(2x)) )dx : InterruptException()
+[except] exception during ∫( acot(exp(x)) / exp(x) )dx : InterruptException()
+[except] exception during ∫( ((a + x)^(1//2)) / ((a - x)^(1//2)) )dx : InterruptException()
+[except] exception during ∫( sqrt((-a + x)*(b - x)) )dx : InterruptException()
+[except] exception during ∫( 1 / sqrt((-a + x)*(b - x)) )dx : InterruptException()
+[except] exception during ∫( (3 + 5x) / (-3 + 2x + x^2) )dx : InterruptException()
+[except] exception during ∫( (5 + 2x) / (-3 + 2x + x^2) )dx : InterruptException()
+[except] exception during ∫( (3x + x^3) / (-3 - 2x + x^2) )dx : InterruptException()
+[except] exception during ∫( (-1 + 5x + 2(x^2)) / (-2x + x^2 + x^3) )dx : InterruptException()
+[except] exception during ∫( (3 + 2x + x^2) / ((-1 + x)*((1 + x)^2)) )dx : InterruptException()
+[except] exception during ∫( (-2 + 2x + 3(x^2)) / (-1 + x^3) )dx : InterruptException()
+[except] exception during ∫( (2 - x + 2(x^2) - (x^3) + x^4) / ((-1 + x)*((2 + x^2)^2)) )dx : InterruptException()
+[except] exception during ∫( 1 / (cos(x) + sin(x)) )dx : InterruptException()
+[except] exception during ∫( x / (4 + sqrt(4 - (x^2)) - (x^2)) )dx : InterruptException()
+[except] exception during ∫( (3 + 2x) / ((-2 + x)*(5 + x)) )dx : InterruptException()
+[except] exception during ∫( x / ((2 + x)*(3 + x)*(1 + x)) )dx : InterruptException()
+[except] exception during ∫( x / (2 - 3x + x^3) )dx : InterruptException()
+[except] exception during ∫( (-6 + 2x + x^4) / (-2x + x^2 + x^3) )dx : InterruptException()
+[except] exception during ∫( (7 + 8(x^3)) / ((1 + x)*((1 + 2x)^3)) )dx : InterruptException()
+[except] exception during ∫( (1 + x + 4(x^2)) / (-1 + x^3) )dx : InterruptException()
+[except] exception during ∫( (x^4) / (4 + 5(x^2) + x^4) )dx : InterruptException()
+[except] exception during ∫( (2 + x) / (x + x^2) )dx : InterruptException()
+[except] exception during ∫( 1 / (x*((1 + x^2)^2)) )dx : InterruptException()
+[except] exception during ∫( 1 / ((1 + x)*((2 + x)^2)*((3 + x)^3)) )dx : InterruptException()
+[except] exception during ∫( x / ((1 + x)^2) )dx : InterruptException()
+[except] exception during ∫( 1 / (-x + x^3) )dx : InterruptException()
+[except] exception during ∫( (x^2) / (-6 + x + x^2) )dx : InterruptException()
+[except] exception during ∫( (2 + x) / (4 - 4x + x^2) )dx : InterruptException()
+[except] exception during ∫( 1 / ((5 - 4x + x^2)*(4 - 4x + x^2)) )dx : InterruptException()
+[except] exception during ∫( (-3 + x) / (2x + 3(x^2) + x^3) )dx : InterruptException()
+[except] exception during ∫( 1 / ((-1 + x^2)^2) )dx : InterruptException()
+[except] exception during ∫( (1 + x) / (-1 + x^3) )dx : InterruptException()
+[except] exception during ∫( (1 + x^4) / (x*((1 + x^2)^2)) )dx : InterruptException()
+[except] exception during ∫( 1 / (-2(x^3) + x^4) )dx : InterruptException()
+[except] exception during ∫( (1 - (x^3)) / (x*(1 + x^2)) )dx : InterruptException()
+[except] exception during ∫( 1 / (-1 + x^4) )dx : InterruptException()
+[except] exception during ∫( 1 / (1 + x^4) )dx : InterruptException()
+[except] exception during ∫( (x^2) / ((2 + 2x + x^2)^2) )dx : InterruptException()
+[except] exception during ∫( (-1 + 4(x^5)) / ((1 + x + x^5)^2) )dx : InterruptException()
+[except] exception during ∫( 1 / (5 - cos(x) + 2sin(x)) )dx : InterruptException()
+[except] exception during ∫( 1 / (1 + a*cos(x)) )dx : InterruptException()
+[except] exception during ∫( 1 / (1 + 2cos(x)) )dx : InterruptException()
+[except] exception during ∫( 1 / (1 + 1//2*cos(x)) )dx : InterruptException()
+[except] exception during ∫( (sin(x)^2) / (1 + sin(x)^2) )dx : InterruptException()
+[except] exception during ∫( 1 / ((a^2)*(sin(x)^2) + (b^2)*(cos(x)^2)) )dx : InterruptException()
+[except] exception during ∫( 1 / ((a*sin(x) + b*cos(x))^2) )dx : InterruptException()
+[except] exception during ∫( sin(x) / (1 + cos(x) + sin(x)) )dx : InterruptException()
+[except] exception during ∫( sqrt(3 - (x^2)) )dx : InterruptException()
+[except] exception during ∫( x / sqrt(3 - (x^2)) )dx : InterruptException()
+[except] exception during ∫( sqrt(3 - (x^2)) / x )dx : InterruptException()
+[except] exception during ∫( sqrt(x + x^2) / x )dx : InterruptException()
+[except] exception during ∫( sqrt(5 + x^2) )dx : InterruptException()
+[except] exception during ∫( x / sqrt(1 + x + x^2) )dx : InterruptException()
+[except] exception during ∫( 1 / sqrt(x + x^2) )dx : InterruptException()
+[except] exception during ∫( sqrt(2 - x - (x^2)) / (x^2) )dx : InterruptException()
+[except] exception during ∫( log(t) / (1 + t) )dt : InterruptException()
+[except] exception during ∫( log(exp(cos(x))) )dx : InterruptException()
+[except] exception during ∫( exp(t) / t )dt : InterruptException()
+[except] exception during ∫( exp(a*t) / t )dt : InterruptException()
+[except] exception during ∫( exp(t) / (t^2) )dt : InterruptException()
+[except] exception during ∫( exp(1 / t) )dt : InterruptException()
+[except] exception during ∫( 1 / ((-1 - a + t)*exp(t)) )dt : InterruptException()
+[except] exception during ∫( (t*exp(t^2)) / (1 + t^2) )dt : InterruptException()
+[except] exception during ∫( exp(t) / ((1 + t)^2) )dt : InterruptException()
+[except] exception during ∫( exp(t)*log(1 + t) )dt : InterruptException()
+[except] exception during ∫( t / exp(t) )dt : InterruptException()
+[except] exception during ∫( (t^2) / exp(t) )dt : InterruptException()
+[except] exception during ∫( (t^3) / exp(t) )dt : InterruptException()
+[except] exception during ∫( (c*sin(x) + d*cos(x)) / (a*sin(x) + b*cos(x)) )dx : InterruptException()
+[except] exception during ∫( 1 / log(t) )dt : InterruptException()
+[except] exception during ∫( 1 / (log(t)^2) )dt : InterruptException()
+[except] exception during ∫( 1 / (log(t)^(1 + n)) )dt : InterruptException()
+[except] exception during ∫( exp(2t) / (-1 + t) )dt : InterruptException()
+[except] exception during ∫( exp(2x) / (2 - 3x + x^2) )dx : InterruptException()
+[except] exception during ∫( 1 / ((1 + t^3)^(1//2)) )dt : InterruptException()
+8 tests succeeded, 3 failed, 1 maybe failed, 163 errored, out of 175 tests of test/methods/rule_based/test_files/0 Independent test suites/Apostol Problems.jl
+Total=80.259s, Avg=0.4586s, Min=0.1029s, Max=21.753s
+
+
+
+======================SymbolicIntegration.jl Test Results=======================
+8 tests succeeded, 3 failed, 1 maybe failed, 163 errored, out of 175 tests of all testsets
+Total=80.259s, Avg=0.4586s
+================================================================================
+

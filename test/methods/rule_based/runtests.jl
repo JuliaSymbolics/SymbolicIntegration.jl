@@ -126,8 +126,12 @@ function test_from_file(path)
                 succeeded += 1
             end
         catch exceptionz
-            dual_printstyled("[except] exception during ∫( $(tuple[1]) )d$(tuple[3]) : $(exceptionz)\n"; color=:magenta)
-            errored += 1
+            if isa(exceptionz, InterruptException)
+                rethrow(exceptionz)
+            else
+                dual_printstyled("[except] exception during ∫( $(tuple[1]) )d$(tuple[3]) : $(exceptionz)\n"; color=:magenta)
+                errored += 1
+            end
         end
         
     end

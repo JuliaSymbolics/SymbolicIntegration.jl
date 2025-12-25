@@ -31,10 +31,10 @@ import Nemo
         # but should not crash
         
         # Complex root cases - now working!
-        result1 = integrate(1//(x^2 + 1), x, RischMethod())    # Should give atan(x)
+        result1 = integrate(1/(x^2 + 1), x, RischMethod())    # Should give atan(x)
         @test string(result1) == "atan(x)"
-        @test integrate(x//(x^2 + 1), x, RischMethod()) isa Any           # This one works! 
-        @test integrate((x^2 + 1)//(x^4 + 1), x, RischMethod()) isa Any  # Higher degree complex case
+        @test integrate(x/(x^2 + 1), x, RischMethod()) isa Any           # This one works! 
+        @test integrate((x^2 + 1)/(x^4 + 1), x, RischMethod()) isa Any  # Higher degree complex case
     end
     
     @testset "Complex Root Handling" begin
@@ -44,16 +44,16 @@ import Nemo
         # BROKEN: All due to complex root conversion API changes
         
         # f(x) = 1/(x^2 + 1) should give atan(x)
-        result1 = integrate(1//(x^2 + 1), x, RischMethod())
-        @test string(result1) == "atan(x)"
+        result1 = integrate(1/(x^2 + 1), x, RischMethod())
+        @test isequal(simplify(result1-atan(x)),0)
         
         # f(x) = x/(x^2 + 1) should give (1/2)*log(x^2 + 1)  
-        f2 = x//(x^2 + 1)
+        f2 = x/(x^2 + 1)
         result2 = integrate(f2, x, RischMethod())
         @test !isnothing(result2)  # This one works (no complex roots needed)
         
         # More complex case: (2+x+x^2+x^3)/(2+3*x^2+x^4)
-        result3 = integrate((2+x+x^2+x^3)//(2+3*x^2+x^4), x, RischMethod())
-        @test string(result3) == "atan(x) + (1//2)*log(2 + x^2)"
+        result3 = integrate((2+x+x^2+x^3)/(2+3*x^2+x^4), x, RischMethod())
+        @test isequal(simplify(result3-(atan(x) + (1//2)*log(2 + x^2));expand=true),0)
     end
 end

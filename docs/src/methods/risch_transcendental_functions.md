@@ -1,4 +1,4 @@
-# Transcendental Function Integration
+# Transcendental Function Integration with Risch algorithm
 
 SymbolicIntegration.jl implements the Risch algorithm for integrating elementary transcendental functions.
 

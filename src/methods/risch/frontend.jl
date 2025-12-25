@@ -160,7 +160,7 @@ function convolution(a::Vector{T}, b::Vector{T}, s::Int; output_size::Int=0) whe
     c
 end
 
-function tan2sincos(f::K, arg::SymbolicUtils.Symbolic, vars::Vector, h::Int=0) where 
+function tan2sincos(f::K, arg::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, vars::Vector, h::Int=0) where 
     {T<:FieldElement, P<:PolyRingElem{T}, K<:FracElem{P}}
     # This function transforms a Nemo/AbstractAlgebra rational function with
     # variable t representing tan(arg) to a SymbolicUtils expression which is
@@ -221,7 +221,7 @@ function subst_tower(f::F, vars::Vector, h::Int) where
     if isone(denominator(f))
         return subst_tower(numerator(f), vars, h)
     else
-        return subst_tower(numerator(f), vars, h)//subst_tower(denominator(f), vars, h)
+        return subst_tower(numerator(f), vars, h)/subst_tower(denominator(f), vars, h)
     end
 end
 
@@ -269,13 +269,13 @@ end
 
 struct UpdatedArgList <: Exception end
 
-function analyze_expr(f, x::SymbolicUtils.Symbolic)
+function analyze_expr(f, x::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal})
     tanArgs = []
     expArgs = []
     restart = true
     while restart        
         funs = Any[x]
-        vars = SymbolicUtils.Symbolic[x]
+        vars = SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}[x]
         args = Any[x]
         try 
             p = analyze_expr(f, funs, vars, args, tanArgs, expArgs)
@@ -290,7 +290,7 @@ function analyze_expr(f, x::SymbolicUtils.Symbolic)
     end
 end
 
-function analyze_expr(f::SymbolicUtils.Symbolic , funs::Vector, vars::Vector{SymbolicUtils.Symbolic}, 
+function analyze_expr(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal} , funs::Vector, vars::Vector{SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}}, 
                       args::Vector, tanArgs::Vector, expArgs::Vector)
     # Handle pure symbols
     if SymbolicUtils.issym(f)
@@ -305,12 +305,12 @@ function analyze_expr(f::SymbolicUtils.Symbolic , funs::Vector, vars::Vector{Sym
         op = operation(f)
         if op in (+, *, /)
             # Handle Add, Mul, Div operations
-            as = arguments(f)
+            as = [SymbolicUtils.unwrap_const(x) for x in arguments(f)]
             ps = [analyze_expr(a, funs, vars, args, tanArgs, expArgs) for a in as]
             return op(ps...)
         elseif op == (^)
             # Handle Pow operations  
-            as = arguments(f)
+            as = [SymbolicUtils.unwrap_const(x) for x in arguments(f)]
             p1 = analyze_expr(as[1], funs, vars, args, tanArgs, expArgs)
             p2 = analyze_expr(as[2], funs, vars, args, tanArgs, expArgs)
             if isa(p2, Integer)
@@ -431,21 +431,21 @@ function analyze_expr(f::SymbolicUtils.Symbolic , funs::Vector, vars::Vector{Sym
     end
 end
 
-function analyze_expr(f::Number , funs::Vector, vars::Vector{SymbolicUtils.Symbolic}, args::Vector, tanArgs::Vector, expArgs::Vector)
+function analyze_expr(f::Number , funs::Vector, vars::Vector{SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}}, args::Vector, tanArgs::Vector, expArgs::Vector)
     # TODO distinguish types of number (rational, real,  complex, etc. )
     return f
 end
 
 # Commented out - these types don't exist in SymbolicUtils 3.x, handled by generic method above
 # function analyze_expr(f::Union{SymbolicUtils.Add, SymbolicUtils.Mul, SymbolicUtils.Div}, funs::Vector, 
-#                       vars::Vector{SymbolicUtils.Symbolic}, args::Vector, tanArgs::Vector, expArgs::Vector)
+#                       vars::Vector{SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}}, args::Vector, tanArgs::Vector, expArgs::Vector)
 #     as = arguments(f)
 #     ps = [analyze_expr(a, funs, vars, args, tanArgs, expArgs) for a in as]
 #     operation(f)(ps...) # apply f
 # end
 
 # Commented out - SymbolicUtils.Pow doesn't exist in SymbolicUtils 3.x, handled by generic method above
-# function analyze_expr(f::SymbolicUtils.Pow, funs::Vector, vars::Vector{SymbolicUtils.Symbolic}, args::Vector, tanArgs::Vector, expArgs::Vector)
+# function analyze_expr(f::SymbolicUtils.Pow, funs::Vector, vars::Vector{SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}}, args::Vector, tanArgs::Vector, expArgs::Vector)
 #     as = arguments(f)
 #     p1 = analyze_expr(as[1], funs, vars, args, tanArgs, expArgs)
 #     p2 = analyze_expr(as[2], funs, vars, args, tanArgs, expArgs)
@@ -463,10 +463,10 @@ is_rational_multiple(a::SymbolicUtils.Mul, b::SymbolicUtils.Mul) =
     a.dict == b.dict && (isa(a.coeff, Integer) || isa(a.coeff, Rational)) &&
                         (isa(b.coeff, Integer) || isa(b.coeff, Rational))
 
-is_rational_multiple(a::SymbolicUtils.Mul, b::SymbolicUtils.Symbolic) =
+is_rational_multiple(a::SymbolicUtils.Mul, b::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}) =
     (isa(a.coeff, Integer) || isa(a.coeff, Rational)) && (b in keys(a.dict)) && isone(a.dict[b])
 
-is_rational_multiple(a::SymbolicUtils.Symbolic, b::SymbolicUtils.Mul) =
+is_rational_multiple(a::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, b::SymbolicUtils.Mul) =
     (isa(b.coeff, Integer) || isa(b.coeff, Rational)) && (a in keys(b.dict)) && isone(b.dict[a])
 
 rational_multiple(a, b) = error("not a rational multiple")
@@ -478,14 +478,14 @@ function rational_multiple(a::SymbolicUtils.Mul, b::SymbolicUtils.Mul)
     a.coeff//b.coeff
 end
 
-function rational_multiple(a::SymbolicUtils.Mul, b::SymbolicUtils.Symbolic) 
+function rational_multiple(a::SymbolicUtils.Mul, b::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}) 
     if !is_rational_multiple(a, b)
         error("not a rational multiple")        
     end
     return a.coeff//1
 end
 
-function rational_multiple(a::SymbolicUtils.Symbolic, b::SymbolicUtils.Mul)
+function rational_multiple(a::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, b::SymbolicUtils.Mul)
     if !is_rational_multiple(a, b)
         error("not a rational multiple")        
     end
@@ -510,7 +510,7 @@ function tan_nx(n::Int, x)
     sign_n*a/b
 end
 
-function analyze_expr(f::SymbolicUtils.Term , funs::Vector, vars::Vector{SymbolicUtils.Symbolic}, args::Vector, tanArgs::Vector, expArgs::Vector)    
+function analyze_expr(f::SymbolicUtils.Term , funs::Vector, vars::Vector{SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}}, args::Vector, tanArgs::Vector, expArgs::Vector)    
     op = operation(f)
     a = arguments(f)[1]
     if op == exp
@@ -597,7 +597,7 @@ function analyze_expr(f::SymbolicUtils.Term , funs::Vector, vars::Vector{Symboli
 end
 
 # Generic method for SymbolicUtils 3.x - handles all symbolic expressions
-function transform_symtree_to_mpoly(f::SymbolicUtils.Symbolic, vars::Vector, vars_mpoly::Vector)
+function transform_symtree_to_mpoly(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, vars::Vector, vars_mpoly::Vector)
     # Handle pure symbols
     if SymbolicUtils.issym(f)
         i = findfirst(x -> hash(x)==hash(f), vars)
@@ -609,17 +609,17 @@ function transform_symtree_to_mpoly(f::SymbolicUtils.Symbolic, vars::Vector, var
     op = operation(f)
     if op == (+)
         # Handle Add operations
-        return sum([transform_symtree_to_mpoly(a, vars, vars_mpoly) for a in arguments(f)])
+        return sum([transform_symtree_to_mpoly(SymbolicUtils.unwrap_const(a), vars, vars_mpoly) for a in arguments(f)])
     elseif op == (*)
         # Handle Mul operations
-        return prod([transform_symtree_to_mpoly(a, vars, vars_mpoly) for a in arguments(f)])
+        return prod([transform_symtree_to_mpoly(SymbolicUtils.unwrap_const(a), vars, vars_mpoly) for a in arguments(f)])
     elseif op == (/)
         # Handle Div operations
-        as = arguments(f)
+        as = [SymbolicUtils.unwrap_const(x) for x in arguments(f)]
         return transform_symtree_to_mpoly(as[1], vars, vars_mpoly)//transform_symtree_to_mpoly(as[2], vars, vars_mpoly)
     elseif op == (^)
         # Handle Pow operations
-        as = arguments(f)
+        as = [SymbolicUtils.unwrap_const(x) for x in arguments(f)]
         @assert isa(as[2], Integer)
         if as[2]>=0
             return transform_symtree_to_mpoly(as[1], vars, vars_mpoly)^as[2]
@@ -768,7 +768,7 @@ end
 
 struct AlgebraicNumbersInvolved <: Exception end
 
-function integrate_risch(f::SymbolicUtils.Add, x::SymbolicUtils.Symbolic; useQQBar::Bool=false,
+function integrate_risch(f::SymbolicUtils.Add, x::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}; useQQBar::Bool=false,
     catchNotImplementedError::Bool=true, catchAlgorithmFailedError::Bool=true)
     # For efficiency compute integral of sum as sum of integrals
     g = f.coeff*x
@@ -779,7 +779,7 @@ function integrate_risch(f::SymbolicUtils.Add, x::SymbolicUtils.Symbolic; useQQB
     g
 end
 
-function integrate_risch(f::SymbolicUtils.Symbolic, x::SymbolicUtils.Symbolic; useQQBar::Bool=false,
+function integrate_risch(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, x::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}; useQQBar::Bool=false,
     catchNotImplementedError::Bool=true, catchAlgorithmFailedError::Bool=true)
     try
         p, funs, vars, args = analyze_expr(f, x)

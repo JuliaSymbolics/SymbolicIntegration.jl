@@ -64,7 +64,7 @@ coshintegral(x::Any) = println("hyperbolic cosine integral Chi(z) function (http
 @syms ∫(var1,var2) substitute_after_int(var1, var2, var3)
 
 # very big arrays containing rules and their identifiers
-const RULES = SymbolicUtils.Rule[]
+const RULES = Pair{Expr, Expr}[]
 const IDENTIFIERS = String[]
 
 # to use or not the gamma function in integration results
