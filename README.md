@@ -10,8 +10,6 @@ SymbolicIntegration.jl solves indefinite integrals (find primitives of functions
 # Usage
 
 ```julia
-julia> using Pkg; Pkg.add("SymbolicIntegration") # installation
-
 julia> using SymbolicIntegration, Symbolics
 
 julia> @variables x
