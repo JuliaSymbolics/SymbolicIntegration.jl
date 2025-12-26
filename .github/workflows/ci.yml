@@ -38,7 +38,7 @@ jobs:
           arch: ${{ matrix.arch }}
       - uses: julia-actions/cache@v2
       - uses: julia-actions/julia-buildpkg@v1
-      - name: Run tests julia 1.11 ubuntu-latest and count rules
+      - name: Run tests julia 1 ubuntu-latest and count rules
         if: matrix.version == '1' && matrix.os == 'ubuntu-latest'
         run: |
           julia --project=. -e "
