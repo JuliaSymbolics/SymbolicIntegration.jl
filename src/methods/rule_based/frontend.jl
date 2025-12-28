@@ -1,10 +1,16 @@
 include("string_manipulation_helpers.jl")
 
-function add_statistics(identifier::String, problem::String)
-    open("rules_statistics.txt", "a") do io
-        println(io, identifier, " ", problem)
-    end
-end
+# """
+# Appends to the statistics file the identifier of the rule applied and
+# the problem on which it was applied. This is used to know which rules
+# are actually used and which are not.
+# """
+# function add_statistics(identifier::String, problem::String)
+#     open("test/rules_statistics.txt", "a") do io
+#         println(io, identifier, " ", problem)
+#     end
+# end
+
 """
 Applies iteratively rules from the RULES array until a result is found.
 returns a tuple:
@@ -20,7 +26,7 @@ function apply_rule(problem)
                 VERBOSE && println("Infinite cycle created by rule $(IDENTIFIERS[i]) applied on ", problem)
                 continue
             end
-            add_statistics(IDENTIFIERS[i], "$problem")
+            # add_statistics(IDENTIFIERS[i], "$problem")
             if VERBOSE && !in(IDENTIFIERS[i], SILENCE)
                 s = pretty_print_rule(rule, IDENTIFIERS[i])
                 printstyled("┌-------Applied rule $(IDENTIFIERS[i]) on ";);
