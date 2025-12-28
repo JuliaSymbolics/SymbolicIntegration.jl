@@ -417,7 +417,7 @@ function analyze_expr(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal} , fu
         a = arguments(f)[1]
         p = analyze_expr(a, funs, vars, args, tanArgs, expArgs)
         tname = Symbol(:t, length(vars)) 
-        t = SymbolicUtils.Sym{Real}(tname)
+        t = SymbolicUtils.Sym{SymbolicUtils.SymReal}(tname, type=Real)
         push!(funs, f)
         push!(vars, t)
         push!(args, p)
@@ -589,7 +589,7 @@ function analyze_expr(f::SymbolicUtils.Term , funs::Vector, vars::Vector{Symboli
         throw(NotImplementedError("integrand contains unsupported function $op"))
     p = analyze_expr(a, funs, vars, args, tanArgs, expArgs)
     tname = Symbol(:t, length(vars)) 
-    t = SymbolicUtils.Sym{Real}(tname)
+    t = SymbolicUtils.Sym{SymbolicUtils.SymReal}(tname, type=Real)
     push!(funs, f)
     push!(vars, t)
     push!(args, p)
@@ -826,6 +826,10 @@ function integrate_risch(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, 
                 @warn "AlgorithmFailedError: $(e.msg)"
                 return ∫(f, x)
             end
+        elseif (e isa MethodError || e isa ErrorException) && catchNotImplementedError
+            # Catch method errors and other errors that indicate unsupported cases
+            @warn "NotImplementedError: Risch algorithm encountered an error: $(e)"
+            return ∫(f, x)
         end
         rethrow(e)        
     end
