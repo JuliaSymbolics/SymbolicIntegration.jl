@@ -43,8 +43,7 @@ end
 """
     integrate(f, x)
     
-Compute the symbolic integral of expression `f` with respect to variable `x`
-using all available methods.
+integrate function called without method. Compute the symbolic integral of expression `f` with respect to variable `x` using all available methods.
 
 # Arguments
 - `f`: Symbolic expression to integrate (Symbolics.Num)
@@ -62,7 +61,7 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num; verbose=false, kwargs...)
     result = integrate_rule_based(f.val, x.val; verbose=verbose, kwargs...)
     !contains_int(result) && return Symbolics.wrap(result)
 
-    verbose && printstyled(" > RuleBasedMethod(use_gamma=false, verbose=false) failed, returning $result \n";color=:red)
+    verbose && printstyled(" > RuleBasedMethod(use_gamma=false, verbose=$verbose) failed, returning $result \n";color=:red)
     verbose && printstyled(" > Trying with RischMethod(use_algebraic_closure=false, catch_errors=true)...\n\n"; color=:red)
     
     result = integrate_risch(f.val, x.val; kwargs...)
@@ -75,11 +74,11 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num; verbose=false, kwargs...)
 end
 
 """
-    integrate(f, method=nothing)
+    integrate(f::Symbolics.Num, method=nothing)
 
-If f contains only one symbolic variable, lets say x, calls integrate(f, x, method)
+integrate function called without integration variable, and possibly without a method. If f contains only one symbolic variable, lets say x, calls integrate(f, x, method)
 """
-function integrate(f::Symbolics.Num, method=nothing; kwargs...)
+function integrate(f::Symbolics.Num, method::M=nothing; kwargs...) where M<:Union{AbstractIntegrationMethod,Nothing}
     vars = Symbolics.get_variables(f)
     if length(vars) > 1
         @warn "Multiple symbolic variables detect. Please pass the integration variable to the `integrate` function as second argument."
@@ -170,6 +169,5 @@ julia> integrate(1/sqrt(1 + x), x, rbm)
 ```
 """
 function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RuleBasedMethod; kwargs...)
-    return Symbolics.wrap(integrate_rule_based(f.val, x.val;
-        verbose=method.verbose, use_gamma=method.use_gamma, kwargs...))
+    return Symbolics.wrap(integrate_rule_based(f.val, x.val; verbose=method.verbose, use_gamma=method.use_gamma, kwargs...))
 end
