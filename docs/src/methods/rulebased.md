@@ -60,11 +60,11 @@ The rule left hand side pattern is the symbolic function `∫(var1, var2)` where
 The infix operator `⨸` is used to represent a custom division function, if called on integers returns a rational and if called on floats returns a float. This is done because // operator does not support floats. This specific character was chosen because it resembles the division symbol and because it has the same precedence as /.
 
 # Rules statistic
-Default is deactivated but its possible to activate that every time a rule gets applied on a expression it gets saved to a txt file (`test/rules_statistics.txt`) for continug which rules are actually used. to elaborate the file you can run from the home folder of the package
+Default is deactivated but its possible to activate that every time a rule gets applied on a expression it gets saved to a txt file (`test/statistics/rules_statistics.txt`) for continug which rules are actually used. to elaborate the file you can run from the home folder of the package
 ```
-julia --project=. test/elaborate_statistics.jl 
+julia --project=. test/statistics/elaborate_statistics.jl 
 ```
-this will generate `test/rules_statistics_elaborated.txt`
+this will generate `test/statistics/rules_statistics_elaborated.txt`
 
 # Problems
 Here are the problems holding back the most number of expressions to be integrated
