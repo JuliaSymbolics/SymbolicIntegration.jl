@@ -6,7 +6,7 @@ include("string_manipulation_helpers.jl")
 # are actually used and which are not.
 # """
 # function add_statistics(identifier::String, problem::String)
-#     open("test/rules_statistics.txt", "a") do io
+#     open("test/statistics/rules_statistics.txt", "a") do io
 #         println(io, identifier, " ", problem)
 #     end
 # end

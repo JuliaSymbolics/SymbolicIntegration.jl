@@ -1,8 +1,8 @@
 using SymbolicIntegration
 using Dates
 
-const STATS_FILE = "test/rules_statistics.txt"
-const OUTPUT_FILE = "test/rules_statistics_elaborated.txt"
+const STATS_FILE = "test/statistics/rules_statistics.txt"
+const OUTPUT_FILE = "test/statistics/rules_statistics_elaborated.txt"
 
 function main()
     # Dictionary to store integrals for each identifier

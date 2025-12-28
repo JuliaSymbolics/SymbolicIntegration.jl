@@ -2,28 +2,40 @@ using Test
 using SymbolicIntegration
 using Symbolics
 
-@testset "SymbolicIntegration.jl" begin
-    @testset "Package Loading" begin
-        @test SymbolicIntegration isa Module
-        @test isdefined(SymbolicIntegration, :integrate)
-    end
-    
-    @testset "[Both methods] Integration of simple functions" begin
-        @variables x
-        
-        @test isequal(simplify(integrate(x, x)      - (1//2)*(x^2)    ;expand=true), 0)
-        @test isequal(simplify(integrate(x^2, x)    - (1//3)*(x^3)    ;expand=true), 0)
-        @test isequal(simplify(integrate(1/x, x)    - log(x)          ;expand=true), 0)
-        @test isequal(simplify(integrate(exp(x), x) - exp(x)          ;expand=true), 0)
-        @test isequal(simplify(integrate(log(x), x) - (-x + x*log(x)) ;expand=true), 0)
-    end
-    
-    # Include Risch method test suites
-    include("methods/risch/test_rational_integration.jl")
-    include("methods/risch/test_complex_fields.jl") 
-    include("methods/risch/test_bronstein_examples.jl")
-    include("methods/risch/test_algorithm_internals.jl")
+const TEST_GROUP = get(ENV, "TEST_GROUP", "all")
 
-    # Include Rule Based method test suites
-    include("methods/rule_based/runtests.jl")
+@testset "SymbolicIntegration.jl" begin
+
+    if TEST_GROUP == "all" || TEST_GROUP == "easy"
+        @testset "Easy Tests" begin
+            @testset "Package Loading" begin
+                @test SymbolicIntegration isa Module
+                @test isdefined(SymbolicIntegration, :integrate)
+            end
+            
+            @testset "[Both methods] Integration of simple functions" begin
+                @variables x
+                
+                @test isequal(simplify(integrate(x, x)      - (1//2)*(x^2)    ;expand=true), 0)
+                @test isequal(simplify(integrate(x^2, x)    - (1//3)*(x^3)    ;expand=true), 0)
+                @test isequal(simplify(integrate(1/x, x)    - log(x)          ;expand=true), 0)
+                @test isequal(simplify(integrate(exp(x), x) - exp(x)          ;expand=true), 0)
+                @test isequal(simplify(integrate(log(x), x) - (-x + x*log(x)) ;expand=true), 0)
+            end
+
+            # Include Risch method test suites
+            include("methods/risch/test_rational_integration.jl")
+            include("methods/risch/test_complex_fields.jl") 
+            include("methods/risch/test_bronstein_examples.jl")
+            include("methods/risch/test_algorithm_internals.jl")
+
+        end
+    end
+
+    if TEST_GROUP == "all" || TEST_GROUP == "difficult"
+        @testset "Difficult Tests" begin
+            # Include Rule Based method test suites
+            include("methods/rule_based/runtests.jl")
+        end
+    end
 end
