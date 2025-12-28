@@ -826,6 +826,10 @@ function integrate_risch(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, 
                 @warn "AlgorithmFailedError: $(e.msg)"
                 return ∫(f, x)
             end
+        elseif (e isa MethodError || e isa ErrorException) && catchNotImplementedError
+            # Catch method errors and other errors that indicate unsupported cases
+            @warn "NotImplementedError: Risch algorithm encountered an error: $(e)"
+            return ∫(f, x)
         end
         rethrow(e)        
     end
