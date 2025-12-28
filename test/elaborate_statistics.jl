@@ -1,7 +1,8 @@
 using SymbolicIntegration
+using Dates
 
-const STATS_FILE = "rules_statistics.txt"
-const OUTPUT_FILE = "elaborated_stats.txt"
+const STATS_FILE = "test/rules_statistics.txt"
+const OUTPUT_FILE = "test/rules_statistics_elaborated.txt"
 
 function main()
     # Dictionary to store integrals for each identifier
@@ -71,6 +72,9 @@ function main()
     sort!(output_list, by = x -> -x[2])
 
     open(OUTPUT_FILE, "w") do io
+        println(io, "Elaborated Statistics Report")
+        println(io, "Generated on: ", Dates.now())
+        println(io, "-----------------------------------\n")
         for (id, count, integrals_str) in output_list
             println(io, "$id $count $integrals_str")
         end
