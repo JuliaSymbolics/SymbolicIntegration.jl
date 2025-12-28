@@ -12,10 +12,9 @@ using PolyLog
 
 testset_paths = [
 "easy.jl"
-# "each_rule_tests.jl"
 
 # Independent test suites
-# "0 Independent test suites/Apostol Problems.jl"
+"0 Independent test suites/Apostol Problems.jl"
 # "0 Independent test suites/Bondarenko Problems.jl"
 # "0 Independent test suites/Bronstein Problems.jl"
 # "0 Independent test suites/Charlwood Problems.jl"
@@ -253,4 +252,5 @@ println("Test results saved to: ", output_file)
 
 @testset "[Rule Based] Integration of simple functions" begin
     @test total_errored == 0
+    @test total_failed == 0
 end

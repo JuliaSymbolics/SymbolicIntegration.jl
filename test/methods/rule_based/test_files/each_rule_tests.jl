@@ -1,3 +1,6 @@
+# this is more of a archive than a actual test file
+# it says wich experssion activates wich rule, for many rules
+
 file_tests = [
 # 9_1
 (2/x, 2log(x), x) # 9_1_12_1
