@@ -417,7 +417,7 @@ function analyze_expr(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal} , fu
         a = arguments(f)[1]
         p = analyze_expr(a, funs, vars, args, tanArgs, expArgs)
         tname = Symbol(:t, length(vars)) 
-        t = SymbolicUtils.Sym{Real}(tname)
+        t = SymbolicUtils.Sym{SymbolicUtils.SymReal}(tname, type=Real)
         push!(funs, f)
         push!(vars, t)
         push!(args, p)
@@ -589,7 +589,7 @@ function analyze_expr(f::SymbolicUtils.Term , funs::Vector, vars::Vector{Symboli
         throw(NotImplementedError("integrand contains unsupported function $op"))
     p = analyze_expr(a, funs, vars, args, tanArgs, expArgs)
     tname = Symbol(:t, length(vars)) 
-    t = SymbolicUtils.Sym{Real}(tname)
+    t = SymbolicUtils.Sym{SymbolicUtils.SymReal}(tname, type=Real)
     push!(funs, f)
     push!(vars, t)
     push!(args, p)
