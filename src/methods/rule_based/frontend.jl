@@ -2,8 +2,8 @@ include("string_manipulation_helpers.jl")
 
 # """
 # Appends to the statistics file the identifier of the rule applied and
-# the problem on which it was applied. This is used to know wich rules
-# are actually used and wich are not.
+# the problem on which it was applied. This is used to know which rules
+# are actually used and which are not.
 # """
 # function add_statistics(identifier::String, problem::String)
 #     open("test/rules_statistics.txt", "a") do io
