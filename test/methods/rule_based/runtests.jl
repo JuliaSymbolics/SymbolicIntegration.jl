@@ -250,7 +250,7 @@ dual_println("="^80*"\n")
 close(output_io)
 println("Test results saved to: ", output_file)
 
-@testset "[Rule Based] Integration of simple functions" begin
+@testset "[Rule Based] Integration of $total_tests functions" begin
     @test total_errored == 0
     @test total_failed == 0
 end
