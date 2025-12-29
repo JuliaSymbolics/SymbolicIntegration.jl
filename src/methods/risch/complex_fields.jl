@@ -132,7 +132,8 @@ satisfies `D1(√-1)=0`.
 function Complexify(k::AbstractAlgebra.Field, D::Derivation) # where {T <:FieldElement, F<: AbstractAlgebra.Field{T}}
     !contains_I(k) || error("k already contains I=sqrt(-1)")
     kz, I = polynomial_ring(k, :I)
-    kI = residue_field(kz, I^2+1)[1]
+    # Use Generic.residue_field to ensure we get ResField type instead of Nemo's AbsSimpleNumField
+    kI = AbstractAlgebra.Generic.residue_field(kz, I^2+1)[1]
     DI = ComplexExtensionDerivation(kI, D)
     kI, kI(I), DI
 end

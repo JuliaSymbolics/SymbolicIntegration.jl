@@ -786,7 +786,8 @@ function integrate_risch(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, 
         if useQQBar
             F = Nemo.QQBar
         else
-            F = Nemo.QQ
+            # Use AbstractAlgebra.QQ instead of Nemo.QQ to avoid residue_field type issues
+            F = AbstractAlgebra.QQ
         end
         R, vars_mpoly = polynomial_ring(F, Symbol.(vars))
         Z = zero(R)//one(R)
