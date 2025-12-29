@@ -1,7 +1,3 @@
-
-[![Rules](https://img.shields.io/badge/dynamic/json?url=https://raw.githubusercontent.com/JuliaSymbolics/SymbolicIntegration.jl/badges/.github/badges/rules-count.json&query=$.message&label=Total%20rules&color=blue)](https://github.com/JuliaSymbolics/SymbolicIntegration.jl)
-
-
 - [Rule based method](#rule-based-method)
     - [Configuration options](#configuration-options)
 - [How it works internally](#how-it-works-internally)
