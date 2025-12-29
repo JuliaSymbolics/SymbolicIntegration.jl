@@ -26,7 +26,7 @@ using SymbolicIntegration, Symbolics
 cases = Dict(
     "polynomials" => [x, x^2 + 3*x + 2, x^5 - 2x + 1, x^7, x^3 + x],
     "rational_positive_degree" => [(x^2+1)/(x+1), (x^4+3x^2+2)/(x^2+1),
-                                   (x^3+x+1)/(x^2+2), (x^2+3x+2)/(x^2+4x+4), (x^2-1)/(x-1)],
+                                   (x^3+x+1)/(x^2+2), (x^2+3x+2)/(x^2+4x+4), (x^3+2x+5)/(x^2+3x+2)],
     "rational_negative_degree" => [1/x, 1/(x^2+1), 1/(x^3), x/(x^2+1)^2, 1/(x*(x+1))],
     "exponentials" => [exp(x), exp(2*x) + x, x*exp(x^2), exp(sin(x)), exp(x)/(1 + exp(2*x))],
     "logarithms" => [log(x), x*log(x), log(x)^2, log(1 + x)/x, x^2*log(x)],
@@ -44,7 +44,7 @@ For each expression `e` above, the following checks were performed:
 rbm = RuleBasedMethod()
 risch = RischMethod()
 
-function success(res) # success = integral returned with no remaining ∫(⋅) pieces
+function success(res) # success = integral returned with no remaining unresolved integral expressions
     res !== nothing && !SymbolicIntegration.contains_int(Symbolics.unwrap(res))
 end
 
