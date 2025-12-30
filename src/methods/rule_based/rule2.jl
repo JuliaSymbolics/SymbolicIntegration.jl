@@ -131,13 +131,13 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
             push!(fad, arguments(arg_data[2])[1], -1//2)
         elseif is1divsmth && iscall(arg_data[2]) && (operation(arg_data[2]) === exp)
             # if data is of the alternative form 1/exp(...), it might match ℯ ^ -...
-            push!(fad, ℯ, -arguments(arg_data[2])[1])
+            push!(fad, ℯ, -1*arguments(arg_data[2])[1])
         elseif is1divsmth
             # if data is of the alternative form 1/(...), it might match with exponent = -1
             push!(fad, arg_data[2], -1)
         elseif (operation(data) === ^) && iscall(arg_data[1]) && (operation(arg_data[1]) === /) && SymbolicUtils._isone(arguments(arg_data[1])[1])
             # if data is of the alternative form (1/...)^(...)
-            push!(fad, arguments(arg_data[1])[2], arg_data[2])
+            push!(fad, arguments(arg_data[1])[2], -1*arg_data[2])
         elseif operation(data)===exp
             # if data is a exp call, it might match with base e
             push!(fad, ℯ, arg_data[1])
