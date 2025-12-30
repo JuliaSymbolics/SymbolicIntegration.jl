@@ -132,7 +132,8 @@ end
     r5 = :((~c)^~m*(~a)^3/(~b))=>:(~b)
     r6 = :((~d + ~x) * (~(!a) + ~(!b) * ~x) ^ ~(!p)) => :(~p) # prod of not all powers
     r7 = :((~c)*(~a)*(~b)^~n)=>:(~n) # prod of not all powers
-    r8 = :((~c)*(~a)^~m*(~b)^~n)=>:(~n,~m) # prod of not all powers
+    r8 = :((~c)*(~a)^~m*(~b)^~n::(x->(x==-1)))=>:(~n,~m) # prod of not all powers
+    # the predicate is needed bc otherwise both (n=-1,m=-3) and (n=-3,m=-1) would be valid
     @test eq(SymbolicIntegration.rule2(r, x^2/y^3), 3)
     @test eq(SymbolicIntegration.rule2(r2, x^2*y^3), 3)
     @test eq(SymbolicIntegration.rule2(r2, x^2/y^3), -3)
