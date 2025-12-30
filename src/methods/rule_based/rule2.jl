@@ -135,7 +135,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         elseif is1divsmth
             # if data is of the alternative form 1/(...), it might match with exponent = -1
             push!(fad, arg_data[2], -1)
-        elseif (operation(data) === ^) && iscall(arg_data[1]) && (operation(arg_data[1]) === /) && _isone(arguments(arg_data[1])[1])
+        elseif (operation(data) === ^) && iscall(arg_data[1]) && (operation(arg_data[1]) === /) && SymbolicUtils._isone(arguments(arg_data[1])[1])
             # if data is of the alternative form (1/...)^(...)
             push!(fad, arguments(arg_data[1])[2], arg_data[2])
         elseif operation(data)===exp
