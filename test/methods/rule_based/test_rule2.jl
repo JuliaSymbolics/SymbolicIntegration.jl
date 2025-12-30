@@ -27,9 +27,11 @@ end
 @testset "neg exponent" begin
     @syms x
     r = :((~x::(in->!iscall(in))) ^ ~m) => :(~m)
+    r2 = :((~x::(in->!iscall(in))) ^ ~m) => :(~~)
+    @test !iscall(1/x)
+    println(SymbolicIntegration.rule2(r, (1/x)^3))
     @test eq(SymbolicIntegration.rule2(r, 1/(x^3)), -3)
     @test eq(SymbolicIntegration.rule2(r, (1/x)^3), -3)
-    @test eq(SymbolicIntegration.rule2(r, (1/x)^3), 3)
     @test eq(SymbolicIntegration.rule2(r, 1/x), -1)
     @test eq(SymbolicIntegration.rule2(r, exp(x)), x)
     @test eq(SymbolicIntegration.rule2(r, sqrt(x)), 1//2)
