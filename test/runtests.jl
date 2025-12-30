@@ -29,13 +29,15 @@ const TEST_GROUP = get(ENV, "TEST_GROUP", "all")
             include("methods/risch/test_bronstein_examples.jl")
             include("methods/risch/test_algorithm_internals.jl")
 
+            # test internals of rulebased methods
+            include("methods/rule_based/test_rule2.jl")
+
         end
     end
 
     if TEST_GROUP == "all" || TEST_GROUP == "difficult"
         @testset "Difficult Tests" begin
-            # Include Rule Based method test suites
-            include("methods/rule_based/runtests.jl")
+            include("rundifficulttests.jl")
         end
     end
 end
