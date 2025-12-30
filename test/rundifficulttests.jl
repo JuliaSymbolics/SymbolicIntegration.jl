@@ -89,11 +89,43 @@ testset_paths = [
 # "4 Trig functions/4.1 Sine/4.1.1.1 (a+b sin)^n.jl"
 ]
 
+"""
+Tests a single integration expression.
+Output:
+- 0 if success
+- 1 if maybe fail
+- 2 if fail
+- 3 if exception
+"""
+function tests_single_integral(integral, int_var, result, method)
+    try
+        elapsed_time = @elapsed computed_result = integrate(integral, int_var, method)
+
+        if SymbolicIntegration.contains_int(computed_result)
+            dual_printstyled("[ fail ]∫( $(integral) )d$(int_var) = $(result) but got:\n      $(computed_result) ($(round(elapsed_time, digits=4))s)\n"; color = :red)
+            return elapsed_time, 2
+        elseif !isequal(simplify(computed_result  - result;expand=true), 0)
+            dual_printstyled("[ fail?]∫( $(integral) )d$(int_var) = $(result) but got:\n      $(computed_result) ($(round(elapsed_time, digits=4))s)\n"; color = :light_red)
+            return elapsed_time, 1
+        else
+            dual_printstyled("[  ok  ]∫( $(integral) )d$(int_var) = $(result) ($(round(elapsed_time, digits=4))s)\n"; color = :green)
+            return elapsed_time, 0
+        end
+    catch exceptionz
+        if isa(exceptionz, InterruptException)
+            rethrow(exceptionz)
+        else
+            dual_printstyled("[except] exception during ∫( $(integral) )d$(int_var) : $(exceptionz)\n"; color=:magenta)
+            return -1, 3
+        end
+    end
+end
 
 # test all tests in the testfile path. expects it to be
 # an array called `data` of tuples of the form:
 # (integrand, result, integration_var, number)
 function test_from_file(path)
+    println("Testing from file: ", relpath(path))
     !isfile(path) && error("Test set file not found: ", relpath(path))
 
     dual_println("Loading tests from ", relpath(path), "...")
@@ -103,47 +135,27 @@ function test_from_file(path)
     file_tests = Base.invokelatest(() -> Main.file_tests)
     dual_println("Testing ", length(file_tests), " integrals...")
 
-    succeeded = 0
-    failed = 0
-    maybe_failed = 0
-    errored = 0
-    times = Float64[]
+    input_exprs = String[]
+    times_rb = Float64[]
+    times_rs = Float64[]
+    result_codes_rb = Int[] # rule based
+    result_codes_rs = Int[] # risch
     
     for tuple in file_tests
-        try
-            elapsed_time = @elapsed computed_result = integrate(tuple[1], tuple[3], RuleBasedMethod(verbose = false))
-            push!(times, elapsed_time)
-
-            if SymbolicIntegration.contains_int(computed_result)
-                dual_printstyled("[ fail ]∫( $(tuple[1]) )d$(tuple[3]) = $(tuple[2]) but got:\n      $(computed_result) ($(round(elapsed_time, digits=4))s)\n"; color = :red)
-                failed += 1
-            elseif !isequal(simplify(computed_result  - tuple[2];expand=true), 0)
-                dual_printstyled("[ fail?]∫( $(tuple[1]) )d$(tuple[3]) = $(tuple[2]) but got:\n      $(computed_result) ($(round(elapsed_time, digits=4))s)\n"; color = :light_red)
-                maybe_failed += 1
-            else
-                dual_printstyled("[  ok  ]∫( $(tuple[1]) )d$(tuple[3]) = $(tuple[2]) ($(round(elapsed_time, digits=4))s)\n"; color = :green)
-                succeeded += 1
-            end
-        catch exceptionz
-            if isa(exceptionz, InterruptException)
-                rethrow(exceptionz)
-            else
-                dual_printstyled("[except] exception during ∫( $(tuple[1]) )d$(tuple[3]) : $(exceptionz)\n"; color=:magenta)
-                errored += 1
-            end
-        end
-        
+        push!(input_exprs, string(tuple[1]))
+        elapsed_time, result_code = tests_single_integral(tuple[1], tuple[3], tuple[2], RuleBasedMethod())
+        push!(result_codes_rb, result_code)
+        push!(times_rb, elapsed_time >= 0 ? elapsed_time : 0.0)
+        elapsed_time, result_code = tests_single_integral(tuple[1], tuple[3], tuple[2], RischMethod())
+        push!(result_codes_rs, result_code)
+        push!(times_rs, elapsed_time >= 0 ? elapsed_time : 0.0)
     end
 
-    testfile_time = sum(times)
-    avg_time = testfile_time / length(file_tests)
-    max_time = maximum(times)
-    min_time = minimum(times)
-    
-    print_results(succeeded, maybe_failed, failed, errored, length(file_tests), relpath(path))
-    dual_println("Total=$(round(testfile_time, digits=3))s, Avg=$(round(avg_time, digits=4))s, Min=$(round(min_time, digits=4))s, Max=$(round(max_time, digits=4))s\n\n\n")
+    print_results("RuleBasedMethod", result_codes_rb, times_rb, relpath(path))
+    print_results("RischMethod", result_codes_rs, times_rs, relpath(path))
+    dual_println("\n")
 
-    return (length(file_tests), testfile_time, succeeded, failed, maybe_failed, errored)
+    return (input_exprs, result_codes_rb, result_codes_rs, times_rb, times_rs)
 end
 
 
@@ -153,7 +165,7 @@ failed_color = :red
 errored_color = :magenta
 
 # Create test_results directory if it doesn't exist
-test_results_dir = joinpath(@__DIR__, "../../test_results")
+test_results_dir = joinpath(@__DIR__, "test_results")
 mkpath(test_results_dir)
 
 # Create output file with timestamp
@@ -180,8 +192,20 @@ function dual_printstyled(text; color=:normal, args...)
     flush(output_io)
 end
 
-function print_results(succeeded, maybe_failed, failed, errored, total, path)
-    dual_printstyled("$succeeded tests succeeded"; color=success_color)
+function print_results(method, result_codes, times, path)
+    succeeded = count(x -> x == 0, result_codes)
+    failed = count(x -> x == 2, result_codes)
+    maybe_failed = count(x -> x == 1, result_codes)
+    errored = count(x -> x == 3, result_codes)
+    total = length(result_codes)
+
+    testfile_time = sum(times)
+    avg_time = testfile_time / length(result_codes)
+    max_time = maximum(times)
+    min_time = minimum(times)
+
+
+    dual_printstyled("\n$method: $succeeded tests succeeded"; color=success_color)
     dual_printstyled(", ")
     dual_printstyled("$failed failed"; color = failed_color)
     dual_printstyled(", ")
@@ -189,6 +213,9 @@ function print_results(succeeded, maybe_failed, failed, errored, total, path)
     dual_printstyled(", ")
     dual_printstyled("$errored errored"; color = errored_color)
     dual_printstyled(", out of $total tests of $path\n")
+
+    dual_println("Total=$(round(testfile_time, digits=3))s, Avg=$(round(avg_time, digits=4))s, Min=$(round(min_time, digits=4))s, Max=$(round(max_time, digits=4))s\n")
+
 end
 
 # Write header to file
@@ -221,36 +248,57 @@ dual_println("="^74*"\n\n\n")
 
 @variables x a b c d e f g h k m n p t z A B C D I
 
-_ = integrate(atanh(x),x,RuleBasedMethod(verbose=false)) # warming up
+_ = integrate(atanh(x),x,RuleBasedMethod()) # warming up
+_ = integrate(atanh(x),x,RischMethod()) # warming up
 
 # analytics for all the testsets
-total_tests = 0
-total_succeeded = 0
-total_maybe_failed = 0
-total_failed = 0
-total_errored = 0
-total_time = 0
+total_input_exprs = String[]
+total_result_codes_rb = Int[]
+total_result_codes_rs = Int[]
+total_times_rb = Float64[]
+total_times_rs = Float64[]
 
 for path in testset_paths
-    tmp = test_from_file(joinpath(@__DIR__,"test_files/"*path))
+    input_exprs, result_codes_rb, result_codes_rs, times_rb, times_rs = test_from_file(joinpath(@__DIR__,"test_files/"*path))
 
-    global total_tests += tmp[1]
-    global total_time += tmp[2]
-    global total_succeeded += tmp[3]
-    global total_failed += tmp[4]
-    global total_maybe_failed += tmp[5]
-    global total_errored += tmp[6]
+    append!(total_input_exprs, input_exprs)
+    append!(total_result_codes_rb, result_codes_rb)
+    append!(total_result_codes_rs, result_codes_rs)
+    append!(total_times_rb, times_rb)
+    append!(total_times_rs, times_rs)
 end
 
 dual_println("="^22*"SymbolicIntegration.jl Test Results"*"="^23)
-print_results(total_succeeded, total_maybe_failed, total_failed, total_errored, total_tests, "all testsets")
-dual_println("Total=$(round(total_time, digits=3))s, Avg=$(round(total_time / total_tests, digits=4))s")
+# print cool table: input expr, rb return code, rs return code.
+# where the return codes are: 0 ✅, 1 🆚, 2 ❌, 3 ️⚛️
+column1_width = max(maximum(length.(total_input_exprs)) + 2, length("Input Expression,"))
+dual_printstyled(rpad("Input Expression,", column1_width))
+dual_printstyled("Rb,Rs\n")
+for (i, expr) in enumerate(total_input_exprs)
+    dual_printstyled(rpad(expr, column1_width))
+    rb_code = total_result_codes_rb[i]
+    rs_code = total_result_codes_rs[i]
+
+    rb_symbol = rb_code == 0 ? "✅" : rb_code == 1 ? "🆚" : rb_code == 2 ? "❌" : "⚛️"
+    rs_symbol = rs_code == 0 ? "✅" : rs_code == 1 ? "🆚" : rs_code == 2 ? "❌" : "⚛️"
+
+    dual_printstyled("$rb_symbol,$rs_symbol\n")
+end
+
+
+print_results("RuleBasedMethod", total_result_codes_rb, total_times_rb, "all testsets")
+print_results("RischMethod", total_result_codes_rs, total_times_rs, "all testsets")
 dual_println("="^80*"\n")
 
 close(output_io)
 println("Test results saved to: ", output_file)
 
-@testset "[Rule Based] Integration of $total_tests functions" begin
-    @test total_errored == 0
-    @test total_failed == 0
+@testset "[Rule Based] Integration of $(length(total_input_exprs)) functions" begin
+    n_of_not_success = count(x -> x != 0, total_result_codes_rb)
+    @test n_of_not_success == 0
+end
+
+@testset "[Risch] Integration of $(length(total_input_exprs)) functions" begin
+    n_of_not_success = count(x -> x != 0, total_result_codes_rs)
+    @test n_of_not_success == 0
 end

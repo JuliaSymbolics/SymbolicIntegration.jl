@@ -34,8 +34,7 @@ const TEST_GROUP = get(ENV, "TEST_GROUP", "all")
 
     if TEST_GROUP == "all" || TEST_GROUP == "difficult"
         @testset "Difficult Tests" begin
-            # Include Rule Based method test suites
-            include("methods/rule_based/runtests.jl")
+            include("rundifficulttests.jl")
         end
     end
 end
