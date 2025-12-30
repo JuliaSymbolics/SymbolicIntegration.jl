@@ -29,6 +29,9 @@ const TEST_GROUP = get(ENV, "TEST_GROUP", "all")
             include("methods/risch/test_bronstein_examples.jl")
             include("methods/risch/test_algorithm_internals.jl")
 
+            # test internals of rulebased methods
+            include("methods/rule_based/test_rule2.jl")
+
         end
     end
 
