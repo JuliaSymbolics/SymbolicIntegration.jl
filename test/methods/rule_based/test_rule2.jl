@@ -29,6 +29,7 @@ end
     r = :((~x::(in->!iscall(in))) ^ ~m) => :(~m)
     @test eq(SymbolicIntegration.rule2(r, 1/(x^3)), -3)
     @test eq(SymbolicIntegration.rule2(r, (1/x)^3), -3)
+    @test eq(SymbolicIntegration.rule2(r, (1/x)^3), 3)
     @test eq(SymbolicIntegration.rule2(r, 1/x), -1)
     @test eq(SymbolicIntegration.rule2(r, exp(x)), x)
     @test eq(SymbolicIntegration.rule2(r, sqrt(x)), 1//2)
