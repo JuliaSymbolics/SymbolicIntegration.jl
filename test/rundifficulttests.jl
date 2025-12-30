@@ -271,6 +271,7 @@ end
 dual_println("="^22*"SymbolicIntegration.jl Test Results"*"="^23)
 # print cool table: input expr, rb return code, rs return code.
 # where the return codes are: 0 ✅, 1 🆚, 2 ❌, 3 ️⚛️
+dual_println("Success = ✅, Maybe Fail = 🆚, Fail = ❌, Exception = ⚛️\n")
 column1_width = max(maximum(length.(total_input_exprs)) + 2, length("Input Expression,"))
 dual_printstyled(rpad("Input Expression,", column1_width))
 dual_printstyled("Rb,Rs\n")
