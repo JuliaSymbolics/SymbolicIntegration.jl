@@ -17,6 +17,7 @@ makedocs(
         "Manual" => [
             "manual/getting_started.md",
             "manual/contributing.md",
+            "manual/method_coverage.md",
         ],
         "Integration Methods" => [
             "methods/overview.md",
