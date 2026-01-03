@@ -1,12 +1,24 @@
 # \((".*?"),\n@rule (∫(.|\n)*?)=>((.|\n)*?: nothing\))
 # ($1,\n:($2) => :($4)
 
-pred_igt_m_plus_half(m) = igt(m + 1/2, 0)      # m + 1/2 > 0, used in rule 5
+# For variable m
+pred_igt_m_plus_half(m) = igt(m + 1/2, 0)      # m + 1/2 > 0, used in rule 5, 18
+pred_ilt_m_plus_3half(m) = ilt(m + 3/2, 0)      # m + 3/2 < 0, used in rule 7
+pred_ilt_m_neg1(m) = ilt(m, -1)                  # m < -1, used in rule 10, 11
 pred_lt_m_neg1(m) = lt(m, -1)                   # m < -1, used in rule 20
+pred_ilt_m_0(m) = ilt(m, 0)                      # m < 0, used in rule 13
 pred_lt_neg1_m_0(m) = lt(-1, m, 0)              # -1 < m < 0, used in rule 32
-pred_gt_n_0(n) = gt(n, 0)                       # n > 0, used in rule 19
+
+# For variable n
+pred_gt_n_0(n) = gt(n, 0)                       # n > 0, used in rule 10, 19
+pred_lt_n_0(n) = lt(n, 0)                        # n < 0, used in rule 11
+pred_igt_n_plus_half(n) = igt(n + 1/2, 0)       # n + 1/2 > 0, used in rule 18
 pred_le_neg1_n_0(n) = le(-1, n, 0)              # -1 <= n <= 0, used in rule 32
+
+# For variables a
 pred_gt_a_0(a) = gt(a, 0)                       # a > 0, used in rule 21
+
+# For variables b
 pred_gt_b_0(b) = gt(b, 0)                       # b > 0, used in rule 23
 
 
@@ -52,10 +64,9 @@ file_rules = [
 (~x)⨸((~a)*(~c)*sqrt((~a) + (~b)*(~x))*sqrt((~c) + (~d)*(~x))) : nothing))
 
 ("1_1_1_2_7",
-:(∫(((~a) + (~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~m),(~x)) ) => :(
+:(∫(((~a) + (~!b)*(~x))^(~m::pred_ilt_m_plus_3half)*((~c) + (~!d)*(~x))^(~m::pred_ilt_m_plus_3half),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~d), (~x)) &&
-    eq((~b)*(~c) + (~a)*(~d), 0) &&
-    ilt((~m) + 3/2, 0) ?
+    eq((~b)*(~c) + (~a)*(~d), 0) ?
 -(~x)*((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^((~m) + 1)⨸(2*(~a)*(~c)*((~m) + 1)) + (2*(~m) + 3)⨸(2*(~a)*(~c)*((~m) + 1))* ∫(((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^((~m) + 1), (~x)) : nothing))
 
 ("1_1_1_2_8",
@@ -77,21 +88,17 @@ file_rules = [
 ((~a) + (~b)*(~x))^ fracpart((~m))*((~c) + (~d)*(~x))^fracpart((~m))⨸((~a)*(~c) + (~b)*(~d)*(~x)^2)^fracpart((~m))* ∫(((~a)*(~c) + (~b)*(~d)*(~x)^2)^(~m), (~x)) : nothing))
 
 ("1_1_1_2_10",
-:(∫(((~!a) + (~!b)*(~x))^(~m)*((~!c) + (~!d)*(~x))^(~n),(~x)) ) => :(
+:(∫(((~!a) + (~!b)*(~x))^(~m::pred_ilt_m_neg1)*((~!c) + (~!d)*(~x))^(~n::pred_gt_n_0),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~d), (~n), (~x)) &&
     !eq((~b)*(~c) - (~a)*(~d), 0) &&
-    ilt((~m), -1) &&
-    !(ext_isinteger((~n))) &&
-    gt((~n), 0) ?
+    !(ext_isinteger((~n))) ?
 ((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^(~n)⨸((~b)*((~m) + 1)) - (~d)*(~n)⨸((~b)*((~m) + 1))*∫(((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^((~n) - 1), (~x)) : nothing))
 
 ("1_1_1_2_11",
-:(∫(((~!a) + (~!b)*(~x))^(~m)*((~!c) + (~!d)*(~x))^(~n),(~x)) ) => :(
+:(∫(((~!a) + (~!b)*(~x))^(~m::pred_ilt_m_neg1)*((~!c) + (~!d)*(~x))^(~n::pred_lt_n_0),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~d), (~n), (~x)) &&
     !eq((~b)*(~c) - (~a)*(~d), 0) &&
-    ilt((~m), -1) &&
-    !(ext_isinteger((~n))) &&
-    lt((~n), 0) ?
+    !(ext_isinteger((~n))) ?
 ((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^((~n) + 1)⨸(((~b)*(~c) - (~a)*(~d))*((~m) + 1)) - (~d)*((~m) + (~n) + 2)⨸(((~b)*(~c) - (~a)*(~d))*((~m) + 1))* ∫(((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^(~n), (~x)) : nothing))
 
 ("1_1_1_2_12",
@@ -109,10 +116,9 @@ file_rules = [
 ∫(ext_expand(((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~n), (~x)), (~x)) : nothing))
 
 ("1_1_1_2_13",
-:(∫(((~a) + (~!b)*(~x))^(~m)*((~!c) + (~!d)*(~x))^(~!n),(~x)) ) => :(
+:(∫(((~a) + (~!b)*(~x))^(~m::pred_ilt_m_0)*((~!c) + (~!d)*(~x))^(~!n),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~d), (~x)) &&
     !eq((~b)*(~c) - (~a)*(~d), 0) &&
-    ilt((~m), 0) &&
     ext_isinteger((~n)) &&
     !(
         igt((~n), 0) &&
@@ -177,11 +183,9 @@ file_rules = [
 -2⨸((~b)*((~a) + (~b)*(~x))^(1⨸4)*((~c) + (~d)*(~x))^(1⨸4)) + (~c)*∫(1⨸(((~a) + (~b)*(~x))^(5⨸4)*((~c) + (~d)*(~x))^(5⨸4)), (~x)) : nothing))
 
 ("1_1_1_2_18",
-:(∫(((~a) + (~!b)*(~x))^(~m)*((~c) + (~!d)*(~x))^(~n),(~x)) ) => :(
+:(∫(((~a) + (~!b)*(~x))^(~m::pred_igt_m_plus_half)*((~c) + (~!d)*(~x))^(~n::pred_igt_n_plus_half),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~d), (~x)) &&
     eq((~b)*(~c) + (~a)*(~d), 0) &&
-    igt((~m) + 1/2, 0) &&
-    igt((~n) + 1/2, 0) &&
     lt((~m), (~n)) ?
 ((~a) + (~b)*(~x))^((~m) + 1)*((~c) + (~d)*(~x))^(~n)⨸((~b)*((~m) + (~n) + 1)) + 2*(~c)*(~n)⨸((~m) + (~n) + 1)*∫(((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^((~n) - 1), (~x)) : nothing))
 
