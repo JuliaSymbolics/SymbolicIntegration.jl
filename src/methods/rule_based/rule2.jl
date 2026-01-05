@@ -1,6 +1,5 @@
 # TODO rule condition inside the process? leads to faster cycling trough all the rules?
 using Combinatorics: permutations
-using SymbolicUtils: _isone
 
 const SymsType = SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}
 const MatchDict = Base.ImmutableDict{Symbol, SymsType}
