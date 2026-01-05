@@ -23,6 +23,7 @@ include("methods/rule_based/frontend.jl")
 include("methods/rule_based/rules_utility_functions.jl")
 include("methods/rule_based/rules_loader.jl")
 include("methods/rule_based/rule2.jl")
+include("methods/rule_based/one_var_predicates.jl")
 
 # Add method dispatch system
 include("methods.jl")
