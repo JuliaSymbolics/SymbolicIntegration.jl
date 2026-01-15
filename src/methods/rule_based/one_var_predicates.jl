@@ -10,3 +10,8 @@ P_lt_neg1_x_0(x::UFI)       = lt(-1, x, 0)::Bool
 P_gt_0(x::UFI)              = gt(x, 0)::Bool
 P_lt_x_0(x::UFI)            = lt(x, 0)::Bool
 P_le_neg1_x_0(x::UFI)       = le(-1, x, 0)::Bool
+
+# For variable p predicates (rule 1.1.1.3)
+P_igt_x_0(x::UFI)      = igt(x, 0)::Bool     
+P_gt_x_1(x::UFI)       = gt(x, 1)::Bool       
+P_lt_0_x_1(x::UFI)     = lt(0, x, 1)::Bool   
