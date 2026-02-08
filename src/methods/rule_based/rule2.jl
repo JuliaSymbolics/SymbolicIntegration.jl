@@ -6,6 +6,11 @@ const MatchDict = Base.ImmutableDict{Symbol, SymsType}
 const FAIL_DICT = MatchDict(:_fail,0)
 const op_map = Dict(:+ => 0, :* => 1, :^ => 1)
 
+# # To use the verbose print uncomment the:
+# # - # printdb function definition
+# # - all the # printdb calls
+# # - the line "global indentation_zero = length(stacktrace())" in rule2 function
+# # - the line "m===FAIL_DICT && # printdb(1,"Rule failed to match")"
 # """
 # Rule verbose level:
 # 0 - print nothing
@@ -14,6 +19,7 @@ const op_map = Dict(:+ => 0, :* => 1, :^ => 1)
 # 3 - print also every recursive call
 # 4 - print also details of execution like defsolt and permutations
 # 5 - print also every permutation of the commutative checks
+# 6 - print also the rewriting of the rhs
 # """
 # verbose_level::Int = 0
 # indentation_zero::Int=0
@@ -257,7 +263,7 @@ Expr
 substitute it with the value found in matches dictionary.
 """
 function rewrite(matches::MatchDict, rhs::Expr)
-    # printdb(3, "called rewrite with rhs $rhs")
+    # printdb(6, "called rewrite with rhs $rhs")
     # if a expression of a slot, change it with the matches
     if rhs.head == :call && rhs.args[1] == :(~)
         var_name = rhs.args[2]
@@ -288,11 +294,19 @@ rewrite(matches::MatchDict, rhs::QuoteNode) = rhs::QuoteNode
 # rewrite(matches::MatchDict, rhs) = rhs <--- NOT PRESENT ON PURPOSE,
 # i want to know each type exactly
 
-function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
+"""
+rule: of the form :(e1) => :(e2), where e1 is a Expr
+representing the inside of the ∫ operation. In this Expr ~x is the 
+integration variable. So every rule is written assuming ~x is the integration variable
+
+integrand: the input integration expression
+integration_var: the input integration variable
+"""
+function rule2(rule::Pair{Expr, Expr}, integrand::SymsType, integration_var::SymsType)::Union{SymsType, Nothing}
     # global indentation_zero = length(stacktrace())
-    # printdb(1, "Applying $rule on $expr")
-    m = check_expr_r(expr, rule.first, MatchDict())
-    m===FAIL_DICT && # printdb(1,"Rule failed to match")
+    # printdb(1, "Applying $rule on $integrand")
+    m = check_expr_r(integrand, rule.first, MatchDict(:x,integration_var))
+    # m===FAIL_DICT && # printdb(1,"Rule failed to match")
     m===FAIL_DICT && return nothing::Nothing
     # printdb(1,"Rule matched successfully")
     rule.second==:(~~) && return m # useful for debug
