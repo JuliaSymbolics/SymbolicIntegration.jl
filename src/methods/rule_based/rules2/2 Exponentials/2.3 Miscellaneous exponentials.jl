@@ -256,7 +256,7 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*(~F)^((~
     isbinomial((~v), (~x)) &&
     !(
         linear_without_simplify((~u), (~x)) &&
-        binomial_without_simplify((~v), (~x))
+        isbinomial_without_simplify((~v), (~x))
     ) ?
 ∫(expand_to_sum((~u), (~x))^(~m)*(~F)^expand_to_sum((~v), (~x)), (~x)) : nothing))
 

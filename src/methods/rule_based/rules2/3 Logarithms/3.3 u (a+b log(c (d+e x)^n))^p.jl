@@ -273,7 +273,7 @@ end : nothing))
     isbinomial((~u), (~x)) &&
     linear((~v), (~x)) &&
     !(
-        binomial_without_simplify((~u), (~x)) &&
+        isbinomial_without_simplify((~u), (~x)) &&
         linear_without_simplify((~v), (~x))
     ) ?
 ∫(expand_to_sum((~u), (~x))^(~q)*((~a) + (~b)*log((~c)*expand_to_sum((~v), (~x))^(~n)))^(~p), (~x)) : nothing))
