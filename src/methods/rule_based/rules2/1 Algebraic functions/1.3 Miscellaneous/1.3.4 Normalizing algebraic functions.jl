@@ -213,14 +213,14 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
 @rule ∫((~u)^(~p),(~x)) =>
     !contains_var((~p), (~x)) &&
     isbinomial((~u), (~x)) &&
-    !(binomial_without_simplify((~u), (~x))) ?
+    !(isbinomial_without_simplify((~u), (~x))) ?
 ∫(expand_to_sum((~u), (~x))^(~p), (~x)) : nothing)
 
 ("1_3_4_33",
 @rule ∫(((~!c)*(~x))^(~!m)*(~u)^(~!p),(~x)) =>
     !contains_var((~c), (~m), (~p), (~x)) &&
     isbinomial((~u), (~x)) &&
-    !(binomial_without_simplify((~u), (~x))) ?
+    !(isbinomial_without_simplify((~u), (~x))) ?
 ∫(((~c)*(~x))^(~m)*expand_to_sum((~u), (~x))^(~p), (~x)) : nothing)
 
 ("1_3_4_34",
@@ -228,7 +228,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
     !contains_var((~p), (~q), (~x)) &&
     isbinomial([(~u), (~v)], (~x)) &&
     eq(binomial_degree((~u), (~x)) - binomial_degree((~v), (~x)), 0) &&
-    !(binomial_without_simplify([(~u), (~v)], (~x))) ?
+    !(isbinomial_without_simplify([(~u), (~v)], (~x))) ?
 ∫(expand_to_sum((~u), (~x))^(~p)*expand_to_sum((~v), (~x))^(~q), (~x)) : nothing)
 
 ("1_3_4_35",
@@ -236,7 +236,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
     !contains_var((~e), (~m), (~p), (~q), (~x)) &&
     isbinomial([(~u), (~v)], (~x)) &&
     eq(binomial_degree((~u), (~x)) - binomial_degree((~v), (~x)), 0) &&
-    !(binomial_without_simplify([(~u), (~v)], (~x))) ?
+    !(isbinomial_without_simplify([(~u), (~v)], (~x))) ?
 ∫(((~e)*(~x))^(~m)*expand_to_sum((~u), (~x))^(~p)*expand_to_sum((~v), (~x))^(~q), (~x)) : nothing)
 
 ("1_3_4_36",
@@ -245,7 +245,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
     isbinomial([(~u), (~v), (~w)], (~x)) &&
     eq(binomial_degree((~u), (~x)) - binomial_degree((~v), (~x)), 0) &&
     eq(binomial_degree((~u), (~x)) - binomial_degree((~w), (~x)), 0) &&
-    !(binomial_without_simplify([(~u), (~v), (~w)], (~x))) ?
+    !(isbinomial_without_simplify([(~u), (~v), (~w)], (~x))) ?
 ∫(expand_to_sum((~u), (~x))^(~m)*expand_to_sum((~v), (~x))^(~p)*expand_to_sum((~w), (~x))^(~q), (~x)) : nothing)
 
 ("1_3_4_37",
@@ -254,7 +254,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
     isbinomial([(~u), (~v), (~z)], (~x)) &&
     eq(binomial_degree((~u), (~x)) - binomial_degree((~v), (~x)), 0) &&
     eq(binomial_degree((~u), (~x)) - binomial_degree((~z), (~x)), 0) &&
-    !(binomial_without_simplify([(~u), (~v), (~z)], (~x))) ?
+    !(isbinomial_without_simplify([(~u), (~v), (~z)], (~x))) ?
 ∫(((~g)*(~x))^(~m)*expand_to_sum((~u), (~x))^(~p)*expand_to_sum((~v), (~x))^(~q)* expand_to_sum((~z), (~x))^(~r), (~x)) : nothing)
 
 ("1_3_4_38",
@@ -262,21 +262,21 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
     !contains_var((~c), (~m), (~p), (~x)) &&
     poly((~Pq), (~x)) &&
     isbinomial((~u), (~x)) &&
-    !(binomial_without_simplify((~u), (~x))) ?
+    !(isbinomial_without_simplify((~u), (~x))) ?
 ∫(((~c)*(~x))^(~m)*(~Pq)*expand_to_sum((~u), (~x))^(~p), (~x)) : nothing)
 
 ("1_3_4_39",
 @rule ∫((~u)^(~p),(~x)) =>
     !contains_var((~p), (~x)) &&
     generalized_binomial((~u), (~x)) &&
-    !(generalized_binomial_without_simplify((~u), (~x))) ?
+    !(generalized_isbinomial_without_simplify((~u), (~x))) ?
 ∫(expand_to_sum((~u), (~x))^(~p), (~x)) : nothing)
 
 ("1_3_4_40",
 @rule ∫(((~!c)*(~x))^(~!m)*(~u)^(~!p),(~x)) =>
     !contains_var((~c), (~m), (~p), (~x)) &&
     generalized_binomial((~u), (~x)) &&
-    !(generalized_binomial_without_simplify((~u), (~x))) ?
+    !(generalized_isbinomial_without_simplify((~u), (~x))) ?
 ∫(((~c)*(~x))^(~m)*expand_to_sum((~u), (~x))^(~p), (~x)) : nothing)
 
 ("1_3_4_41",
@@ -372,7 +372,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
     isbinomial((~u), (~x)) &&
     trinomial((~v), (~x)) &&
     !(
-        binomial_without_simplify((~u), (~x)) &&
+        isbinomial_without_simplify((~u), (~x)) &&
         trinomial_without_simplify((~v), (~x))
     ) ?
 ∫(expand_to_sum((~u), (~x))^(~q)*expand_to_sum((~v), (~x))^(~p), (~x)) : nothing)
@@ -383,8 +383,8 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
     isbinomial((~u), (~x)) &&
     isbinomial((~v), (~x)) &&
     !(
-        binomial_without_simplify((~u), (~x)) &&
-        binomial_without_simplify((~v), (~x))
+        isbinomial_without_simplify((~u), (~x)) &&
+        isbinomial_without_simplify((~v), (~x))
     ) ?
 ∫(expand_to_sum((~u), (~x))^(~q)*expand_to_sum((~v), (~x))^(~p), (~x)) : nothing)
 
@@ -394,7 +394,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
     isbinomial((~z), (~x)) &&
     trinomial((~u), (~x)) &&
     !(
-        binomial_without_simplify((~z), (~x)) &&
+        isbinomial_without_simplify((~z), (~x)) &&
         trinomial_without_simplify((~u), (~x))
     ) ?
 ∫(((~f)*(~x))^(~m)*expand_to_sum((~z), (~x))^(~q)*expand_to_sum((~u), (~x))^(~p), (~x)) : nothing)
@@ -405,8 +405,8 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
     isbinomial((~z), (~x)) &&
     isbinomial((~u), (~x)) &&
     !(
-        binomial_without_simplify((~z), (~x)) &&
-        binomial_without_simplify((~u), (~x))
+        isbinomial_without_simplify((~z), (~x)) &&
+        isbinomial_without_simplify((~u), (~x))
     ) ?
 ∫(((~f)*(~x))^(~m)*expand_to_sum((~z), (~x))^(~q)*expand_to_sum((~u), (~x))^(~p), (~x)) : nothing)
 
@@ -447,7 +447,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
     generalized_trinomial((~u), (~x)) &&
     eq(binomial_degree((~z), (~x)) - generalized_trinomial_degree((~u), (~x)), 0) &&
     !(
-        binomial_without_simplify((~z), (~x)) &&
+        isbinomial_without_simplify((~z), (~x)) &&
         generalized_trinomial_without_simplify((~u), (~x))
     ) ?
 ∫(expand_to_sum((~z), (~x))*expand_to_sum((~u), (~x))^(~p), (~x)) : nothing)
@@ -459,7 +459,7 @@ simp(((~e)*((~a) + (~b)*(~x)^(~n))^(~q)*((~c) + (~d)*(~x)^(~n))^(~r))^ (~p)⨸((
     generalized_trinomial((~u), (~x)) &&
     eq(binomial_degree((~z), (~x)) - generalized_trinomial_degree((~u), (~x)), 0) &&
     !(
-        binomial_without_simplify((~z), (~x)) &&
+        isbinomial_without_simplify((~z), (~x)) &&
         generalized_trinomial_without_simplify((~u), (~x))
     ) ?
 ∫(((~f)*(~x))^(~m)*expand_to_sum((~z), (~x))*expand_to_sum((~u), (~x))^(~p), (~x)) : nothing)

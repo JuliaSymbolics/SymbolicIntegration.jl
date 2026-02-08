@@ -47,7 +47,7 @@ ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~a) + (~b)*log((~c)*((~d)
 :(∫(((~!a) + (~!b)*log((~!c)*(~v)^(~!p)))^(~!q),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~p), (~q), (~x)) &&
     isbinomial((~v), (~x)) &&
-    !(binomial_without_simplify((~v), (~x))) ?
+    !(isbinomial_without_simplify((~v), (~x))) ?
 ∫(((~a) + (~b)*log((~c)*expand_to_sum((~v), (~x))^(~p)))^(~q), (~x)) : nothing))
 
 ("3_4_8",
@@ -110,7 +110,7 @@ ext_den((~n))*int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*((~a) + (~b)*log
 :(∫(((~!f)*(~x))^(~!m)*((~!a) + (~!b)*log((~!c)*(~v)^(~!p)))^(~!q),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~f), (~m), (~p), (~q), (~x)) &&
     isbinomial((~v), (~x)) &&
-    !(binomial_without_simplify((~v), (~x))) ?
+    !(isbinomial_without_simplify((~v), (~x))) ?
 ∫(((~f)*(~x))^(~m)*((~a) + (~b)*log((~c)*expand_to_sum((~v), (~x))^(~p)))^(~q), (~x)) : nothing))
 
 ("3_4_16",
@@ -141,7 +141,7 @@ log((~f) + (~g)*(~x))*((~a) + (~b)*log((~c)*((~d) + (~e)*(~x)^(~n))^(~p)))⨸(~g
     isbinomial((~v), (~x)) &&
     !(
         linear_without_simplify((~u), (~x)) &&
-        binomial_without_simplify((~v), (~x))
+        isbinomial_without_simplify((~v), (~x))
     ) ?
 ∫(expand_to_sum((~u), (~x))^(~r)*((~a) + (~b)*log((~c)*expand_to_sum((~v), (~x))^(~p)))^(~q), (~x)) : nothing))
 
@@ -172,7 +172,7 @@ ext_den((~m))⨸(~h)* int_and_subst( (~x)^(ext_den((~m))*((~m) + 1) - 1)*((~f) +
     isbinomial((~v), (~x)) &&
     !(
         linear_without_simplify((~u), (~x)) &&
-        binomial_without_simplify((~v), (~x))
+        isbinomial_without_simplify((~v), (~x))
     ) ?
 ∫(((~h)*(~x))^(~m)* expand_to_sum((~u), (~x))^(~r)*((~a) + (~b)*log((~c)*expand_to_sum((~v), (~x))^(~p)))^(~q), (~x)) : nothing))
 
@@ -215,7 +215,7 @@ ext_den((~n))*int_and_subst((~x)^(ext_den((~n)) - 1)*((~f) + (~g)*(~x)^(ext_den(
 :(∫((~u)^(~!r)*((~!a) + (~!b)*log((~!c)*(~v)^(~!p)))^(~!q),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~p), (~q), (~r), (~x)) &&
     isbinomial([(~u), (~v)], (~x)) &&
-    !(binomial_without_simplify([(~u), (~v)], (~x))) ?
+    !(isbinomial_without_simplify([(~u), (~v)], (~x))) ?
 ∫(expand_to_sum((~u), (~x))^(~r)*((~a) + (~b)*log((~c)*expand_to_sum((~v), (~x))^(~p)))^(~q), (~x)) : nothing))
 
 ("3_4_29",
@@ -271,7 +271,7 @@ ext_den((~m))⨸(~h)* int_and_subst( (~x)^(ext_den((~m))*((~m) + 1) - 1)*((~f) +
 :(∫(((~!h)*(~x))^(~!m)*(~u)^(~!r)*((~!a) + (~!b)*log((~!c)*(~v)^(~!p)))^(~!q),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~h), (~m), (~p), (~q), (~r), (~x)) &&
     isbinomial([(~u), (~v)], (~x)) &&
-    !(binomial_without_simplify([(~u), (~v)], (~x))) ?
+    !(isbinomial_without_simplify([(~u), (~v)], (~x))) ?
 ∫(((~h)*(~x))^(~m)* expand_to_sum((~u), (~x))^(~r)*((~a) + (~b)*log((~c)*expand_to_sum((~v), (~x))^(~p)))^(~q), (~x)) : nothing))
 
 ("3_4_36",

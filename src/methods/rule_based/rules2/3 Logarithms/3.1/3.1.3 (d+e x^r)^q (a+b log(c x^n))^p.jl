@@ -147,7 +147,7 @@ dist(((~a) + (~b)*log((~c)*(~x)^(~n))), ∫(((~d) + (~e)*(~x)^(~r))^(~q), (~x)),
 :(∫((~u)^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~n), (~p), (~q), (~x)) &&
     isbinomial((~u), (~x)) &&
-    !(binomial_without_simplify((~u), (~x))) ?
+    !(isbinomial_without_simplify((~u), (~x))) ?
 ∫(expand_to_sum((~u), (~x))^(~q)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)) : nothing))
 
 

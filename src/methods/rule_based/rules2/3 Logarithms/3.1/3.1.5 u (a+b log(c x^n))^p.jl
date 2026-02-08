@@ -257,7 +257,7 @@ end : nothing))
 :(∫(((~!f)*(~x))^(~!m)*(~u)^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~f), (~m), (~n), (~p), (~q), (~x)) &&
     isbinomial((~u), (~x)) &&
-    !(binomial_without_simplify((~u), (~x))) ?
+    !(isbinomial_without_simplify((~u), (~x))) ?
 ∫(((~f)*(~x))^(~m)*expand_to_sum((~u), (~x))^(~q)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)) : nothing))
 
 ("3_1_5_27",
@@ -417,7 +417,7 @@ end : nothing))
 :(∫(log((~!d)*(~u)^(~!r))*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~d), (~r), (~n), (~p), (~x)) &&
     isbinomial((~u), (~x)) &&
-    !(binomial_without_simplify((~u), (~x))) ?
+    !(isbinomial_without_simplify((~u), (~x))) ?
 ∫(log((~d)*expand_to_sum((~u), (~x))^(~r))*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)) : nothing))
 
 ("3_1_5_45",
@@ -491,7 +491,7 @@ end : nothing))
 :(∫(((~!g)*(~x))^(~!q)*log((~!d)*(~u)^(~!r))*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~d), (~g), (~r), (~n), (~p), (~q), (~x)) &&
     isbinomial((~u), (~x)) &&
-    !(binomial_without_simplify((~u), (~x))) ?
+    !(isbinomial_without_simplify((~u), (~x))) ?
 ∫(((~g)*(~x))^(~q)*log((~d)*expand_to_sum((~u), (~x))^(~r))*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)) : nothing))
 
 ("3_1_5_52",

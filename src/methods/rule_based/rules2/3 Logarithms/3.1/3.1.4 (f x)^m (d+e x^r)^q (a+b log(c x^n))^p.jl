@@ -221,7 +221,7 @@ dist(((~a) + (~b)*log((~c)*(~x)^(~n))), ∫((~x)^(~m)*((~d) + (~e)*(~x))^(~q), (
 :(∫(((~!f)*(~x))^(~!m)*(~u)^(~!q)*((~!a) + (~!b)*log((~!c)*(~x)^(~!n)))^(~!p),(~x)) ) => :(
     !contains_var((~a), (~b), (~c), (~f), (~m), (~n), (~p), (~q), (~x)) &&
     isbinomial((~u), (~x)) &&
-    !(binomial_without_simplify((~u), (~x))) ?
+    !(isbinomial_without_simplify((~u), (~x))) ?
 ∫(((~f)*(~x))^(~m)*expand_to_sum((~u), (~x))^(~q)*((~a) + (~b)*log((~c)*(~x)^(~n)))^(~p), (~x)) : nothing))
 
 ("3_1_4_29",
