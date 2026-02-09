@@ -39,7 +39,7 @@ sin((~c) + (~d)*(~x))⨸(~d) : nothing))
 
 # added by Mattia Micheletta Merlin
 ("4_1_1_1_6_1",
-:(∫(cos((~!c) + (~!d)*(~x)),(~x)) ) => :(
+:(cos((~!c) + (~!d)*(~x))) => :(
     !contains_var((~c), (~d), (~x)) ?
 sin((~c) + (~d)*(~x))⨸(~d) : nothing))
 

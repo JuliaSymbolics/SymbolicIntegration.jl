@@ -1,5 +1,10 @@
+# to go from rule1 to rule2:
 # \((".*?"),\n@rule (∫(.|\n)*?)=>((.|\n)*?: nothing\))
 # ($1,\n:($2) => :($4)
+
+# to go from rule2 to rule3:
+# :\(∫\((.*), *\(~x\)\) *\)
+# :($1)
 
 file_rules = [
 #(* ::Subsection::Closed:: *)
