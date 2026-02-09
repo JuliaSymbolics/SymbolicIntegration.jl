@@ -295,6 +295,21 @@ rewrite(matches::MatchDict, rhs::QuoteNode) = rhs::QuoteNode
 # i want to know each type exactly
 
 """
+"""
+function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
+    # global indentation_zero = length(stacktrace())
+    # printdb(1, "Applying $rule on $expr")
+    m = check_expr_r(expr, rule.first, MatchDict())
+    m===FAIL_DICT && # printdb(1,"Rule failed to match")
+    m===FAIL_DICT && return nothing::Nothing
+    # printdb(1,"Rule matched successfully")
+    rule.second==:(~~) && return m # useful for debug
+    r = rewrite(m, rule.second)
+    # printdb(2,"About to return eval of $r") 
+    return eval(r)
+end
+
+"""
 rule: of the form :(e1) => :(e2), where e1 is a Expr
 representing the inside of the ∫ operation. In this Expr ~x is the 
 integration variable. So every rule is written assuming ~x is the integration variable
@@ -302,7 +317,7 @@ integration variable. So every rule is written assuming ~x is the integration va
 integrand: the input integration expression
 integration_var: the input integration variable
 """
-function rule2(rule::Pair{Expr, Expr}, integrand::SymsType, integration_var::SymsType)::Union{SymsType, Nothing}
+function rule3(rule::Pair{Expr, Expr}, integrand::SymsType, integration_var::SymsType)::Union{SymsType, Nothing}
     # global indentation_zero = length(stacktrace())
     # printdb(1, "Applying $rule on $integrand")
     m = check_expr_r(integrand, rule.first, MatchDict(:x,integration_var))

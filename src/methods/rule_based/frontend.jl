@@ -21,7 +21,7 @@ function apply_rule(problem)
     result = nothing
     a = arguments(problem); integrand = a[1]; integration_var = a[2];
     for (i, rule) in enumerate(RULES)
-        result = rule2(rule, integrand, integration_var)
+        result = rule3(rule, integrand, integration_var)
         if result !== nothing
             if result===problem
                 VERBOSE && println("Infinite cycle created by rule $(IDENTIFIERS[i]) applied on ", problem)
