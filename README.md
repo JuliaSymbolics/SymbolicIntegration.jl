@@ -16,7 +16,7 @@ julia> @variables x
 julia> integrate(exp(2x) + 2x^2 + sin(x))
 (1//2)*exp(2x) + (2//3)*(x^3) - cos(x)
 ```
-The first argument is the expression to integrate, second argument is the variable of integration. If the variable is not specified, it will be guessed from the expression. The +c is omitted :)
+The first argument is the expression to integrate, second argument is the integration variable. If that's not specified, it will be guessed from the expression. The +c is omitted :)
 
 ### Method Selection
 
@@ -46,14 +46,6 @@ No rule found for ∫(abs(x), x)
 
 ```
 
-# Documentation
-
-For information on using the package, see the 
-[stable documentation](https://docs.sciml.ai/SymbolicIntegration/stable/). Use the
-[in-development documentation](https://docs.sciml.ai/SymbolicIntegration/dev/) for the version of
-the documentation which contains the unreleased features.
-
-
 # Integration Methods
 Currently two methods are implemented: **Risch algorithm** and **Rule based integration**.
 
@@ -71,12 +63,20 @@ multiple symbols | ❌ | ✅
 
 More info about them in the [methods documentation](https://docs.sciml.ai/SymbolicIntegration/dev/methods/overview/)
 
+
 ### Risch Method
 Complete symbolic integration using the Risch algorithm from Manuel Bronstein's "Symbolic Integration I: Transcendental Functions".
 
 ### RuleBasedMethod
 
 This method uses a large number of integration rules that specify how to integrate various mathematical expressions. There are now more than 3400 rules impelmented.
+
+# Documentation
+
+For information on using the package, see the 
+[stable documentation](https://docs.sciml.ai/SymbolicIntegration/stable/). Use the
+[in-development documentation](https://docs.sciml.ai/SymbolicIntegration/dev/) for the version of
+the documentation which contains the unreleased features.
 
 # Citation
 

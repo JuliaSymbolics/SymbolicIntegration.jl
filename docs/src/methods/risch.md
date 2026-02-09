@@ -224,3 +224,197 @@ The implementation follows:
 - **Additional chapters**: Parametric problems, coupled systems
 
 This provides a complete, reference implementation of the Risch algorithm for elementary function integration.
+
+
+# Rational Function Integration with Risch algorithm
+
+SymbolicIntegration.jl implements the complete algorithm for integrating rational functions based on Bronstein's book Chapter 2.
+
+## Theory
+
+A rational function is a quotient of polynomials:
+```
+f(x) = P(x)/Q(x)
+```
+
+The integration algorithm consists of three main steps:
+
+1. **Hermite Reduction**: Reduces the rational function to a simpler form
+2. **Logarithmic Part**: Finds the logarithmic terms using the Rothstein-Trager method
+3. **Polynomial Part**: Integrates any remaining polynomial terms
+
+## Examples
+
+### Simple Rational Functions
+
+```julia
+using SymbolicIntegration, Symbolics
+@variables x
+
+# Linear over linear  
+integrate((2*x + 3)/(x + 1), x)  # 2*x + log(1 + x)
+
+# Quadratic denominators
+integrate(1/(x^2 + 1), x)        # atan(x)
+integrate(x/(x^2 + 1), x)        # (1//2)*log(1 + x^2)
+```
+
+### Partial Fractions
+
+The algorithm automatically handles partial fraction decomposition:
+
+```julia
+# This gets decomposed into simpler fractions
+f = (x^3 + x^2 + x + 2)//(x^4 + 3*x^2 + 2)
+integrate(f, x)  # (1//2)*log(2 + x^2) + atan(x)
+```
+
+### Complex Cases
+
+For cases involving complex roots, the algorithm uses the Rothstein-Trager method:
+
+```julia
+# Denominator has complex roots
+f = (3*x - 4*x^2 + 3*x^3)/(1 + x^2)
+integrate(f, x)  # -4*x + (3//2)*x^2 + 4*atan(x)
+```
+
+## Algorithm Details
+
+### Hermite Reduction
+
+```julia
+# The HermiteReduce function is available for direct use
+using SymbolicIntegration
+R, x = polynomial_ring(QQ, "x")
+A = 3*x^2 + 2*x + 1
+D = x^3 + x^2 + x + 1
+g, h = HermiteReduce(A, D)
+```
+
+### Rothstein-Trager Method
+
+For finding logarithmic parts:
+
+```julia
+# IntRationalLogPart implements the Rothstein-Trager algorithm
+log_terms = IntRationalLogPart(A, D)
+```
+
+## Limitations
+
+- Only rational functions are supported (no algebraic functions like √x)
+- Results are exact symbolic expressions
+- Performance may vary for very large polynomials
+
+
+
+
+
+# Transcendental Function Integration with Risch algorithm
+
+SymbolicIntegration.jl implements the Risch algorithm for integrating elementary transcendental functions.
+
+## Supported Functions
+
+### Exponential Functions
+
+```julia
+using SymbolicIntegration, Symbolics
+@variables x
+
+integrate(exp(x), x)        # exp(x)
+integrate(exp(2*x), x)      # (1//2)*exp(2*x)
+integrate(x*exp(x), x)      # -exp(x) + x*exp(x)
+```
+
+### Logarithmic Functions
+
+```julia
+integrate(log(x), x)        # -x + x*log(x)
+integrate(1/(x*log(x)), x)  # log(log(x))
+integrate(log(x)^2, x)      # x*log(x)^2 - 2*x*log(x) + 2*x
+```
+
+### Trigonometric Functions
+
+Basic trigonometric functions are transformed to exponential form:
+
+```julia
+integrate(sin(x), x)   # Transformed via half-angle formulas
+integrate(cos(x), x)   # Transformed via half-angle formulas  
+integrate(tan(x), x)   # Uses differential field extension
+```
+
+### Hyperbolic Functions
+
+Hyperbolic functions are transformed to exponential form:
+
+```julia
+integrate(sinh(x), x)  # Equivalent to (exp(x) - exp(-x))/2
+integrate(cosh(x), x)  # Equivalent to (exp(x) + exp(-x))/2
+integrate(tanh(x), x)  # Transformed to exponential form
+```
+
+## Algorithm: The Risch Method
+
+The Risch algorithm builds a tower of differential fields to handle transcendental extensions systematically.
+
+### Differential Field Tower
+
+For an integrand like `exp(x^2) * log(x)`, the algorithm constructs:
+
+1. Base field: `ℚ(x)` with derivation `d/dx`
+2. First extension: `ℚ(x, log(x))` with `D(log(x)) = 1/x`
+3. Second extension: `ℚ(x, log(x), exp(x^2))` with `D(exp(x^2)) = 2*x*exp(x^2)`
+
+### Integration Steps
+
+1. **Field Tower Construction**: Build the appropriate differential field tower
+2. **Canonical Form**: Transform the integrand to canonical form in the tower
+3. **Residue Computation**: Apply the Risch algorithm recursively
+4. **Result Assembly**: Convert back to symbolic form
+
+## Implementation Details
+
+### Function Transformations
+
+The algorithm transforms complex functions to simpler forms:
+
+- Trigonometric functions → Half-angle formulas with `tan(x/2)`
+- Hyperbolic functions → Exponential expressions
+- Inverse functions → Differential field extensions
+
+### Example: sin(x) Integration
+
+```julia
+# sin(x) is transformed to:
+# 2*tan(x/2) / (1 + tan(x/2)^2)
+# Then integrated using the Risch algorithm
+```
+
+## Advanced Usage
+
+### Direct Algorithm Access
+
+You can access the lower-level algorithms directly:
+
+```julia
+# Use the Risch algorithm directly
+using SymbolicIntegration
+# ... (advanced example would go here)
+```
+
+### Custom Derivations
+
+```julia
+# Create custom differential field extensions
+# ... (advanced example would go here)  
+```
+
+## Limitations
+
+- No algebraic functions (√x, x^(1/3), etc.)
+- Some complex trigonometric cases may not be handled
+- Non-elementary integrals return unevaluated forms
+- 

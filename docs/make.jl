@@ -15,15 +15,12 @@ makedocs(
     pages=[
         "Home" => "index.md",
         "Manual" => [
-            "manual/getting_started.md",
             "manual/contributing.md",
         ],
         "Integration Methods" => [
             "methods/overview.md",
-            "methods/risch.md",
             "methods/rulebased.md",
-            "methods/risch_rational_functions.md",
-            "methods/risch_transcendental_functions.md",
+            "methods/risch.md",
         ],
         "API Reference" => "api.md",
     ],

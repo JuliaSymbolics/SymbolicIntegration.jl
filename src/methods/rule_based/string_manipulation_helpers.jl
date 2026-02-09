@@ -369,7 +369,7 @@ function pretty_print_rule(rule, identifier)
     identifier == "0_1_0" && return "∫( a + b + ..., x) => ∫(a,x) + ∫(b,x) + ..."
     identifier == "0_1_12" && return "∫ a*f(x) dx => a*∫ f(x) dx"
 
-    s = string(rule.first) *" => "* string(rule.second)
+    s = "∫ "*string(rule.first) *" dx => "* string(rule.second)
     # manage conditions
     if_pos = findfirst("if", s)
     newline_pos = findfirst("\n", s)

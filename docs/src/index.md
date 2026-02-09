@@ -35,7 +35,9 @@ integrate(log(x), x)    # Returns -x + x*log(x)
 integrate(f, x, RischMethod())  # Explicit method choice
 integrate(f, x, RischMethod(use_algebraic_closure=true))  # With options
 ```
-The +c in all the integration results is omitted. It's worth noting that for this reason if the result is $ln(...)$, it actually means $ln(...)+c=ln(... * c_1)=ln(.../c_2)$ for any constants $c, c_1, c_2$.
+The +c in all the integration results is omitted. It's worth noting that for this reason if the result is $ln(...)$, it actually means $ln(...)+c=ln(... * c_1)=ln(.../c_2)$ for constants $c, c_1, c_2$.
+
+Also note that two different symbolic variables are assumed to be independent.
 
 
 ## Integration Methods

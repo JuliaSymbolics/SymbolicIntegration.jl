@@ -3,9 +3,6 @@
 - [How it works internally](#how-it-works-internally)
 - [Rules statistic](#rules-statistic)
 - [Problems](#problems)
-  - [Serious](#serious)
-  - [Mild](#mild)
-  - [Minor](#minor)
 - [Testing](#testing)
 - [Contributing](#contributing)
 

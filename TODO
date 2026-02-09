@@ -1,0 +1,25 @@
+remove all the unwrap from utility functions
+
+julia> @syms y
+julia> SymbolicUtils.gamma(y,y)
+ERROR: MethodError: no method matching gamma(::SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{…}, ::SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{…})
+The function `gamma` exists, but no method is defined for this combination of argument types.
+
+julia> integrate(exp(-r^2/2)*r^n,r)
+ERROR: MethodError: no method matching gamma(::SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{…}, ::SymbolicUtils.BasicSymbolicImpl.var"typeof(BasicSymbolicImpl)"{…})
+The function `gamma` exists, but no method is defined for this combination of argument types.
+
+in rule2 function m==faildict && #commento
+
+
+
+
+
+
+
+
+
+
+julia> integrate((x-1)/(sqrt(x)+1))
+-(2//3)*x + (1//3)*(1 + x)*(-1 + x)*x
+
