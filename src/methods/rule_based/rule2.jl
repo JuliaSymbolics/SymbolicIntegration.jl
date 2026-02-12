@@ -295,6 +295,12 @@ rewrite(matches::MatchDict, rhs::QuoteNode) = rhs::QuoteNode
 # i want to know each type exactly
 
 """
+rule2 is a way to do pattern matching alternative to SymbolicUtils.jl
+
+arguments:
+rule: of the form :(e1) => :(e2), where e1 is a Expr representing any
+symbolic operation
+expr: the input symbolic exprssion to check
 """
 function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
     # global indentation_zero = length(stacktrace())
@@ -310,12 +316,14 @@ function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
 end
 
 """
-rule: of the form :(e1) => :(e2), where e1 is a Expr
+rule3 is a specialized version of rule2, made to work better on integration rules
+
+arguments:
+- rule: of the form :(e1) => :(e2), where e1 is a Expr
 representing the inside of the ∫ operation. In this Expr ~x is the 
 integration variable. So every rule is written assuming ~x is the integration variable
-
-integrand: the input integration expression
-integration_var: the input integration variable
+- integrand: the input integration expression
+- integration_var: the input integration variable
 """
 function rule3(rule::Pair{Expr, Expr}, integrand::SymsType, integration_var::SymsType)::Union{SymsType, Nothing}
     # global indentation_zero = length(stacktrace())
