@@ -31,12 +31,12 @@ function apply_rule(problem)
             if VERBOSE && !in(IDENTIFIERS[i], SILENCE)
                 s = pretty_print_rule(rule, IDENTIFIERS[i])
                 printstyled("┌-------Applied rule $(IDENTIFIERS[i]) on ";);
-                printstyled(problem; color = :light_red)
+                printstyled(string(problem); color = :light_red)
                 for ss in split(s, '\n')
                     printstyled("\n| ";); printstyled(ss;bold=true)
                 end
                 printstyled("\n└-------with result: ";)
-                printstyled(result, "\n"; color = :light_blue)
+                printstyled(string(result), "\n"; color = :light_blue)
             end
             in(IDENTIFIERS[i], SILENCE) && pop!(SILENCE)
             return (result, true)
