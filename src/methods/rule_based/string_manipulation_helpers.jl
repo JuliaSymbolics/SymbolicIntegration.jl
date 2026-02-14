@@ -406,6 +406,14 @@ function pretty_print_rule(rule, identifier)
         s = replace(s, m.match => "substitute(∫{$(parts[1])}d$(strip(parts[2])), $(parts[3]) => $(parts[4]))")
         m = match(r"rt\((.+?),\s*(\d)\s*\)", s)
     end
+    # manage pos function
+    m = match(r"pos\(.*\)", s)
+    while m!==nothing
+        full_str = find_closing_bracket(s, "pos(","()")
+        parts = split_outside_brackets(full_str[5:end-1], ',')
+        s = replace(s, full_str => parts[1]*" > 0")
+        m = match(r"pos\(.*\)", s)
+    end
     # manage let block
     s = replace(s, r".*#=.*=#.*\n" => "")
     # manage functions from other packages
