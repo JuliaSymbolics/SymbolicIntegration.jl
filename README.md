@@ -35,15 +35,14 @@ If no method is specified, first RuleBasedMethod will be tried, then RischMethod
 ```julia
 julia> integrate(abs(x);verbose=true)
 No rule found for ∫(abs(x), x)
- > RuleBasedMethod(use_gamma=false, verbose=false) failed, returning ∫(abs(x), x) 
+ > RuleBasedMethod(use_gamma=false, verbose=true) failed, returning ∫(abs(x), x) 
  > Trying with RischMethod(use_algebraic_closure=false, catch_errors=true)...
 
-┌ Warning: NotImplementedError: integrand contains unsupported expression abs(x)
-└ @ SymbolicIntegration ~/.julia/dev/SymbolicIntegration.jl_official/src/methods/risch/frontend.jl:821
 
  > RischMethod(use_algebraic_closure=false, catch_errors=true) failed, returning ∫(abs(x), x) 
  > Sorry we cannot integrate this expression :(
 
+∫(abs(x), x)
 ```
 
 # Integration Methods
