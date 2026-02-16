@@ -398,6 +398,16 @@ function pretty_print_rule(rule, identifier)
         s = replace(s, m.match => pretty_print_rt(m))
         m = match(r"rt\((.+?),\s*(\d)\s*\)", s)
     end
+    # manage gt function
+    tmp = ["gt"=>">", "ge"=>">=", "lt"=>"<", "le"=>"<="]
+    for foo in tmp
+        m = match(Regex("(?<!i)"*foo.first*raw"\(.+?,.+?\)"), s)
+        while m!==nothing
+            parts = split_outside_brackets(m.match[4:end-1], ',')
+            s = replace(s, m.match => parts[1]*" "*foo.second*" "*parts[2])
+            m = match(Regex("(?<!i)"*foo.first*raw"\(.+?,.+?\)"), s)
+        end
+    end
     # manage int_and_subst function
     m = match(r"int_and_subst\((.+?),(.+?),(.+?),(.+?),\s*\"(.+?)\"\s*\)", s)
     while m!==nothing
