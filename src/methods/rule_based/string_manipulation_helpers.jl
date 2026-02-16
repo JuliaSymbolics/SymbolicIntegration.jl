@@ -369,7 +369,7 @@ function pretty_print_rule(rule, identifier)
     identifier == "0_1_0" && return "∫( a + b + ..., x) => ∫(a,x) + ∫(b,x) + ..."
     identifier == "0_1_12" && return "∫ a*f(x) dx => a*∫ f(x) dx"
 
-    s = string(rule.first) *" => "* string(rule.second)
+    s = "∫ "*string(rule.first) *" dx => "* string(rule.second)
     # manage conditions
     if_pos = findfirst("if", s)
     newline_pos = findfirst("\n", s)
@@ -398,6 +398,16 @@ function pretty_print_rule(rule, identifier)
         s = replace(s, m.match => pretty_print_rt(m))
         m = match(r"rt\((.+?),\s*(\d)\s*\)", s)
     end
+    # manage gt function
+    tmp = ["gt"=>">", "ge"=>">=", "lt"=>"<", "le"=>"<="]
+    for foo in tmp
+        m = match(Regex("(?<!i)"*foo.first*raw"\(.+?,.+?\)"), s)
+        while m!==nothing
+            parts = split_outside_brackets(m.match[4:end-1], ',')
+            s = replace(s, m.match => parts[1]*" "*foo.second*" "*parts[2])
+            m = match(Regex("(?<!i)"*foo.first*raw"\(.+?,.+?\)"), s)
+        end
+    end
     # manage int_and_subst function
     m = match(r"int_and_subst\((.+?),(.+?),(.+?),(.+?),\s*\"(.+?)\"\s*\)", s)
     while m!==nothing
@@ -405,6 +415,14 @@ function pretty_print_rule(rule, identifier)
         parts = split_outside_brackets(full_str[15:end-1], ',')
         s = replace(s, m.match => "substitute(∫{$(parts[1])}d$(strip(parts[2])), $(parts[3]) => $(parts[4]))")
         m = match(r"rt\((.+?),\s*(\d)\s*\)", s)
+    end
+    # manage pos function
+    m = match(r"pos\(.*\)", s)
+    while m!==nothing
+        full_str = find_closing_bracket(s, "pos(","()")
+        parts = split_outside_brackets(full_str[5:end-1], ',')
+        s = replace(s, full_str => parts[1]*" > 0")
+        m = match(r"pos\(.*\)", s)
     end
     # manage let block
     s = replace(s, r".*#=.*=#.*\n" => "")

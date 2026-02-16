@@ -818,12 +818,12 @@ function integrate_risch(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, 
     catch e
         if e isa NotImplementedError
             if catchNotImplementedError
-                @warn "NotImplementedError: $(e.msg)"
+                # @warn "NotImplementedError: $(e.msg)"
                 return ∫(f, x)
             end
         elseif e isa AlgorithmFailedError
             if catchAlgorithmFailedError
-                @warn "AlgorithmFailedError: $(e.msg)"
+                # @warn "AlgorithmFailedError: $(e.msg)"
                 return ∫(f, x)
             end
         end

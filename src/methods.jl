@@ -68,9 +68,9 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num; verbose=false, kwargs...)
     !contains_int(result) && return result
     
     verbose && printstyled("\n > RischMethod(use_algebraic_closure=false, catch_errors=true) failed, returning $result \n";color=:red)
-    verbose && printstyled(" > Sorry we cannot integrate this expression :(\n";color=:red)
+    verbose && printstyled(" > Sorry we cannot integrate this expression :(\n\n";color=:red)
     
-    return nothing
+    return ∫(f,x)
 end
 
 """
