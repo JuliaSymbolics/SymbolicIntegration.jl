@@ -6,6 +6,24 @@ const MatchDict = Base.ImmutableDict{Symbol, SymsType}
 const FAIL_DICT = MatchDict(:_fail,0)
 const op_map = Dict(:+ => 0, :* => 1, :^ => 1)
 
+function match_dict(kvs::Pair...)
+    σ = MatchDict()
+    match_dict(σ, kvs...)
+end
+
+function match_dict(σ::MatchDict, kvs::Pair...)
+    for (k,v) ∈ kvs
+        v = isa(v,Number) ? unwrap_const(v) : v
+        if haskey(σ, k)
+            !isequal(σ[k], v) && return FAIL_DICT
+        else
+            σ = MatchDict(σ, k, v)
+        end
+    end
+    σ
+end
+
+
 # # To use the verbose print uncomment the:
 # # - # printdb function definition
 # # - all the # printdb calls
@@ -73,10 +91,10 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
                 pred = rule.args[2].args[2]
                 # printdb(5,"about to check predicate $pred with eval")
                 !Base.invokelatest(eval(pred),SymbolicUtils.unwrap_const(data)) && return FAIL_DICT
-                return Base.ImmutableDict(matches, rule.args[2].args[1], data)::MatchDict
+                return match_dict(matches, rule.args[2].args[1] => data)::MatchDict
             end
             # if no predicate add match
-            return Base.ImmutableDict(matches, rule.args[2], data)::MatchDict
+            return match_dict(matches, rule.args[2] => data)::MatchDict
         end
     end
     # if there is a deflsot in the arguments
@@ -101,7 +119,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
 
         rdict = check_expr_r(data, tmp, matches)
         # if yes match
-        rdict!==FAIL_DICT && return Base.ImmutableDict(rdict, rule.args[p+1].args[2].args[2], get(op_map, rule.args[1], -1))::MatchDict
+        rdict!==FAIL_DICT && return match_dict(rdict, rule.args[p+1].args[2].args[2] => get(op_map, rule.args[1], -1))::MatchDict
         return FAIL_DICT::MatchDict
     # if there is a segment in the (only) argument
     elseif length(rule.args)==2 && isa(rule.args[2], Expr) && rule.args[2].args[1]==:~ && isa(rule.args[2].args[2], Expr) && rule.args[2].args[2].args[1] == :~
@@ -109,7 +127,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         !iscall(data) && return FAIL_DICT::MatchDict
         (Symbol(operation(data)) !== rule.args[1]) && return FAIL_DICT::MatchDict
         # return the whole data (not only vector of arguments as in rule1)
-        return Base.ImmutableDict(matches, rule.args[2].args[2].args[2], data)::MatchDict
+        return match_dict(matches, rule.args[2].args[2].args[2] => data)::MatchDict
     end
     # rule is a normal call, check operation and arguments
     if (rule.args[1] == ://) && isa(SymbolicUtils.unwrap_const(data), Rational)
@@ -152,7 +170,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
             push!(fad, arg_data[1], 1//2)
         else return FAIL_DICT::MatchDict
         end
-        
+
         return ceoaa(fad, arg_rule, matches)::MatchDict
     elseif rule.args[1] === :sqrt
         if (operation(data) === sqrt) tocheck = arg_data # normal checks
@@ -311,7 +329,7 @@ function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
     # printdb(1,"Rule matched successfully")
     rule.second==:(~~) && return m # useful for debug
     r = rewrite(m, rule.second)
-    # printdb(2,"About to return eval of $r") 
+    # printdb(2,"About to return eval of $r")
     return eval(r)
 end
 
@@ -320,7 +338,7 @@ rule3 is a specialized version of rule2, made to work better on integration rule
 
 arguments:
 - rule: of the form :(e1) => :(e2), where e1 is a Expr
-representing the inside of the ∫ operation. In this Expr ~x is the 
+representing the inside of the ∫ operation. In this Expr ~x is the
 integration variable. So every rule is written assuming ~x is the integration variable
 - integrand: the input integration expression
 - integration_var: the input integration variable
@@ -328,12 +346,12 @@ integration variable. So every rule is written assuming ~x is the integration va
 function rule3(rule::Pair{Expr, Expr}, integrand::SymsType, integration_var::SymsType)::Union{SymsType, Nothing}
     # global indentation_zero = length(stacktrace())
     # printdb(1, "Applying $rule on $integrand")
-    m = check_expr_r(integrand, rule.first, MatchDict(:x,integration_var))
+    m = check_expr_r(integrand, rule.first, match_dict(:x =>integration_var))
     # m===FAIL_DICT && # printdb(1,"Rule failed to match")
     m===FAIL_DICT && return nothing::Nothing
     # printdb(1,"Rule matched successfully")
     rule.second==:(~~) && return m # useful for debug
     r = rewrite(m, rule.second)
-    # printdb(2,"About to return eval of $r") 
+    # printdb(2,"About to return eval of $r")
     return eval(r)
 end
