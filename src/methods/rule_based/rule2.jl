@@ -18,8 +18,9 @@ tailored to being used in the SymbolicIntegration package.
 # Functions defined
 - check_expr_r is the recursive function doing all the work and checking the
 rule against the expression. It's so long and ugly because it's really important
-that is as fast as possible
-- ceoaa is a helper function for check_expr_r
+that is as fast as possible, this can be executed up to hundreds of times for every
+rule, and there are thousands of rules to check.
+- ceoaa and end_of_tree are helper functions for check_expr_r
 - rule2 is a wrapper for check_expr_r that lets you input just the input
 expression and the rule, without working about dictionaries.
 - rule3 is the wrapper for check_expr_r used in the integrate function, that
@@ -34,7 +35,6 @@ simple
 # TODO ~a*(~b*~c) currently will not match a*b*c. a fix is possible
 # TODO rules with symbols like ~b * a currently cause error. fix is possible
 #      but they are not used in integration rules so i dont care
-# TODO add helper function for adding a match to de dictionary? how it affects speed?
 
 using Combinatorics: permutations
 
@@ -119,24 +119,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     # rule.head != :call && error("It happened, rule head is not a call") #it should never happen TODO remove
     # ((1)) rule is a slot
     if rule.head == :call && rule.args[1] == :(~)
-        if rule.args[2] in keys(matches) # if the slot has already been matched
-            # check if it matched the same symbolic expression
-            !isequal(matches[rule.args[2]],data) && return FAIL_DICT::MatchDict
-            return matches::MatchDict
-        else # if never been matched
-            # if there is a predicate, rule.args[2] is a expression with ::
-            if isa(rule.args[2], Expr)
-                # check it
-                pred = rule.args[2].args[2]
-#                printdb(5,"about to check slot predicate $pred with eval")
-                !Base.invokelatest(eval(pred),SymbolicUtils.unwrap_const(data)) && return FAIL_DICT
-#                printdb(4,"adding match $(rule.args[2].args[1]) => $data")
-                return Base.ImmutableDict(matches, rule.args[2].args[1], data)::MatchDict
-            end
-            # if no predicate add match
-#            printdb(4,"adding match $(rule.args[2]) with $data")
-            return Base.ImmutableDict(matches, rule.args[2], data)::MatchDict
-        end
+        return end_of_tree(rule.args[2], data, matches)
     end
     # ((2)) if there is a deflsot in the arguments
     p=findfirst(a->isa(a, Expr) && a.args[1] == :~ && isa(a.args[2], Expr) && a.args[2].args[1] == :!,rule.args[2:end])
@@ -160,28 +143,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
 
         rdict = check_expr_r(data, tmp, matches) # this possibly contains more stuff than matches
 
-        if rdict !== FAIL_DICT
-            rule_symbol = rule.args[p+1].args[2].args[2]
-            value_matched = get(op_map, rule.args[1], -1)
-            if rule_symbol in keys(rdict)
-                # check if it matched the same symbolic expression
-                !isequal(rdict[rule_symbol], value_matched) && return FAIL_DICT::MatchDict
-                return rdict::MatchDict
-            else # if never been matched
-                # if there is a predicate, rule_symbol is a expression with ::
-                if isa(rule_symbol, Expr)
-                    # check it
-                    pred = rule_symbol.args[2]
-#                    printdb(5, "about to check defslot predicate $pred with eval")
-                    !Base.invokelatest(eval(pred),SymbolicUtils.unwrap_const(value_matched)) && return FAIL_DICT
-#                    printdb(4, "adding defslot match $(rule_symbol.args[1]) => $value_matched")
-                    return Base.ImmutableDict(rdict, rule_symbol.args[1], value_matched)::MatchDict
-                end
-                # if no predicate add match
-#                printdb(4, "adding defslot match $rule_symbol => $value_matched to rditct: $(rdict...)")
-                return Base.ImmutableDict(rdict, rule_symbol, value_matched)::MatchDict
-            end
-        end
+        rdict !== FAIL_DICT && return end_of_tree(rule.args[p+1].args[2].args[2], get(op_map, rule.args[1], -1), rdict)
 #        printdb(4, "defslot failed also with the modified match :(")
         return FAIL_DICT::MatchDict
     # ((3)) if there is a segment in the (only) argument
@@ -317,7 +279,7 @@ and calls check_expr_r for every couple.
 - arg_rule is a vector of Expr or Real
 - arg_data is of type ??? TODO maybe SymsType[]
 """
-function ceoaa(arg_data, arg_rule::Vector{Any}, matches::MatchDict)
+@inline function ceoaa(arg_data, arg_rule::Vector{Any}, matches::MatchDict)
 #    printdb(4,"ceoaa start <---")
     for (a, b) in zip(arg_data, arg_rule)
 #        printdb(4,"ceoaa iter")
@@ -328,6 +290,33 @@ function ceoaa(arg_data, arg_rule::Vector{Any}, matches::MatchDict)
     end
 #    printdb(4, "ceoaa success <---")
     return matches::MatchDict
+end
+
+"""
+helper function for when you reach the end of the symbolic tree and you either:
+- check that the match is the same as what already matched before
+- add the new match
+- check the predicate and then add the new match
+"""
+@inline function end_of_tree(rule_symbol, value_matched, current_dict::MatchDict)
+    if rule_symbol in keys(current_dict)
+        # check if it matched the same symbolic expression
+        !isequal(current_dict[rule_symbol], value_matched) && return FAIL_DICT::MatchDict
+        return current_dict::MatchDict
+    else # if never been matched
+        # if there is a predicate, rule_symbol is a expression with ::
+        if isa(rule_symbol, Expr)
+            # check it
+            pred = rule_symbol.args[2]
+            # printdb(5, "about to check defslot predicate $pred with eval")
+            !Base.invokelatest(eval(pred),SymbolicUtils.unwrap_const(value_matched)) && return FAIL_DICT
+            # printdb(4, "adding defslot match $(rule_symbol.args[1]) => $value_matched")
+            return Base.ImmutableDict(current_dict, rule_symbol.args[1], value_matched)::MatchDict
+        end
+        # if no predicate add match
+        # printdb(4, "adding defslot match $rule_symbol => $value_matched to rditct: $(current_dict...)")
+        return Base.ImmutableDict(current_dict, rule_symbol, value_matched)::MatchDict
+    end
 end
 
 # for when the rule contains a symbol, like ℯ
