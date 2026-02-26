@@ -22,6 +22,15 @@ end
     rpo = :((~x)^(~!a)) => :(~a)
     @test eq(SymbolicIntegration.rule2(rpo, x), 1)
     @test eq(SymbolicIntegration.rule2(rpo, x^3), 3)
+
+    # multiple occurrencies of the same defslot
+    rmo = :((~(!a1) + ~(!b1) * (~x) ^ ~n) ^ ~(!p) * (~(!a2) + ~(!b2) * (~x) ^ ~n) ^ ~(!p)) => :(~p)
+    @test SymbolicIntegration.rule2(rmo, (x^3) / sqrt(4 + x^3)) === nothing
+    @test eq(SymbolicIntegration.rule2(rmo, (x^3) * (4 + x^3)), 1)
+    # predicates with defslots
+    rpd = :((~x)^(~!a::iseven) + 2) => :(~a)
+    @test eq(SymbolicIntegration.rule2(rpd, x^2 + 2), 2)
+    @test SymbolicIntegration.rule2(rpd, x^3 + 2) === nothing
 end
 
 @testset "neg exponent" begin
