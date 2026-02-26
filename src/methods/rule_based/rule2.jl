@@ -11,21 +11,21 @@ For example to decide if the input expression `t^2 + 1` matches the rule
 Read https://docs.sciml.ai/SymbolicUtils/stable/manual/rewrite/ for more examples.
 
 Another implementation is present in the SymbolicUtils package, but this
-one here is much faster (67x faster), covers more cases, and is sligtly
+one here is much faster (67x faster), covers more cases, and is slightly
 tailored to being used in the SymbolicIntegration package.
 
 
-# Functions definied
+# Functions defined
 - check_expr_r is the recursive function doing all the work and checking the
-rule against the expression. It's so long and ugly because it's really imporant
+rule against the expression. It's so long and ugly because it's really important
 that is as fast as possible
 - ceoaa is a helper function for check_expr_r
 - rule2 is a wrapper for check_expr_r that lets you input just the input
-expression and the rule, without worring about dictionaries.
+expression and the rule, without working about dictionaries.
 - rule3 is the wrapper for check_expr_r used in the integrate function, that
 already assumes the match ~x => your_integration_var, because all integration
 rules are written with the slot ~x as integration var
-- rewrite is the function that if succesful match rewrites the rhs. pretty
+- rewrite is the function that if successful match rewrites the rhs. pretty
 simple
 """
 
@@ -45,7 +45,7 @@ const op_map = Dict{Symbol, SymsType}(:+ => 0, :* => 1, :^ => 1)
 
 """
 Modify the variable verbose_level to print more or less steps of the matching
-process. This is really useful when debuggin it
+process. This is really useful when debugging it
 
 Rule verbose level:
 0 - print nothing
@@ -57,13 +57,14 @@ Rule verbose level:
 5 - print also every permutation of the commutative checks (best level)
 6 - print also the rewriting of the rhs
 
-The printdb calls really slow down the matching process (2x slover) (because 
-even if verbose_level=0 the $ are evalueated). So after finished debugging
-comment all the printdb calls with this regex:
-`(^[^#f].*printdb.*$)` transofrmed into `#$1`
-To uncomment them:
-`^#(.*printdb.*$)` transofrmed into `$1`
 """
+# The printdb calls really slow down the matching process (2x slover) (because 
+# even if verbose_level=0 the $ are evaluated). So after finished debugging
+# comment all the printdb calls with this regex:
+# `(^[^#f].*printdb.*$)` transformed into `#$1`
+# To uncomment them:
+# `^#(.*printdb.*$)` transformed into `$1`
+
 # verbose_level::Int = 5
 # indentation_zero::Int=0
 # function printdb(l::Int, s::String)
@@ -104,8 +105,8 @@ The function checks in this order:
       and if fail check the non defslot part ((2.2))
 ((3)) if the rule contains a segment in the (only) argument, like +(~~x)
       confront operation with data and return match (could be buggy)
-((4)) if the rule contains a rational, like 1//2, checks explicitely the numbers
-((5)) if the rule is a power, checks all possible ways in wich a power can be 
+((4)) if the rule contains a rational, like 1//2, checks explicitly the numbers
+((5)) if the rule is a power, checks all possible ways in which a power can be 
       written (for example 1/smth = smth^-1)
 ((6)) if rule is a product and data is a division NEIM problem could be ahppening
       so data is transformed to a multiplication
@@ -161,10 +162,10 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
 
         if rdict !== FAIL_DICT
             rule_symbol = rule.args[p+1].args[2].args[2]
-            value_mathced = get(op_map, rule.args[1], -1)
+            value_matched = get(op_map, rule.args[1], -1)
             if rule_symbol in keys(rdict)
                 # check if it matched the same symbolic expression
-                !isequal(rdict[rule_symbol], value_mathced) && return FAIL_DICT::MatchDict
+                !isequal(rdict[rule_symbol], value_matched) && return FAIL_DICT::MatchDict
                 return rdict::MatchDict
             else # if never been matched
                 # if there is a predicate, rule_symbol is a expression with ::
@@ -172,13 +173,13 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
                     # check it
                     pred = rule_symbol.args[2]
 #                    printdb(5, "about to check defslot predicate $pred with eval")
-                    !Base.invokelatest(eval(pred),SymbolicUtils.unwrap_const(value_mathced)) && return FAIL_DICT
-#                    printdb(4, "adding defslot match $(rule_symbol.args[1]) => $value_mathced")
-                    return Base.ImmutableDict(rdict, rule_symbol.args[1], value_mathced)::MatchDict
+                    !Base.invokelatest(eval(pred),SymbolicUtils.unwrap_const(value_matched)) && return FAIL_DICT
+#                    printdb(4, "adding defslot match $(rule_symbol.args[1]) => $value_matched")
+                    return Base.ImmutableDict(rdict, rule_symbol.args[1], value_matched)::MatchDict
                 end
                 # if no predicate add match
-#                printdb(4, "adding defslot match $rule_symbol => $value_mathced to rditct: $(rdict...)")
-                return Base.ImmutableDict(rdict, rule_symbol, value_mathced)::MatchDict
+#                printdb(4, "adding defslot match $rule_symbol => $value_matched to rditct: $(rdict...)")
+                return Base.ImmutableDict(rdict, rule_symbol, value_matched)::MatchDict
             end
         end
 #        printdb(4, "defslot failed also with the modified match :(")

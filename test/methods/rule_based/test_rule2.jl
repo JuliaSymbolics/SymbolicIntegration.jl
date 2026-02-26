@@ -23,7 +23,7 @@ end
     @test eq(SymbolicIntegration.rule2(rpo, x), 1)
     @test eq(SymbolicIntegration.rule2(rpo, x^3), 3)
 
-    # multiple occurrencies of the same defslot
+    # multiple occurrences of the same defslot
     rmo = :((~(!a1) + ~(!b1) * (~x) ^ ~n) ^ ~(!p) * (~(!a2) + ~(!b2) * (~x) ^ ~n) ^ ~(!p)) => :(~p)
     @test SymbolicIntegration.rule2(rmo, (x^3) / sqrt(4 + x^3)) === nothing
     @test eq(SymbolicIntegration.rule2(rmo, (x^3) * (4 + x^3)), 1)
