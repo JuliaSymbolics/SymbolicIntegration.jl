@@ -16,6 +16,7 @@ makedocs(
         "Home" => "index.md",
         "Manual" => [
             "manual/contributing.md",
+            "manual/method_coverage.md",
         ],
         "Integration Methods" => [
             "methods/overview.md",
