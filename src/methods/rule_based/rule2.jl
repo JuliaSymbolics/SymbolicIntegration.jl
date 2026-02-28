@@ -64,6 +64,7 @@ Rule verbose level:
 # `(^[^#f].*printdb.*$)` transformed into `#$1`
 # To uncomment them:
 # `^#(.*printdb.*$)` transformed into `$1`
+# and also the global indentation_zero = length(stacktrace())
 
 # verbose_level::Int = 5
 # indentation_zero::Int=0
@@ -391,7 +392,7 @@ symbolic operation
 expr: the input symbolic exprssion to check
 """
 function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
-    global indentation_zero = length(stacktrace())
+    # global indentation_zero = length(stacktrace())
 #    printdb(1, "Applying $rule on $expr")
     m = check_expr_r(expr, rule.first, MatchDict())
 #    m===FAIL_DICT && printdb(1,"Rule failed to match")
@@ -414,7 +415,7 @@ integration variable. So every rule is written assuming ~x is the integration va
 - integration_var: the input integration variable
 """
 function rule3(rule::Pair{Expr, Expr}, integrand::SymsType, integration_var::SymsType)::Union{SymsType, Nothing}
-    global indentation_zero = length(stacktrace())
+    # global indentation_zero = length(stacktrace())
 #    printdb(1, "Applying $rule on $integrand")
     m = check_expr_r(integrand, rule.first, MatchDict(:x,integration_var))
 #    m===FAIL_DICT && printdb(1,"Rule failed to match")
