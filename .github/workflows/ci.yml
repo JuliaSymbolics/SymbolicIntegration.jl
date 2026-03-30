@@ -47,7 +47,7 @@ jobs:
           TEST_GROUP: ${{ matrix.group }}
       - uses: julia-actions/julia-processcoverage@v1
         continue-on-error: true    # <-- added: don't fail CI if coverage processing crashes on nightly
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         with:
           files: lcov.info
           token: ${{ secrets.CODECOV_TOKEN }}
