@@ -27,7 +27,7 @@ FresnelIntegrals = "0.2.0"
 HypergeometricFunctions = "0.3.28"
 Nemo = "0.51, 0.52, 0.53, 0.54, 0.55"
 PolyLog = "2.6.0"
-SymbolicUtils = "4"
+SymbolicUtils = "4.27"
 Symbolics = "7"
 julia = "1.10"
 

@@ -76,12 +76,20 @@ if it finds a symbol or a real (!iscall) stop the recursion
 if it finds a ∫ operation call apply_rule
 if it finds another operation continue the recursion in the arguments. (for cases
     like 1+∫(...) )
+
+`visited` accumulates integrals already rewritten on the *current* linear
+chain so multi-rule cycles (which `apply_rule`'s single-step identity
+check cannot detect) terminate. Sibling subtrees start with a fresh set.
 """
 # TODO add threaded for speed?
-function repeated_prewalk(expr)
+function repeated_prewalk(expr; visited::Set=Set())
     !iscall(expr) && return expr # termination condition
-    
+
     if operation(expr)===∫
+        if expr in visited
+            return expr
+        end
+        push!(visited, expr)
         (new_expr,success) = apply_rule(expr)
         # # r1 and r2 are needed bc of neim problem
         # if !success
@@ -111,7 +119,7 @@ function repeated_prewalk(expr)
         if success
             # cannot directly return new_expr because even if a rule
             # is applied the result could still contain integrals
-            return repeated_prewalk(new_expr)
+            return repeated_prewalk(new_expr; visited=visited)
         else
             # TODO Can this be a bad idea sometimes?
             simplified_expr = simplify(expr, expand=true)
