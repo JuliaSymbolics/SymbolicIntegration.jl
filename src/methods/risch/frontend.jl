@@ -630,9 +630,9 @@ end
 
 transform_symtree_to_mpoly(f::Number, vars::Vector, vars_mpoly::Vector) = f
 
-(F::QQBarField)(x::Rational) = F(QQ(x))
-Base.promote(x::QQFieldElem, y::MPolyRingElem{Nemo.QQBarFieldElem}) = promote(algebraic_closure(QQ)(x), y)
-Base.promote(x::MPolyRingElem{Nemo.QQBarFieldElem}, y::QQFieldElem) = promote(x, algebraic_closure(QQ)(y))
+(F::QQBarField)(x::Rational) = F(Nemo.QQ(x))
+Base.promote(x::QQFieldElem, y::MPolyRingElem{Nemo.QQBarFieldElem}) = promote(algebraic_closure(Nemo.QQ)(x), y)
+Base.promote(x::MPolyRingElem{Nemo.QQBarFieldElem}, y::QQFieldElem) = promote(x, algebraic_closure(Nemo.QQ)(y))
 
 # Old type-specific methods commented out - these types don't exist in SymbolicUtils 3.x
 # transform_symtree_to_mpoly(f::SymbolicUtils.Add, vars::Vector, vars_mpoly::Vector) =
@@ -805,9 +805,13 @@ function integrate_risch(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, 
             end
         catch e
             if e isa AlgebraicNumbersInvolved
-                # try again now with algebraic numbers enabled
-                return integrate(f, x, useQQBar=true, 
-                    catchNotImplementedError=catchNotImplementedError, 
+                # Retry with algebraic numbers enabled. Recurse into
+                # `integrate_risch` directly: the public `integrate(::Num,
+                # ::Num, ::RischMethod)` builds its kwargs from `method`
+                # fields, not from a free `useQQBar` kwarg, and `f`/`x` here
+                # are already `BasicSymbolic{SymReal}`, not `Symbolics.Num`.
+                return integrate_risch(f, x; useQQBar=true,
+                    catchNotImplementedError=catchNotImplementedError,
                     catchAlgorithmFailedError=catchAlgorithmFailedError)
             end
             rethrow(e)
