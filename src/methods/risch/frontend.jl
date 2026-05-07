@@ -168,7 +168,7 @@ function tan2sincos(f::K, arg::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal
     # of expressions of the form cos(2*j*arg) or sin(2*j*arg) where j is an integer >=0.
     k = base_ring(base_ring(parent(f)))
     kz, I = polynomial_ring(k, :I)
-    kI = residue_field(kz, I^2+1)[1]
+    kI = generic_residue_field(kz, I^2+1)[1]
     kIE, E = polynomial_ring(kI, :E)
     # I represents sqrt(-1), E represents exp(2*I*arg), so that t = I*(1-E)//(1+E) represents tan(arg)
     t = I*(1 - E)//(1 + E)   
@@ -813,17 +813,19 @@ function integrate_risch(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, 
             rethrow(e)
         end
     catch e
-        if e isa NotImplementedError
-            if catchNotImplementedError
-                # @warn "NotImplementedError: $(e.msg)"
-                return ∫(f, x)
-            end
-        elseif e isa AlgorithmFailedError
-            if catchAlgorithmFailedError
-                # @warn "AlgorithmFailedError: $(e.msg)"
-                return ∫(f, x)
-            end
+        # Domain-limit signals (NotImplementedError / AlgorithmFailedError)
+        # convert to an unevaluated `∫(f, x)` only when the corresponding
+        # opt-in flag is set; otherwise they propagate. Anything else
+        # (`MethodError`, `TypeError`, etc.) always propagates — those mean
+        # something is broken upstream and should be visible, not silently
+        # swallowed into "looks like a coverage gap".
+        if e isa NotImplementedError && catchNotImplementedError
+            @debug "Risch returning unevaluated integrand" reason=:NotImplementedError msg=e.msg
+            return ∫(f, x)
+        elseif e isa AlgorithmFailedError && catchAlgorithmFailedError
+            @debug "Risch returning unevaluated integrand" reason=:AlgorithmFailedError msg=e.msg
+            return ∫(f, x)
         end
-        rethrow(e)        
+        rethrow(e)
     end
 end
