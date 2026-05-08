@@ -140,8 +140,8 @@ function constant_factors(f::PolyRingElem{T}) where T<:FieldElement
 end
 
 function rational_roots(f::PolyRingElem{T}) where T<:FieldElement
-    p = map_coefficients(c->QQ(rationalize(c)), constant_factors(f)) # QQ needs Nemo
-    roots(p) 
+    p = map_coefficients(c -> Nemo.QQ(rationalize(c)), constant_factors(f))
+    roots(p)
 end
 
 function Nemo.roots(f::PolyRingElem{QQBarFieldElem})
@@ -158,9 +158,17 @@ function Nemo.roots(f::PolyRingElem{QQBarFieldElem})
         G = prod([ G(x, vcat(zeros(Int, i-1), α, ys[i+1:end])...) for α in conjugates(as[i])])
     end
 
-    g = map_coefficients(c->QQ(c), G(X, zeros(parent(X), n)...))
+    # `c` is a `QQBarFieldElem` after symbolic substitution; symmetrising
+    # over Galois conjugates (the loop above) leaves rational coefficients,
+    # so go QQBar → Rational → Nemo.QQ rather than relying on a missing
+    # direct `Nemo.QQField(::QQBarFieldElem)` constructor.
+    g = map_coefficients(c -> Nemo.QQ(Rational(c)), G(X, zeros(parent(X), n)...))
     
-    rs = roots(g)
+    # `g` is a polynomial over `Nemo.QQ`, but the symmetrisation above
+    # guarantees its roots include all of `f`'s QQBar roots — so we must
+    # lift to `QQBar` to find them. Plain `roots(g)` (over the base ring)
+    # silently drops the irrational ones.
+    rs = roots(Nemo.QQBar, g)
     [r for r in rs if iszero(f(r))]
 end
 

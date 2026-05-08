@@ -168,7 +168,7 @@ function tan2sincos(f::K, arg::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal
     # of expressions of the form cos(2*j*arg) or sin(2*j*arg) where j is an integer >=0.
     k = base_ring(base_ring(parent(f)))
     kz, I = polynomial_ring(k, :I)
-    kI = residue_field(kz, I^2+1)[1]
+    kI = generic_residue_field(kz, I^2+1)[1]
     kIE, E = polynomial_ring(kI, :E)
     # I represents sqrt(-1), E represents exp(2*I*arg), so that t = I*(1-E)//(1+E) represents tan(arg)
     t = I*(1 - E)//(1 + E)   
@@ -210,12 +210,15 @@ function tan2sincos(f::K, arg::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal
     for j=2:length(ss)
         den += subst_tower(ss[j], vars, h - 1)*sin((j - 1)*arg2)    
     end
-    num//den
+    # `/` not `//`: under SymbolicUtils v4 there is no `//` method for two
+    # `BasicSymbolic{SymReal}` operands; `/` produces the same symbolic
+    # rational expression.
+    num/den
 end
 
 function subst_tower(f::F, vars::Vector, h::Int) where
     {T<:FieldElement, P<:PolyRingElem{T}, F<:FracElem{P}}
-    if isa(vars[h], SymbolicUtils.Term) && operation(vars[h])==tan && !isone(denominator(f))
+    if SymbolicUtils.iscall(vars[h]) && operation(vars[h])==tan && !isone(denominator(f))
         return tan2sincos(f, arguments(vars[h])[1], vars, h)
     end
     if isone(denominator(f))
@@ -231,7 +234,7 @@ function subst_tower(p::P, vars::Vector, h::Int) where
         return zero(vars[h])
     end
     cs = [subst_tower(c, vars, h - 1) for c in coefficients(p)]    
-    if isa(vars[h], SymbolicUtils.Term) && operation(vars[h])==exp
+    if SymbolicUtils.iscall(vars[h]) && operation(vars[h])==exp
         # Write polynomial in exp(a) as sum_i c_i*exp(i*a) instead sum_i c_i*exp(a)^i
         a = arguments(vars[h])[1]
         return sum([cs[i]*(i==1 ? 1 : exp((i - 1)*a)) for i=1:length(cs)])
@@ -300,135 +303,132 @@ function analyze_expr(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal} , fu
         return f
     end
     
-    # For non-symbols, dispatch based on operation
-    try
-        op = operation(f)
-        if op in (+, *, /)
-            # Handle Add, Mul, Div operations
-            as = [SymbolicUtils.unwrap_const(x) for x in arguments(f)]
-            ps = [analyze_expr(a, funs, vars, args, tanArgs, expArgs) for a in as]
-            return op(ps...)
-        elseif op == (^)
-            # Handle Pow operations  
-            as = [SymbolicUtils.unwrap_const(x) for x in arguments(f)]
-            p1 = analyze_expr(as[1], funs, vars, args, tanArgs, expArgs)
-            p2 = analyze_expr(as[2], funs, vars, args, tanArgs, expArgs)
-            if isa(p2, Integer)
-                return p1^p2
-            elseif isa(p2, Number)        
-                throw(NotImplementedError("integrand contains power with unsupported exponent $p2"))
-            end
+    # For non-symbols, dispatch based on operation. No catch-all here on
+    # purpose: domain limits are raised explicitly as `NotImplementedError`
+    # at the right point; everything else (MethodError/TypeError/...) is a
+    # bug and should surface as itself rather than be re-wrapped as
+    # "unsupported expression", which makes upstream API breakage look like
+    # a coverage gap.
+    op = operation(f)
+    if op in (+, *, /)
+        # Handle Add, Mul, Div operations
+        as = [SymbolicUtils.unwrap_const(x) for x in arguments(f)]
+        ps = [analyze_expr(a, funs, vars, args, tanArgs, expArgs) for a in as]
+        return op(ps...)
+    elseif op == (^)
+        # Handle Pow operations
+        as = [SymbolicUtils.unwrap_const(x) for x in arguments(f)]
+        p1 = analyze_expr(as[1], funs, vars, args, tanArgs, expArgs)
+        p2 = analyze_expr(as[2], funs, vars, args, tanArgs, expArgs)
+        if isa(p2, Integer)
+            return p1^p2
+        elseif isa(p2, Number)
             throw(NotImplementedError("integrand contains power with unsupported exponent $p2"))
-        elseif op == exp
-            # Handle exp function
-            a = arguments(f)[1]
-            i = findfirst(x -> is_rational_multiple(a, x), expArgs)
-            n = 1
-            if i === nothing
-                push!(expArgs, a)
-            else
-                n = rational_multiple(a, expArgs[i])
-                if !isone(denominator(n)) # n not an integer
-                    expArgs[i] = 1//denominator(n)*expArgs[i]
-                    throw(UpdatedArgList())            
-                end
-                n = numerator(n)
-            end
-            if n != 1
-                f_new = exp(expArgs[i])^n
-                return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
-            end
-            # Continue to general function handling below
-        elseif op == tan        
-            # Handle tan function
-            a = arguments(f)[1]
-            i = findfirst(x -> is_rational_multiple(a, x), tanArgs)
-            n = 1
-            if i === nothing
-                push!(tanArgs, a)
-            else
-                n = rational_multiple(a, tanArgs[i])
-                if !isone(denominator(n)) # n not an integer
-                    tanArgs[i] = 1//denominator(n)*tanArgs[i]
-                    throw(UpdatedArgList())            
-                end
-                n = numerator(n) 
-            end
-            if n != 1
-                f_new = tan_nx(n, tanArgs[i])
-                return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
-            end
-            # Continue to general function handling below
-        elseif op == sinh
-            # Transform sinh to exponentials
-            a = arguments(f)[1]
-            f_new = 1//2*(exp(a) - 1/exp(a))
-            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
-        elseif op == cosh
-            # Transform cosh to exponentials  
-            a = arguments(f)[1]
-            f_new = 1//2*(exp(a) + 1/exp(a))
-            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
-        elseif op == csch # 1/sinh
-            a = arguments(f)[1]
-            f_new = 2/(exp(a) - 1/exp(a))
-            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
-        elseif op == sech
-            a = arguments(f)[1]
-            f_new = 2/(exp(a) + 1/exp(a))
-            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
-        elseif op == tanh
-            a = arguments(f)[1]
-            f_new = (exp(a) - 1/exp(a))/(exp(a) + 1/exp(a))
-            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
-        elseif op == coth
-            a = arguments(f)[1]
-            f_new = (exp(a) + 1/exp(a))/(exp(a) - 1/exp(a))
-            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)        
-        elseif op == sin # transform to half angle format
-            a = arguments(f)[1]
-            f_new = 2*tan(1//2*a)/(1 + tan(1//2*a)^2)
-            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
-        elseif op == cos
-            a = arguments(f)[1]
-            f_new = (1 - tan(1//2*a)^2)/(1 + tan(1//2*a)^2)
-            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
-        elseif op == csc # 1/sin
-            a = arguments(f)[1]
-            f_new = 1//2*(1 + tan(1//2*a)^2)/tan(1//2*a)
-            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
-        elseif op == sec # 1/cos
-            a = arguments(f)[1]
-            f_new = (1 + tan(1//2*a)^2)/(1 - tan(1//2*a)^2)
-            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
-        elseif op == cot
-            a = arguments(f)[1]
-            f_new = 1/tan(a)
-            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
         end
-        
-        # General function handling (for exp, log, atan, tan that didn't get transformed above)
-        i = findfirst(x -> hash(x)==hash(f), funs) 
-        if i !== nothing
-            return vars[i]
-        end    
-        op in [exp, log, atan, tan] ||        
-            throw(NotImplementedError("integrand contains unsupported function $op"))
+        throw(NotImplementedError("integrand contains power with unsupported exponent $p2"))
+    elseif op == exp
+        # Handle exp function
         a = arguments(f)[1]
-        p = analyze_expr(a, funs, vars, args, tanArgs, expArgs)
-        tname = Symbol(:t, length(vars)) 
-        t = SymbolicUtils.Sym{Real}(tname)
-        push!(funs, f)
-        push!(vars, t)
-        push!(args, p)
-        return t
-    catch e
-        if isa(e, UpdatedArgList)
-            rethrow(e)
+        i = findfirst(x -> is_rational_multiple(a, x), expArgs)
+        n = 1
+        if i === nothing
+            push!(expArgs, a)
         else
-            throw(NotImplementedError("integrand contains unsupported expression $f"))
+            n = rational_multiple(a, expArgs[i])
+            if !isone(denominator(n)) # n not an integer
+                expArgs[i] = 1//denominator(n)*expArgs[i]
+                throw(UpdatedArgList())
+            end
+            n = numerator(n)
         end
+        if n != 1
+            f_new = exp(expArgs[i])^n
+            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
+        end
+        # Continue to general function handling below
+    elseif op == tan
+        # Handle tan function
+        a = arguments(f)[1]
+        i = findfirst(x -> is_rational_multiple(a, x), tanArgs)
+        n = 1
+        if i === nothing
+            push!(tanArgs, a)
+        else
+            n = rational_multiple(a, tanArgs[i])
+            if !isone(denominator(n)) # n not an integer
+                tanArgs[i] = 1//denominator(n)*tanArgs[i]
+                throw(UpdatedArgList())
+            end
+            n = numerator(n)
+        end
+        if n != 1
+            f_new = tan_nx(n, tanArgs[i])
+            return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
+        end
+        # Continue to general function handling below
+    elseif op == sinh
+        # Transform sinh to exponentials
+        a = arguments(f)[1]
+        f_new = 1//2*(exp(a) - 1/exp(a))
+        return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
+    elseif op == cosh
+        # Transform cosh to exponentials
+        a = arguments(f)[1]
+        f_new = 1//2*(exp(a) + 1/exp(a))
+        return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
+    elseif op == csch # 1/sinh
+        a = arguments(f)[1]
+        f_new = 2/(exp(a) - 1/exp(a))
+        return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
+    elseif op == sech
+        a = arguments(f)[1]
+        f_new = 2/(exp(a) + 1/exp(a))
+        return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
+    elseif op == tanh
+        a = arguments(f)[1]
+        f_new = (exp(a) - 1/exp(a))/(exp(a) + 1/exp(a))
+        return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
+    elseif op == coth
+        a = arguments(f)[1]
+        f_new = (exp(a) + 1/exp(a))/(exp(a) - 1/exp(a))
+        return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
+    elseif op == sin # transform to half angle format
+        a = arguments(f)[1]
+        f_new = 2*tan(1//2*a)/(1 + tan(1//2*a)^2)
+        return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
+    elseif op == cos
+        a = arguments(f)[1]
+        f_new = (1 - tan(1//2*a)^2)/(1 + tan(1//2*a)^2)
+        return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
+    elseif op == csc # 1/sin
+        a = arguments(f)[1]
+        f_new = 1//2*(1 + tan(1//2*a)^2)/tan(1//2*a)
+        return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
+    elseif op == sec # 1/cos
+        a = arguments(f)[1]
+        f_new = (1 + tan(1//2*a)^2)/(1 - tan(1//2*a)^2)
+        return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
+    elseif op == cot
+        a = arguments(f)[1]
+        f_new = 1/tan(a)
+        return analyze_expr(f_new, funs, vars, args, tanArgs, expArgs)
     end
+
+    # General function handling (for exp, log, atan, tan that didn't get transformed above)
+    i = findfirst(x -> hash(x)==hash(f), funs)
+    if i !== nothing
+        return vars[i]
+    end
+    op in [exp, log, atan, tan] ||
+        throw(NotImplementedError("integrand contains unsupported function $op"))
+    a = arguments(f)[1]
+    p = analyze_expr(a, funs, vars, args, tanArgs, expArgs)
+    tname = Symbol(:t, length(vars))
+    t = SymbolicUtils.Sym{SymbolicUtils.SymReal}(tname; type=Real)
+    push!(funs, f)
+    push!(vars, t)
+    push!(args, p)
+    return t
 end
 
 function analyze_expr(f::Number , funs::Vector, vars::Vector{SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}}, args::Vector, tanArgs::Vector, expArgs::Vector)
@@ -633,9 +633,9 @@ end
 
 transform_symtree_to_mpoly(f::Number, vars::Vector, vars_mpoly::Vector) = f
 
-(F::QQBarField)(x::Rational) = F(QQ(x))
-Base.promote(x::QQFieldElem, y::MPolyRingElem{Nemo.QQBarFieldElem}) = promote(algebraic_closure(QQ)(x), y)
-Base.promote(x::MPolyRingElem{Nemo.QQBarFieldElem}, y::QQFieldElem) = promote(x, algebraic_closure(QQ)(y))
+(F::QQBarField)(x::Rational) = F(Nemo.QQ(x))
+Base.promote(x::QQFieldElem, y::MPolyRingElem{Nemo.QQBarFieldElem}) = promote(algebraic_closure(Nemo.QQ)(x), y)
+Base.promote(x::MPolyRingElem{Nemo.QQBarFieldElem}, y::QQFieldElem) = promote(x, algebraic_closure(Nemo.QQ)(y))
 
 # Old type-specific methods commented out - these types don't exist in SymbolicUtils 3.x
 # transform_symtree_to_mpoly(f::SymbolicUtils.Add, vars::Vector, vars_mpoly::Vector) =
@@ -808,25 +808,31 @@ function integrate_risch(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, 
             end
         catch e
             if e isa AlgebraicNumbersInvolved
-                # try again now with algebraic numbers enabled
-                return integrate(f, x, useQQBar=true, 
-                    catchNotImplementedError=catchNotImplementedError, 
+                # Retry with algebraic numbers enabled. Recurse into
+                # `integrate_risch` directly: the public `integrate(::Num,
+                # ::Num, ::RischMethod)` builds its kwargs from `method`
+                # fields, not from a free `useQQBar` kwarg, and `f`/`x` here
+                # are already `BasicSymbolic{SymReal}`, not `Symbolics.Num`.
+                return integrate_risch(f, x; useQQBar=true,
+                    catchNotImplementedError=catchNotImplementedError,
                     catchAlgorithmFailedError=catchAlgorithmFailedError)
             end
             rethrow(e)
         end
     catch e
-        if e isa NotImplementedError
-            if catchNotImplementedError
-                # @warn "NotImplementedError: $(e.msg)"
-                return ∫(f, x)
-            end
-        elseif e isa AlgorithmFailedError
-            if catchAlgorithmFailedError
-                # @warn "AlgorithmFailedError: $(e.msg)"
-                return ∫(f, x)
-            end
+        # Domain-limit signals (NotImplementedError / AlgorithmFailedError)
+        # convert to an unevaluated `∫(f, x)` only when the corresponding
+        # opt-in flag is set; otherwise they propagate. Anything else
+        # (`MethodError`, `TypeError`, etc.) always propagates — those mean
+        # something is broken upstream and should be visible, not silently
+        # swallowed into "looks like a coverage gap".
+        if e isa NotImplementedError && catchNotImplementedError
+            @debug "Risch returning unevaluated integrand" reason=:NotImplementedError msg=e.msg
+            return ∫(f, x)
+        elseif e isa AlgorithmFailedError && catchAlgorithmFailedError
+            @debug "Risch returning unevaluated integrand" reason=:AlgorithmFailedError msg=e.msg
+            return ∫(f, x)
         end
-        rethrow(e)        
+        rethrow(e)
     end
 end

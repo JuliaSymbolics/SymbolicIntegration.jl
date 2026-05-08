@@ -25,9 +25,11 @@ const TEST_GROUP = get(ENV, "TEST_GROUP", "all")
 
             # Include Risch method test suites
             include("methods/risch/test_rational_integration.jl")
-            include("methods/risch/test_complex_fields.jl") 
+            include("methods/risch/test_complex_fields.jl")
             include("methods/risch/test_bronstein_examples.jl")
             include("methods/risch/test_algorithm_internals.jl")
+            include("methods/risch/test_textbook_transcendentals.jl")
+            include("methods/risch/test_trig_integrals.jl")
 
             # test internals of rulebased methods
             include("methods/rule_based/test_rule2.jl")

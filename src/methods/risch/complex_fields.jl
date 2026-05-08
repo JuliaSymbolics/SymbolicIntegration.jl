@@ -1,10 +1,33 @@
 
+"""
+    generic_residue_field(R, a; cached=true)
+
+`AbstractAlgebra`'s generic `residue_field`, bypassing any specialised
+dispatches a downstream package (e.g. Nemo) may have installed for specific
+ring/element types. The Risch tower-construction code relies on the result
+being an `AbstractAlgebra.ResField`, but Nemo's `residue_field(::QQPolyRing,
+::QQPolyRingElem)` returns an `AbsSimpleNumField` for irreducible quadratic
+moduli, which has no `ResField` API. Routing the constructor through
+`invoke` on the generic signature gives us a `Generic.EuclideanRingResidueField`
+even when the input is Nemo-flavoured.
+"""
+generic_residue_field(R::AbstractAlgebra.Ring, a::AbstractAlgebra.RingElement; cached::Bool=true) =
+    invoke(residue_field, Tuple{AbstractAlgebra.Ring, AbstractAlgebra.RingElement}, R, a; cached=cached)
 
 struct ComplexExtensionDerivation{T<:FieldElement, P<:PolyRingElem{T}} <: Derivation
     domain::AbstractAlgebra.ResField{P}
     D::Derivation    
     function ComplexExtensionDerivation(domain::AbstractAlgebra.ResField{P}, D::Derivation) where {T<:FieldElement, P<:PolyRingElem{T}}
-        base_ring(base_ring(base_ring(domain)))==D.domain || error("base ring of domain must be domain of D")
+        # `D` must act on a field that the residue field's element-coefficient
+        # type is built over. In the typical Risch tower the base derivation
+        # acts on a polynomial ring inside a fraction field (so 3 base_rings
+        # peel down to it); for a flat base field (e.g. `Complexify(QQ, D)`
+        # with `D::NullDerivation` on `QQ`) it acts directly on the
+        # coefficient field (2 base_rings). Accept either depth.
+        bd = D.domain
+        bd == base_ring(base_ring(domain)) ||
+            bd == base_ring(base_ring(base_ring(domain))) ||
+            error("base ring of domain must be domain of D (got $(bd) vs $(base_ring(base_ring(domain))) / $(base_ring(base_ring(base_ring(domain)))))")
         m = modulus(domain)
         degree(m)==2 && isone(coeff(m, 0)) && iszero(coeff(m, 1)) && isone(coeff(m,2)) ||
             error("domain must be residue field modulo X^2+1.")
@@ -46,10 +69,10 @@ isbasic(D::ComplexExtensionDerivation) = isbasic(D.D)
 MonomialDerivative(D::ComplexExtensionDerivation) = MonomialDerivative(D.D)
 BaseDerivation(D::ComplexExtensionDerivation) = D.D 
 
-function constant_field(D::ComplexExtensionDerivation) 
+function constant_field(D::ComplexExtensionDerivation)
     C = constant_field(D.D)
     Cz, I = polynomial_ring(C, :I)
-    residue_field(Cz, I^2+1)[1]
+    generic_residue_field(Cz, I^2+1)[1]
 end
 
 isconstant(f::AbstractAlgebra.ResFieldElem{P}, D::ComplexExtensionDerivation) where {T<:FieldElement, P<:PolyRingElem{T}} =
@@ -60,7 +83,7 @@ function constantize(f::AbstractAlgebra.ResFieldElem{P}, D::ComplexExtensionDeri
     v = constantize(imag(f), D.D)
     C = parent(u)
     Cz, I = polynomial_ring(C, :I)
-    CI = residue_field(Cz, I^2+1)[1]   
+    CI = generic_residue_field(Cz, I^2+1)[1]
     CI(u+v*I)
 end
 
@@ -132,7 +155,7 @@ satisfies `D1(√-1)=0`.
 function Complexify(k::AbstractAlgebra.Field, D::Derivation) # where {T <:FieldElement, F<: AbstractAlgebra.Field{T}}
     !contains_I(k) || error("k already contains I=sqrt(-1)")
     kz, I = polynomial_ring(k, :I)
-    kI = residue_field(kz, I^2+1)[1]
+    kI = generic_residue_field(kz, I^2+1)[1]
     DI = ComplexExtensionDerivation(kI, D)
     kI, kI(I), DI
 end
