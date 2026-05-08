@@ -303,68 +303,47 @@ println("Test results saved to: ", output_file)
 # unsatisfiable "every integral solves and verifies" bar.
 include("difficult_baseline.jl")
 
-function _baseline_compare(method_name::AbstractString, codes::Vector{Int}, idx::Int)
-    expr = total_input_exprs[idx]
-    expected = get(DIFFICULT_BASELINE, expr, nothing)
-    if expected === nothing
-        return :unknown
+function _check_method(name::AbstractString, codes::Vector{Int}, slot::Int)
+    if length(codes) != length(DIFFICULT_BASELINE)
+        dual_println("\n", name, ": baseline has ", length(DIFFICULT_BASELINE),
+                     " entries but actual has ", length(codes),
+                     " — corpus and test/difficult_baseline.jl are out of sync.")
+        return Tuple{Int,String,Int,Int}[(0,"<size mismatch>",length(DIFFICULT_BASELINE),length(codes))],
+               Tuple{Int,String,Int,Int}[]
     end
-    expected_code = method_name == "RuleBased" ? expected[1] : expected[2]
-    actual_code = codes[idx]
-    if actual_code == expected_code
-        return :match
-    elseif actual_code < expected_code   # smaller code = better outcome (0=ok)
-        return (:improved, expected_code, actual_code)
-    else
-        return (:regressed, expected_code, actual_code)
-    end
-end
-
-function _check_method(name::AbstractString, codes::Vector{Int})
-    regressions = Tuple{String,Int,Int}[]
-    improvements = Tuple{String,Int,Int}[]
-    unknowns = String[]
-    for i in eachindex(total_input_exprs)
-        r = _baseline_compare(name, codes, i)
-        if r isa Tuple
-            tag, exp, act = r
-            tag === :regressed && push!(regressions, (total_input_exprs[i], exp, act))
-            tag === :improved  && push!(improvements, (total_input_exprs[i], exp, act))
-        elseif r === :unknown
-            push!(unknowns, total_input_exprs[i])
-        end
+    regressions = Tuple{Int,String,Int,Int}[]   # (i, integrand, expected, actual)
+    improvements = Tuple{Int,String,Int,Int}[]
+    for i in eachindex(codes)
+        expected = DIFFICULT_BASELINE[i][slot]
+        actual = codes[i]
+        actual == expected && continue
+        # Smaller code = better outcome (0=ok < 1=fail? < 2=fail < 3=except)
+        bucket = actual < expected ? improvements : regressions
+        push!(bucket, (i, total_input_exprs[i], expected, actual))
     end
     if !isempty(regressions)
         dual_println("\n", name, " regressions vs baseline (engine got worse):")
-        for (s, e, a) in regressions
-            dual_println("  ", s, "    expected=", e, " actual=", a)
+        for (i, s, e, a) in regressions
+            dual_println("  [", i, "] ", s, "    expected=", e, " actual=", a)
         end
     end
     if !isempty(improvements)
         dual_println("\n", name, " improvements vs baseline (engine got better — tighten test/difficult_baseline.jl on this PR):")
-        for (s, e, a) in improvements
-            dual_println("  ", s, "    expected=", e, " actual=", a)
+        for (i, s, e, a) in improvements
+            dual_println("  [", i, "] ", s, "    expected=", e, " actual=", a)
         end
     end
-    if !isempty(unknowns)
-        dual_println("\n", name, " integrands not in baseline (add to test/difficult_baseline.jl):")
-        for s in unknowns
-            dual_println("  ", s)
-        end
-    end
-    return regressions, improvements, unknowns
+    return regressions, improvements
 end
 
 @testset "[Rule Based] Integration of $(length(total_input_exprs)) functions" begin
-    regressions, improvements, unknowns = _check_method("RuleBased", total_result_codes_rb)
+    regressions, improvements = _check_method("RuleBased", total_result_codes_rb, 1)
     @test isempty(regressions)
     @test isempty(improvements)
-    @test isempty(unknowns)
 end
 
 @testset "[Risch] Integration of $(length(total_input_exprs)) functions" begin
-    regressions, improvements, unknowns = _check_method("Risch", total_result_codes_rs)
+    regressions, improvements = _check_method("Risch", total_result_codes_rs, 2)
     @test isempty(regressions)
     @test isempty(improvements)
-    @test isempty(unknowns)
 end
