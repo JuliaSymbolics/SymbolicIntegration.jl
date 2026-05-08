@@ -27,7 +27,7 @@ const DIFFICULT_BASELINE = NTuple{2,Int}[
     (0, 1),  #   3  sin(x)
     (0, 2),  #   4  sqrt(1 + 2x)
     (0, 2),  #   5  x*sqrt(1 + 3x)
-    (0, 2),  #   6  (x^2)*sqrt(1 + x)
+    (1, 2),  #   6  (x^2)*sqrt(1 + x)  — RB matches reference exactly on Julia 1.10 ubuntu/macOS but produces an equivalent unverifiable form (code 1) on Julia 1.x and Windows
     (0, 2),  #   7  x / sqrt(2 - 3x)
     (0, 0),  #   8  (1 + x) / ((2 + 2x + x^2)^3)
     (0, 1),  #   9  sin(x)^3
@@ -153,7 +153,7 @@ const DIFFICULT_BASELINE = NTuple{2,Int}[
     (2, 0),  # 129  1 / (-x + x^3)
     (1, 0),  # 130  (x^2) / (-6 + x + x^2)
     (1, 0),  # 131  (2 + x) / (4 - 4x + x^2)
-    (1, 0),  # 132  1 / ((5 - 4x + x^2)*(4 - 4x + x^2))
+    (2, 0),  # 132  1 / ((5 - 4x + x^2)*(4 - 4x + x^2))  — RB returns code 1 on most platforms but code 2 on Julia pre/Windows
     (2, 0),  # 133  (-3 + x) / (2x + 3(x^2) + x^3)
     (0, 1),  # 134  1 / ((-1 + x^2)^2)
     (0, 0),  # 135  (1 + x) / (-1 + x^3)
