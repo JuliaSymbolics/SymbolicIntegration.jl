@@ -337,13 +337,17 @@ function _check_method(name::AbstractString, codes::Vector{Int}, slot::Int)
 end
 
 @testset "[Rule Based] Integration of $(length(total_input_exprs)) functions" begin
-    regressions, improvements = _check_method("RuleBased", total_result_codes_rb, 1)
+    # Gate on regressions only. Improvements (e.g. an integral that returns
+    # code 2 on Julia 1.10 but code 1 on Julia 1.x) are printed as
+    # informational — the engine genuinely behaves slightly differently
+    # across Julia versions, so the baseline should record the WORST
+    # outcome observed and a single fixed entry has to allow any better
+    # result on a different version.
+    regressions, _ = _check_method("RuleBased", total_result_codes_rb, 1)
     @test isempty(regressions)
-    @test isempty(improvements)
 end
 
 @testset "[Risch] Integration of $(length(total_input_exprs)) functions" begin
-    regressions, improvements = _check_method("Risch", total_result_codes_rs, 2)
+    regressions, _ = _check_method("Risch", total_result_codes_rs, 2)
     @test isempty(regressions)
-    @test isempty(improvements)
 end
