@@ -164,7 +164,11 @@ function Nemo.roots(f::PolyRingElem{QQBarFieldElem})
     # direct `Nemo.QQField(::QQBarFieldElem)` constructor.
     g = map_coefficients(c -> Nemo.QQ(Rational(c)), G(X, zeros(parent(X), n)...))
     
-    rs = roots(g)
+    # `g` is a polynomial over `Nemo.QQ`, but the symmetrisation above
+    # guarantees its roots include all of `f`'s QQBar roots — so we must
+    # lift to `QQBar` to find them. Plain `roots(g)` (over the base ring)
+    # silently drops the irrational ones.
+    rs = roots(Nemo.QQBar, g)
     [r for r in rs if iszero(f(r))]
 end
 
