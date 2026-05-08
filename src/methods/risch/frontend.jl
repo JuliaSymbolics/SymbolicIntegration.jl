@@ -210,12 +210,15 @@ function tan2sincos(f::K, arg::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal
     for j=2:length(ss)
         den += subst_tower(ss[j], vars, h - 1)*sin((j - 1)*arg2)    
     end
-    num//den
+    # `/` not `//`: under SymbolicUtils v4 there is no `//` method for two
+    # `BasicSymbolic{SymReal}` operands; `/` produces the same symbolic
+    # rational expression.
+    num/den
 end
 
 function subst_tower(f::F, vars::Vector, h::Int) where
     {T<:FieldElement, P<:PolyRingElem{T}, F<:FracElem{P}}
-    if isa(vars[h], SymbolicUtils.Term) && operation(vars[h])==tan && !isone(denominator(f))
+    if SymbolicUtils.iscall(vars[h]) && operation(vars[h])==tan && !isone(denominator(f))
         return tan2sincos(f, arguments(vars[h])[1], vars, h)
     end
     if isone(denominator(f))
@@ -231,7 +234,7 @@ function subst_tower(p::P, vars::Vector, h::Int) where
         return zero(vars[h])
     end
     cs = [subst_tower(c, vars, h - 1) for c in coefficients(p)]    
-    if isa(vars[h], SymbolicUtils.Term) && operation(vars[h])==exp
+    if SymbolicUtils.iscall(vars[h]) && operation(vars[h])==exp
         # Write polynomial in exp(a) as sum_i c_i*exp(i*a) instead sum_i c_i*exp(a)^i
         a = arguments(vars[h])[1]
         return sum([cs[i]*(i==1 ? 1 : exp((i - 1)*a)) for i=1:length(cs)])
