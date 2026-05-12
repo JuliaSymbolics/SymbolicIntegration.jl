@@ -1,4 +1,6 @@
 using Test
+import SymbolicIntegration
+using SpecialFunctions
 using Symbolics
 using SymbolicIntegration: eq
 
@@ -53,6 +55,19 @@ end
     rs = :(exp(~x)) => :(~x)
     @test eq(SymbolicIntegration.rule2(rs, exp(x+1)), x+1)
     @test eq(SymbolicIntegration.rule2(rs, ℯ^x), x)
+
+    rbj = :(besselj(~nu, ~z)) => :(~nu, ~z)
+    besselj_match = SymbolicUtils.arguments(SymbolicIntegration.rule2(rbj, SpecialFunctions.besselj(0, x)))
+    @test SymbolicUtils.unwrap_const(besselj_match[1]) == 0
+    @test isequal(besselj_match[2], x)
+
+    rbi = :(besseli(~nu, ~z)) => :(~nu, ~z)
+    besseli_match = SymbolicUtils.arguments(SymbolicIntegration.rule2(rbi, SpecialFunctions.besseli(1, x)))
+    @test SymbolicUtils.unwrap_const(besseli_match[1]) == 1
+    @test isequal(besseli_match[2], x)
+
+    rai = :(airyai(~z)) => :(~z)
+    @test eq(SymbolicIntegration.rule2(rai, SpecialFunctions.airyai(x)), x)
 end
 
 @testset "Segment" begin
