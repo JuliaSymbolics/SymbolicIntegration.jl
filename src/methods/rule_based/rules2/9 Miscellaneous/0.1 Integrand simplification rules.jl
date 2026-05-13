@@ -1,13 +1,6 @@
 file_rules = [
+# 0_1_0: integral of the sum is sum of the integrals
 ("0_1_0", :(+(~~a)) => :(sum(map(f -> ∫(f,~x), arguments(~a)))) )
-
-("0_1_1",
-:(*(~~a)) => :(
-let
-    terms = distribute_special_function_product(arguments(~a), ~x)
-    terms === nothing ? nothing : sum(map(term -> ∫(term, ~x), terms))
-end
-))
 
 ("0_1_6",
 :((~!u)*((~!a)*(~v) + (~!b)*(~v) + (~!w))^(~!p)) => :(
@@ -28,6 +21,7 @@ end
     !contains_var((~a), (~x)) ?
 (~a)*(~x) : nothing))
 
+# constants out of the integral
 ("0_1_12",
 :(*(~~a)) => :(
 let
