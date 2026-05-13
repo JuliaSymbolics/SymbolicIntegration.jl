@@ -478,6 +478,59 @@ function dist(exp1, exp2, x)
     end
 end
 
+const SPECIAL_FUNCTION_OPERATIONS = (
+    SpecialFunctions.expinti,
+    SpecialFunctions.expint,
+    SpecialFunctions.gamma,
+    SpecialFunctions.sinint,
+    SpecialFunctions.cosint,
+    SpecialFunctions.loggamma,
+    SpecialFunctions.erfi,
+    SpecialFunctions.erf,
+    SpecialFunctions.besselj,
+    SpecialFunctions.bessely,
+    SpecialFunctions.besseli,
+    SpecialFunctions.besselk,
+    SpecialFunctions.hankelh1,
+    SpecialFunctions.hankelh2,
+    SpecialFunctions.airyai,
+    SpecialFunctions.airybi,
+    SpecialFunctions.airyaiprime,
+    SpecialFunctions.airybiprime,
+    Elliptic.F,
+    Elliptic.E,
+    Elliptic.Pi,
+    hypergeometric2f1,
+    hypergeometricpFq,
+    PolyLog.reli,
+    FresnelIntegrals.fresnelc,
+    FresnelIntegrals.fresnels,
+    sinhintegral,
+    coshintegral,
+)
+
+function special_function_operation(op)
+    return any(special_op -> op === special_op, SPECIAL_FUNCTION_OPERATIONS)
+end
+
+function contains_special_function(u)
+    u = Symbolics.unwrap(u)
+    !iscall(u) && return false
+    special_function_operation(operation(u)) && return true
+    return any(contains_special_function(arg) for arg in arguments(u))
+end
+
+function distribute_special_function_product(factors, x)
+    sum_index = findfirst(factor -> issum(factor) && contains_var(factor, x), factors)
+    sum_index === nothing && return nothing
+    any(contains_special_function, factors) || return nothing
+
+    sum_factor = Symbolics.unwrap(factors[sum_index])
+    return map(arguments(sum_factor)) do term
+        prod(i == sum_index ? term : factor for (i, factor) in pairs(factors))
+    end
+end
+
 # linear(a+3x,x) true
 # linear((x+1)^2 - x^2 - 1,x) true
 function linear(args...)

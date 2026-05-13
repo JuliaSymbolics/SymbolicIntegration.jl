@@ -16,6 +16,16 @@ function translate_mathematica_to_julia(expr::String)
         ("Erf", "SymbolicUtils.erf"),
         ("SinIntegral", "SymbolicUtils.sinint"),
         ("CosIntegral", "SymbolicUtils.cosint"),
+        ("BesselJ", "SymbolicIntegration.SpecialFunctions.besselj", 2),
+        ("BesselY", "SymbolicIntegration.SpecialFunctions.bessely", 2),
+        ("BesselI", "SymbolicIntegration.SpecialFunctions.besseli", 2),
+        ("BesselK", "SymbolicIntegration.SpecialFunctions.besselk", 2),
+        ("HankelH1", "SymbolicIntegration.SpecialFunctions.hankelh1", 2),
+        ("HankelH2", "SymbolicIntegration.SpecialFunctions.hankelh2", 2),
+        ("AiryAiPrime", "SymbolicIntegration.SpecialFunctions.airyaiprime", 1),
+        ("AiryBiPrime", "SymbolicIntegration.SpecialFunctions.airybiprime", 1),
+        ("AiryAi", "SymbolicIntegration.SpecialFunctions.airyai", 1),
+        ("AiryBi", "SymbolicIntegration.SpecialFunctions.airybi", 1),
         # taken from other julia packages
         ("EllipticE", "SymbolicIntegration.elliptic_e", (1,2)),
         ("EllipticF", "SymbolicIntegration.elliptic_f", 2),
@@ -180,4 +190,3 @@ catch e
     println("Error during translation: $e")
     exit(1)
 end
-

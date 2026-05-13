@@ -33,6 +33,7 @@ const TEST_GROUP = get(ENV, "TEST_GROUP", "all")
 
             # test internals of rulebased methods
             include("methods/rule_based/test_rule2.jl")
+            include("methods/rule_based/test_special_functions.jl")
 
         end
     end

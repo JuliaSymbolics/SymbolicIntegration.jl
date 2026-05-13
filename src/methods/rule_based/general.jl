@@ -1,6 +1,6 @@
 # ===== Special functions from a lot of packages
 
-# function from SpecialFunctions.jl used:
+# functions from SpecialFunctions.jl used:
 # SpecialFunctions.expinti(x)
 # SpecialFunctions.expint(nu, z)
 # SpecialFunctions.gamma(x, y)
@@ -10,6 +10,18 @@
 # SpecialFunctions.loggamma
 # SpecialFunctions.erfi
 # SpecialFunctions.erf
+# SpecialFunctions.besselj(nu, z)
+# SpecialFunctions.bessely(nu, z)
+# SpecialFunctions.besseli(nu, z)
+# SpecialFunctions.besselk(nu, z)
+# SpecialFunctions.hankelh1(nu, z)
+# SpecialFunctions.hankelh2(nu, z)
+# SpecialFunctions.airyai(z)
+# SpecialFunctions.airybi(z)
+# SpecialFunctions.airyaiprime(z)
+# SpecialFunctions.airybiprime(z)
+
+using SpecialFunctions
 
 using Elliptic 
 @register_symbolic Elliptic.F(phi, m) # incomplete first kind
@@ -230,4 +242,6 @@ all_rules_paths = [
 "7 Inverse hyperbolic functions/7.3 Inverse hyperbolic tangent/7.3.1 (a+b arctanh(c x^n))^p.jl"
 "7 Inverse hyperbolic functions/7.3 Inverse hyperbolic tangent/7.3.2 (d x)^m (a+b arctanh(c x^n))^p.jl"
 "7 Inverse hyperbolic functions/7.3 Inverse hyperbolic tangent/7.3.3 (d+e x)^m (a+b arctanh(c x^n))^p.jl"
+
+"8 Special functions/8.1 Bessel functions.jl"
 ]
