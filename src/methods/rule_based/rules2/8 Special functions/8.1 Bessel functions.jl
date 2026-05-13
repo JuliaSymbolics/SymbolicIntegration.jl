@@ -1,6 +1,13 @@
 file_rules = [
     #(* ::Subsection::Closed:: *)
     #(* 8.1 Bessel functions *)
+    ("8_1_0",
+    :(*(~~a)) => :(
+    let
+        terms = distribute_special_function_product(arguments(~a), ~x)
+        terms === nothing ? nothing : sum(map(term -> ∫(term, ~x), terms))
+    end
+    ))
 
     (
         "8_1_1",
