@@ -4,7 +4,7 @@ using SpecialFunctions
 using Symbolics
 
 # TODO move these tests to rundifficulttests.jl together with all the other integrals
-# putting all the integrals in a test files with the soultions
+# putting all the integrals in a test files with the solutions
 
 @testset "RuleBased special-function integrals" begin
     @variables x a

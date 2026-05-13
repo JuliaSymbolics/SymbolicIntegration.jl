@@ -47,7 +47,7 @@ end
     @test eq(SymbolicIntegration.rule2(r, 1/exp(x)), -x)
 end
 
-# This thest is to test functions that are shorthand notation for powers, like exp and sqrt
+# This testset is for functions that are shorthand notation for powers, like exp and sqrt
 @testset "power shorthand functions in rules" begin
     @syms x
     rs = :(sqrt(~x)) => :(~x)
