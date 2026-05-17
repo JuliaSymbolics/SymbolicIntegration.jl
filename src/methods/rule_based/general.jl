@@ -244,4 +244,7 @@ all_rules_paths = [
 "7 Inverse hyperbolic functions/7.3 Inverse hyperbolic tangent/7.3.3 (d+e x)^m (a+b arctanh(c x^n))^p.jl"
 
 "8 Special functions/8.1 Bessel functions.jl"
+"8 Special functions/8.2 Airy functions.jl"
+"8 Special functions/8.3 Error and exponential integral functions.jl"
+"8 Special functions/8.4 Trigonometric integral functions.jl"
 ]

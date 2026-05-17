@@ -97,4 +97,48 @@ file_rules = [
         ),
     )
 
+    (
+        "8_1_9",
+        :((~x)^(~!nu) * hankelh1((~!mu), (~!a) * (~x))) => :(
+            !contains_var((~a), (~mu), (~nu), (~x)) &&
+                eq((~mu), (~nu) - 1) &&
+                !eq((~a), 0) ?
+                (~x)^(~nu) * SpecialFunctions.hankelh1((~nu), (~a) * (~x)) ⨸ (~a) : nothing
+        ),
+    )
+
+    (
+        "8_1_10",
+        :((~x)^(~!nu) * hankelh2((~!mu), (~!a) * (~x))) => :(
+            !contains_var((~a), (~mu), (~nu), (~x)) &&
+                eq((~mu), (~nu) - 1) &&
+                !eq((~a), 0) ?
+                (~x)^(~nu) * SpecialFunctions.hankelh2((~nu), (~a) * (~x)) ⨸ (~a) : nothing
+        ),
+    )
+
+    (
+        "8_1_11",
+        :((~x)^(~!m) * hankelh1((~!nu), (~!a) * (~x))) => :(
+            !contains_var((~a), (~m), (~nu), (~x)) &&
+                igt(simplify((~m) - (~nu) - 1), 0) &&
+                ext_iseven(simplify((~m) - (~nu) - 1)) &&
+                !eq((~a), 0) ?
+                (~x)^(~m) * SpecialFunctions.hankelh1((~nu) + 1, (~a) * (~x)) ⨸ (~a) -
+                simplify((~m) - (~nu) - 1) ⨸ (~a) * ∫((~x)^((~m) - 1) * SpecialFunctions.hankelh1((~nu) + 1, (~a) * (~x)), (~x)) : nothing
+        ),
+    )
+
+    (
+        "8_1_12",
+        :((~x)^(~!m) * hankelh2((~!nu), (~!a) * (~x))) => :(
+            !contains_var((~a), (~m), (~nu), (~x)) &&
+                igt(simplify((~m) - (~nu) - 1), 0) &&
+                ext_iseven(simplify((~m) - (~nu) - 1)) &&
+                !eq((~a), 0) ?
+                (~x)^(~m) * SpecialFunctions.hankelh2((~nu) + 1, (~a) * (~x)) ⨸ (~a) -
+                simplify((~m) - (~nu) - 1) ⨸ (~a) * ∫((~x)^((~m) - 1) * SpecialFunctions.hankelh2((~nu) + 1, (~a) * (~x)), (~x)) : nothing
+        ),
+    )
+
 ]
