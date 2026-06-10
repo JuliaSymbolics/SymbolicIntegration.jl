@@ -4,7 +4,7 @@
 [![Spell Check](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/spellcheck.yml/badge.svg?branch=main)](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/actions/workflows/spellcheck.yml)
 
 
-SymbolicIntegration.jl solves indefinite integrals (find primitives of functions) using one of the implemented algorithms: Risch method and Rule based method
+SymbolicIntegration.jl solves indefinite integrals (find primitives of functions) using one of the implemented algorithms: Risch method and Rule based method.
 
 # Usage
 
@@ -46,7 +46,7 @@ No rule found for ∫(abs(x), x)
 ```
 
 # Integration Methods
-Currently two methods are implemented: **Risch algorithm** and **Rule based integration**.
+Currently two methods are implemented in this package: **Risch algorithm** and **Rule based integration**.
 
 feature | Risch | Rule based
 --------|-------|-----------
@@ -62,6 +62,20 @@ multiple symbols | ❌ | ✅
 
 More info about them in the [methods documentation](https://docs.sciml.ai/SymbolicIntegration/dev/methods/overview/)
 
+### Optional external methods
+
+Additional integration methods can be provided by external packages. For example,
+[SymbolicIntegrationMaxima.jl](https://github.com/Amin-El-Sayed/SymbolicIntegrationMaxima.jl)
+adds a `MaximaMethod` backend that delegates to a local Maxima installation:
+
+```julia
+using SymbolicIntegration, Symbolics, SymbolicIntegrationMaxima
+
+@variables x
+integrate(exp(-x^2), x, MaximaMethod())
+```
+
+The Maxima backend is optional and is not loaded by SymbolicIntegration.jl itself.
 
 ### Risch Method
 Complete symbolic integration using the Risch algorithm from Manuel Bronstein's "Symbolic Integration I: Transcendental Functions".

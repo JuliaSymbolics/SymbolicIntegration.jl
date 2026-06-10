@@ -4,7 +4,7 @@
 CurrentModule = SymbolicIntegration
 ```
 
-SymbolicIntegration.jl lets you solve indefinite integrals (finds primitives) in Julia [Symbolics.jl](https://docs.sciml.ai/Symbolics/stable/). It does so using two symbolic integration algorithms: Risch algorithm and Rule based algorithm.
+SymbolicIntegration.jl lets you solve indefinite integrals (finds primitives) in Julia [Symbolics.jl](https://docs.sciml.ai/Symbolics/stable/). It does so using two built-in symbolic integration algorithms: Risch algorithm and Rule based algorithm.
 
 ## Installation
 
@@ -42,7 +42,7 @@ Also note that two different symbolic variables are assumed to be independent.
 
 ## Integration Methods
 
-SymbolicIntegration.jl provides two integration algorithms: Risch method and Rule based method.
+SymbolicIntegration.jl provides two built-in integration algorithms: Risch method and Rule based method.
 
 **Default Behavior:** When no method is explicitly specified, `integrate()` will first attempt the **Rule based method**. If it fails, it will then try with the **Risch method**.
 
@@ -59,6 +59,21 @@ hyperbolic functions  | ✅ | sometimes
 Nonelementary integrals | ❌ | most of them
 Special functions | ❌ | ❌
 multiple symbols | ❌ | ✅
+
+### Optional external methods
+
+External packages can provide additional integration methods. For example,
+[SymbolicIntegrationMaxima.jl](https://github.com/Amin-El-Sayed/SymbolicIntegrationMaxima.jl)
+adds a `MaximaMethod` backend that delegates integration to a local Maxima installation.
+
+```julia
+using SymbolicIntegration, Symbolics, SymbolicIntegrationMaxima
+
+@variables x
+integrate(exp(-x^2), x, MaximaMethod())
+```
+
+The Maxima backend is optional and is not loaded by SymbolicIntegration.jl itself.
 
 ### RuleBased
 This method uses a large number of integration rules that specify how to integrate various mathematical expressions.
