@@ -17,5 +17,7 @@ This method uses a large number of integration rules that specify how to integra
 ## Optional external methods
 
 Additional packages can extend SymbolicIntegration.jl with their own integration methods.
-[SymbolicIntegrationMaxima.jl](https://github.com/Amin-El-Sayed/SymbolicIntegrationMaxima.jl)
+The [`SymbolicIntegrationMaxima.jl`](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/tree/main/lib/SymbolicIntegrationMaxima) subpackage
 provides a `MaximaMethod` backend for users who want to delegate integrals to a local Maxima installation.
+It supports indefinite and definite integrals, plus Maxima assumptions such as
+`assumptions=(a > 0, maxima_notequal(n, -1))` for parameter-dependent integrals.
