@@ -1,0 +1,34 @@
+name = "SymbolicIntegrationMaxima"
+uuid = "6f8f0c92-4498-4b29-a8cc-7d11f58db8c9"
+authors = ["Amin Elsayed and contributors"]
+version = "0.1.1"
+license = "MIT"
+description = "Optional Maxima backend for SymbolicIntegration.jl"
+
+[deps]
+SymbolicIntegration = "315ce56f-eed0-411d-ab8a-2fbdf9327b51"
+SymbolicUtils = "d1185830-fcd6-423d-90d6-eec64667417b"
+Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
+
+[sources]
+SymbolicIntegration = {path = "../.."}
+
+[compat]
+Elliptic = "1.0.1"
+HypergeometricFunctions = "0.3.28"
+PolyLog = "2.6.0"
+SpecialFunctions = "2"
+SymbolicIntegration = "3"
+SymbolicUtils = "4"
+Symbolics = "7"
+julia = "1.10"
+
+[extras]
+Elliptic = "b305315f-e792-5b7a-8f41-49f472929428"
+HypergeometricFunctions = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
+PolyLog = "85e3b03c-9856-11eb-0374-4dc1f8670e7f"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Elliptic", "HypergeometricFunctions", "PolyLog", "Test"]

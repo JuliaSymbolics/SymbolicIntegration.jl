@@ -1,0 +1,50 @@
+name: SymbolicIntegrationMaxima
+
+on:
+  pull_request:
+    branches:
+      - master
+      - main
+    paths:
+      - 'lib/SymbolicIntegrationMaxima/**'
+      - 'src/**'
+      - 'Project.toml'
+      - 'test/test_files/**'
+      - '.github/workflows/maxima.yml'
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'lib/SymbolicIntegrationMaxima/**'
+      - 'src/**'
+      - 'Project.toml'
+      - 'test/test_files/**'
+      - '.github/workflows/maxima.yml'
+
+jobs:
+  test:
+    name: Julia ${{ matrix.version }} - ${{ matrix.group }} - ubuntu-latest
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - '1.10'
+          - '1'
+        group:
+          - basic
+          - difficult
+    steps:
+      - uses: actions/checkout@v6
+      - uses: julia-actions/setup-julia@v3
+        with:
+          version: ${{ matrix.version }}
+      - name: Install Maxima
+        run: sudo apt-get update && sudo apt-get install -y maxima
+      - uses: julia-actions/cache@v3
+      - name: Run SymbolicIntegrationMaxima tests
+        env:
+          TEST_GROUP: ${{ matrix.group }}
+          MAXIMA_DIFFICULT_LIMIT: '25'
+        run: julia --project=lib/SymbolicIntegrationMaxima -e 'using Pkg; Pkg.test()'
