@@ -216,6 +216,7 @@ function to_maxima(expr)
 end
 
 function maxima_call_syntax(op, args)
+    op === identity && return to_maxima(args[1])
     op === (+) && return join_parenthesized(args, "+")
     op === (*) && return join_parenthesized(args, "*")
     op === (-) && return length(args) == 1 ? "(-$(to_maxima(args[1])))" :
