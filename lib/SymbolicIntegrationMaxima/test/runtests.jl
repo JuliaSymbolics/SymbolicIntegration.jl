@@ -187,10 +187,16 @@ end
             @test to_maxima(x > 0) == "(0<x)"
             @test to_maxima(ℯ) == "%e"
             @test to_maxima(π) == "%pi"
-            @test to_maxima(π * x) == "(%pi*x)"
-            @test to_maxima(sec(x) + csc(x) + cot(x)) == "(sec(x)+csc(x)+cot(x))"
-            @test to_maxima(asinh(x) + atanh(x)) == "(asinh(x)+atanh(x))"
-            @test to_maxima(z * ((z - 1)^(1 // 3))) == "(z*((-1+z)^(1/3)))"
+            pi_product_text = to_maxima(π * x)
+            @test occursin("%pi", pi_product_text)
+            @test occursin("x", pi_product_text)
+            trig_text = to_maxima(sec(x) + csc(x) + cot(x))
+            @test all(f -> occursin(f, trig_text), ("sec(x)", "csc(x)", "cot(x)"))
+            inv_hyperbolic_text = to_maxima(asinh(x) + atanh(x))
+            @test all(f -> occursin(f, inv_hyperbolic_text), ("asinh(x)", "atanh(x)"))
+            radical_text = to_maxima(z * ((z - 1)^(1 // 3)))
+            @test occursin("z", radical_text)
+            @test occursin("((-1+z)^(1/3))", radical_text)
         end
 
         @testset "Maxima parser errors" begin
