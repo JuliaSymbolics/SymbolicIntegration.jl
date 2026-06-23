@@ -1,7 +1,7 @@
 name = "SymbolicIntegrationMaxima"
 uuid = "6f8f0c92-4498-4b29-a8cc-7d11f58db8c9"
 authors = ["Amin Elsayed and contributors"]
-version = "0.1.1"
+version = "0.1.2"
 license = "MIT"
 description = "Optional Maxima backend for SymbolicIntegration.jl"
 

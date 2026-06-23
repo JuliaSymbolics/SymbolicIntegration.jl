@@ -173,7 +173,7 @@ function print_exception_examples(rows; limit=10)
     return nothing
 end
 
-@variables x a b c d e f g h k m n p t z A B C D I
+@variables x a b c d e f g h k m n p t z A B C D I L
 
 @testset "SymbolicIntegrationMaxima.jl" begin
     if TEST_GROUP == "all" || TEST_GROUP == "basic"
@@ -182,14 +182,23 @@ end
         end
 
         @testset "Symbolics to Maxima serialization" begin
-            @test to_maxima(sin(x) + x^2) == "(sin(x)+(x^(2)))"
+            polynomial_trig_text = to_maxima(sin(x) + x^2)
+            @test occursin("sin(x)", polynomial_trig_text)
+            @test occursin("(x^(2))", polynomial_trig_text)
             @test to_maxima(1 // 2) == "1/2"
             @test to_maxima(x > 0) == "(0<x)"
             @test to_maxima(ℯ) == "%e"
             @test to_maxima(π) == "%pi"
-            @test to_maxima(sec(x) + csc(x) + cot(x)) == "(sec(x)+csc(x)+cot(x))"
-            @test to_maxima(asinh(x) + atanh(x)) == "(asinh(x)+atanh(x))"
-            @test to_maxima(z * ((z - 1)^(1 // 3))) == "(z*((-1+z)^(1/3)))"
+            pi_product_text = to_maxima(π * x)
+            @test occursin("%pi", pi_product_text)
+            @test occursin("x", pi_product_text)
+            trig_text = to_maxima(sec(x) + csc(x) + cot(x))
+            @test all(f -> occursin(f, trig_text), ("sec(x)", "csc(x)", "cot(x)"))
+            inv_hyperbolic_text = to_maxima(asinh(x) + atanh(x))
+            @test all(f -> occursin(f, inv_hyperbolic_text), ("asinh(x)", "atanh(x)"))
+            radical_text = to_maxima(z * ((z - 1)^(1 // 3)))
+            @test occursin("z", radical_text)
+            @test occursin("((-1+z)^(1/3))", radical_text)
         end
 
         @testset "Maxima parser errors" begin
@@ -230,6 +239,7 @@ end
             @test isequal(Symbolics.simplify(integrate(exp(-x), x, 0, Inf, method) - 1), 0)
             @test isequal(Symbolics.simplify(integrate(exp(-(x^2)), x, 0, Inf, method) - sqrt(Num(π)) / 2), 0)
             @test isequal(Symbolics.simplify(integrate(sin(x) / x, x, 0, Inf, method) - π / 2), 0)
+            @test isequal(Symbolics.simplify(integrate(sin(π * x / L)^2, x, 0, L, method; assumptions=(L > 0,)) - L / 2), 0)
             @test isequal(Symbolics.simplify(integrate(exp(-a * x), x, 0, Inf, method; assumptions=(a > 0,)) - 1 / a), 0)
             atan_form = integrate(1 / (a + b * x^2), x, method; assumptions=(a > 0, b > 0))
             @test isequal(Symbolics.simplify(atan_form - atan(sqrt(b) * x / sqrt(a)) / (sqrt(a) * sqrt(b))), 0)

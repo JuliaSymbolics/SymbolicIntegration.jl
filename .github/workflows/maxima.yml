@@ -41,7 +41,10 @@ jobs:
         with:
           version: ${{ matrix.version }}
       - name: Install Maxima
-        run: sudo apt-get update && sudo apt-get install -y maxima
+        run: |
+          sudo rm -f /etc/apt/sources.list.d/azure-cli.list
+          sudo apt-get update
+          sudo apt-get install -y maxima
       - uses: julia-actions/cache@v3
       - name: Run SymbolicIntegrationMaxima tests
         env:
