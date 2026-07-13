@@ -241,6 +241,8 @@ end
             @test isequal(Symbolics.simplify(integrate(sin(x) / x, x, 0, Inf, method) - π / 2), 0)
             @test isequal(Symbolics.simplify(integrate(sin(π * x / L)^2, x, 0, L, method; assumptions=(L > 0,)) - L / 2), 0)
             @test isequal(Symbolics.simplify(integrate(exp(-a * x), x, 0, Inf, method; assumptions=(a > 0,)) - 1 / a), 0)
+            @test isequal(integrate((C * x - 2) * x * exp(-C * x), x, 0, Inf, method; assumptions=(C > 0,)), 0)
+            @test_throws MaximaError integrate((C * x - 2) * x * exp(-C * x), x, 0, Inf, method)
             atan_form = integrate(1 / (a + b * x^2), x, method; assumptions=(a > 0, b > 0))
             @test isequal(Symbolics.simplify(atan_form - atan(sqrt(b) * x / sqrt(a)) / (sqrt(a) * sqrt(b))), 0)
         end
