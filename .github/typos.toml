@@ -35,6 +35,7 @@ erfi = "erfi"
 gamma = "gamma"
 loggamma = "loggamma"
 Numer = "Numer"
+numer = "numer"  # Maxima ev option for numerical evaluation
 
 # Technical terms
 integrand = "integrand"
