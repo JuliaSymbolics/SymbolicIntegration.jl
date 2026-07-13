@@ -205,7 +205,7 @@ function maxima_call(expr::AbstractString; command::AbstractString="maxima", tim
     stdout_pipe = Pipe()
     stderr_pipe = Pipe()
     proc = try
-        run(pipeline(cmd; stdout=stdout_pipe, stderr=stderr_pipe), wait=false)
+        run(pipeline(cmd; stdin=devnull, stdout=stdout_pipe, stderr=stderr_pipe), wait=false)
     catch err
         if err isa Base.IOError
             message = "Could not start Maxima executable `$(command)`. " *
