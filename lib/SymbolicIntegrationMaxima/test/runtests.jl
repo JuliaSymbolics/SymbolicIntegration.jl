@@ -240,6 +240,20 @@ end
             @test assumption_error isa MaximaError
             @test assumption_error.kind === :assumption
             @test occursin("Is ", sprint(showerror, assumption_error))
+            marked_question = """
+            $(SymbolicIntegrationMaxima.QUESTION_START)
+            Is C positive, negative or zero?
+            $(SymbolicIntegrationMaxima.QUESTION_END)
+            $(SymbolicIntegrationMaxima.ASSUMPTION_ABORT)
+            """
+            marked_error = try
+                SymbolicIntegrationMaxima.extract_result(marked_question, "integrate(f,x)")
+            catch err
+                err
+            end
+            @test marked_error isa MaximaError
+            @test marked_error.kind === :assumption
+            @test occursin("Is C positive, negative or zero?", sprint(showerror, marked_error))
             @test isequal(Symbolics.simplify(from_maxima("sec(x)", [x]) - sec(x)), 0)
             @test isequal(Symbolics.simplify(from_maxima("asinh(x)", [x]) - asinh(x)), 0)
             @test occursin("γ", string(from_maxima("%gamma", [])))

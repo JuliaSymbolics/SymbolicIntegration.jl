@@ -24,6 +24,9 @@ export assoc_legendre_p, assoc_legendre_q
 
 const RESULT_START = "__SYMBOLIC_INTEGRATION_MAXIMA_RESULT_START__"
 const RESULT_END = "__SYMBOLIC_INTEGRATION_MAXIMA_RESULT_END__"
+const QUESTION_START = "__SYMBOLIC_INTEGRATION_MAXIMA_QUESTION_START__"
+const QUESTION_END = "__SYMBOLIC_INTEGRATION_MAXIMA_QUESTION_END__"
+const ASSUMPTION_ABORT = "__SYMBOLIC_INTEGRATION_MAXIMA_ASSUMPTION_REQUIRED__"
 
 const MAXIMA_PLACEHOLDER_FUNCTIONS = (
     :gamma_incomplete, :gamma_incomplete_lower, :gamma_incomplete_regularized,
@@ -195,8 +198,24 @@ calculations.
 """
 function maxima_call(expr::AbstractString; command::AbstractString="maxima", timeout::Real=5)
     timeout > 0 || throw(ArgumentError("`timeout` must be positive."))
+    # A batch process must report assumption questions instead of reading stdin.
+    retrieve_interceptor = join((
+        ":lisp (progn ",
+        "(setf (symbol-function 'retrieve) ",
+        "(lambda (msg flag) ",
+        "(format *standard-output* \"$(QUESTION_START)~%\") ",
+        "(cond ((null msg) (format-prompt *standard-output* \"\")) ",
+        "((atom msg) (format-prompt *standard-output* \"~A\" msg)) ",
+        "((eq flag t) (format-prompt *standard-output* \"~{~A~}\" (cdr msg))) ",
+        "(t (format-prompt *standard-output* \"~M\" msg))) ",
+        "(mterpri *standard-output*) ",
+        "(format *standard-output* \"$(QUESTION_END)~%\") ",
+        "(finish-output *standard-output*) ",
+        "(merror \"$(ASSUMPTION_ABORT)\"))) ",
+        "(values))",
+    ))
     script = """
-    :lisp (progn (setq *query-io* (make-two-way-stream *standard-input* *standard-output*)) (values))
+    $(retrieve_interceptor)
     display2d:false\$
     stringdisp:false\$
     printf(true, "$(RESULT_START)~%~a~%$(RESULT_END)~%", string($(expr)))\$
@@ -224,14 +243,18 @@ function maxima_call(expr::AbstractString; command::AbstractString="maxima", tim
     if status === :timed_out
         kill(proc)
         wait(proc)
-        fetch(stdout_reader)
+        stdout_text = fetch(stdout_reader)
         fetch(stderr_reader)
+        maxima_intercepted_assumption(stdout_text) &&
+            throw_assumption_error(stdout_text, expr)
         message = "Maxima timed out after $(timeout) seconds while evaluating: $(expr)"
         throw(MaximaError(message, :timeout))
     end
 
     stdout_text = fetch(stdout_reader)
     stderr_text = fetch(stderr_reader)
+    maxima_intercepted_assumption(stdout_text) &&
+        throw_assumption_error(stdout_text, expr)
     if !success(proc)
         message = "Maxima failed while evaluating: $(expr)\n$(stderr_text)$(stdout_text)"
         throw(MaximaError(message, :process))
@@ -244,12 +267,7 @@ function extract_result(output::AbstractString, expr::AbstractString)
     pattern = Regex("^$(RESULT_START)\\s*\\n(.*?)\\n$(RESULT_END)\\s*\$", "ms")
     matches = collect(eachmatch(pattern, output))
     if isempty(matches)
-        if maxima_requested_assumption(output)
-            questions = maxima_questions(output)
-            detail = isempty(questions) ? "" : "\nMaxima asked:\n  " * join(questions, "\n  ")
-            message = "Maxima requires additional assumptions while evaluating: $(expr)$(detail)"
-            throw(MaximaError(message, :assumption))
-        end
+        maxima_requested_assumption(output) && throw_assumption_error(output, expr)
         if occursin("incorrect syntax", output)
             message = "Maxima rejected the generated syntax for: $(expr)\n$(output)"
             throw(MaximaError(message, :syntax))
@@ -264,8 +282,22 @@ function extract_result(output::AbstractString, expr::AbstractString)
     return strip(match_result.captures[1])
 end
 
+function throw_assumption_error(output::AbstractString, expr::AbstractString)
+    questions = maxima_questions(output)
+    detail = isempty(questions) ? "" : "\nMaxima asked:\n  " * join(questions, "\n  ")
+    message = "Maxima requires additional assumptions while evaluating: $(expr)$(detail)"
+    throw(MaximaError(message, :assumption))
+end
+
 function maxima_questions(output::AbstractString)
     questions = String[]
+    pattern = Regex("$(QUESTION_START)\\s*\\n(.*?)\\n$(QUESTION_END)", "ms")
+    for match_result in eachmatch(pattern, output)
+        text = join(split(strip(match_result.captures[1])), " ")
+        isempty(text) || push!(questions, text)
+    end
+
+    isempty(questions) || return unique(questions)
     for line in eachline(IOBuffer(output))
         text = strip(line)
         startswith(text, "Is ") && endswith(text, "?") && push!(questions, text)
@@ -274,12 +306,17 @@ function maxima_questions(output::AbstractString)
 end
 
 function maxima_requested_assumption(output::AbstractString)
-    return occursin("Acceptable answers are", output) ||
+    return maxima_intercepted_assumption(output) ||
+        occursin("Acceptable answers are", output) ||
         occursin("RETRIEVE: End of file encountered", output) ||
         (occursin("printf(true", output) &&
          occursin(RESULT_START, output) &&
          !occursin("incorrect syntax", output) &&
          !occursin(" -- an error", output))
+end
+
+function maxima_intercepted_assumption(output::AbstractString)
+    return occursin(QUESTION_START, output) || occursin(ASSUMPTION_ABORT, output)
 end
 
 """
