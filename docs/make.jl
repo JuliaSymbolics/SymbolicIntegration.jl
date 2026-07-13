@@ -21,6 +21,7 @@ makedocs(
             "methods/overview.md",
             "methods/rulebased.md",
             "methods/risch.md",
+            "methods/maxima.md",
         ],
         "API Reference" => "api.md",
     ],

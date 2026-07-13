@@ -62,9 +62,9 @@ multiple symbols | ❌ | ✅
 
 ### Optional external methods
 
-Optional packages can provide additional integration methods. For example,
-the [`SymbolicIntegrationMaxima.jl`](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/tree/main/lib/SymbolicIntegrationMaxima) subpackage
-adds a `MaximaMethod` backend that delegates integration to a local Maxima installation.
+Optional packages can provide additional integration methods. For example, the
+[`SymbolicIntegrationMaxima.jl`](methods/maxima.md) subpackage adds a
+`MaximaMethod` backend that delegates integration to a local Maxima installation.
 
 ```julia
 using SymbolicIntegration, Symbolics, SymbolicIntegrationMaxima
@@ -77,7 +77,8 @@ integrate(x^n * log(a * x), x, MaximaMethod();
 ```
 
 The Maxima backend is optional, requires a local Maxima installation, and is not
-loaded by SymbolicIntegration.jl itself.
+loaded by SymbolicIntegration.jl itself. The [Maxima backend guide](methods/maxima.md)
+covers assumptions, special functions, exact simplification, and numerical evaluation.
 
 ### RuleBased
 This method uses a large number of integration rules that specify how to integrate various mathematical expressions.

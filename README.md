@@ -76,10 +76,17 @@ integrate(exp(-x^2), x, MaximaMethod())
 integrate(exp(-a * x), x, 0, Inf, MaximaMethod(); assumptions=(a > 0,))
 integrate(x^n * log(a * x), x, MaximaMethod();
           assumptions=(a > 0, maxima_notequal(n, -1)))
+
+# Exact simplification and numerical evaluation
+g = integrate(x^2 * exp(-x), x, 2, Inf, MaximaMethod())
+maxima_simplify(g)
+maxima_numeric(g; digits=40)
 ```
 
 The Maxima backend is optional, requires a local Maxima installation, and is not
-loaded by SymbolicIntegration.jl itself.
+loaded by SymbolicIntegration.jl itself. See the
+[Maxima backend guide](https://docs.sciml.ai/SymbolicIntegration/dev/methods/maxima/)
+for installation, assumptions, special functions, and REPL help.
 
 ### Risch Method
 Complete symbolic integration using the Risch algorithm from Manuel Bronstein's "Symbolic Integration I: Transcendental Functions".
