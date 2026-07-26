@@ -25,7 +25,14 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.actor == 'JuliaTagBot'
     runs-on: ubuntu-latest
     steps:
-      - uses: JuliaRegistries/TagBot@v1
+      - name: Tag SymbolicIntegration
+        uses: JuliaRegistries/TagBot@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           ssh: ${{ secrets.DOCUMENTER_KEY }}
+      - name: Tag SymbolicIntegrationMaxima
+        uses: JuliaRegistries/TagBot@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ssh: ${{ secrets.DOCUMENTER_KEY }}
+          subdir: lib/SymbolicIntegrationMaxima
