@@ -92,12 +92,12 @@ end
 
 function is_unevaluated_integral_error(err)
     err isa MaximaError || return false
-    return startswith(sprint(showerror, err), "Maxima returned an unevaluated integral:")
+    return err.kind === :unevaluated
 end
 
 function is_assumption_needed_error(err)
     err isa MaximaError || return false
-    return startswith(sprint(showerror, err), "Maxima did not produce a result; additional assumptions may be required")
+    return err.kind === :assumption
 end
 
 function exception_summary(err)
@@ -179,6 +179,18 @@ end
     if TEST_GROUP == "all" || TEST_GROUP == "basic"
         @testset "Maxima availability" begin
             @test maxima_available()
+            @test !maxima_available("maxima-command-that-does-not-exist")
+            launch_error = try
+                maxima_call("1 + 1"; command="maxima-command-that-does-not-exist")
+            catch err
+                err
+            end
+            @test launch_error isa MaximaError
+            @test launch_error.kind === :process
+
+            status_output = IOBuffer()
+            @test maxima_status(MaximaMethod(); io=status_output)
+            @test occursin("Maxima", String(take!(status_output)))
         end
 
         @testset "Symbolics to Maxima serialization" begin
@@ -189,6 +201,7 @@ end
             @test to_maxima(x > 0) == "(0<x)"
             @test to_maxima(ℯ) == "%e"
             @test to_maxima(π) == "%pi"
+            @test to_maxima(Base.MathConstants.catalan) == "%catalan"
             pi_product_text = to_maxima(π * x)
             @test occursin("%pi", pi_product_text)
             @test occursin("x", pi_product_text)
@@ -196,22 +209,68 @@ end
             @test all(f -> occursin(f, trig_text), ("sec(x)", "csc(x)", "cot(x)"))
             inv_hyperbolic_text = to_maxima(asinh(x) + atanh(x))
             @test all(f -> occursin(f, inv_hyperbolic_text), ("asinh(x)", "atanh(x)"))
+            @test to_maxima(erf(x)) == "erf(x)"
+            @test to_maxima(from_maxima("%e^(-2)", [])) == "exp(-2)"
+            @test to_maxima(gamma_incomplete(a, x)) == "gamma_incomplete(a,x)"
+            @test to_maxima(polylog(2, x)) == "li[2](x)"
             radical_text = to_maxima(z * ((z - 1)^(1 // 3)))
             @test occursin("z", radical_text)
             @test occursin("((-1+z)^(1/3))", radical_text)
         end
 
         @testset "Maxima parser errors" begin
-            @test_throws MaximaError from_maxima("unknown_maxima_function(x)", [x])
+            opaque = from_maxima("unknown_maxima_function(x)", [x])
+            @test to_maxima(opaque) == "unknown_maxima_function(x)"
+            opaque_indexed = from_maxima("unknown_maxima_function[2](x)", [x])
+            @test to_maxima(opaque_indexed) == "unknown_maxima_function[2](x)"
+            conversion_error = try
+                from_maxima("~%~a~%", [])
+            catch err
+                err
+            end
+            @test conversion_error isa MaximaError
+            @test conversion_error.kind === :conversion
             @test_throws MaximaError from_maxima("if x > 0 then x else -x", [x])
             @test_throws MaximaError from_maxima("integrate(foo(x),x)", [x])
-            @test_throws MaximaError maxima_call("integrate(x^n*log(a*x),x)")
+            assumption_error = try
+                maxima_call("integrate(x^n*log(a*x),x)")
+            catch err
+                err
+            end
+            @test assumption_error isa MaximaError
+            @test assumption_error.kind === :assumption
+            @test occursin("Is ", sprint(showerror, assumption_error))
+            marked_question = """
+            $(SymbolicIntegrationMaxima.QUESTION_START)
+            Is C positive, negative or zero?
+            $(SymbolicIntegrationMaxima.QUESTION_END)
+            $(SymbolicIntegrationMaxima.ASSUMPTION_ABORT)
+            """
+            marked_error = try
+                SymbolicIntegrationMaxima.extract_result(marked_question, "integrate(f,x)")
+            catch err
+                err
+            end
+            @test marked_error isa MaximaError
+            @test marked_error.kind === :assumption
+            @test occursin("Is C positive, negative or zero?", sprint(showerror, marked_error))
             @test isequal(Symbolics.simplify(from_maxima("sec(x)", [x]) - sec(x)), 0)
             @test isequal(Symbolics.simplify(from_maxima("asinh(x)", [x]) - asinh(x)), 0)
             @test occursin("γ", string(from_maxima("%gamma", [])))
             @test occursin("φ", string(from_maxima("%phi", [])))
+            @test occursin("catalan", string(from_maxima("%catalan", [])))
+            @test Symbolics.value(from_maxima("inf", [])) == Inf
+            @test to_maxima(from_maxima("true", [])) == "true"
+            @test to_maxima(from_maxima("false", [])) == "false"
+            @test Symbolics.value(from_maxima("1.25b0", [])) == big"1.25"
             @test occursin("gamma_incomplete_lower", string(from_maxima("gamma_incomplete_lower(a,x)", [a, x])))
             @test occursin("hypergeometric", string(from_maxima("hypergeometric([1],[3/2],x)", [x])))
+            @test to_maxima(from_maxima("psi[0](x)", [x])) == "psi[0](x)"
+            @test to_maxima(from_maxima("li[2](x)", [x])) == "li[2](x)"
+            @test to_maxima(from_maxima("assoc_legendre_p[n,m](x)", [n, m, x])) ==
+                "assoc_legendre_p[n,m](x)"
+            hypergeometric_result = from_maxima("%f[1,1]([1],[3/2],x)", [x])
+            @test to_maxima(hypergeometric_result) == "hypergeometric([1],[3/2],x)"
         end
 
         @testset "Indefinite integrals" begin
@@ -221,10 +280,12 @@ end
             @test isequal(Symbolics.simplify(integrate(exp(a * x), x, method) - exp(a * x) / a), 0)
             @test isequal(Symbolics.simplify(integrate(exp(-(x^2)), x, method) - sqrt(Num(π)) * erf(x) / 2), 0)
             @test occursin("sqrt", string(integrate(exp(-(x^2)), x, method)))
-            @test occursin("gamma_incomplete", string(integrate(sin(x) / x, x, method; validate=false)))
-            @test occursin("gamma_incomplete", string(integrate(cos(x) / x, x, method; validate=false)))
-            @test occursin("gamma_incomplete", string(integrate(1 / log(x), x, method; validate=false)))
+            @test occursin("expintegral", string(integrate(sin(x) / x, x, method; validate=false)))
+            @test occursin("expintegral", string(integrate(cos(x) / x, x, method; validate=false)))
+            @test occursin("expintegral", string(integrate(1 / log(x), x, method; validate=false)))
             @test occursin("erf", string(integrate(exp(x^2), x, method; validate=false)))
+            @test occursin("erf", string(integrate(erf(x), x, method; validate=false)))
+            @test occursin("polylog", string(integrate(log(x) / (1 - x), x, method; validate=false)))
             parametric = integrate(x^n * log(a * x), x, method;
                 assumptions=(maxima_notequal(n, -1), a > 0), validate=false)
             expected = ((n + 1) * x^(n + 1) * log(a * x) - x^(n + 1)) / (n + 1)^2
@@ -241,8 +302,45 @@ end
             @test isequal(Symbolics.simplify(integrate(sin(x) / x, x, 0, Inf, method) - π / 2), 0)
             @test isequal(Symbolics.simplify(integrate(sin(π * x / L)^2, x, 0, L, method; assumptions=(L > 0,)) - L / 2), 0)
             @test isequal(Symbolics.simplify(integrate(exp(-a * x), x, 0, Inf, method; assumptions=(a > 0,)) - 1 / a), 0)
+            @test isequal(integrate((C * x - 2) * x * exp(-C * x), x, 0, Inf, method; assumptions=(C > 0,)), 0)
+            positive_method = MaximaMethod(timeout=10, assumptions=(C > 0,))
+            @test isequal(integrate((C * x - 2) * x * exp(-C * x), x, 0, Inf, positive_method), 0)
+            assumption_error = try
+                integrate((C * x - 2) * x * exp(-C * x), x, 0, Inf, method)
+            catch err
+                err
+            end
+            @test assumption_error isa MaximaError
+            @test assumption_error.kind === :assumption
+            @test occursin("Is C positive, negative or zero?", sprint(showerror, assumption_error))
+            @test occursin("assumptions=(C > 0,)", sprint(showerror, assumption_error))
+
+            gamma_result = integrate(x^2 * exp(-x), x, 2, Inf, method)
+            @test !(gamma_result isa AbstractFloat)
+            @test isequal(Symbolics.simplify(gamma_result - 10 * exp(Num(-2))), 0)
+            @test isapprox(maxima_numeric(gamma_result), 10 * exp(-2); rtol=1e-14)
             atan_form = integrate(1 / (a + b * x^2), x, method; assumptions=(a > 0, b > 0))
             @test isequal(Symbolics.simplify(atan_form - atan(sqrt(b) * x / sqrt(a)) / (sqrt(a) * sqrt(b))), 0)
+        end
+
+        @testset "Utilities" begin
+            exact = maxima_simplify(gamma_incomplete(3, 2))
+            @test !(exact isa AbstractFloat)
+            @test isequal(Symbolics.simplify(exact - 10 * exp(Num(-2))), 0)
+            @test isapprox(maxima_numeric(gamma_incomplete(3, 2)), 10 * exp(-2); rtol=1e-14)
+            high_precision = maxima_numeric(gamma_incomplete(3, 2); digits=40)
+            @test high_precision isa BigFloat
+            @test isapprox(high_precision, 10 * exp(big(-2)); rtol=big"1e-38")
+            @test maxima_numeric(2) === 2.0
+            @test maxima_numeric(im) === 0.0 + 1.0im
+            @test maxima_numeric(im; digits=40) isa Complex{BigFloat}
+            @test_throws MaximaError maxima_numeric(1 / a)
+            @test_throws ArgumentError maxima_numeric(1; digits=1)
+            @test_throws ArgumentError maxima_call("1"; timeout=0)
+
+            help_output = IOBuffer()
+            @test isnothing(maxima_help(help_output))
+            @test occursin("assumptions", String(take!(help_output)))
         end
     end
 
