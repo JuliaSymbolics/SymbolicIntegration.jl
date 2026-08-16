@@ -1,10 +1,50 @@
 using Test
 using SymbolicIntegration
 using Symbolics
+using AbstractAlgebra
 
 const TEST_GROUP = get(ENV, "TEST_GROUP", "all")
 
+struct TestIntegrationMethod <: AbstractIntegrationMethod end
+
+function SymbolicIntegration.integrate(
+        f::Symbolics.Num, x::Symbolics.Num, ::TestIntegrationMethod; kwargs...)
+    f * x
+end
+
+struct TestDerivation{R,T} <: Derivation
+    domain::R
+    monomial_derivative::T
+end
+
+SymbolicIntegration.MonomialDerivative(D::TestDerivation) = D.monomial_derivative
+SymbolicIntegration.BaseDerivation(D::TestDerivation) = NullDerivation(base_ring(D.domain))
+SymbolicIntegration.constant_field(D::TestDerivation) = base_ring(D.domain)
+
+function (D::TestDerivation)(p::AbstractAlgebra.PolyRingElem)
+    iscompatible(p, D) || error("p not in domain of D")
+    derivative(p)
+end
+
 @testset "SymbolicIntegration.jl" begin
+
+    @testset "Abstract interface contracts" begin
+        R, x = polynomial_ring(QQ, :x)
+        D = TestDerivation(R, one(R))
+        @variables sx
+
+        @test isequal(integrate(sx, sx, TestIntegrationMethod()), sx^2)
+        @test SymbolicIntegration.domain(D) === R
+        @test SymbolicIntegration.iscompatible(x, D)
+        @test SymbolicIntegration.BaseDerivation(D) isa NullDerivation
+        @test isequal(SymbolicIntegration.MonomialDerivative(D), one(R))
+        @test SymbolicIntegration.isprimitive(D)
+        @test !SymbolicIntegration.isbasic(D)
+        @test !SymbolicIntegration.ishyperexponential(D)
+        @test !SymbolicIntegration.isnonlinear(D)
+        @test SymbolicIntegration.isnormal(x, D)
+        @test !SymbolicIntegration.isspecial(x, D)
+    end
 
     if TEST_GROUP == "all" || TEST_GROUP == "easy"
         @testset "Easy Tests" begin

@@ -1,20 +1,45 @@
 # API Reference
 
+```@docs
+SymbolicIntegration
+```
+
 ```@meta
 CurrentModule = SymbolicIntegration
 ```
 
-## Main Functions
+## Integration Interface
 
 ```@docs
+AbstractIntegrationMethod
 integrate
-```
-
-## Integration Methods
-
-### Available Methods
-
-```@docs
 RischMethod
 RuleBasedMethod
+reload_rules
+```
+
+## Differential Fields
+
+```@docs
+Derivation
+NullDerivation
+BasicDerivation
+ExtensionDerivation
+CoefficientLiftingDerivation
+TowerOfDifferentialFields
+BaseDerivation
+MonomialDerivative
+domain
+constant_field
+iscompatible
+is_Sirr1_eq_Sirr
+isbasic
+isprimitive
+ishyperexponential
+isnonlinear
+ishypertangent
+isnormal
+isspecial
+issimple
+isreduced
 ```

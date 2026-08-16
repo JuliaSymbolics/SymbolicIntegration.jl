@@ -6,7 +6,7 @@ makedocs(
     clean=true,
     doctest=true,
     linkcheck=false,
-    checkdocs=:none,
+    checkdocs=:exports,
     format=Documenter.HTML(
         assets=String[],
         canonical="https://symbolicintegration.juliasymbolics.org/stable/",

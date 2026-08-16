@@ -3,18 +3,55 @@
 """
     AbstractIntegrationMethod
 
-Abstract supertype for all symbolic integration methods.
+Abstract interface for symbolic integration backends.
+
+A concrete method must subtype `AbstractIntegrationMethod` and provide an
+`integrate(f, x, method; kwargs...)` dispatch for symbolic `f` and `x`. The
+method owns backend-specific keyword arguments; callers can use the two-argument
+form when the backend is selected automatically, or pass a concrete method to
+select one implementation explicitly. Implementations should return a
+`Symbolics.Num` antiderivative or an unevaluated symbolic integral when the
+backend cannot solve the problem.
+
+# Minimal interface
+
+```julia
+struct MyMethod <: AbstractIntegrationMethod end
+
+function integrate(f::Symbolics.Num, x::Symbolics.Num, ::MyMethod; kwargs...)
+    # Return a symbolic antiderivative or an unevaluated integral.
+end
+```
+
+The generic interface is intentionally based on dispatch rather than a
+registration table. Do not mutate the built-in method types or rely on
+internal rule functions when implementing a backend.
 """
 abstract type AbstractIntegrationMethod end
 
 """
-    RischMethod <: AbstractIntegrationMethod
+    RischMethod(; use_algebraic_closure=false, catch_errors=true)
 
-Risch algorithm for symbolic integration of elementary functions.
+Configure the Risch algorithm for symbolic integration of elementary functions.
+
+# Keyword Arguments
+
+- `use_algebraic_closure::Bool=false`: Whether algebraic roots may be computed
+  in an algebraic closure when needed.
+- `catch_errors::Bool=true`: Whether recoverable algorithm failures should be
+  caught and returned as an unevaluated integral.
 
 # Fields
-- `use_algebraic_closure::Bool`: Whether to use algebraic closure for complex roots (default: true)
-- `catch_errors::Bool`: Whether to catch and handle algorithm errors gracefully (default: true)
+
+- `use_algebraic_closure::Bool`: Value of `use_algebraic_closure`.
+- `catch_errors::Bool`: Value of `catch_errors`.
+
+# Examples
+
+```julia
+method = RischMethod(use_algebraic_closure=true)
+integrate(1 / (x^2 + 1), x, method)
+```
 """
 struct RischMethod <: AbstractIntegrationMethod
     use_algebraic_closure::Bool
@@ -26,10 +63,26 @@ struct RischMethod <: AbstractIntegrationMethod
 end
 
 """
-    RuleBasedMethod <: AbstractIntegrationMethod
+    RuleBasedMethod(; use_gamma=false, verbose=false)
 
-- `use_gamma::Bool`: Whether to catch and handle algorithm errors gracefully (default: true)
-- `verbose::Bool`: Whether to print or not integration rules applied (default: false)
+Configure the rule-based symbolic integration backend.
+
+# Keyword Arguments
+
+- `use_gamma::Bool=false`: Allow gamma-function forms in rule results.
+- `verbose::Bool=false`: Print each rule application while integrating.
+
+# Fields
+
+- `use_gamma::Bool`: Value of `use_gamma`.
+- `verbose::Bool`: Value of `verbose`.
+
+# Examples
+
+```julia
+method = RuleBasedMethod(verbose=true)
+integrate(sqrt(1 + x), x, method)
+```
 """
 struct RuleBasedMethod <: AbstractIntegrationMethod
     use_gamma::Bool
@@ -41,20 +94,33 @@ struct RuleBasedMethod <: AbstractIntegrationMethod
 end
 
 """
-    integrate(f, x)
-    
-integrate function called without method. Compute the symbolic integral of expression `f` with respect to variable `x` using all available methods.
+    integrate(f, x; verbose=false, kwargs...)
+
+Compute the symbolic antiderivative of `f` with respect to `x`, trying the
+available rule-based and Risch backends in order.
 
 # Arguments
-- `f`: Symbolic expression to integrate (Symbolics.Num)
-- `x`: Integration variable (Symbolics.Num)  
+
+- `f::Symbolics.Num`: Symbolic integrand.
+- `x::Symbolics.Num`: Symbolic integration variable.
+
+# Keyword Arguments
+
+- `verbose::Bool=false`: Print backend and rule progress.
+- `kwargs...`: Forwarded to the selected backend implementations.
+
+# Returns
+
+A symbolic antiderivative, or an unevaluated integral when no backend can
+complete the calculation.
 
 # Examples
+
 ```julia
-julia> using SymbolicIntegration, Symbolics
-julia> @variables x
-julia> integrate(2x)
-x^2
+using SymbolicIntegration, Symbolics
+@variables x
+integrate(2x, x)
+integrate(exp(x), x)
 ```
 """
 function integrate(f::Symbolics.Num, x::Symbolics.Num; verbose=false, kwargs...)
@@ -74,9 +140,24 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num; verbose=false, kwargs...)
 end
 
 """
-    integrate(f::Symbolics.Num, method=nothing)
+    integrate(f::Symbolics.Num, method=nothing; kwargs...)
 
-integrate function called without integration variable, and possibly without a method. If f contains only one symbolic variable, lets say x, calls integrate(f, x, method)
+Integrate a symbolic expression without explicitly passing its variable.
+
+This overload is valid only when `f` contains exactly one symbolic variable.
+That variable is selected and the call is forwarded to
+`integrate(f, variable, method)`. Expressions with zero or multiple variables
+return `nothing` after emitting a warning.
+
+# Arguments
+
+- `f::Symbolics.Num`: Symbolic integrand.
+- `method`: `nothing` for automatic selection or an
+  [`AbstractIntegrationMethod`](@ref) instance.
+
+# Keyword Arguments
+
+- `kwargs...`: Forwarded to the selected integration method.
 """
 function integrate(f::Symbolics.Num, method::M=nothing; kwargs...) where M<:Union{AbstractIntegrationMethod,Nothing}
     vars = Symbolics.get_variables(f)
@@ -95,29 +176,32 @@ function integrate(f::Symbolics.Num, method::M=nothing; kwargs...) where M<:Unio
 end
 
 """
-    integrate(f, x, method::AbstractIntegrationMethod=RischMethod(); kwargs...)
+    integrate(f, x, method::RischMethod; kwargs...)
 
-Compute the symbolic integral of expression `f` with respect to variable `x` 
-using Risch integration method.
+Compute the symbolic antiderivative of `f` with respect to `x` using the Risch
+algorithm and the configuration in `method`.
 
 # Arguments
-- `f`: Symbolic expression to integrate (Symbolics.Num)
-- `x`: Integration variable (Symbolics.Num)  
+
+- `f::Symbolics.Num`: Symbolic integrand.
+- `x::Symbolics.Num`: Symbolic integration variable.
+- `method::RischMethod`: Risch configuration.
 
 # Keyword Arguments
-- Method-specific keyword arguments are passed to the method implementation
+
+- `kwargs...`: Additional backend options forwarded to the Risch implementation.
 
 # Returns
-- Symbolic expression representing the antiderivative (Symbolics.Num)
+
+A symbolic antiderivative or an unevaluated integral.
 
 # Examples
-```julia
-# Explicit method with options
-integrate(1/(x^2 + 1), x, RischMethod(use_algebraic_closure=true))  # atan(x)
 
-# Method configuration
-risch = RischMethod(use_algebraic_closure=false, catch_errors=true)
-integrate(exp(x), x, risch)  # exp(x)
+```julia
+using SymbolicIntegration, Symbolics
+@variables x
+method = RischMethod(use_algebraic_closure=true)
+integrate(1 / (x^2 + 1), x, method)
 ```
 """
 function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RischMethod; kwargs...)
@@ -130,42 +214,32 @@ function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RischMethod; kwar
 end
 
 """
-    integrate(f, x, method::AbstractIntegrationMethod=RuleBasedMethod(); kwargs...)
+    integrate(f, x, method::RuleBasedMethod; kwargs...)
 
-Compute the symbolic integral of expression `f` with respect to variable `x`
-using rule based method.
+Compute the symbolic antiderivative of `f` with respect to `x` using the
+rule-based backend and the configuration in `method`.
 
 # Arguments
-- `f`: Symbolic expression to integrate (Symbolics.Num)
-- `x`: Integration variable (Symbolics.Num)  
+
+- `f::Symbolics.Num`: Symbolic integrand.
+- `x::Symbolics.Num`: Symbolic integration variable.
+- `method::RuleBasedMethod`: Rule-based configuration.
+
+# Keyword Arguments
+
+- `kwargs...`: Additional backend options forwarded to the rule engine.
 
 # Returns
-- Symbolic expression representing the antiderivative (Symbolics.Num)
+
+A symbolic antiderivative or an unevaluated integral.
 
 # Examples
+
 ```julia
-julia> integrate(1/sqrt(1 + x), x, RuleBasedMethod(verbose=true))
-┌-------Applied rule 1_1_2_1_33 (change of variables):
-| ∫((a + b * v ^ n) ^ p, x) => if 
-|       !(contains_var(a, b, n, p, x)) &&
-|       (
-|             linear(v, x) &&
-|             v !== x
-|       )
-| (1 / ext_coeff(v, x, 1)) * substitute(∫{(a + b * x ^ n) ^ p}dx, x => v)
-└-------with result: ∫1 / (u^(1//2)) du where u = 1 + x
-┌-------Applied rule 1_1_1_1_2 on ∫(1 / (x^(1//2)), x)
-| ∫(x ^ m, x) => if 
-|       !(contains_var(m, x)) &&
-|       m !== -1
-| x ^ (m + 1) / (m + 1)
-└-------with result: (2//1)*(x^(1//2))
-(2//1)*sqrt(1 + x)
-
-julia> rbm = RuleBasedMethod(verbose=false)
-julia> integrate(1/sqrt(1 + x), x, rbm)
-
-(2//1)*sqrt(1 + x)
+using SymbolicIntegration, Symbolics
+@variables x
+method = RuleBasedMethod(verbose=true)
+integrate(1 / sqrt(1 + x), x, method)
 ```
 """
 function integrate(f::Symbolics.Num, x::Symbolics.Num, method::RuleBasedMethod; kwargs...)
