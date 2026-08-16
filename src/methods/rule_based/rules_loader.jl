@@ -59,6 +59,25 @@ end
 # if so, it replaces the rule with the new one.
 # if not, it adds the new rule to the global RULES array in the correct place.
 # if called with no argument reloads all rules from the default paths
+"""
+    reload_rules(path; verbose=true)
+
+Reload rule definitions from a Julia source file into the active rule table.
+
+# Arguments
+
+- `path::AbstractString`: Path to a rule file. The file must define the local
+  `file_rules` collection used by the rule loader.
+
+# Keyword Arguments
+
+- `verbose::Bool=true`: Print replacements, insertions, and deletions.
+
+Rules with identifiers already in the global table are replaced; new rules are
+inserted in identifier order, and rules removed from the file are deleted.
+This function is intended for rule development and should not be needed by
+ordinary integration calls.
+"""
 function reload_rules(path; verbose = true)
     global RULES
     global IDENTIFIERS
@@ -114,6 +133,20 @@ function reload_rules(path; verbose = true)
     verbose && println("$(length(file_rules)) rules reloaded from $path, $(length(RULES)) total rules.")
 end
 
+"""
+    reload_rules(; verbose=true)
+
+Reload all rule files shipped with SymbolicIntegration and rebuild the global
+rule table.
+
+# Keyword Arguments
+
+- `verbose::Bool=true`: Print loader progress and rule counts.
+
+Use this after editing a rule file in a development session. It mutates the
+package's internal rule table and is not required for normal use of
+[`integrate`](@ref).
+"""
 function reload_rules(;verbose = true)
     global RULES
     global IDENTIFIERS

@@ -1,5 +1,30 @@
 __precompile__()
 
+"""
+    SymbolicIntegration
+
+Symbolic antiderivatives for expressions built with `Symbolics.jl`.
+
+The package provides the [`integrate`](@ref SymbolicIntegration.integrate)
+interface and two built-in backends,
+[`RuleBasedMethod`](@ref SymbolicIntegration.RuleBasedMethod) and
+[`RischMethod`](@ref SymbolicIntegration.RischMethod). Backends are
+selected automatically for the two-argument form or explicitly by passing a
+method object. The
+[`AbstractIntegrationMethod`](@ref SymbolicIntegration.AbstractIntegrationMethod)
+interface can be
+implemented by packages that provide another integration backend.
+
+# Example
+
+```julia
+using SymbolicIntegration, Symbolics
+
+@variables x
+integrate(exp(x), x)
+integrate(1 / (x^2 + 1), x, RischMethod())
+```
+"""
 module SymbolicIntegration
 
 using Symbolics
