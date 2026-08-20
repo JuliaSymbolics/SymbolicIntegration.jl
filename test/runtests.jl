@@ -46,6 +46,13 @@ end
         @test !SymbolicIntegration.isspecial(x, D)
     end
 
+    @testset "Precompile workload" begin
+        @variables x
+        @test isequal(simplify(integrate(x, x) - x^2 / 2; expand=true), 0)
+        @test isequal(simplify(integrate(exp(x), x, RuleBasedMethod()) - exp(x); expand=true), 0)
+        @test isequal(simplify(integrate(1 / (x^2 + 1), x, RischMethod()) - atan(x); expand=true), 0)
+    end
+
     if TEST_GROUP == "all" || TEST_GROUP == "easy"
         @testset "Easy Tests" begin
             @testset "Package Loading" begin
