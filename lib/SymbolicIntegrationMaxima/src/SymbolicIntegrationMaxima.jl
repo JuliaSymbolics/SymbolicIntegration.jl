@@ -1,9 +1,10 @@
 module SymbolicIntegrationMaxima
 
-using SymbolicIntegration
-using SymbolicUtils
-using Symbolics
-using SpecialFunctions
+import SymbolicIntegration
+import SymbolicUtils
+import Symbolics
+using SpecialFunctions: airyai, airybi, besseli, besselj, besselk, bessely,
+    beta, erf, erfc, erfi, gamma, loggamma, polygamma
 
 import SymbolicIntegration: AbstractIntegrationMethod, integrate
 
@@ -182,8 +183,7 @@ Return whether a Maxima executable can be launched.
 function maxima_available(command::AbstractString="maxima")
     try
         return success(Cmd(`$(command) --version`; ignorestatus=true))
-    catch err
-        err isa Base.IOError || rethrow()
+    catch
         return false
     end
 end
@@ -225,14 +225,10 @@ function maxima_call(expr::AbstractString; command::AbstractString="maxima", tim
     stderr_pipe = Pipe()
     proc = try
         run(pipeline(cmd; stdin=devnull, stdout=stdout_pipe, stderr=stderr_pipe), wait=false)
-    catch err
-        if err isa Base.IOError
-            message = "Could not start Maxima executable `$(command)`. " *
-                "Install Maxima or pass `MaximaMethod(command=\"/path/to/maxima\")`."
-            throw(MaximaError(
-                message, :process))
-        end
-        rethrow()
+    catch
+        message = "Could not start Maxima executable `$(command)`. " *
+            "Install Maxima or pass `MaximaMethod(command=\"/path/to/maxima\")`."
+        throw(MaximaError(message, :process))
     end
     close(stdout_pipe.in)
     close(stderr_pipe.in)
@@ -492,10 +488,8 @@ function from_maxima(text::AbstractString, vars)
             :conditional))
 
     normalized = maxima_to_julia_syntax(text)
-    parsed = try
-        Meta.parse(normalized)
-    catch err
-        err isa Base.Meta.ParseError || rethrow()
+    parsed = Meta.parse(normalized; raise=false)
+    if parsed isa Expr && parsed.head in (:error, :incomplete)
         throw(MaximaError(
             "Could not parse Maxima result `$(text)`. Normalized form: `$(normalized)`.",
             :conversion))

@@ -1,9 +1,15 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 SymbolicIntegration = "315ce56f-eed0-411d-ab8a-2fbdf9327b51"
+SymbolicIntegrationMaxima = "6f8f0c92-4498-4b29-a8cc-7d11f58db8c9"
 Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 
 [compat]
 Documenter = "1"
 SymbolicIntegration = "3.2.0"
+SymbolicIntegrationMaxima = "0.2"
 Symbolics = "7"
+
+[sources]
+SymbolicIntegration = {path = ".."}
+SymbolicIntegrationMaxima = {path = "../lib/SymbolicIntegrationMaxima"}
