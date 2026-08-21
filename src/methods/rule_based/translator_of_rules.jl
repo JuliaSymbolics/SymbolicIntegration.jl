@@ -106,7 +106,7 @@ finally the rule is placed in a tuple (index, rule), and all the
 tuples are put into a array, ready to be included by load_rules
 """
 
-using Printf
+using Printf: Printf
 
 include("string_manipulation_helpers.jl")
 
@@ -398,7 +398,7 @@ function result_substitutions(result, vardefs)
         ("Denominator", "ext_den"),
         ("Numerator", "ext_num"),
         ("Denom", "ext_den"),
-        ("Numer", "ext_num"),
+        ("Number", "ext_num"),
         ("Expon", s"exponent_of", 2),
 
         ("Dist", "dist"),
@@ -461,7 +461,7 @@ function translate_slots_in_result(result, vardefs)
     if vardefs===nothing
         # else use a regex that:
         # - matches one or two letters optionally followed by a digit
-        # - that are not beofre a "[" as they would be a function call
+        # - that are not before a "[" as they would be a function call
         # - that are not before words
         # - that are not the "in" letter, because that is needed for sum function translation
         result = replace(result, r"(?<!\w)(?!in\b)([a-zA-Z]{1,2}\d*)(?![\w(])" => s"(~\1)")
@@ -532,7 +532,7 @@ function translate_conditions(conditions, vardefs)
         ("NiceSqrtQ", "nice_sqrt", 1),
         ("Coefficient", "ext_coeff", (2,3)),
         ("Coeff", "ext_coeff", (2,3)),
-        ("LeafCount", "SymbolicUtils.node_count"),
+        ("LeafCount", "expression_node_count"),
         ("Expon", s"exponent_of", 2),
         ("FullSimplify", "simplify", 1),
 

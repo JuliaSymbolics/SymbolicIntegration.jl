@@ -21,9 +21,9 @@
 # SpecialFunctions.airyaiprime(z)
 # SpecialFunctions.airybiprime(z)
 
-using SpecialFunctions
+using SpecialFunctions: SpecialFunctions
 
-using Elliptic 
+using Elliptic: Elliptic
 @register_symbolic Elliptic.F(phi, m) # incomplete first kind
 @register_symbolic Elliptic.E(phi, m) # incomplete second kind
 @register_symbolic Elliptic.E(m) false # complete second kind
@@ -36,7 +36,7 @@ elliptic_e(phi, m) = Elliptic.E(phi, m)
 elliptic_pi(nu, phi, m) = Elliptic.Pi(nu, phi, m)
 elliptic_pi(nu, m) = Elliptic.Pi(nu, π/2, m)
 
-using HypergeometricFunctions
+using HypergeometricFunctions: HypergeometricFunctions
 """
 Calculates the 2F1 Hypergeometric function using the HypergeometricFunctions.jl package,
 but also wraps the inputs in Complex numbers. so:
@@ -51,15 +51,16 @@ but also wraps the inputs in Complex numbers. so:
 hypergeometricpFq(a, b, z) = HypergeometricFunctions.pFq(a, b, Complex(z))
 """
 hypergeometricpFq(a, b, z) = HypergeometricFunctions.pFq(a, b, Complex(z))
-@register_symbolic hypergeometricpFq(a::Vector, b::Vector, z)
+@register_symbolic hypergeometricpFq(a::AbstractVector, b::AbstractVector, z)
 
 appell_f1(a, b, c, d, e, z) = println("AppellF1 function is not implemented yet")
 @register_symbolic appell_f1(a, b, c, d, e, z)
 
-using PolyLog
-@register_symbolic PolyLog.reli(n, z)
+using PolyLog: PolyLog
+@register_symbolic PolyLog.reli(n::Real, z)
+PolyLog.reli(n::Integer, z::Num) = invoke(PolyLog.reli, Tuple{Real, Num}, n, z)
 
-using FresnelIntegrals
+using FresnelIntegrals: FresnelIntegrals
 @register_symbolic FresnelIntegrals.fresnelc(z)
 @register_symbolic FresnelIntegrals.fresnels(z)
 

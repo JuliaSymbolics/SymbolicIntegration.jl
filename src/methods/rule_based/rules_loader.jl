@@ -27,7 +27,7 @@ function load_rules(rules_paths)
         end
 
         # add rules
-        include(file)
+        Base.include_string(@__MODULE__, read(file, String), file)
         local_file_rules = Base.invokelatest(() -> file_rules) # Use Base.invokelatest to handle world age issues in Julia 1.12+
         append!(RULES, [x[2] for x in local_file_rules])
         append!(IDENTIFIERS, [x[1] for x in local_file_rules])
@@ -83,7 +83,7 @@ function reload_rules(path; verbose = true)
     global IDENTIFIERS
     
     println("Including $path...")
-    include(path)
+    Base.include_string(@__MODULE__, read(path, String), path)
     
     # Use Base.invokelatest to handle world age issues in Julia 1.12+
     local_file_rules = Base.invokelatest(() -> file_rules)

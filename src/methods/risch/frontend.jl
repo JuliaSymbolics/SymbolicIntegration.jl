@@ -1,4 +1,4 @@
-using Logging
+using Logging: Logging
 
 """
     TowerOfDifferentialFields(Hs) -> K, gs, D
@@ -457,39 +457,17 @@ end
 #     exp(p2*log(p1))    
 # end
 
-is_rational_multiple(a, b) = false
-
-is_rational_multiple(a::SymbolicUtils.Mul, b::SymbolicUtils.Mul) =
-    a.dict == b.dict && (isa(a.coeff, Integer) || isa(a.coeff, Rational)) &&
-                        (isa(b.coeff, Integer) || isa(b.coeff, Rational))
-
-is_rational_multiple(a::SymbolicUtils.Mul, b::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}) =
-    (isa(a.coeff, Integer) || isa(a.coeff, Rational)) && (b in keys(a.dict)) && isone(a.dict[b])
-
-is_rational_multiple(a::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, b::SymbolicUtils.Mul) =
-    (isa(b.coeff, Integer) || isa(b.coeff, Rational)) && (a in keys(b.dict)) && isone(b.dict[a])
-
-rational_multiple(a, b) = error("not a rational multiple")
-
-function rational_multiple(a::SymbolicUtils.Mul, b::SymbolicUtils.Mul)  
-    if !is_rational_multiple(a, b)
-        error("not a rational multiple")        
-    end
-    a.coeff//b.coeff
+function rational_multiple(a, b)
+    q = SymbolicUtils.simplify(a / b)
+    q isa Integer || q isa Rational || error("not a rational multiple")
+    q
 end
 
-function rational_multiple(a::SymbolicUtils.Mul, b::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}) 
-    if !is_rational_multiple(a, b)
-        error("not a rational multiple")        
-    end
-    return a.coeff//1
-end
-
-function rational_multiple(a::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, b::SymbolicUtils.Mul)
-    if !is_rational_multiple(a, b)
-        error("not a rational multiple")        
-    end
-    return 1//b.coeff
+is_rational_multiple(a, b) = try
+    rational_multiple(a, b)
+    true
+catch
+    false
 end
 
 function tan_nx(n::Int, x)
@@ -510,93 +488,6 @@ function tan_nx(n::Int, x)
     sign_n*a/b
 end
 
-function analyze_expr(f::SymbolicUtils.Term , funs::Vector, vars::Vector{SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}}, args::Vector, tanArgs::Vector, expArgs::Vector)    
-    op = operation(f)
-    a = arguments(f)[1]
-    if op == exp
-        i = findfirst(x -> is_rational_multiple(a, x), expArgs)
-        n = 1
-        if i === nothing
-            push!(expArgs, a)
-        else
-            n = rational_multiple(a, expArgs[i])
-            if !isone(denominator(n)) # n not an integer
-                expArgs[i] = 1//denominator(n)*expArgs[i]
-                throw(UpdatedArgList())            
-            end
-            n = numerator(n)
-        end
-        if n != 1
-            f = exp(expArgs[i])^n
-            return analyze_expr(f, funs, vars, args, tanArgs, expArgs)
-        end
-    elseif op==tan        
-        i = findfirst(x -> is_rational_multiple(a, x), tanArgs)
-        n = 1
-        if i === nothing
-            push!(tanArgs, a)
-        else
-            n = rational_multiple(a, tanArgs[i])
-            if !isone(denominator(n)) # n not an integer
-                tanArgs[i] = 1//denominator(n)*tanArgs[i]
-                throw(UpdatedArgList())            
-            end
-            n = numerator(n) 
-        end
-        if n != 1
-            f = tan_nx(n, tanArgs[i])
-            return analyze_expr(f, funs, vars, args, tanArgs, expArgs)
-        end
-    elseif op == sinh
-        f = 1//2*(exp(a) - 1/exp(a))
-        return analyze_expr(f, funs, vars, args, tanArgs, expArgs)
-    elseif op == cosh
-        f = 1//2*(exp(a) + 1/exp(a))
-        return analyze_expr(f, funs, vars, args, tanArgs, expArgs)
-    elseif op == csch # 1/sinh
-        f = 2/(exp(a) - 1/exp(a))
-        return analyze_expr(f, funs, vars, args, tanArgs, expArgs)
-    elseif op == sech
-        f = 2/(exp(a) + 1/exp(a))
-        return analyze_expr(f, funs, vars, args, tanArgs, expArgs)
-    elseif op == tanh
-        f = (exp(a) - 1/exp(a))/(exp(a) + 1/exp(a))
-        return analyze_expr(f, funs, vars, args, tanArgs, expArgs)
-    elseif op == coth
-        f = (exp(a) + 1/exp(a))/(exp(a) - 1/exp(a))
-        return analyze_expr(f, funs, vars, args, tanArgs, expArgs)        
-    elseif op == sin # transform to half angle format
-        f = 2*tan(1//2*a)/(1 + tan(1//2*a)^2)
-        return analyze_expr(f, funs, vars, args, tanArgs, expArgs)
-    elseif op == cos
-        f = (1 - tan(1//2*a)^2)/(1 + tan(1//2*a)^2)
-        return analyze_expr(f, funs, vars, args, tanArgs, expArgs)
-    elseif op == csc # 1/sin
-        f = 1//2*(1 + tan(1//2*a)^2)/tan(1//2*a)
-        return analyze_expr(f, funs, vars, args, tanArgs, expArgs)
-    elseif op == sec # 1/cos
-        f = (1 + tan(1//2*a)^2)/(1 - tan(1//2*a)^2)
-        return analyze_expr(f, funs, vars, args, tanArgs, expArgs)
-    elseif op == cot
-        f = 1/tan(a)
-        return analyze_expr(f, funs, vars, args, tanArgs, expArgs)
-    end
-    i = findfirst(x -> hash(x)==hash(f), funs) 
-    if i !== nothing
-        return vars[i]
-    end    
-    op in [exp, log, atan, tan] ||        
-        throw(NotImplementedError("integrand contains unsupported function $op"))
-    p = analyze_expr(a, funs, vars, args, tanArgs, expArgs)
-    tname = Symbol(:t, length(vars)) 
-    t = SymbolicUtils.Sym{Real}(tname)
-    push!(funs, f)
-    push!(vars, t)
-    push!(args, p)
-    t
-end
-
-# Generic method for SymbolicUtils 3.x - handles all symbolic expressions
 function transform_symtree_to_mpoly(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, vars::Vector, vars_mpoly::Vector)
     # Handle pure symbols
     if SymbolicUtils.issym(f)
@@ -768,17 +659,6 @@ end
 
 struct AlgebraicNumbersInvolved <: Exception end
 
-function integrate_risch(f::SymbolicUtils.Add, x::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}; useQQBar::Bool=false,
-    catchNotImplementedError::Bool=true, catchAlgorithmFailedError::Bool=true)
-    # For efficiency compute integral of sum as sum of integrals
-    g = f.coeff*x
-    for (h, c) in f.dict
-        g += c*integrate_risch(h, x, useQQBar=useQQBar, catchNotImplementedError=catchNotImplementedError,
-                         catchAlgorithmFailedError=catchAlgorithmFailedError)
-    end
-    g
-end
-
 function integrate_risch(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, x::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}; useQQBar::Bool=false,
     catchNotImplementedError::Bool=true, catchAlgorithmFailedError::Bool=true)
     try
@@ -798,8 +678,9 @@ function integrate_risch(f::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, 
         try 
             g, r, ρ = Integrate(p, D)
             g = subst_tower(g, funs)
-            if isa(g, SymbolicUtils.Add)
-                g -= g.coeff # remove constant term
+            if SymbolicUtils.isadd(g)
+                g -= sum(t for t in Symbolics.terms(g) if
+                    SymbolicUtils.isconst(SymbolicUtils.unwrap(t)))
             end
             if ρ<=0
                 return g + ∫(subst_tower(r, funs), x)

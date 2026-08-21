@@ -554,7 +554,7 @@ ext_den(simplify(((~g)*(~h)*log((~G)) + (~s)*(~t)*log((~H)))⨸((~d)*(~e)*log((~
     !contains_var((~F), (~a), (~b), (~c), (~x)) &&
     eq((~w), -(~v)) &&
     linear((~v), (~x)) &&
-    ifelse(isrational(ext_coeff((~v), (~x), 1)), gt(ext_coeff((~v), (~x), 1), 0), lt(SymbolicUtils.node_count((~v)), SymbolicUtils.node_count((~w)))) ?
+    ifelse(isrational(ext_coeff((~v), (~x), 1)), gt(ext_coeff((~v), (~x), 1), 0), lt(expression_node_count((~v)), expression_node_count((~w)))) ?
 ∫((~u)*(~F)^(~v)⨸((~c) + (~a)*(~F)^(~v) + (~b)*(~F)^(2*(~v))), (~x)) : nothing))
 
 ("2_3_76",

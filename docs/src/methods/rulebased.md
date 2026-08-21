@@ -70,7 +70,7 @@ Serious problems are problems that strongly impact the correct functioning of th
 ## Mild
 Mild problems are problems that impact the correct functioning of the rule based symbolic integrator and are medium difficulty to fix. Here are the ones I encountered so far:
 
-- **ExpandIntegrand function**: In the Mathematica package is defined the `ExpandIntegrand` function that expands a lot of mathematical expression (is defined in more than 360 rules of code) in strange ways. Some cases are been adderssed for now in the function `ext_expand`, but not all
+- **ExpandIntegrand function**: In the Mathematica package is defined the `ExpandIntegrand` function that expands a lot of mathematical expression (is defined in more than 360 rules of code) in strange ways. Some cases are been addressed for now in the function `ext_expand`, but not all
 
 - **Maybe erorred tests**: when testing, one checks that the integral is correct with `isequal(simplify(computed_result  - real_result;expand=true), 0)` but this doesnt always work. For example:
 ```
@@ -114,7 +114,7 @@ For example the problem presents itself in the following case. The rule is
     !contains_var((~a), (~b), (~m), (~x)) &&
     linear((~u), (~x)) &&
     !eq((~u), (~x)) ?
-1⨸Symbolics.coeff((~u), (~x)^ 1)*int_and_subst(((~a) + (~b)*(~x))^(~m),  (~x), (~x), (~u), "1_1_1_1_5") : nothing)
+1⨸ext_coeff((~u), (~x)^ 1)*int_and_subst(((~a) + (~b)*(~x))^(~m),  (~x), (~x), (~u), "1_1_1_1_5") : nothing)
 ```
 and this works:
 ```
@@ -151,7 +151,7 @@ If I define a rule with this pattern `@rule ((~!a) + (~!b)*(~x))^(~m)*((~!c) + (
 
 ## Minor
 - in runtests, exp(x) is not recognized as ℯ^x. This is because integration produces a ℯ^x that doesnt get automatically translated into exp(x) like happens in the REPL
-- roots of numbers are not treated simbolically but immediately calculated. So instead of the beautiful `integrate(1/(sqrt(1+2x)*sqrt(3+4x))) = asinh(sqrt(2)*sqrt(1+2x))/sqrt(2)`, i have ` = 0.7071067811865475asinh(1.414213562373095sqrt(1 + 2x))`. Or instead of `integrate(2^x) = 2^x / log(2)`, i have `integrate(2^x) = 1.4426950408889634*2^x`. Or instead of `integrate((2/sqrt(π))*exp(-x^2)) = SpecialFunctions.erf(x)` I have  `integrate((2/sqrt(π))*exp(-x^2)) = 0.9999999999999999SpecialFunctions.erf(x)`
+- roots of numbers are not treated symbolically but immediately calculated. So instead of the beautiful `integrate(1/(sqrt(1+2x)*sqrt(3+4x))) = asinh(sqrt(2)*sqrt(1+2x))/sqrt(2)`, i have ` = 0.7071067811865475asinh(1.414213562373095sqrt(1 + 2x))`. Or instead of `integrate(2^x) = 2^x / log(2)`, i have `integrate(2^x) = 1.4426950408889634*2^x`. Or instead of `integrate((2/sqrt(π))*exp(-x^2)) = SpecialFunctions.erf(x)` I have  `integrate((2/sqrt(π))*exp(-x^2)) = 0.9999999999999999SpecialFunctions.erf(x)`
 - the variable USE_GAMMA is used to choose if gamma function is used in the results or not. But right now is not configurable by the user, and if changed doesnt change the behaviour of th eintegration but a reload_rules() is needed, i dont know why.
 - why here the coefficient is Inf ?
 ```

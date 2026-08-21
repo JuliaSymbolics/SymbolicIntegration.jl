@@ -49,15 +49,13 @@ function Base.imag(f::AbstractAlgebra.EuclideanRingResidueFieldElem{P}) where {T
     coeff(data(f), 1)
 end 
 
-import Base: (*)
-
-function (*)(c::F, f::K) where
+function complex_multiply(c::F, f::K) where
     {F<:AbstractAlgebra.EuclideanRingResidueFieldElem, T<:AbstractAlgebra.EuclideanRingResidueFieldElem, P<:PolyRingElem{T}, K<:FracElem{P}}
     I = get_I(parent(f))
     (real(c) + imag(c)*I)*f
 end
 
-function (*)(c::F, f::P) where
+function complex_multiply(c::F, f::P) where
     {F<:AbstractAlgebra.EuclideanRingResidueFieldElem, T<:AbstractAlgebra.EuclideanRingResidueFieldElem, P<:PolyRingElem{T}}
     I = get_I(parent(f))
     (real(c) + imag(c)*I)*f
@@ -106,7 +104,7 @@ function contains_I(F::AbstractAlgebra.EuclideanRingResidueField{P}) where {T<:F
     if degree(m)==2 && isone(coeff(m, 0)) && iszero(coeff(m, 1)) && isone(coeff(m,2)) 
         return true
     else
-        error("contains_I not appplicable for residue field with modulus != X^2+1.")
+        error("contains_I not applicable for residue field with modulus != X^2+1.")
     end
 end
 
@@ -123,7 +121,7 @@ function get_I(F::AbstractAlgebra.EuclideanRingResidueField{P}) where {T<:FieldE
     if degree(m)==2 && isone(coeff(m, 0)) && iszero(coeff(m, 1)) && isone(coeff(m,2)) 
         return gen(base_ring(F)) + zero(F)
     else
-        error("get_I not appplicable for residue field with modulus != X^2+1.")
+        error("get_I not applicable for residue field with modulus != X^2+1.")
     end
 end
 

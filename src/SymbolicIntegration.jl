@@ -15,7 +15,7 @@ method object. The
 interface can be
 implemented by packages that provide another integration backend.
 
-# Example
+# Examples
 
 ```julia
 using SymbolicIntegration, Symbolics
@@ -27,8 +27,24 @@ integrate(1 / (x^2 + 1), x, RischMethod())
 """
 module SymbolicIntegration
 
-using Symbolics
-using SymbolicUtils # TODO is this import really needed?
+using AbstractAlgebra: AbstractAlgebra
+using Elliptic: Elliptic, E, F, K
+using FresnelIntegrals: FresnelIntegrals
+using HypergeometricFunctions: HypergeometricFunctions
+using Logging: Logging
+using Nemo: Nemo, FieldElem, FieldElement, FracElem, FracField, MPolyRingElem,
+    PolyRing, PolyRingElem, QQBarField, QQBarFieldElem, QQFieldElem, RingElem,
+    RingElement, algebraic_closure, base_ring, coeff, coefficients, conjugates,
+    constant_coefficient, content, data, degree, derivative, det, divexact,
+    factor, fraction_field, gen, gens, hnf, integral, is_rational,
+    leading_coefficient, map_coefficients, minpoly, modulus, nullspace, nvars,
+    polynomial, polynomial_ring, pseudodivrem, residue_field, resultant, roots,
+    solve, symbols, valuation, var, var_index, vars, zero_matrix
+using PolyLog: PolyLog
+using SpecialFunctions: SpecialFunctions
+using SymbolicUtils: SymbolicUtils, @rule, @syms, arguments, expand, iscall,
+    operation, simplify, substitute, unwrap_const
+using Symbolics: Symbolics, @register_symbolic, @variables, Num
 using PrecompileTools: @compile_workload, @setup_workload
 using TermInterface: maketerm, metadata
 

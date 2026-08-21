@@ -16,8 +16,8 @@ end
 
 # if expr contains variable var return true
 function contains_var(expr, var)
-    expr = Symbolics.unwrap(expr)
-    var = Symbolics.unwrap(var)
+    expr = SymbolicUtils.unwrap(expr)
+    var = SymbolicUtils.unwrap(var)
     expr === var && return true
     
     if SymbolicUtils.iscall(expr)
@@ -37,7 +37,7 @@ function contains_var(args...)
 end
 
 function contains_op(op, expr)
-    expr = Symbolics.unwrap(expr)
+    expr = SymbolicUtils.unwrap(expr)
     if iscall(expr)
         if nameof(operation(expr))=== nameof(op)
             return true
@@ -56,12 +56,22 @@ function complexfree(expr)
 end
 
 # to distinguish between symbolic expressions and numbers
-s(u) = isa(Symbolics.unwrap(u), SymbolicUtils.BasicSymbolic)
+s(u) = isa(SymbolicUtils.unwrap(u), SymbolicUtils.BasicSymbolic)
 
 function eq(a, b)
     a = SymbolicUtils.unwrap_const(a)
     b = SymbolicUtils.unwrap_const(b)
-    return SymbolicUtils.simplify(a - b) |> SymbolicUtils._iszero
+    return symbolic_iszero(SymbolicUtils.simplify(a - b))
+end
+
+symbolic_iszero(x) = begin
+    x = SymbolicUtils.unwrap_const(SymbolicUtils.unwrap(x))
+    x isa Number && iszero(x)
+end
+
+symbolic_isone(x) = begin
+    x = SymbolicUtils.unwrap_const(SymbolicUtils.unwrap(x))
+    x isa Number && isone(x)
 end
 
 ext_isinteger(u::SymbolicUtils.BasicSymbolic) = false
@@ -93,22 +103,22 @@ isrational(args...) = all(isa(arg, Rational) || isa(arg, Integer) for arg in arg
 
 # If u is a sum, sumQ(u) returns true; else it returns false.
 function issum(u)
-    u = Symbolics.unwrap(u)
+    u = SymbolicUtils.unwrap(u)
     return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === +
 end
 
 function isprod(u)
-    u = Symbolics.unwrap(u)
+    u = SymbolicUtils.unwrap(u)
     return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === *
 end
 
 function isdiv(u)
-    u = Symbolics.unwrap(u)
+    u = SymbolicUtils.unwrap(u)
     return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === /
 end
 
 function ispow(u)
-    u = Symbolics.unwrap(u)
+    u = SymbolicUtils.unwrap(u)
     return SymbolicUtils.iscall(u) && SymbolicUtils.operation(u) === ^
 end
 
@@ -116,16 +126,21 @@ const trig_functions = [sin, cos, tan, cot,sec, csc]
 istrig(funct) = in(funct, trig_functions)
 
 function ext_coeff(u, x)
-    try 
-        return Symbolics.coeff(u, x)
-    catch e
-        println("Error in ext_coeff: ", e)
+    try
+        coeffs, _ = Symbolics.polynomial_coeffs(u, [x])
+        return get(coeffs, x, zero(u))
+    catch
         return 0
     end
 end
 
 function ext_coeff(u, x, n)
-    ext_coeff(u, x^n)
+    try
+        coeffs, _ = Symbolics.polynomial_coeffs(u, [x])
+        return get(coeffs, x^n, zero(u))
+    catch
+        return 0
+    end
 end
 
 # SimplifyIntegrand[u,x] simplifies u and returns the result in a standard form recognizable by integration rules
@@ -218,7 +233,7 @@ function fracpart(a)
         a - trunc(a)
     elseif issum(a)
         # If a is a sum, we return the sum of the fractional parts of each term
-        return sum(fracpart(term) for term in SymbolicUtils.arguments(Symbolics.unwrap(a)))
+        return sum(fracpart(term) for term in SymbolicUtils.arguments(SymbolicUtils.unwrap(a)))
     else
         return a
     end
@@ -230,7 +245,7 @@ function intpart(a)
         trunc(a)
     elseif issum(a)
         # If a is a sum, we return the sum of the integer parts of each term
-        return sum(intpart(term) for term in SymbolicUtils.arguments(Symbolics.unwrap(a)))
+        return sum(intpart(term) for term in SymbolicUtils.arguments(SymbolicUtils.unwrap(a)))
     else
         return 0
     end
@@ -281,7 +296,7 @@ end
 
 # If u is not 0 and has a positive form, posQ(u) returns True, else it returns False
 function pos(u)
-    u = Symbolics.unwrap(u)
+    u = SymbolicUtils.unwrap(u)
     !s(u) && return !eq(u, 0) && (u>0)
     u = simplify(u)
     atom(u) && return true
@@ -360,7 +375,7 @@ end
 # julia> SymbolicIntegration.fractional_power_factor(((1+x)^(1//2))*x)
 # true
 function fractional_power_factor(expr)
-    expr = Symbolics.unwrap(expr)
+    expr = SymbolicUtils.unwrap(expr)
     atom(expr) && return false
     !iscall(expr) && return false
     ispow(expr) && return (!ext_isinteger(arguments(expr)[2]) && isfraction(arguments(expr)[2]))
@@ -405,12 +420,15 @@ function simpler(u, v)
         return false
     end
     
-    return SymbolicUtils.node_count(u) < SymbolicUtils.node_count(v)
+    return expression_node_count(u) < expression_node_count(v)
 end
+
+expression_node_count(x) = SymbolicUtils.iscall(x) ?
+    1 + sum(expression_node_count, SymbolicUtils.arguments(x)) : 1
 
 # True if expr is an expression which cannot be divided into subexpressions, false otherwise
 function atom(expr)
-    expr = Symbolics.unwrap(expr)
+    expr = SymbolicUtils.unwrap(expr)
     if !SymbolicUtils.iscall(expr)
         return true
     end
@@ -469,8 +487,8 @@ end
 
 # distributes exp1 over exp2
 function dist(exp1, exp2, x)
-    exp1 = Symbolics.unwrap(exp1)
-    exp2 = Symbolics.unwrap(exp2)
+    exp1 = SymbolicUtils.unwrap(exp1)
+    exp2 = SymbolicUtils.unwrap(exp2)
     if iscall(exp2) && operation(exp2) === +
         return sum(exp1*t for t in arguments(exp2))
     else
@@ -514,7 +532,7 @@ function special_function_operation(op)
 end
 
 function contains_special_function(u)
-    u = Symbolics.unwrap(u)
+    u = SymbolicUtils.unwrap(u)
     !iscall(u) && return false
     special_function_operation(operation(u)) && return true
     return any(contains_special_function(arg) for arg in arguments(u))
@@ -525,7 +543,7 @@ function distribute_special_function_product(factors, x)
     sum_index === nothing && return nothing
     any(contains_special_function, factors) || return nothing
 
-    sum_factor = Symbolics.unwrap(factors[sum_index])
+    sum_factor = SymbolicUtils.unwrap(factors[sum_index])
     return map(arguments(sum_factor)) do term
         prod(i == sum_index ? term : factor for (i, factor) in pairs(factors))
     end
@@ -618,7 +636,7 @@ generalized_trinomial(u::Vector,x) = all(generalized_trinomial(e,x) for e in u)
 
 # If u is a monomial in x (either b(x^m) or (bx)^m), monomial(u,x) returns the degree of u in x; else it returns nothing.
 monomial(u::Number, x::Union{SymbolicUtils.BasicSymbolic, Symbolics.Num}) = 0
-monomial(u::Symbolics.Num,x::Symbolics.Num) = monomial(Symbolics.unwrap(u), Symbolics.unwrap(x))
+monomial(u::Symbolics.Num,x::Symbolics.Num) = monomial(SymbolicUtils.unwrap(u), SymbolicUtils.unwrap(x))
 function monomial(u::SymbolicUtils.BasicSymbolic, x::SymbolicUtils.BasicSymbolic)
     # if u is a constant or a variable, it is a monomial
     !(s(u)) && return true
@@ -634,7 +652,7 @@ end
 
 # If u is a polynomial in x of degree n, poly_degree(u,x) returns n, else false
 poly_degree(u::Number, x::Union{SymbolicUtils.BasicSymbolic, Symbolics.Num}) = 0
-poly_degree(u::Symbolics.Num, x::Symbolics.Num) = poly_degree(Symbolics.unwrap(u), Symbolics.unwrap(x))
+poly_degree(u::Symbolics.Num, x::Symbolics.Num) = poly_degree(SymbolicUtils.unwrap(u), SymbolicUtils.unwrap(x))
 function poly_degree(u::SymbolicUtils.BasicSymbolic, x::SymbolicUtils.BasicSymbolic)
     u = expand(u)
     
@@ -673,8 +691,8 @@ end
 # If u is a polynomial in x of degree n, Poly[u,x,n] returns True; else it returns False.
 function poly(u, x)
     # could have been implemented as poly(u, x) = poly_degree(u, x) !== nothing but this is more efficient
-    x = Symbolics.unwrap(x)
-    u = Symbolics.unwrap(u)
+    x = SymbolicUtils.unwrap(x)
+    u = SymbolicUtils.unwrap(u)
 
     u = expand(u)
 
@@ -694,16 +712,16 @@ function poly_coefficients(p, x)
     p = expand(p)
     coeffs = Num[]
     for i in 0:deg
-        push!(coeffs, Symbolics.coeff(p, x^i))
+        push!(coeffs, ext_coeff(p, x, i))
     end
     return coeffs
 end
 
 # gives the quotient of p / q, treated as polynomials in x, with any remainder dropped
 function poly_quotient(p, q, x)
-    p = Symbolics.unwrap(p)
-    q = Symbolics.unwrap(q)
-    x = Symbolics.unwrap(x)
+    p = SymbolicUtils.unwrap(p)
+    q = SymbolicUtils.unwrap(q)
+    x = SymbolicUtils.unwrap(x)
 
     deg_p = poly_degree(p, x)
     deg_q = poly_degree(q, x)
@@ -762,9 +780,9 @@ end
 
 # gives the remainder of p and q, treated as polynomials in x
 function poly_remainder(p, q, x)
-    p = Symbolics.unwrap(p)
-    q = Symbolics.unwrap(q)
-    x = Symbolics.unwrap(x)
+    p = SymbolicUtils.unwrap(p)
+    q = SymbolicUtils.unwrap(q)
+    x = SymbolicUtils.unwrap(x)
 
     deg_p = poly_degree(p, x)
     deg_q = poly_degree(q, x)
@@ -815,9 +833,9 @@ end
 
 # If u and v are polynomials in x, PolynomialDivide[u,v,x] returns the polynomial quotient of u and v plus the polynomial remainder divided by v.
 function polynomial_divide(u, v, x)
-    u = Symbolics.unwrap(u)
-    v = Symbolics.unwrap(v)
-    x = Symbolics.unwrap(x)
+    u = SymbolicUtils.unwrap(u)
+    v = SymbolicUtils.unwrap(v)
+    x = SymbolicUtils.unwrap(x)
 
     deg_u = poly_degree(u, x)
     deg_v = poly_degree(v, x)
@@ -842,7 +860,7 @@ function exponent_of(expr, form)
 end
 
 function perfect_square(expr)
-    expr = Symbolics.unwrap(expr)
+    expr = SymbolicUtils.unwrap(expr)
     !s(expr) && return sqrt(expr) == floor(sqrt(expr))
     !iscall(expr) && return false
     (operation(expr) === ^) && iseven(arguments(expr)[2]) && return true
@@ -852,7 +870,7 @@ end
 # puts terms in a sum over a common denominator, and cancels factors in the result
 # together(a/b + c/d) = (a*d + b*c) / (b*d)
 function together(expr)
-    expr = Symbolics.unwrap(expr)
+    expr = SymbolicUtils.unwrap(expr)
     if !SymbolicUtils.iscall(expr) || SymbolicUtils.operation(expr) !== +
         return expr
     end
@@ -873,7 +891,7 @@ end
 function linear_pair(u,v,x)
     linear(u,x) && linear(v,x) &&
     !eq(u, x) && !eq(v, x) &&
-    eq(Symbolics.coeff(u,x) * Symbolics.coeff(v,1) - Symbolics.coeff(u,1) * Symbolics.coeff(v,x), 0)
+    eq(ext_coeff(u, x) * ext_coeff(v, 1) - ext_coeff(u, 1) * ext_coeff(v, x), 0)
 end
 
 # returns true if u is a algebraic function of x
@@ -888,8 +906,8 @@ function algebraic_function(u, x)
 end
 
 function algebraic_function(u::Num, x::Num)
-    u = Symbolics.unwrap(u)
-    x = Symbolics.unwrap(x)
+    u = SymbolicUtils.unwrap(u)
+    x = SymbolicUtils.unwrap(x)
     algebraic_function(u, x)
 end
 
@@ -905,8 +923,8 @@ function rational_function(u, x)
 end
 
 function rational_function(u::Num, x::Num)
-    u = Symbolics.unwrap(u)
-    x = Symbolics.unwrap(x)
+    u = SymbolicUtils.unwrap(u)
+    x = SymbolicUtils.unwrap(x)
     rational_function(u, x)
 end
 
@@ -920,35 +938,35 @@ function function_of_exponential(u, x)
     (o in [+,*,/]) && return any(function_of_exponential(a,x) for a in ar)
     return false
 end
-function_of_exponential(u::Num, x::Num) = function_of_exponential(Symbolics.unwrap(u), Symbolics.unwrap(x))
+function_of_exponential(u::Num, x::Num) = function_of_exponential(SymbolicUtils.unwrap(u), SymbolicUtils.unwrap(x))
 
 # returns the product of the factors of u free of x
 function free_factors(u, x)
-    u = Symbolics.unwrap(u)
-    x = Symbolics.unwrap(x)
+    u = SymbolicUtils.unwrap(u)
+    x = SymbolicUtils.unwrap(x)
     isprod(u) && return prod(contains_var(f, x) ? 1 : f for f in arguments(u))
     return contains_var(u, x) ? 1 : u
 end
 
 # returns the product of the factors of u not free of x
 function nonfree_factors(u, x)
-    u = Symbolics.unwrap(u)
-    x = Symbolics.unwrap(x)
+    u = SymbolicUtils.unwrap(u)
+    x = SymbolicUtils.unwrap(x)
     isprod(u) && return prod(contains_var(f, x) ? f : 1 for f in arguments(u))
     return contains_var(u, x) ? 1 : u
 end
 # returns the product of the addends of u free of x
 function free_addednds(u, x)
-    u = Symbolics.unwrap(u)
-    x = Symbolics.unwrap(x)
+    u = SymbolicUtils.unwrap(u)
+    x = SymbolicUtils.unwrap(x)
     issum(u) && return sum(contains_var(a, x) ? 0 : a for a in arguments(u))
     return contains_var(u, x) ? 1 : u
 end
 
 # returns the product of the addends of u not free of x
 function nonfree_addends(u, x)
-    u = Symbolics.unwrap(u)
-    x = Symbolics.unwrap(x)
+    u = SymbolicUtils.unwrap(u)
+    x = SymbolicUtils.unwrap(x)
     issum(u) && return prod(contains_var(a, x) ? a : 0 for a in arguments(u))
     return contains_var(u, x) ? 1 : u
 end

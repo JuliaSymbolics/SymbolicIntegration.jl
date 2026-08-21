@@ -5,8 +5,8 @@
 #    2nd ed., Springer 2005. 
 #
 
-using AbstractAlgebra
-using Nemo
+using AbstractAlgebra: AbstractAlgebra
+using Nemo: Nemo
 
 
 struct NotImplementedError <: Exception
@@ -349,4 +349,3 @@ function Squarefree(A::PolyRingElem{T}) where T <: RingElement
     As[1] = c*As[1]
     As
 end
-

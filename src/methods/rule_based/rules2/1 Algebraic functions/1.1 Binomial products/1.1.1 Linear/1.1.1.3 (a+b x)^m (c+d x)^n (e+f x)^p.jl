@@ -745,6 +745,6 @@ ext_den((~p))⨸(~e)* int_and_subst((~x)^(ext_den((~p))*((~p) + 1) - 1)*((~a) + 
     !contains_var((~a), (~b), (~c), (~d), (~e), (~f), (~m), (~n), (~p), (~x)) &&
     linear((~u), (~x)) &&
     !eq((~u), (~x)) ?
-1⨸Symbolics.coeff((~u), (~x) ^ 1)* int_and_subst(((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~n)*((~e) + (~f)*(~x))^(~p), (~x), (~x), (~u), "1_1_1_3_73") : nothing))
+1⨸ext_coeff((~u), (~x) ^ 1)* int_and_subst(((~a) + (~b)*(~x))^(~m)*((~c) + (~d)*(~x))^(~n)*((~e) + (~f)*(~x))^(~p), (~x), (~x), (~u), "1_1_1_3_73") : nothing))
 
 ]
