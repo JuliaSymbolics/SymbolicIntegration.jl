@@ -302,10 +302,10 @@ Base.show(io::IO, D::ExtensionDerivation) = print(io, "Extension by D",
 
 
 struct AlgebraicExtensionDerivation{T<:FieldElement, P<:PolyRingElem{T}} <: Derivation
-    domain::AbstractAlgebra.ResField{P}
+    domain::AbstractAlgebra.EuclideanRingResidueField{P}
     D::Derivation
-    dy::AbstractAlgebra.ResFieldElem{P}
-    function AlgebraicExtensionDerivation(domain::AbstractAlgebra.ResField{P}, D::Derivation) where {T<:FieldElement, P<:PolyRingElem{T}}
+    dy::AbstractAlgebra.EuclideanRingResidueFieldElem{P}
+    function AlgebraicExtensionDerivation(domain::AbstractAlgebra.EuclideanRingResidueField{P}, D::Derivation) where {T<:FieldElement, P<:PolyRingElem{T}}
         base_ring(base_ring(base_ring(domain)))==D.domain || error("base ring of domain must be domain of D")
         p = modulus(domain)
         y = domain(gen(base_ring(domain)))
@@ -314,7 +314,7 @@ struct AlgebraicExtensionDerivation{T<:FieldElement, P<:PolyRingElem{T}} <: Deri
     end
 end
 
-function (D::AlgebraicExtensionDerivation)(f::AbstractAlgebra.ResFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
+function (D::AlgebraicExtensionDerivation)(f::AbstractAlgebra.EuclideanRingResidueFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
     iscompatible(f, D) || error("f not in domain of D")
     map_coefficients(derivative, data(f)) + derivative(data(f))*D.dy
 end
@@ -502,7 +502,7 @@ function constant_roots(f::PolyRingElem{T}, D::Derivation; useQQBar::Bool=false)
 end
 
 function constant_roots(f::PolyRingElem{T}, D::Derivation; useQQBar::Bool=false) where 
-    {T<:AbstractAlgebra.ResFieldElem}
+    {T<:AbstractAlgebra.EuclideanRingResidueFieldElem}
     @assert iscompatible(f, D)
     p = map_coefficients(c->constantize(c, BaseDerivation(D)), constant_factors(f)) 
     pp = map_coefficients(c->real(c), p*map_coefficients(c->conj(c), p))

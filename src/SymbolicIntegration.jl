@@ -30,6 +30,7 @@ module SymbolicIntegration
 using Symbolics
 using SymbolicUtils # TODO is this import really needed?
 using PrecompileTools: @compile_workload, @setup_workload
+using TermInterface: maketerm, metadata
 
 # Include Risch method algorithm components
 include("methods/risch/general.jl")
