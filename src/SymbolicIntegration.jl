@@ -29,6 +29,7 @@ module SymbolicIntegration
 
 using Symbolics
 using SymbolicUtils # TODO is this import really needed?
+using PrecompileTools: @compile_workload, @setup_workload
 
 # Include Risch method algorithm components
 include("methods/risch/general.jl")
@@ -52,6 +53,15 @@ include("methods/rule_based/one_var_predicates.jl")
 
 # Add method dispatch system
 include("methods.jl")
+
+@setup_workload begin
+    @variables x
+    @compile_workload begin
+        integrate(x, x)
+        integrate(exp(x), x, RuleBasedMethod())
+        integrate(1 / (x^2 + 1), x, RischMethod())
+    end
+end
 
 # Export method interface and integrate function
 export AbstractIntegrationMethod, RischMethod, RuleBasedMethod, integrate, reload_rules
