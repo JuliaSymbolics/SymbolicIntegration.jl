@@ -46,6 +46,17 @@ Return the polynomial ring on which `D` is defined.
 
 All values passed to `D`, [`iscompatible`](@ref), and the differential-field
 predicates must be elements of this domain or of its fraction field.
+
+# Returns
+
+The polynomial ring stored by the derivation.
+
+# Examples
+
+```julia
+R, x = polynomial_ring(QQ, :x)
+domain(BasicDerivation(R)) === R
+```
 """
 domain(D::Derivation) = D.domain
 
@@ -169,6 +180,17 @@ Return the coefficient field fixed by `D`.
 For a null or basic derivation this is the fraction field of the coefficient
 ring when the stored domain is not already a field. Extension derivations
 delegate to their base derivation.
+
+# Returns
+
+The coefficient field fixed by the derivation.
+
+# Examples
+
+```julia
+R, x = polynomial_ring(QQ, :x)
+constant_field(BasicDerivation(R))
+```
 """
 function constant_field(D::BasicDerivation) 
     R = base_ring(D.domain)
@@ -280,6 +302,17 @@ end
     BaseDerivation(D::Derivation)
 
 Return the derivation on the coefficient field from which `D` was extended.
+
+# Returns
+
+The base derivation used to construct `D`.
+
+# Examples
+
+```julia
+R, x = polynomial_ring(QQ, :x)
+BaseDerivation(BasicDerivation(R)) isa NullDerivation
+```
 """
 BaseDerivation(D::BasicDerivation) = NullDerivation(base_ring(D.domain))
 BaseDerivation(D::ExtensionDerivation) = D.D 
@@ -291,6 +324,17 @@ Return the derivative of the generator of `domain(D)`.
 
 For an [`ExtensionDerivation`](@ref), this is the stored `H`; for a
 [`BasicDerivation`](@ref), it is `one(domain(D))`.
+
+# Returns
+
+The derivative of the generator of `domain(D)`.
+
+# Examples
+
+```julia
+R, x = polynomial_ring(QQ, :x)
+isone(MonomialDerivative(BasicDerivation(R)))
+```
 """
 MonomialDerivative(D::BasicDerivation) = one(D.domain)
 MonomialDerivative(D::ExtensionDerivation) = D.H 

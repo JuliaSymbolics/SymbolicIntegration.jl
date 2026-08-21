@@ -1,3 +1,25 @@
+"""
+    SymbolicIntegrationMaxima
+
+Maxima-backed symbolic integration and simplification for `Symbolics.Num`
+expressions.
+
+The backend is selected explicitly with [`MaximaMethod`](@ref), so installing
+this package does not require a Maxima executable until a Maxima operation is
+called. The conversion functions are also available for workflows that need to
+exchange Maxima syntax directly.
+
+# Example
+
+```julia
+using Symbolics, SymbolicIntegrationMaxima
+
+@variables x
+method = MaximaMethod(timeout=10)
+integrate(exp(x), x, method)
+maxima_simplify((x + 1)^2; method)
+```
+"""
 module SymbolicIntegrationMaxima
 
 import SymbolicIntegration
@@ -53,6 +75,17 @@ Opaque symbolic function returned for a valid Maxima function that has no
 explicit Julia mapping yet. It preserves the exact function name and supports
 roundtripping through `to_maxima` and `maxima_simplify`. `maxima_numeric` can
 evaluate it when Maxima knows a numerical value.
+
+# Fields
+
+- `name::Symbol`: Maxima function name used for serialization and display.
+
+# Examples
+
+```julia
+f = MaximaFunction(:my_special_function)
+to_maxima(f(2)) == "my_special_function(2)"
+```
 """
 struct MaximaFunction
     name::Symbol
@@ -79,6 +112,23 @@ for fname in MAXIMA_PLACEHOLDER_FUNCTIONS
     Symbolic placeholder for a special function returned by Maxima that
     Symbolics.jl does not currently define as a standard symbolic function.
     The expression supports substitution and conversion back to Maxima.
+
+    # Arguments
+
+    - `args...`: Symbolic or numeric arguments accepted by Maxima.
+
+    # Returns
+
+    A symbolic `Symbolics.Num` call that can be serialized with
+    [`to_maxima`](@ref) and simplified or numerically evaluated by the Maxima
+    backend.
+
+    # Examples
+
+    ```julia
+    @variables x
+    $(fname)(x)
+    ```
     """
     @eval begin
         $fname(args...) = maxima_symbolic_call($fname, args...)
@@ -98,6 +148,22 @@ end
     maxima_notequal(lhs, rhs)
 
 Create a Maxima `notequal(lhs,rhs)` fact for an `assumptions` tuple.
+
+# Arguments
+
+- `lhs`, `rhs`: Values that can be serialized with [`to_maxima`](@ref).
+
+# Returns
+
+A `MaximaFact` suitable for the `assumptions` field of [`MaximaMethod`](@ref)
+or an individual Maxima call.
+
+# Examples
+
+```julia
+@variables n
+method = MaximaMethod(assumptions=(maxima_notequal(n, 0),))
+```
 """
 maxima_notequal(lhs, rhs) = MaximaFact("notequal($(to_maxima(lhs)),$(to_maxima(rhs)))")
 
@@ -106,6 +172,22 @@ maxima_notequal(lhs, rhs) = MaximaFact("notequal($(to_maxima(lhs)),$(to_maxima(r
 
 Create a Maxima declaration such as `declare(n,integer)` for an `assumptions`
 tuple. Pass the property as a symbol, for example `:integer`.
+
+# Arguments
+
+- `var`: Value to declare in Maxima.
+- `property::Symbol`: Maxima declaration property, such as `:integer`.
+
+# Returns
+
+A `MaximaStatement` for use in a Maxima assumptions tuple.
+
+# Examples
+
+```julia
+@variables n
+MaximaMethod(assumptions=(maxima_declare(n, :integer),))
+```
 """
 maxima_declare(var, property::Symbol) = MaximaStatement("declare($(to_maxima(var)),$(property))")
 
@@ -114,6 +196,21 @@ maxima_declare(var, property::Symbol) = MaximaStatement("declare($(to_maxima(var
 
 Create a raw Maxima context statement for an `assumptions` tuple. This is an
 expert escape hatch; `text` is sent directly to the fresh Maxima process.
+
+# Arguments
+
+- `text::AbstractString`: Maxima statement to execute before the integration
+  or simplification command.
+
+# Returns
+
+A `MaximaStatement` for use in an assumptions tuple.
+
+# Examples
+
+```julia
+method = MaximaMethod(assumptions=(maxima_statement("domain:complex"),))
+```
 """
 maxima_statement(text::AbstractString) = MaximaStatement(String(text))
 
@@ -139,15 +236,35 @@ integrate(f, x, MaximaMethod())
 integrate(f, x, a, b, MaximaMethod())
 ```
 
+# Keyword Arguments
+
+- `command::AbstractString="maxima"`: Executable used to start Maxima.
+- `timeout::Real=5.0`: Maximum seconds allowed for each Maxima process.
+- `validate::Bool=false`: Differentiate an indefinite result and warn when it
+  does not simplify to the original integrand.
+- `simplify_result::Bool=true`: Apply Maxima's `ratsimp` before parsing.
+- `expand_special_functions::Bool=true`: Ask Maxima to expand exact gamma,
+  beta, and Bessel identities before parsing.
+- `assumptions::Tuple=()`: Facts and statements applied to every call; a
+  per-call `assumptions` keyword replaces this tuple.
+
 # Fields
-- `command`: Maxima executable name or path.
-- `timeout`: per-call timeout in seconds.
-- `validate`: validate indefinite integrals by differentiating the result.
-- `simplify_result`: wrap Maxima output in `ratsimp(...)` before parsing.
-- `expand_special_functions`: simplify special functions to elementary forms when
-  Maxima has an exact identity, for example `gamma_incomplete(3, 2)`.
-- `assumptions`: facts applied to every call made with this method. Per-call
-  `assumptions=...` override this tuple.
+
+- `command::String`: Maxima executable name or path.
+- `timeout::Float64`: Per-call timeout in seconds.
+- `validate::Bool`: Whether indefinite results are checked by differentiation.
+- `simplify_result::Bool`: Whether Maxima applies `ratsimp` to results.
+- `expand_special_functions::Bool`: Whether exact special-function identities
+  are expanded before conversion.
+- `assumptions::Tuple`: Persistent Maxima facts and statements.
+
+# Examples
+
+```julia
+@variables x
+method = MaximaMethod(timeout=10, validate=true)
+integrate(1 / (x^2 + 1), x, method)
+```
 """
 Base.@kwdef struct MaximaMethod <: AbstractIntegrationMethod
     command::String = "maxima"
@@ -165,6 +282,18 @@ Exception thrown when Maxima execution, conversion, or parsing fails. The
 `kind` field distinguishes `:assumption`, `:timeout`, `:process`, `:syntax`,
 `:evaluation`, `:protocol`, `:serialization`, `:conversion`, `:unevaluated`,
 `:conditional`, and `:numeric` failures.
+
+# Fields
+
+- `message::String`: Human-readable description of the failure.
+- `kind::Symbol`: Machine-readable failure category.
+
+# Examples
+
+```julia
+err = MaximaError("Maxima was not found", :process)
+err.kind == :process
+```
 """
 struct MaximaError <: Exception
     message::String
@@ -179,6 +308,21 @@ Base.showerror(io::IO, err::MaximaError) = print(io, err.message)
     maxima_available(command="maxima") -> Bool
 
 Return whether a Maxima executable can be launched.
+
+# Arguments
+
+- `command::AbstractString="maxima"`: Executable name or path to test.
+
+# Returns
+
+`true` when `command --version` exits successfully; otherwise `false`.
+
+# Examples
+
+```julia
+maxima_available()
+maxima_available("/usr/local/bin/maxima")
+```
 """
 function maxima_available(command::AbstractString="maxima")
     try
@@ -195,6 +339,30 @@ Evaluate a Maxima expression and return Maxima's one-line string representation.
 This function starts a fresh Maxima process per call. That is slower than a
 long-lived session, but avoids shared-state bugs from assumptions and previous
 calculations.
+
+# Arguments
+
+- `expr::AbstractString`: Maxima expression or command to evaluate.
+
+# Keyword Arguments
+
+- `command::AbstractString="maxima"`: Executable used to start Maxima.
+- `timeout::Real=5`: Maximum seconds to wait for the process.
+
+# Returns
+
+The extracted one-line Maxima result as a `String`.
+
+# Throws
+
+`MaximaError` when Maxima cannot be started, times out, requests an unsupported
+assumption, or reports an evaluation/protocol error.
+
+# Examples
+
+```julia
+maxima_call("integrate(x^2, x)")
+```
 """
 function maxima_call(expr::AbstractString; command::AbstractString="maxima", timeout::Real=5)
     timeout > 0 || throw(ArgumentError("`timeout` must be positive."))
@@ -320,6 +488,22 @@ end
 
 Serialize a supported Julia or Symbolics expression to Maxima syntax.
 Unsupported operations throw `MaximaError`.
+
+# Arguments
+
+- `expr`: Integer, real, rational, complex, collection, or symbolic expression
+  supported by the conversion table.
+
+# Returns
+
+A Maxima syntax `String`.
+
+# Examples
+
+```julia
+@variables x
+to_maxima((x^2 + 1) / 2) == "((x^2+1)/2)"
+```
 """
 to_maxima(expr::Symbolics.Num) = to_maxima(Symbolics.unwrap(expr))
 to_maxima(expr::Integer) = string(expr)
@@ -478,6 +662,30 @@ end
 
 Parse a Maxima result string into a Symbolics expression. `vars` must contain
 the symbolic variables that may appear in `text`.
+
+# Arguments
+
+- `text::AbstractString`: Maxima result in the syntax emitted by
+  [`maxima_call`](@ref).
+- `vars`: Iterable of `Symbolics.Num` variables used to build the evaluation
+  environment.
+
+# Returns
+
+A `Symbolics.Num` expression with Maxima functions represented by native
+Symbolics operations or exported symbolic placeholders.
+
+# Throws
+
+`MaximaError` for unevaluated integrals, unsupported conditionals, or malformed
+Maxima syntax.
+
+# Examples
+
+```julia
+@variables x
+from_maxima("x^2 + 1", (x,))
+```
 """
 function from_maxima(text::AbstractString, vars)
     occursin("integrate(", text) &&
@@ -694,6 +902,29 @@ end
     maxima_integrate(f, x, a, b; method=MaximaMethod(), kwargs...)
 
 Convenience wrappers around `integrate(..., MaximaMethod())`.
+
+# Arguments
+
+- `f`: Symbolic integrand.
+- `x`: Symbolic integration variable.
+- `a`, `b`: Lower and upper bounds for definite integration.
+
+# Keyword Arguments
+
+- `method::MaximaMethod=MaximaMethod()`: Backend configuration.
+- `kwargs...`: Options forwarded to the selected integration method.
+
+# Returns
+
+A symbolic antiderivative or definite integral result as a `Symbolics.Num`.
+
+# Examples
+
+```julia
+@variables x
+maxima_integrate(exp(x), x)
+maxima_integrate(x, x, 0, 1)
+```
 """
 maxima_integrate(f, x; method::MaximaMethod=MaximaMethod(), kwargs...) =
     integrate(f, x, method; kwargs...)
@@ -708,6 +939,30 @@ maxima_integrate(f, x, a, b; method::MaximaMethod=MaximaMethod(), kwargs...) =
 Extend `SymbolicIntegration.integrate` with a Maxima backend. The returned value
 is a `Symbolics.Num` expression when the Maxima output is supported by the
 bridge.
+
+# Arguments
+
+- `f::Symbolics.Num`: Symbolic integrand.
+- `x::Symbolics.Num`: Integration variable.
+- `a`, `b`: Optional lower and upper bounds.
+- `method::MaximaMethod`: Backend configuration.
+
+# Keyword Arguments
+
+- `validate::Bool=method.validate`: Check an indefinite result by
+  differentiation.
+- `kwargs...`: Per-call options forwarded to the Maxima backend.
+
+# Returns
+
+A `Symbolics.Num` antiderivative or definite integral result.
+
+# Examples
+
+```julia
+@variables x
+integrate(exp(x), x, MaximaMethod())
+```
 """
 function integrate(f::Symbolics.Num, x::Symbolics.Num, method::MaximaMethod;
         validate=method.validate, kwargs...)
@@ -793,6 +1048,29 @@ end
 
 Simplify a Symbolics expression with Maxima and parse the exact result back into
 Julia. Exact special-function identities are enabled by default.
+
+# Arguments
+
+- `expr`: Symbolic expression to simplify.
+
+# Keyword Arguments
+
+- `method::MaximaMethod=MaximaMethod()`: Backend configuration.
+- `assumptions=method.assumptions`: Facts applied by Maxima.
+- `timeout=method.timeout`: Maximum seconds for the Maxima process.
+- `expand_special_functions::Bool=method.expand_special_functions`: Expand
+  exact special-function identities.
+
+# Returns
+
+The simplified result as a `Symbolics.Num`.
+
+# Examples
+
+```julia
+@variables x
+maxima_simplify((x + 1)^2)
+```
 """
 function maxima_simplify(expr; method::MaximaMethod=MaximaMethod(),
         assumptions=method.assumptions, timeout=method.timeout,
@@ -813,6 +1091,34 @@ Numerically evaluate a constant Symbolics expression with Maxima. Substitute all
 free variables first. Up to 16 decimal digits returns a Julia `Float64` or
 `ComplexF64`; larger values of `digits` return `BigFloat` or
 `Complex{BigFloat}` values.
+
+# Arguments
+
+- `expr`: Symbolic expression with no free variables.
+
+# Keyword Arguments
+
+- `method::MaximaMethod=MaximaMethod()`: Backend configuration.
+- `assumptions=method.assumptions`: Facts applied by Maxima.
+- `timeout=method.timeout`: Maximum seconds for the Maxima process.
+- `digits::Integer=16`: Requested decimal precision; values above 16 use
+  arbitrary precision.
+
+# Returns
+
+A real or complex floating-point value at the requested precision.
+
+# Throws
+
+`ArgumentError` when `digits < 2`, or `MaximaError` when the expression is not
+constant or cannot be converted to a number.
+
+# Examples
+
+```julia
+maxima_numeric(sin(pi / 4)^2)
+maxima_numeric(1 / 3; digits=32)
+```
 """
 function maxima_numeric(expr; method::MaximaMethod=MaximaMethod(),
         assumptions=method.assumptions, timeout=method.timeout, digits::Integer=16)
@@ -920,6 +1226,25 @@ end
     maxima_status([method=MaximaMethod()]; io=stdout) -> Bool
 
 Print the backend and Maxima versions and return whether Maxima is available.
+
+# Arguments
+
+- `method::MaximaMethod=MaximaMethod()`: Configuration whose executable is
+  queried.
+
+# Keyword Arguments
+
+- `io::IO=stdout`: Destination for the status lines.
+
+# Returns
+
+`true` when the configured Maxima executable is available; otherwise `false`.
+
+# Examples
+
+```julia
+maxima_status(MaximaMethod(timeout=10))
+```
 """
 function maxima_status(method::MaximaMethod=MaximaMethod(); io::IO=stdout)
     if !maxima_available(method.command)
@@ -940,6 +1265,20 @@ end
 
 Print a compact REPL guide. Julia's help mode also provides detailed entries:
 `?MaximaMethod`, `?maxima_integrate`, `?maxima_simplify`, and `?maxima_numeric`.
+
+# Arguments
+
+- `io::IO=stdout`: Destination for the guide.
+
+# Returns
+
+`nothing` after writing the guide.
+
+# Examples
+
+```julia
+maxima_help()
+```
 """
 function maxima_help(io::IO=stdout)
     print(io, """

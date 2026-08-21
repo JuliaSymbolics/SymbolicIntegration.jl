@@ -5,7 +5,10 @@ const TEST_GROUP = lowercase(get(ENV, "TEST_GROUP", "all"))
 if TEST_GROUP == "qa"
     using Pkg
     Pkg.activate(joinpath(@__DIR__, "qa"))
-    Pkg.develop(Pkg.PackageSpec(path = dirname(@__DIR__)))
+    Pkg.develop([
+        Pkg.PackageSpec(path = dirname(dirname(dirname(@__DIR__)))),
+        Pkg.PackageSpec(path = dirname(@__DIR__)),
+    ])
     Pkg.instantiate()
     include("qa/qa.jl")
     exit()

@@ -1,60 +1,15 @@
-# API Reference
-
-```@docs
-SymbolicIntegration
-```
-
-```@meta
-CurrentModule = SymbolicIntegration
-```
-
-## Integration Interface
-
-```@docs
-AbstractIntegrationMethod
-integrate
-RischMethod
-RuleBasedMethod
-reload_rules
-```
-
-## Differential Fields
-
-```@docs
-Derivation
-NullDerivation
-BasicDerivation
-ExtensionDerivation
-CoefficientLiftingDerivation
-TowerOfDifferentialFields
-BaseDerivation
-MonomialDerivative
-domain
-constant_field
-iscompatible
-is_Sirr1_eq_Sirr
-isbasic
-isprimitive
-ishyperexponential
-isnonlinear
-ishypertangent
-isnormal
-isspecial
-issimple
-isreduced
-```
-
-## Maxima Backend
+# SymbolicIntegrationMaxima API
 
 ```@meta
 CurrentModule = SymbolicIntegrationMaxima
 ```
 
-```@docs
-SymbolicIntegrationMaxima
-```
+The Maxima backend is selected explicitly by constructing a
+[`MaximaMethod`](@ref). The exported conversion and evaluation functions below
+are also useful when building a workflow around a running Maxima installation.
 
 ```@docs
+SymbolicIntegrationMaxima
 MaximaMethod
 MaximaError
 MaximaFunction
