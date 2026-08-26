@@ -219,7 +219,7 @@ function maxima_symbolic_call(f, args...)
     return Symbolics.wrap(SymbolicUtils.term(f, symbolic_args...; type=Number))
 end
 
-unwrap_for_symbolic_call(arg::Symbolics.Num) = Symbolics.unwrap(arg)
+unwrap_for_symbolic_call(arg::Symbolics.Num) = SymbolicUtils.unwrap(arg)
 unwrap_for_symbolic_call(arg::Complex) = arg
 unwrap_for_symbolic_call(arg) = arg
 
@@ -505,7 +505,7 @@ A Maxima syntax `String`.
 to_maxima((x^2 + 1) / 2) == "((x^2+1)/2)"
 ```
 """
-to_maxima(expr::Symbolics.Num) = to_maxima(Symbolics.unwrap(expr))
+to_maxima(expr::Symbolics.Num) = to_maxima(SymbolicUtils.unwrap(expr))
 to_maxima(expr::Integer) = string(expr)
 function to_maxima(expr::AbstractFloat)
     isinf(expr) && return expr > 0 ? "inf" : "minf"
