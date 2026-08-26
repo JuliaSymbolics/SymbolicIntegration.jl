@@ -1,4 +1,19 @@
 using Test
+
+const TEST_GROUP = lowercase(get(ENV, "TEST_GROUP", "all"))
+
+if TEST_GROUP == "qa"
+    using Pkg
+    Pkg.activate(joinpath(@__DIR__, "qa"))
+    Pkg.develop([
+        Pkg.PackageSpec(path = dirname(dirname(dirname(@__DIR__)))),
+        Pkg.PackageSpec(path = dirname(@__DIR__)),
+    ])
+    Pkg.instantiate()
+    include("qa/qa.jl")
+    exit()
+end
+
 using Symbolics
 using SymbolicIntegration
 using SymbolicIntegrationMaxima
@@ -7,7 +22,6 @@ using Elliptic
 using HypergeometricFunctions
 using PolyLog
 
-const TEST_GROUP = lowercase(get(ENV, "TEST_GROUP", "all"))
 const DIFFICULT_LIMIT = parse(Int, get(ENV, "MAXIMA_DIFFICULT_LIMIT", "25"))
 const COMPARISON_METHOD_FILTER = lowercase(get(ENV, "MAXIMA_COMPARISON_METHODS", "all"))
 

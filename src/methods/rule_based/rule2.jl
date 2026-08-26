@@ -176,7 +176,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         end
         # try building frankestein arg_data (f.a.d.), a matemathically equivalent but in different form
         fad = SymsType[]
-        is1divsmth = (operation(data) === /) && SymbolicUtils._isone(arg_data[1])
+        is1divsmth = (operation(data) === /) && symbolic_isone(arg_data[1])
         if is1divsmth && iscall(arg_data[2]) && (operation(arg_data[2]) === ^)
             # if data is of the alternative form 1/(...)^(...)
             push!(fad, arguments(arg_data[2])[1], -1*arguments(arg_data[2])[2])
@@ -189,7 +189,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         elseif is1divsmth
             # if data is of the alternative form 1/(...), it might match with exponent = -1
             push!(fad, arg_data[2], -1)
-        elseif (operation(data) === ^) && iscall(arg_data[1]) && (operation(arg_data[1]) === /) && SymbolicUtils._isone(arguments(arg_data[1])[1])
+        elseif (operation(data) === ^) && iscall(arg_data[1]) && (operation(arg_data[1]) === /) && symbolic_isone(arguments(arg_data[1])[1])
             # if data is of the alternative form (1/...)^(...)
             push!(fad, arguments(arg_data[1])[2], -1*arg_data[2])
         elseif operation(data)===exp
@@ -389,7 +389,7 @@ rule2 is a way to do pattern matching alternative to SymbolicUtils.jl
 # Arguments
 rule: of the form :(e1) => :(e2), where e1 is a Expr representing any
 symbolic operation
-expr: the input symbolic exprssion to check
+expr: the input symbolic expression to check
 """
 function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
     # global indentation_zero = length(stacktrace())

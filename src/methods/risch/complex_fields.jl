@@ -5,7 +5,7 @@
 `AbstractAlgebra`'s generic `residue_field`, bypassing any specialised
 dispatches a downstream package (e.g. Nemo) may have installed for specific
 ring/element types. The Risch tower-construction code relies on the result
-being an `AbstractAlgebra.ResField`, but Nemo's `residue_field(::QQPolyRing,
+being an `AbstractAlgebra.EuclideanRingResidueField`, but Nemo's `residue_field(::QQPolyRing,
 ::QQPolyRingElem)` returns an `AbsSimpleNumField` for irreducible quadratic
 moduli, which has no `ResField` API. Routing the constructor through
 `invoke` on the generic signature gives us a `Generic.EuclideanRingResidueField`
@@ -15,9 +15,9 @@ generic_residue_field(R::AbstractAlgebra.Ring, a::AbstractAlgebra.RingElement; c
     invoke(residue_field, Tuple{AbstractAlgebra.Ring, AbstractAlgebra.RingElement}, R, a; cached=cached)
 
 struct ComplexExtensionDerivation{T<:FieldElement, P<:PolyRingElem{T}} <: Derivation
-    domain::AbstractAlgebra.ResField{P}
+    domain::AbstractAlgebra.EuclideanRingResidueField{P}
     D::Derivation    
-    function ComplexExtensionDerivation(domain::AbstractAlgebra.ResField{P}, D::Derivation) where {T<:FieldElement, P<:PolyRingElem{T}}
+    function ComplexExtensionDerivation(domain::AbstractAlgebra.EuclideanRingResidueField{P}, D::Derivation) where {T<:FieldElement, P<:PolyRingElem{T}}
         # `D` must act on a field that the residue field's element-coefficient
         # type is built over. In the typical Risch tower the base derivation
         # acts on a polynomial ring inside a fraction field (so 3 base_rings
@@ -35,30 +35,28 @@ struct ComplexExtensionDerivation{T<:FieldElement, P<:PolyRingElem{T}} <: Deriva
     end
 end
 
-function Base.real(f::AbstractAlgebra.ResFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
+function Base.real(f::AbstractAlgebra.EuclideanRingResidueFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
     #m = modulus(f)
     #degree(m)==2 && isone(coeff(m, 0)) && iszero(coeff(m, 1)) && isone(coeff(m,2)) ||
     #    error("f must be element of residue field modulo X^2+1.")
     coeff(data(f), 0)
 end
 
-function Base.imag(f::AbstractAlgebra.ResFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
+function Base.imag(f::AbstractAlgebra.EuclideanRingResidueFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
     #m = modulus(f)
     #degree(m)==2 && isone(coeff(m, 0)) && iszero(coeff(m, 1)) && isone(coeff(m,2)) ||
     #    error("f must be element of residue field modulo X^2+1.")
     coeff(data(f), 1)
 end 
 
-import Base: (*)
-
-function (*)(c::F, f::K) where
-    {F<:AbstractAlgebra.ResFieldElem, T<:AbstractAlgebra.ResFieldElem, P<:PolyRingElem{T}, K<:FracElem{P}}
+function complex_multiply(c::F, f::K) where
+    {F<:AbstractAlgebra.EuclideanRingResidueFieldElem, T<:AbstractAlgebra.EuclideanRingResidueFieldElem, P<:PolyRingElem{T}, K<:FracElem{P}}
     I = get_I(parent(f))
     (real(c) + imag(c)*I)*f
 end
 
-function (*)(c::F, f::P) where
-    {F<:AbstractAlgebra.ResFieldElem, T<:AbstractAlgebra.ResFieldElem, P<:PolyRingElem{T}}
+function complex_multiply(c::F, f::P) where
+    {F<:AbstractAlgebra.EuclideanRingResidueFieldElem, T<:AbstractAlgebra.EuclideanRingResidueFieldElem, P<:PolyRingElem{T}}
     I = get_I(parent(f))
     (real(c) + imag(c)*I)*f
 end
@@ -75,10 +73,10 @@ function constant_field(D::ComplexExtensionDerivation)
     generic_residue_field(Cz, I^2+1)[1]
 end
 
-isconstant(f::AbstractAlgebra.ResFieldElem{P}, D::ComplexExtensionDerivation) where {T<:FieldElement, P<:PolyRingElem{T}} =
+isconstant(f::AbstractAlgebra.EuclideanRingResidueFieldElem{P}, D::ComplexExtensionDerivation) where {T<:FieldElement, P<:PolyRingElem{T}} =
     isconstant(real(f), D.D) && isconstant(imag(f), D.D)
 
-function constantize(f::AbstractAlgebra.ResFieldElem{P}, D::ComplexExtensionDerivation) where {T<:FieldElement, P<:PolyRingElem{T}} 
+function constantize(f::AbstractAlgebra.EuclideanRingResidueFieldElem{P}, D::ComplexExtensionDerivation) where {T<:FieldElement, P<:PolyRingElem{T}}
     u = constantize(real(f), D.D)
     v = constantize(imag(f), D.D)
     C = parent(u)
@@ -87,10 +85,10 @@ function constantize(f::AbstractAlgebra.ResFieldElem{P}, D::ComplexExtensionDeri
     CI(u+v*I)
 end
 
-isrational(f::AbstractAlgebra.ResFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}} =
+isrational(f::AbstractAlgebra.EuclideanRingResidueFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}} =
     isrational(real(f)) && iszero(imag(f))
 
-function rationalize(f::AbstractAlgebra.ResFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}} 
+function rationalize(f::AbstractAlgebra.EuclideanRingResidueFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
     iszero(imag(f)) || error("not rational")
     rationalize(real(f))
 end
@@ -101,12 +99,12 @@ contains_I(P::PolyRing{T}) where T<:RingElement = contains_I(base_ring(P))
 
 contains_I(F::FracField{T}) where T<:RingElement = contains_I(base_ring(F))
 
-function contains_I(F::AbstractAlgebra.ResField{P}) where {T<:FieldElement, P<:PolyRingElem{T}}    
+function contains_I(F::AbstractAlgebra.EuclideanRingResidueField{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
     m = modulus(F)
     if degree(m)==2 && isone(coeff(m, 0)) && iszero(coeff(m, 1)) && isone(coeff(m,2)) 
         return true
     else
-        error("contains_I not appplicable for residue field with modulus != X^2+1.")
+        error("contains_I not applicable for residue field with modulus != X^2+1.")
     end
 end
 
@@ -118,21 +116,21 @@ get_I(P::PolyRing{T}) where T<:RingElement = get_I(base_ring(P)) + zero(P)
 
 get_I(F::FracField{T}) where T<:RingElement = get_I(base_ring(F)) + zero(F)
 
-function get_I(F::AbstractAlgebra.ResField{P}) where {T<:FieldElement, P<:PolyRingElem{T}}    
+function get_I(F::AbstractAlgebra.EuclideanRingResidueField{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
     m = modulus(F)
     if degree(m)==2 && isone(coeff(m, 0)) && iszero(coeff(m, 1)) && isone(coeff(m,2)) 
         return gen(base_ring(F)) + zero(F)
     else
-        error("get_I not appplicable for residue field with modulus != X^2+1.")
+        error("get_I not applicable for residue field with modulus != X^2+1.")
     end
 end
 
-function conj(f::AbstractAlgebra.ResFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
+function conj(f::AbstractAlgebra.EuclideanRingResidueFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
     I = get_I(parent(f))
     real(f) - imag(f)*I
 end
 
-function (D::ComplexExtensionDerivation)(f::AbstractAlgebra.ResFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
+function (D::ComplexExtensionDerivation)(f::AbstractAlgebra.EuclideanRingResidueFieldElem{P}) where {T<:FieldElement, P<:PolyRingElem{T}}
     iscompatible(f, D) || error("f not in domain of D")
     #m = modulus(f)
     #degree(m)==2 && isone(coeff(m, 0)) && iszero(coeff(m, 1)) && isone(coeff(m,2)) ||
@@ -170,7 +168,7 @@ return the field `K1=k(√-1)(t)`, the generators `t` and `I≈√-1` for `K1`, 
 the derivation `D1` on `K1` corresponding to `D`
 such that the differential fields `(K,D)` and `(K1,D1)` are isomorphic.
 """
-function switch_t_i(K::AbstractAlgebra.ResField{P}, D::Derivation) where 
+function switch_t_i(K::AbstractAlgebra.EuclideanRingResidueField{P}, D::Derivation) where
     {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}}
     domain(D)==K || error("K must be the domain of D")        
     k = base_ring(base_ring(base_ring(base_ring(K))))
@@ -201,7 +199,7 @@ and the generators `t` and `I≈√-1` for the field `K1=k(√-1)(t)`
 `f1` in `K1`
 """
 function transform(f::K, t, I) where 
-    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.ResFieldElem{P}}
+    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.EuclideanRingResidueFieldElem{P}}
     a = numerator(real(f))(t)
     b = denominator(real(f))(t)
     c = numerator(imag(f))(t)
@@ -220,7 +218,7 @@ field `K1=k(t)(√-1)`, return the corresponding element
 `f1` in `K1`
 """
 function backtransform(f::K, t, I) where
-    {T<:AbstractAlgebra.ResFieldElem, P<:PolyRingElem{T}, K<:FracElem{P}}
+    {T<:AbstractAlgebra.EuclideanRingResidueFieldElem, P<:PolyRingElem{T}, K<:FracElem{P}}
     u = map_coefficients(c->real(c), numerator(f))(t)
     v = map_coefficients(c->imag(c), numerator(f))(t)
     z = map_coefficients(c->real(c), denominator(f))(t)
@@ -231,7 +229,7 @@ end
 
 
 function InFieldDerivative(f::K, D::ComplexExtensionDerivation) where 
-    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.ResFieldElem{P}}
+    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.EuclideanRingResidueFieldElem{P}}
     ktI = parent(f)
     I0 = ktI(gen(base_ring(ktI)))
     t0 = gen(base_ring(base_ring(base_ring(ktI))))
@@ -244,7 +242,7 @@ end
 #Note: InFieldLogarithmicDerivative is merely a wrapper for InFieldLogarithmicDerivativeOfRadical
 
 function InFieldLogarithmicDerivativeOfRadical(f::K, D::ComplexExtensionDerivation; expect_one::Bool=false) where 
-    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.ResFieldElem{P}}
+    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.EuclideanRingResidueFieldElem{P}}
     ktI = parent(f)
     I0 = ktI(gen(base_ring(ktI)))
     t0 = gen(base_ring(base_ring(base_ring(ktI))))
@@ -255,7 +253,7 @@ function InFieldLogarithmicDerivativeOfRadical(f::K, D::ComplexExtensionDerivati
 end
 
 function RischDE(f::K, g::K, D::ComplexExtensionDerivation) where 
-    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.ResFieldElem{P}}
+    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.EuclideanRingResidueFieldElem{P}}
     ktI = parent(f)
     I0 = ktI(gen(base_ring(ktI)))
     t0 = gen(base_ring(base_ring(base_ring(ktI))))
@@ -267,7 +265,7 @@ function RischDE(f::K, g::K, D::ComplexExtensionDerivation) where
 end
 
 function ParamRischDE(f::K, gs::Vector{K}, D::ComplexExtensionDerivation) where 
-    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.ResFieldElem{P}}
+    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.EuclideanRingResidueFieldElem{P}}
     ktI = parent(f)
     I0 = ktI(gen(base_ring(ktI)))
     t0 = gen(base_ring(base_ring(base_ring(ktI))))    
@@ -279,7 +277,7 @@ function ParamRischDE(f::K, gs::Vector{K}, D::ComplexExtensionDerivation) where
 end
 
 function LimitedIntegrate(f::K, w::K, D::ComplexExtensionDerivation) where 
-    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.ResFieldElem{P}}
+    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.EuclideanRingResidueFieldElem{P}}
     ktI = parent(f)
     I0 = ktI(gen(base_ring(ktI)))
     t0 = gen(base_ring(base_ring(base_ring(ktI))))
@@ -291,7 +289,7 @@ function LimitedIntegrate(f::K, w::K, D::ComplexExtensionDerivation) where
 end
 
 function ParametricLogarithmicDerivative(f::K, w::K, D::ComplexExtensionDerivation) where
-    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.ResFieldElem{P}}
+    {T<:FieldElement, R<:PolyRingElem{T}, F<:FracElem{R}, P<:PolyRingElem{F}, K<:AbstractAlgebra.EuclideanRingResidueFieldElem{P}}
     ktI = parent(f)
     I0 = ktI(gen(base_ring(ktI)))
     t0 = gen(base_ring(base_ring(base_ring(ktI))))

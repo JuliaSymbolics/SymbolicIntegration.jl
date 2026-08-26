@@ -5,6 +5,15 @@ using AbstractAlgebra
 
 const TEST_GROUP = get(ENV, "TEST_GROUP", "all")
 
+if lowercase(TEST_GROUP) == "qa"
+    using Pkg
+    Pkg.activate(joinpath(@__DIR__, "qa"))
+    Pkg.develop(Pkg.PackageSpec(path = dirname(@__DIR__)))
+    Pkg.instantiate()
+    include("qa/qa.jl")
+    exit()
+end
+
 struct TestIntegrationMethod <: AbstractIntegrationMethod end
 
 function SymbolicIntegration.integrate(

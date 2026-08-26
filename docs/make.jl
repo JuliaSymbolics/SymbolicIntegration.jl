@@ -1,8 +1,8 @@
-using Documenter, SymbolicIntegration, Symbolics
+using Documenter, SymbolicIntegration, SymbolicIntegrationMaxima, Symbolics
 
 makedocs(
     sitename="SymbolicIntegration.jl",
-    modules=[SymbolicIntegration],
+    modules=[SymbolicIntegration, SymbolicIntegrationMaxima],
     clean=true,
     doctest=true,
     linkcheck=false,

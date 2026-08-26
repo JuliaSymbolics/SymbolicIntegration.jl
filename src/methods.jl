@@ -26,6 +26,31 @@ end
 The generic interface is intentionally based on dispatch rather than a
 registration table. Do not mutate the built-in method types or rely on
 internal rule functions when implementing a backend.
+
+# Interface rules
+
+1. Define a concrete subtype with only configuration state needed by the
+   backend.
+2. Add an `integrate(f, x, method; kwargs...)` method; do not replace the
+   generic two-argument dispatch.
+3. Accept symbolic integrands and variables as `Symbolics.Num` values and
+   return a symbolic result, including an unevaluated integral when the backend
+   cannot solve the input.
+4. Keep backend-specific keywords on the concrete method and forward only
+   keywords that the backend understands.
+
+# Generic usage
+
+```julia
+struct MyMethod <: AbstractIntegrationMethod end
+
+function integrate(f::Symbolics.Num, x::Symbolics.Num, ::MyMethod; kwargs...)
+    return f * x
+end
+
+@variables x
+integrate(x, x, MyMethod())
+```
 """
 abstract type AbstractIntegrationMethod end
 
@@ -158,6 +183,18 @@ return `nothing` after emitting a warning.
 # Keyword Arguments
 
 - `kwargs...`: Forwarded to the selected integration method.
+
+# Returns
+
+A symbolic antiderivative when `f` has exactly one variable, or `nothing` with
+a warning when it has zero or multiple variables.
+
+# Examples
+
+```julia
+@variables x
+integrate(exp(x))
+```
 """
 function integrate(f::Symbolics.Num, method::M=nothing; kwargs...) where M<:Union{AbstractIntegrationMethod,Nothing}
     vars = Symbolics.get_variables(f)

@@ -134,11 +134,11 @@ function repeated_prewalk(expr; visited::Set=Set())
         end
     end
 
-    expr = SymbolicUtils.maketerm(
+    expr = maketerm(
         typeof(expr), 
         operation(expr), 
         map(repeated_prewalk, arguments(expr)), 
-        SymbolicUtils.metadata(expr)
+        metadata(expr)
     )
 
     return expr
