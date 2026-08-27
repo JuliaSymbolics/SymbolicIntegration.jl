@@ -153,7 +153,7 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         !iscall(data) && return FAIL_DICT::MatchDict
         (Symbol(operation(data)) !== rule.args[1]) && return FAIL_DICT::MatchDict
         # return the whole data (not only vector of arguments as in rule1)
-        return Base.ImmutableDict(matches, rule.args[2].args[2].args[2], data)::MatchDict
+        return MatchDict(matches, rule.args[2].args[2].args[2], data)::MatchDict
     end
 
     # ((4)) rational is a special case, in the integration rules is present only in between numbers, like 1//2
@@ -312,11 +312,11 @@ helper function for when you reach the end of the symbolic tree and you either:
             # printdb(5, "about to check defslot predicate $pred with eval")
             !Base.invokelatest(eval(pred),SymbolicUtils.unwrap_const(value_matched)) && return FAIL_DICT
             # printdb(4, "adding defslot match $(rule_symbol.args[1]) => $value_matched")
-            return Base.ImmutableDict(current_dict, rule_symbol.args[1], value_matched)::MatchDict
+            return MatchDict(current_dict, rule_symbol.args[1], value_matched)::MatchDict
         end
         # if no predicate add match
         # printdb(4, "adding defslot match $rule_symbol => $value_matched to rditct: $(current_dict...)")
-        return Base.ImmutableDict(current_dict, rule_symbol, value_matched)::MatchDict
+        return MatchDict(current_dict, rule_symbol, value_matched)::MatchDict
     end
 end
 
