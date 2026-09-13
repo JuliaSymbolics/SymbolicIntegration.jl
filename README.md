@@ -22,7 +22,7 @@ The first argument is the expression to integrate, second argument is the integr
 
 You can explicitly choose a integration method like this:
 ```julia
-risch = RischMethod(use_algebraic_closure=true, catch_errors=false)
+risch = RischMethod(catch_errors=false)
 integrate(f, x, risch)
 ```
 or like this:
