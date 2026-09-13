@@ -89,6 +89,71 @@ end
 
 to_symb(t::QQFieldElem) = to_symb(Rational(t))
 
+# Only prime factors up to this bound are pulled out of a radicand by
+# `split_perfect_square`, so that a huge radicand cannot make its loop run away.
+const PERFECT_SQUARE_TRIAL_LIMIT = 10000
+
+"""
+    split_perfect_square(n::Integer)
+
+Write the nonnegative integer `n` as `n == s^2*r` and return `(s, r)`.
+
+Prime factors are removed by trial division up to
+`PERFECT_SQUARE_TRIAL_LIMIT`, then the remaining cofactor is tested for being a
+perfect square itself. Any pair with `n == s^2*r` is a correct answer; a larger
+`s` only yields a tidier radical, so bounding the search costs exactness
+nothing.
+"""
+function split_perfect_square(n::Integer)
+    s, r = big(1), big(n)
+    p = big(2)
+    while p <= PERFECT_SQUARE_TRIAL_LIMIT && p*p <= r
+        while iszero(mod(r, p*p))
+            r = r ÷ (p*p)
+            s *= p
+        end
+        p += 1
+    end
+    q = isqrt(r)
+    if q*q == r
+        s *= q
+        r = big(1)
+    end
+    (s, r)
+end
+
+# Keep small results out of `BigInt` so that they read like the other exact
+# coefficients in an antiderivative.
+narrow_integer(n::Integer) = typemin(Int) <= n <= typemax(Int) ? Int(n) : n
+
+"""
+    exact_sqrt(y)
+
+Square root of the nonnegative integer or rational `y` as an exact expression.
+
+Julia's `sqrt` returns a floating point number for integer and rational
+arguments, which would silently make an otherwise exact antiderivative inexact.
+The radical is therefore kept as an unevaluated symbolic `sqrt` term with its
+largest perfect square factor pulled out, so `exact_sqrt(12//49)` gives
+`(2//7)*sqrt(3)` and `exact_sqrt(4)` gives `2`.
+
+Building an exact constant is not specific to integration, and this would sit
+better in SymbolicUtils, where anything symbolic could reach it. It is proposed
+there in JuliaSymbolics/SymbolicUtils.jl#1081; if that lands, this helper and
+`split_perfect_square` should be dropped in favour of it.
+"""
+function exact_sqrt(y::Union{Integer, Rational})
+    y >= 0 || throw(DomainError(y, "exact_sqrt requires a nonnegative argument"))
+    iszero(y) && return 0
+    # sqrt(num//den) == sqrt(num*den)//den
+    num, den = big(numerator(y)), big(denominator(y))
+    s, r = split_perfect_square(num*den)
+    c = to_symb(s//den)
+    isone(r) && return c
+    radical = SymbolicUtils.term(sqrt, narrow_integer(r))
+    isone(c) ? radical : c*radical
+end
+
 function to_symb(t::QQBarFieldElem)
     if degree(t)==1 
         return to_symb(Rational{BigInt}(t))
@@ -99,15 +164,15 @@ function to_symb(t::QQBarFieldElem)
         y = to_symb(-coeff(f,0)//coeff(f, 2))
         if y>=0
             if t==maximum(conjugates(t))
-                return sqrt(y)
+                return exact_sqrt(y)
             else
-                return -sqrt(y)
+                return -exact_sqrt(y)
             end
         else
             if imag(t)==maximum(imag.(conjugates(t)))
-                return sqrt(-y)*1im
+                return exact_sqrt(-y)*im
             else
-                return -sqrt(-y)*1im
+                return -exact_sqrt(-y)*im
             end
         end
     elseif degree(f)==2 # coeff(f,1)!=0
