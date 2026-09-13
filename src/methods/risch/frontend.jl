@@ -136,6 +136,11 @@ arguments, which would silently make an otherwise exact antiderivative inexact.
 The radical is therefore kept as an unevaluated symbolic `sqrt` term with its
 largest perfect square factor pulled out, so `exact_sqrt(12//49)` gives
 `(2//7)*sqrt(3)` and `exact_sqrt(4)` gives `2`.
+
+Building an exact constant is not specific to integration, and this would sit
+better in SymbolicUtils, where anything symbolic could reach it. It is proposed
+there in JuliaSymbolics/SymbolicUtils.jl#1081; if that lands, this helper and
+`split_perfect_square` should be dropped in favour of it.
 """
 function exact_sqrt(y::Union{Integer, Rational})
     y >= 0 || throw(DomainError(y, "exact_sqrt requires a nonnegative argument"))
