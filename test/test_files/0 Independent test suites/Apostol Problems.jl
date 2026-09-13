@@ -329,7 +329,7 @@ file_tests = [
 # Example 1
 
 
-(1/(sin(x) + cos(x)), -(atanh((cos(x) - sin(x))/sqrt(2))/sqrt(2)), x, 2),
+(1/(sin(x) + cos(x)), -(atanh((cos(x) - sin(x))/Symbolics.Num(SymbolicIntegration.exact_sqrt(2)))/Symbolics.Num(SymbolicIntegration.exact_sqrt(2))), x, 2),
 
 
 # ::Subsection::Closed::
@@ -398,11 +398,11 @@ file_tests = [
 
 (1/(a*sin(x) + b*cos(x))^2, sin(x)/(b*(b*cos(x) + a*sin(x))), x, 1),
 (sin(x)/(1 + sin(x) + cos(x)), x/2 - (1⨸2)*log(1 + cos(x) + sin(x)) - (1⨸2)*log(1 + tan(x/2)), x, 3),
-(sqrt(3 - x^2), (1⨸2)*x*sqrt(3 - x^2) + (3⨸2)*asin(x/sqrt(3)), x, 2),
+(sqrt(3 - x^2), (1⨸2)*x*sqrt(3 - x^2) + (3⨸2)*asin(x/Symbolics.Num(SymbolicIntegration.exact_sqrt(3))), x, 2),
 (x/sqrt(3 - x^2), -sqrt(3 - x^2), x, 1),
 (sqrt(3 - x^2)/x, sqrt(3 - x^2) - sqrt(3)*atanh(sqrt(3 - x^2)/sqrt(3)), x, 4),
 (sqrt(x^2 + x)/x, sqrt(x + x^2) + atanh(x/sqrt(x + x^2)), x, 3),
-(sqrt(x^2 + 5), (1⨸2)*x*sqrt(5 + x^2) + (5⨸2)*asinh(x/sqrt(5)), x, 2),
+(sqrt(x^2 + 5), (1⨸2)*x*sqrt(5 + x^2) + (5⨸2)*asinh(x/Symbolics.Num(SymbolicIntegration.exact_sqrt(5))), x, 2),
 (x/sqrt(x^2 + x + 1), sqrt(1 + x + x^2) - (1⨸2)*asinh((1 + 2*x)/sqrt(3)), x, 3),
 (1/sqrt(x^2 + x), 2*atanh(x/sqrt(x + x^2)), x, 2),
 (sqrt(2 - x - x^2)/x^2, -(sqrt(2 - x - x^2)/x) + asin((1⨸3)*(-1 - 2*x)) + atanh((4 - x)/(2*sqrt(2)*sqrt(2 - x - x^2)))/(2*sqrt(2)), x, 6),
@@ -477,6 +477,6 @@ file_tests = [
 # Exercise 30
 
 
-(1/(1 + t^3)^(1⨸2), (2*sqrt(2 + sqrt(3))*(1 + t)*sqrt((1 - t + t^2)/(1 + sqrt(3) + t)^2)*SymbolicIntegration.elliptic_f(asin((1 - sqrt(3) + t)/(1 + sqrt(3) + t)), -7 - 4*sqrt(3)))/(3^(1⨸4)*sqrt((1 + t)/(1 + sqrt(3) + t)^2)*sqrt(1 + t^3)), t, 1),
+(1/(1 + t^3)^(1⨸2), (2*sqrt(2 + Symbolics.Num(SymbolicIntegration.exact_sqrt(3)))*(1 + t)*sqrt((1 - t + t^2)/(1 + Symbolics.Num(SymbolicIntegration.exact_sqrt(3)) + t)^2)*SymbolicIntegration.elliptic_f(asin((1 - Symbolics.Num(SymbolicIntegration.exact_sqrt(3)) + t)/(1 + Symbolics.Num(SymbolicIntegration.exact_sqrt(3)) + t)), -7 - 4*Symbolics.Num(SymbolicIntegration.exact_sqrt(3))))/(3^(1⨸4)*sqrt((1 + t)/(1 + Symbolics.Num(SymbolicIntegration.exact_sqrt(3)) + t)^2)*sqrt(1 + t^3)), t, 1),
 ]
 # Total integrals translated: 175

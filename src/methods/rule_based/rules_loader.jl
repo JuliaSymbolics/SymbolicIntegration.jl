@@ -29,7 +29,10 @@ function load_rules(rules_paths)
         # add rules
         Base.include_string(@__MODULE__, read(file, String), file)
         local_file_rules = Base.invokelatest(() -> file_rules) # Use Base.invokelatest to handle world age issues in Julia 1.12+
-        append!(RULES, [x[2] for x in local_file_rules])
+        # Rewrite literal square roots on the replacement side only; the match
+        # side must keep the `sqrt` the matcher looks for by name.
+        append!(RULES, [x[2].first => exact_roots_in_rhs(x[2].second)
+                        for x in local_file_rules])
         append!(IDENTIFIERS, [x[1] for x in local_file_rules])
     end
     print("\e[1A\e[2K\e[1A\e[2K")
