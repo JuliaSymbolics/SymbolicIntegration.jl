@@ -146,7 +146,7 @@ function convolution(a::Vector{T}, b::Vector{T}, s::Int; output_size::Int=0) whe
         return T[]
     end
     R = m!=0 ? parent(a[1]) : parent(b[1])
-    c = zeros(R, output_size<=0 ? max(m, n) : output_size)
+    c = zero_array(R, output_size<=0 ? max(m, n) : output_size)
     for t = (s==+1 ? 0 : 1):(m-1)
         for k=1:min(m-t, n)
             c[t+1] += a[k+t]*b[k]
