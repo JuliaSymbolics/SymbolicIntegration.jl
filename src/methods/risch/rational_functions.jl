@@ -191,8 +191,14 @@ function LogToReal(t::SumOfLogTerms; symbols=[:α, :β]) #{T, PP}) where {T<:Fie
     SumOfRealTerms(t.R, t.S, P, Q, FunctionTerm(log, 1, A^2+B^2), LogToAtan(A, B))
 end
 
+# Only real numbers have a sign. `QQBarFieldElem` throws
+# `DomainError: comparing nonreal numbers` when compared with `<`, so a nonreal
+# coefficient is reported as not negative rather than making the comparison.
+has_negative_sign(c) = c < 0
+has_negative_sign(c::QQBarFieldElem) = iszero(imag(c)) && real(c) < 0
+
 function positive_constant_coefficient(f::PolyRingElem)
-    if constant_coefficient(f)<0
+    if has_negative_sign(constant_coefficient(f))
         return -f
     else
         return f
