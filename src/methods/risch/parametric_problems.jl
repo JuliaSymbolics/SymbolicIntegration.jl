@@ -597,7 +597,7 @@ function ParamPolyRischDENoCancel1(b::P, qs::Vector{P}, D::Derivation, n::Int) w
     A = ConstantSystem(M, BaseDerivation(D))
     C = constant_field(D)
     neq = size(A, 1)
-    A = vcat(hcat(A, zeros(C, neq, m)), zeros(C, m, 2*m))
+    A = vcat(hcat(A, zero_array(C, neq, m)), zero_array(C, m, 2*m))
     for i=1:m
         A[i+neq, i] = one(C)
         A[i+neq, m+i] = -one(C)
@@ -663,7 +663,7 @@ function ParamPolyRischDENoCancel2(b::P,  qs::Vector{P}, D::Derivation, n::Int) 
         M = [coeff(q, i) for i=0:dc, q in qs]
         A = ConstantSystem(M, BaseDerivation(D))
         neq = size(A, 1)
-        A = vcat(hcat(A, zeros(C, neq, m)), zeros(C, m, 2*m))
+        A = vcat(hcat(A, zero_array(C, neq, m)), zero_array(C, m, 2*m))
         for i=1:m
             A[i+neq, i] = one(C)
             A[i+neq, m+i] = -one(C)
@@ -683,7 +683,7 @@ function ParamPolyRischDENoCancel2(b::P,  qs::Vector{P}, D::Derivation, n::Int) 
             dc = maximum([degree(q) for q in qs])
         end
         r = length(fs)
-        M = zeros(parent(b0), dc+1, m+r)
+        M = zero_array(parent(b0), dc+1, m+r)
         for i=0:dc
             for j = 1:m
                 M[i+1,j] = coeff(qs[j], i)
@@ -697,7 +697,7 @@ function ParamPolyRischDENoCancel2(b::P,  qs::Vector{P}, D::Derivation, n::Int) 
         A = ConstantSystem(M, D0)
         A = vcat(A, B)
         neq = size(A, 1)
-        A = vcat(hcat(A, zeros(C, neq, m)), zeros(C, m, 2*m+r))
+        A = vcat(hcat(A, zero_array(C, neq, m)), zero_array(C, m, 2*m+r))
         for i=1:m
             A[i+neq, i] = one(C)
             A[i+neq, m+r+i] = -one(C)
@@ -733,7 +733,7 @@ function ParamPolyRischDECancelLiouvillian(b::T,  qs::Vector{P}, D::Derivation, 
     m = length(qs)
     C = constant_field(D)
     if iszero(b) && all([iszero(q) for q in qs])
-        return P[], zeros(C, 0, m)
+        return P[], zero_array(C, 0, m)
     end
     H = MonomialDerivative(D)
     if ishyperexponential(D)
@@ -754,7 +754,7 @@ function ParamPolyRischDECancelLiouvillian(b::T,  qs::Vector{P}, D::Derivation, 
             hs = hns
             first = false
         else
-            A = vcat( hcat(A, zeros(C, size(A, 1),   size(An,2) - size(A, 2) )),
+            A = vcat( hcat(A, zero_array(C, size(A, 1),   size(An,2) - size(A, 2) )),
                            An)
             hs = vcat(hs, hns)
         end
@@ -767,7 +767,7 @@ function ParamPolyRischDECancelLiouvillian(b::T,  qs::Vector{P}, D::Derivation, 
     else
         dc = max( maximum([degree(q) for q in qs]), maximum([degree(Dhbh) for Dhbh in Dhbhs]))
     end
-    M = zeros(parent(b), dc+1, m+r)
+    M = zero_array(parent(b), dc+1, m+r)
     for i=0:dc
         for j = 1:m
             M[i+1,j] = coeff(qs[j], i)
@@ -859,7 +859,7 @@ function ParamPolyCoeffsRischDE(a::P, b::P, gs::Vector{F}, D::Derivation;
         n = ParamRdeBoundDegree(a, b, qs, D)
     end
     aprod = one(parent(a))
-    Rs = zeros(parent(a//one(a)), m)
+    Rs = zero_array(parent(a//one(a)), m)
     while n>=0 && degree(a)>0
         a0 = a
         a, b, qs, rs, n = ParSPDE(a, b, qs, D, n)
@@ -883,13 +883,13 @@ function ParamPolyCoeffsRischDE(a::P, b::P, gs::Vector{F}, D::Derivation;
         b = divexact(b, a)
         qs = [divexact(q, a) for q in qs]
         hs, A1 = ParamPolyRischDE(b, qs, D, n)
-        A = vcat(hcat(A, zeros(C, size(A, 1), length(hs))), A1)
+        A = vcat(hcat(A, zero_array(C, size(A, 1), length(hs))), A1)
     end
     r = length(hs)
     s = sum([1 for R in Rs if !iszero(R)])
     hs = vcat([aprod*h//1 for h in hs], [aprod*R for R in Rs if !iszero(R)])    
     neq = size(A, 1)
-    A = vcat(hcat(A, zeros(C, neq, s)), zeros(C, s, m+r+s))
+    A = vcat(hcat(A, zero_array(C, neq, s)), zero_array(C, s, m+r+s))
     i1 = 0
     for i=1:m
         if !iszero(Rs[i])
@@ -931,7 +931,7 @@ function ParamRischDE(f::F, gs::Vector{F}, D::Derivation) where F<:FieldElement
         hs = [one(parent(f))]
         A = reshape(vcat(gs, zero(parent(f))), (1, m+1))
     else
-        A = zeros(C, m , 2*m) 
+        A = zero_array(C, m , 2*m) 
         for i=1:m
             A[i, i] = one(C)
             A[i, m+i] = -one(C)
