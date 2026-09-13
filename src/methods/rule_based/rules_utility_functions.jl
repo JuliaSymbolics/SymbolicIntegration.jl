@@ -58,6 +58,42 @@ end
 # to distinguish between symbolic expressions and numbers
 s(u) = isa(SymbolicUtils.unwrap(u), SymbolicUtils.BasicSymbolic)
 
+"""
+    constant_value(u)
+
+Numeric value of `u` if `u` denotes a constant, `nothing` otherwise.
+
+Rule replacements carry exact radicals such as `sqrt(2)`, which are symbolic
+objects that still denote a number. The predicates below have to decide on that
+number: treated as an opaque symbol, such a constant makes the comparisons give
+up and `pos` fall through to its "assume positive" default, so rules pick the
+branch for the wrong sign. Deciding on the value keeps the *form* exact while
+restoring the decisions taken when these constants were floats.
+"""
+function constant_value(u)
+    u = SymbolicUtils.unwrap_const(SymbolicUtils.unwrap(u))
+    u isa Number && return u
+    SymbolicUtils.iscall(u) || return nothing
+    args = Any[]
+    for a in SymbolicUtils.arguments(u)
+        v = constant_value(a)
+        v === nothing && return nothing
+        push!(args, v)
+    end
+    try
+        SymbolicUtils.operation(u)(args...)
+    catch
+        nothing
+    end
+end
+
+# Real value of `u` when it is a real constant, `nothing` otherwise.
+function real_constant_value(u)
+    c = constant_value(u)
+    (c === nothing || !isreal(c)) && return nothing
+    real(c)
+end
+
 function eq(a, b)
     a = SymbolicUtils.unwrap_const(a)
     b = SymbolicUtils.unwrap_const(b)
@@ -255,25 +291,37 @@ end
 function gt(u, v)
     u = SymbolicUtils.unwrap_const(u)
     v = SymbolicUtils.unwrap_const(v)
-    (s(u) || s(v)) ? false : u > v
+    (s(u) || s(v)) || return u > v
+    cu, cv = real_constant_value(u), real_constant_value(v)
+    (cu === nothing || cv === nothing) && return false
+    cu > cv
 end
 gt(u, v, w) = gt(u, v) && gt(v, w)
 function ge(u, v)
     u = SymbolicUtils.unwrap_const(u)
     v = SymbolicUtils.unwrap_const(v)
-    (s(u) || s(v)) ? false : u >= v
+    (s(u) || s(v)) || return u >= v
+    cu, cv = real_constant_value(u), real_constant_value(v)
+    (cu === nothing || cv === nothing) && return false
+    cu >= cv
 end
 ge(u, v, w) = ge(u, v) && ge(v, w)
 function lt(u, v)
     u = SymbolicUtils.unwrap_const(u)
     v = SymbolicUtils.unwrap_const(v)
-    (s(u) || s(v)) ? false : u < v
+    (s(u) || s(v)) || return u < v
+    cu, cv = real_constant_value(u), real_constant_value(v)
+    (cu === nothing || cv === nothing) && return false
+    cu < cv
 end
 lt(u, v, w) = lt(u, v) && lt(v, w)
 function le(u, v)
     u = SymbolicUtils.unwrap_const(u)
     v = SymbolicUtils.unwrap_const(v)
-    (s(u) || s(v)) ? false : u <= v
+    (s(u) || s(v)) || return u <= v
+    cu, cv = real_constant_value(u), real_constant_value(v)
+    (cu === nothing || cv === nothing) && return false
+    cu <= cv
 end
 le(u, v, w) = le(u, v) && le(v, w)
 
@@ -283,6 +331,42 @@ ige(a, b) = ext_isinteger(a) && ge(a, b)
 ilt(a, b) = ext_isinteger(a) && lt(a, b)
 ile(a, b) = ext_isinteger(a) && le(a, b)
 
+"""
+    rubi_sqrt(u)
+
+Square root used in the replacement side of the rule table.
+
+The rules are written with literal square roots such as `sqrt(3)`, and the
+replacement side is `eval`ed once a rule fires, so `sqrt` would be Julia's and
+would return a float for an exact argument, making the whole antiderivative
+inexact. Exact arguments therefore go through [`exact_sqrt`](@ref); everything
+else, in particular the symbolic arguments of rules like
+`sqrt((~a) + (~b)*(~x)^2)`, falls back to `sqrt` unchanged.
+"""
+rubi_sqrt(u) = sqrt(u)
+rubi_sqrt(u::Union{Integer, Rational}) =
+    u >= 0 ? exact_sqrt(u) : exact_sqrt(-u)*im
+
+"""
+    exact_roots_in_rhs(rhs)
+
+Rewrite `sqrt` calls in the replacement side of a rule into [`rubi_sqrt`](@ref).
+
+Only the replacement side may be rewritten. `sqrt` also appears in the *match*
+side of rules such as `1/sqrt((~a) + (~b)*(~x)^2)`, and the matcher compares
+those by name (`rule.args[1] === :sqrt` in `check_expr_r`), so renaming it there
+would stop every integrand containing a square root from matching.
+"""
+function exact_roots_in_rhs(rhs::Expr)
+    args = Any[exact_roots_in_rhs(a) for a in rhs.args]
+    if rhs.head === :call && !isempty(args) && args[1] === :sqrt
+        args[1] = :rubi_sqrt
+    end
+    Expr(rhs.head, args...)
+end
+
+exact_roots_in_rhs(x) = x
+
 # returns the simplest nth root of u
 # TODO this doesnt allow for exact simplification of roots, maybe use SymbolicUtils.Pow{Real}(u, 1⨸n)?
 function rt(u, n::Integer)
@@ -290,7 +374,7 @@ function rt(u, n::Integer)
     if !s(u) && u<0
         u=Complex(u)
     end
-    n==2 && return sqrt(u)
+    n==2 && return rubi_sqrt(u)
     return u^(1⨸n)
 end
 
@@ -298,6 +382,8 @@ end
 function pos(u)
     u = SymbolicUtils.unwrap(u)
     !s(u) && return !eq(u, 0) && (u>0)
+    c = real_constant_value(u)
+    c === nothing || return c > 0
     u = simplify(u)
     atom(u) && return true
     (isprod(u) || isdiv(u)) && return all(pos(arg) for arg in Symbolics.arguments(u))
