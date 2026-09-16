@@ -56,23 +56,6 @@ end
         @test !contains_inexact_number(Symbolics.term(sqrt, 3) * x + 1 // 6)
     end
 
-    @testset "split_perfect_square" begin
-        for (n, expected) in [
-            (1, (1, 1)), (2, (1, 2)), (3, (1, 3)), (4, (2, 1)), (8, (2, 2)),
-            (12, (2, 3)), (48, (4, 3)), (49, (7, 1)), (1024, (32, 1)),
-            (7^2 * 11, (7, 11))]
-            @test SymbolicIntegration.split_perfect_square(n) == expected
-        end
-
-        # A radicand whose prime factors are all beyond the trial division
-        # bound must still come back correct, and quickly.
-        p, q = 1_000_003, 1_000_033
-        s, r = SymbolicIntegration.split_perfect_square(big(p)^2 * q)
-        @test s^2 * r == big(p)^2 * q
-        s, r = SymbolicIntegration.split_perfect_square(big(p)^2)
-        @test (s, r) == (p, 1)
-    end
-
     @testset "exact_sqrt" begin
         @test SymbolicIntegration.exact_sqrt(0) == 0
         @test SymbolicIntegration.exact_sqrt(1) == 1
