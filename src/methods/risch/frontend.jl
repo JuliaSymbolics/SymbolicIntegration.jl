@@ -89,11 +89,6 @@ end
 
 to_symb(t::QQFieldElem) = to_symb(Rational(t))
 
-function exact_sqrt(y::Union{Integer, Rational})
-    y >= 0 || throw(DomainError(y, "exact_sqrt requires a nonnegative argument"))
-    return SymbolicUtils.simplify(SymbolicUtils.term(sqrt, y))
-end
-
 function to_symb(t::QQBarFieldElem)
     if degree(t)==1 
         return to_symb(Rational{BigInt}(t))
@@ -103,16 +98,18 @@ function to_symb(t::QQBarFieldElem)
     if degree(f)==2 && iszero(coeff(f,1))
         y = to_symb(-coeff(f,0)//coeff(f, 2))
         if y>=0
+            term_sqrt = SymbolicUtils.simplify(SymbolicUtils.term(sqrt, y))
             if t==maximum(conjugates(t))
-                return exact_sqrt(y)
+                return term_sqrt
             else
-                return -exact_sqrt(y)
+                return -term_sqrt
             end
         else
+            term_sqrt = SymbolicUtils.simplify(SymbolicUtils.term(sqrt, -y))
             if imag(t)==maximum(imag.(conjugates(t)))
-                return exact_sqrt(-y)*im
+                return term_sqrt*im
             else
-                return -exact_sqrt(-y)*im
+                return -term_sqrt*im
             end
         end
     elseif degree(f)==2 # coeff(f,1)!=0
