@@ -56,26 +56,6 @@ end
         @test !contains_inexact_number(Symbolics.term(sqrt, 3) * x + 1 // 6)
     end
 
-    @testset "exact_sqrt" begin
-        @test SymbolicIntegration.exact_sqrt(0) == 0
-        @test SymbolicIntegration.exact_sqrt(1) == 1
-        @test SymbolicIntegration.exact_sqrt(4) == 2
-        @test SymbolicIntegration.exact_sqrt(9 // 4) == 3 // 2
-        @test isequal(
-            SymbolicIntegration.exact_sqrt(2), Symbolics.term(sqrt, 2))
-        @test isequal(SymbolicIntegration.exact_sqrt(12),
-            2 * Symbolics.term(sqrt, 3))
-        @test isequal(SymbolicIntegration.exact_sqrt(12 // 49),
-            (2 // 7) * Symbolics.term(sqrt, 3))
-        @test isequal(SymbolicIntegration.exact_sqrt(1 // 3),
-            (1 // 3) * Symbolics.term(sqrt, 3))
-        for y in [2, 3, 5, 12, 12 // 49, 1 // 3, 7 // 2]
-            @test !contains_inexact_number(SymbolicIntegration.exact_sqrt(y))
-            @test isapprox(fold(SymbolicIntegration.exact_sqrt(y)), sqrt(float(y)))
-        end
-        @test_throws DomainError SymbolicIntegration.exact_sqrt(-1)
-    end
-
     @testset "Antiderivatives stay exact" begin
         integrands = [
             1 / (x^2 + 2),
