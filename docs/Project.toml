@@ -7,5 +7,5 @@ Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 [compat]
 Documenter = "1"
 SymbolicIntegration = "3.2.0"
-SymbolicIntegrationMaxima = "0.2"
+SymbolicIntegrationMaxima = "0.2, 0.3"
 Symbolics = "7"
