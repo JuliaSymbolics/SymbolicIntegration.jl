@@ -253,7 +253,17 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     end
 
     ((Symbol(operation(data)) !== rule.args[1]) && !neim_pass) && return FAIL_DICT::MatchDict # :):):)
-    (length(arg_data) != length(arg_rule)) && return FAIL_DICT::MatchDict # :):):)
+    if length(arg_data) != length(arg_rule)
+        # ((6.5)) A numeric coefficient folds into a single factor, an exact
+        # constant does not: `-1.4142*x` has two arguments while `-sqrt(2)*x`
+        # has three, [-1, x, sqrt(2)]. A pattern such as `(~!b)*(~x)`, whose
+        # `b` is meant to bind the whole coefficient, then cannot match on
+        # length alone. Retry once with the constant factors collapsed into a
+        # single one. Only reached after the equal-length match has failed, so
+        # this can create a match but never break one.
+        (rule.args[1]===:*) && return collapsed_constants_match(arg_data, arg_rule, matches)
+        return FAIL_DICT::MatchDict # :):):)
+    end
 
     # ((7))
     if (rule.args[1]===:+) || (rule.args[1]===:*)
@@ -269,6 +279,32 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     end
     # normal checks
     return ceoaa(arg_data, arg_rule, matches)::MatchDict
+end
+
+"""
+    collapsed_constants_match(arg_data, arg_rule, matches)
+
+Retry matching a product after collapsing its constant factors into one.
+
+`arg_data` has more factors than `arg_rule` when a coefficient is an exact
+constant that does not fold into a single term, such as the `[-1, x, sqrt(2)]`
+of `-sqrt(2)*x`. Multiplying the constant factors together restores the shape
+the pattern expects, letting a slot bind the whole coefficient.
+"""
+function collapsed_constants_match(arg_data, arg_rule, matches::MatchDict)::MatchDict
+    consts = SymsType[]
+    others = SymsType[]
+    for a in arg_data
+        push!(constant_value(a) === nothing ? others : consts, a)
+    end
+    (length(consts) < 2 || length(others) + 1 != length(arg_rule)) &&
+        return FAIL_DICT::MatchDict
+    collapsed = vcat(SymsType[reduce(*, consts)], others)
+    for perm in permutations(collapsed)
+        m = ceoaa(perm, arg_rule, matches)
+        m !== FAIL_DICT && return m::MatchDict
+    end
+    return FAIL_DICT::MatchDict
 end
 
 """

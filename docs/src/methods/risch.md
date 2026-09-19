@@ -158,6 +158,42 @@ integrate(cos(x), x)            # Transformed to exponential form
 integrate(tan(x), x)            # Uses differential field extension
 ```
 
+## Exact algebraic coefficients
+
+A rational function whose denominator does not factor over the rationals needs
+an algebraic extension for its partial fraction decomposition. The roots
+involved are computed exactly, in the field of algebraic numbers, and
+coefficients of degree at most two are returned as exact radicals rather than
+as floating point approximations:
+
+```julia
+integrate(1/(x^2 - 2), x, RischMethod())
+# (1//4)*log(sqrt(2) - x)*sqrt(2) - (1//4)*log(sqrt(2) + x)*sqrt(2)
+
+integrate(1/(x^3 - 1), x, RischMethod())
+# (1//3)*log(1 - x) - (1//6)*log(1 + x + x^2) +
+#     (1//3)*atan(-(1//3)*sqrt(3) - (2//3)*sqrt(3)*x)*sqrt(3)
+
+integrate(1/(x^4 + 1), x, RischMethod())
+# (1//4)*atan(-1 + sqrt(2)*x)*sqrt(2) + (1//4)*atan(1 + sqrt(2)*x)*sqrt(2) -
+#     (1//8)*log(1 - sqrt(2)*x + x^2)*sqrt(2) +
+#     (1//8)*log(1 + sqrt(2)*x + x^2)*sqrt(2)
+```
+
+Radicals are reported in lowest terms, so the largest perfect square factor is
+pulled out of the radicand: a coefficient of `sqrt(12//49)` is returned as
+`(2//7)*sqrt(3)`.
+
+Roots of degree three or higher have no such closed form and are kept as a
+`Root` placeholder holding the exact algebraic number.
+
+!!! note
+    `Symbolics.simplify` evaluates an exact radical such as `sqrt(2)` to a
+    floating point number in some subterms, so simplifying an antiderivative
+    can reintroduce inexact numbers. Compare antiderivatives numerically, or
+    compare them against an expected expression with `isequal`, rather than
+    simplifying the difference to zero.
+
 ## Limitations
 
 The Risch method, following Bronstein's book, does not handle:
