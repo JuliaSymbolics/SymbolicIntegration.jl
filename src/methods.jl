@@ -74,7 +74,7 @@ Configure the Risch algorithm for symbolic integration of elementary functions.
 # Examples
 
 ```julia
-method = RischMethod(use_algebraic_closure=true)
+method = RischMethod(catch_errors=false)
 integrate(1 / (x^2 + 1), x, method)
 ```
 """
@@ -237,7 +237,7 @@ A symbolic antiderivative or an unevaluated integral.
 ```julia
 using SymbolicIntegration, Symbolics
 @variables x
-method = RischMethod(use_algebraic_closure=true)
+method = RischMethod(catch_errors=false)
 integrate(1 / (x^2 + 1), x, method)
 ```
 """

@@ -4,7 +4,7 @@
   - [Configuration Options](#configuration-options)
     - [Constructor](#constructor)
     - [Options](#options)
-      - [`use_algebraic_closure::Bool` (default: `true`)](#use_algebraic_closurebool-default-true)
+      - [`use_algebraic_closure::Bool` (default: `false`)](#use_algebraic_closurebool-default-false)
       - [`catch_errors::Bool` (default: `true`)](#catch_errorsbool-default-true)
   - [Algorithm Components](#algorithm-components)
     - [Rational Function Integration (Chapter 2)](#rational-function-integration-chapter-2)
@@ -51,7 +51,7 @@ using SymbolicIntegration, Symbolics
 integrate(1/(x^2 + 1), x, RischMethod())  # atan(x)
 
 # Risch method with options
-risch = RischMethod(use_algebraic_closure=true, catch_errors=false)
+risch = RischMethod(catch_errors=false)
 integrate(f, x, risch)
 ```
 
@@ -59,24 +59,32 @@ integrate(f, x, risch)
 
 ### Constructor
 ```julia
-RischMethod(; use_algebraic_closure=true, catch_errors=true)
+RischMethod(; use_algebraic_closure=false, catch_errors=true)
 ```
 
 ### Options
 
-#### `use_algebraic_closure::Bool` (default: `true`)
-Controls whether the algorithm uses algebraic closure for finding complex roots.
+#### `use_algebraic_closure::Bool` (default: `false`)
+Controls whether the roots needed by the logarithmic part may be computed in an
+algebraic closure instead of over the rationals.
 
-- **`true`**: Finds complex roots, produces exact arctangent terms
-- **`false`**: Only rational roots, faster for simple cases
+- **`false`** (default): roots are taken over the rationals. Irreducible
+  quadratic factors still give real antiderivatives, through the
+  logarithm-to-arctangent conversion of Bronstein's Section 2.8.
+- **`true`**: roots are computed in the algebraic closure, which yields the
+  complex logarithmic form rather than arctangent terms.
 
 ```julia
-# With complex roots (produces atan terms)
-integrate(1/(x^2 + 1), x, RischMethod(use_algebraic_closure=true))  # atan(x)
-
-# Without complex roots (may miss arctangent terms)  
-integrate(1/(x^2 + 1), x, RischMethod(use_algebraic_closure=false))  # May return 0
+integrate(1/(x^2 + 1), x, RischMethod())   # atan(x)
+integrate(1/(x^2 - 2), x, RischMethod())   # logarithms of x ± sqrt(2)
 ```
+
+!!! warning
+    `use_algebraic_closure=true` currently throws
+    `DomainError: comparing nonreal numbers` for most integrands whose roots are
+    not real, including `1/(x^2 + 1)`, and `catch_errors` does not intercept it.
+    See [issue #13](https://github.com/JuliaSymbolics/SymbolicIntegration.jl/issues/13).
+    Leave the option at its default unless the roots are known to be real.
 
 #### `catch_errors::Bool` (default: `true`)
 Controls error handling behavior.
@@ -168,8 +176,9 @@ For these cases, the algorithm will:
 
 - **Research/verification**: `catch_errors=false` for strict algorithmic behavior
 - **Production applications**: `catch_errors=true` for robust operation
-- **Complex analysis**: `use_algebraic_closure=true` for complete results
-- **Simple computations**: `use_algebraic_closure=false` for faster execution
+- **Roots known to be real**: `use_algebraic_closure=true` to get the complex
+  logarithmic form instead of arctangent terms; it raises `DomainError` otherwise
+  (see the warning above)
 
 ### Complexity
 - **Polynomial functions**: O(n) where n is degree
@@ -204,13 +213,10 @@ integrate(1/(x*log(x)), x, RischMethod())  # log(log(x))
 ### Method Configuration
 ```julia
 # For research (strict error handling)
-research_risch = RischMethod(use_algebraic_closure=true, catch_errors=false)
+research_risch = RischMethod(catch_errors=false)
 
 # For production (graceful error handling)
-production_risch = RischMethod(use_algebraic_closure=true, catch_errors=true)
-
-# For simple cases (faster computation)
-simple_risch = RischMethod(use_algebraic_closure=false, catch_errors=true)
+production_risch = RischMethod(catch_errors=true)
 ```
 
 ## Algorithm References
