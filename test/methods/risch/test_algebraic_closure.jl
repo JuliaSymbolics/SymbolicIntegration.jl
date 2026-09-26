@@ -35,8 +35,10 @@ import Nemo
 
     @testset "Integration with nonreal roots" begin
         method = RischMethod(use_algebraic_closure = true, catch_errors = false)
-        for f in [1 / (x^2 + 1), 1 / (x^2 + 2), 1 / (x^3 - 1), 1 / (x^2 - 2),
-                  1 / (x^2 + x + 1), (x + 1) / (x^2 + 4)]
+        for f in [
+                1 / (x^2 + 1), 1 / (x^2 + 2), 1 / (x^3 - 1), 1 / (x^2 - 2),
+                1 / (x^2 + x + 1), (x + 1) / (x^2 + 4),
+            ]
             result = integrate(f, x, method)
             @test !isnothing(result)
             # Rendering the result is part of the contract: the comparison that
@@ -48,14 +50,13 @@ import Nemo
     @testset "Known remaining limitation" begin
         # 1/(x^4 + 1) still raises from a different nonreal comparison, reached
         # when the degree-4 `Root` placeholder in the result is rendered.
-        # `integrate` itself succeeds; only displaying the result throws.
+        # `integrate` itself succeeds; only displaying the result throws, with a
+        # `DomainError` carrying the offending nonreal root. Asserting the
+        # exception type pins the current limitation without suppressing an
+        # unrelated failure: when rendering is fixed, this test fails and says so.
         method = RischMethod(use_algebraic_closure = true, catch_errors = false)
         result = integrate(1 / (x^4 + 1), x, method)
-        @test_broken try
-            string(result)
-            true
-        catch
-            false
-        end
+        @test !isnothing(result)
+        @test_throws DomainError string(result)
     end
 end
