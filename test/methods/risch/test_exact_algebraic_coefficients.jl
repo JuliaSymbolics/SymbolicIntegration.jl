@@ -3,9 +3,9 @@ using SymbolicIntegration
 using Symbolics
 using SymbolicUtils
 
-# Rational functions whose partial fraction decomposition needs an algebraic
-# extension used to come back with floating point coefficients, e.g. the roots
-# of `x^2 - 2` leaked into the antiderivative as `1.4142135623730951`.
+# A rational function whose partial fraction decomposition needs an algebraic
+# extension must keep its coefficients exact: the roots of `x^2 - 2` belong in
+# the antiderivative as `sqrt(2)`, not as `1.4142135623730951`.
 # See https://github.com/JuliaSymbolics/SymbolicIntegration.jl/issues/135
 
 """
@@ -21,7 +21,7 @@ function contains_inexact_number(ex)
     if SymbolicUtils.iscall(v)
         return any(contains_inexact_number, SymbolicUtils.arguments(v))
     end
-    false
+    return false
 end
 
 """
@@ -34,7 +34,7 @@ term in place, so the remaining tree of numbers and function calls is folded
 into a `Float64` here.
 """
 function evaluate_at(ex, x, x0)
-    fold(Symbolics.value(substitute(ex, Dict(x => x0))))
+    return fold(Symbolics.value(substitute(ex, Dict(x => x0))))
 end
 
 function fold(v)
@@ -42,7 +42,7 @@ function fold(v)
     v isa Number && return float(v)
     SymbolicUtils.iscall(v) ||
         error("cannot evaluate $v numerically, it still contains a symbol")
-    SymbolicUtils.operation(v)(map(fold, SymbolicUtils.arguments(v))...)
+    return SymbolicUtils.operation(v)(map(fold, SymbolicUtils.arguments(v))...)
 end
 
 @testset "[Risch] Exact algebraic coefficients" begin
@@ -96,8 +96,7 @@ end
             result = integrate(f, x, RischMethod())
             residual = Symbolics.expand_derivatives(D(result)) - f
             for x0 in [3 // 10, 17 // 10, 5, -12 // 5]
-                @test isapprox(
-                    evaluate_at(residual, x, x0), 0; atol = 1e-10)
+                @test isapprox(evaluate_at(residual, x, x0), 0; atol = 1.0e-10)
             end
         end
     end
