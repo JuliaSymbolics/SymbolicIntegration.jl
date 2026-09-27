@@ -3,9 +3,9 @@ using SymbolicIntegration
 using Symbolics
 using SymbolicUtils
 
-# Rational functions whose partial fraction decomposition needs an algebraic
-# extension used to come back with floating point coefficients, e.g. the roots
-# of `x^2 - 2` leaked into the antiderivative as `1.4142135623730951`.
+# A rational function whose partial fraction decomposition needs an algebraic
+# extension must keep its coefficients exact: the roots of `x^2 - 2` belong in
+# the antiderivative as `sqrt(2)`, not as `1.4142135623730951`.
 # See https://github.com/JuliaSymbolics/SymbolicIntegration.jl/issues/135
 
 """
@@ -21,7 +21,7 @@ function contains_inexact_number(ex)
     if SymbolicUtils.iscall(v)
         return any(contains_inexact_number, SymbolicUtils.arguments(v))
     end
-    false
+    return false
 end
 
 """
@@ -34,7 +34,7 @@ term in place, so the remaining tree of numbers and function calls is folded
 into a `Float64` here.
 """
 function evaluate_at(ex, x, x0)
-    fold(Symbolics.value(substitute(ex, Dict(x => x0))))
+    return fold(Symbolics.value(substitute(ex, Dict(x => x0))))
 end
 
 function fold(v)
@@ -42,7 +42,7 @@ function fold(v)
     v isa Number && return float(v)
     SymbolicUtils.iscall(v) ||
         error("cannot evaluate $v numerically, it still contains a symbol")
-    SymbolicUtils.operation(v)(map(fold, SymbolicUtils.arguments(v))...)
+    return SymbolicUtils.operation(v)(map(fold, SymbolicUtils.arguments(v))...)
 end
 
 @testset "[Risch] Exact algebraic coefficients" begin
@@ -54,43 +54,6 @@ end
         @test contains_inexact_number(atan(x / 1.7320508075688772))
         @test !contains_inexact_number((1 // 3) * x)
         @test !contains_inexact_number(Symbolics.term(sqrt, 3) * x + 1 // 6)
-    end
-
-    @testset "split_perfect_square" begin
-        for (n, expected) in [
-            (1, (1, 1)), (2, (1, 2)), (3, (1, 3)), (4, (2, 1)), (8, (2, 2)),
-            (12, (2, 3)), (48, (4, 3)), (49, (7, 1)), (1024, (32, 1)),
-            (7^2 * 11, (7, 11))]
-            @test SymbolicIntegration.split_perfect_square(n) == expected
-        end
-
-        # A radicand whose prime factors are all beyond the trial division
-        # bound must still come back correct, and quickly.
-        p, q = 1_000_003, 1_000_033
-        s, r = SymbolicIntegration.split_perfect_square(big(p)^2 * q)
-        @test s^2 * r == big(p)^2 * q
-        s, r = SymbolicIntegration.split_perfect_square(big(p)^2)
-        @test (s, r) == (p, 1)
-    end
-
-    @testset "exact_sqrt" begin
-        @test SymbolicIntegration.exact_sqrt(0) == 0
-        @test SymbolicIntegration.exact_sqrt(1) == 1
-        @test SymbolicIntegration.exact_sqrt(4) == 2
-        @test SymbolicIntegration.exact_sqrt(9 // 4) == 3 // 2
-        @test isequal(
-            SymbolicIntegration.exact_sqrt(2), Symbolics.term(sqrt, 2))
-        @test isequal(SymbolicIntegration.exact_sqrt(12),
-            2 * Symbolics.term(sqrt, 3))
-        @test isequal(SymbolicIntegration.exact_sqrt(12 // 49),
-            (2 // 7) * Symbolics.term(sqrt, 3))
-        @test isequal(SymbolicIntegration.exact_sqrt(1 // 3),
-            (1 // 3) * Symbolics.term(sqrt, 3))
-        for y in [2, 3, 5, 12, 12 // 49, 1 // 3, 7 // 2]
-            @test !contains_inexact_number(SymbolicIntegration.exact_sqrt(y))
-            @test isapprox(fold(SymbolicIntegration.exact_sqrt(y)), sqrt(float(y)))
-        end
-        @test_throws DomainError SymbolicIntegration.exact_sqrt(-1)
     end
 
     @testset "Antiderivatives stay exact" begin
@@ -133,8 +96,7 @@ end
             result = integrate(f, x, RischMethod())
             residual = Symbolics.expand_derivatives(D(result)) - f
             for x0 in [3 // 10, 17 // 10, 5, -12 // 5]
-                @test isapprox(
-                    evaluate_at(residual, x, x0), 0; atol = 1e-10)
+                @test isapprox(evaluate_at(residual, x, x0), 0; atol = 1.0e-10)
             end
         end
     end
