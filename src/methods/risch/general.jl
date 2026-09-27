@@ -25,7 +25,7 @@ function zero_array(R::AbstractAlgebra.NCRing, dims::Int...)
     for i in eachindex(A)
         A[i] = zero(R)
     end
-    A
+    return A
 end
 
 struct NotImplementedError <: Exception

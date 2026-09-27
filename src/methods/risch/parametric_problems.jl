@@ -931,7 +931,7 @@ function ParamRischDE(f::F, gs::Vector{F}, D::Derivation) where F<:FieldElement
         hs = [one(parent(f))]
         A = reshape(vcat(gs, zero(parent(f))), (1, m+1))
     else
-        A = zero_array(C, m , 2*m) 
+        A = zero_array(C, m, 2*m)
         for i=1:m
             A[i, i] = one(C)
             A[i, m+i] = -one(C)
