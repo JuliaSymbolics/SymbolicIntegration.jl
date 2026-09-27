@@ -24,7 +24,7 @@
 const DIFFICULT_BASELINE = NTuple{2,Int}[
     (0, 0),  #   1  2x
     (0, 0),  #   2  1 / (1 + x^2)
-    (0, 1),  #   3  sin(x)
+    (0, 0),  #   3  sin(x)
     (0, 2),  #   4  sqrt(1 + 2x)
     (0, 2),  #   5  x*sqrt(1 + 3x)
     (1, 2),  #   6  (x^2)*sqrt(1 + x)  — RB matches reference exactly on Julia 1.10 ubuntu/macOS but produces an equivalent unverifiable form (code 1) on Julia 1.x and Windows
@@ -47,8 +47,8 @@ const DIFFICULT_BASELINE = NTuple{2,Int}[
     (2, 2),  #  23  x / (sqrt(1 + x^2)*sqrt(1 + sqrt(1 + x^2)))
     (0, 2),  #  24  ((1 - 2x + x^2)^(1//5)) / (1 - x)
     (0, 0),  #  25  x*sin(x)
-    (1, 1),  #  26  (x^2)*sin(x)
-    (1, 1),  #  27  (x^3)*cos(x)
+    (1, 0),  #  26  (x^2)*sin(x)
+    (1, 0),  #  27  (x^3)*cos(x)
     (1, 0),  #  28  (x^3)*sin(x)
     (0, 1),  #  29  sin(x)*cos(x)
     (0, 1),  #  30  x*sin(x)*cos(x)
@@ -70,13 +70,13 @@ const DIFFICULT_BASELINE = NTuple{2,Int}[
     (0, 0),  #  46  tan(x)^4
     (2, 1),  #  47  cot(x)^2
     (2, 1),  #  48  cot(x)^4
-    (0, 1),  #  49  (2 + 3x)*sin(5x)
+    (0, 0),  #  49  (2 + 3x)*sin(5x)
     (0, 2),  #  50  x*sqrt(1 + x^2)
     (0, 1),  #  51  x*((-1 + x^2)^9)
     (0, 1),  #  52  (3 + 2x) / ((7 + 6x)^3)
     (0, 1),  #  53  (x^4)*((1 + x^5)^5)
     (0, 1),  #  54  (x^4)*((1 - x)^20)
-    (0, 1),  #  55  sin(1 / x) / (x^2)
+    (0, 0),  #  55  sin(1 / x) / (x^2)
     (1, 2),  #  56  sin((-1 + x)^(1//4))
     (0, 1),  #  57  x*sin(x^2)*cos(x^2)
     (2, 2),  #  58  sqrt(1 + 3(cos(x)^2))*sin(2x)
