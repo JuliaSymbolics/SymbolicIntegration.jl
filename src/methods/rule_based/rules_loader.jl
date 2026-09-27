@@ -31,8 +31,7 @@ function load_rules(rules_paths)
         local_file_rules = Base.invokelatest(() -> file_rules) # Use Base.invokelatest to handle world age issues in Julia 1.12+
         # Rewrite literal square roots on the replacement side only; the match
         # side must keep the `sqrt` the matcher looks for by name.
-        append!(RULES, [x[2].first => exact_roots_in_rhs(x[2].second)
-                        for x in local_file_rules])
+        append!(RULES, [exact_roots_in_rule(x[2]) for x in local_file_rules])
         append!(IDENTIFIERS, [x[1] for x in local_file_rules])
     end
     print("\e[1A\e[2K\e[1A\e[2K")
@@ -93,24 +92,27 @@ function reload_rules(path; verbose = true)
     
     for r in local_file_rules
         idx = findfirst(i->identifier_ge(i, r[1]), IDENTIFIERS)
+        # Same rewrite as in `load_rules`: a replacement side installed raw would
+        # build its square roots with Julia's `sqrt` and return floats.
+        rule = exact_roots_in_rule(r[2])
         
         # if there is a identifier >= of r[1]
         if idx !== nothing
             # if r[1] is already in the identifiers
             if IDENTIFIERS[idx]==r[1]
                 # replace rule
-                RULES[idx] = r[2]
+                RULES[idx] = rule
                 verbose && printstyled("replaced rule $(r[1]) at index $idx\n";color = :yellow)
             # else add it at idx
             else
                 insert!(IDENTIFIERS, idx, r[1])
-                insert!(RULES, idx, r[2])
+                insert!(RULES, idx, rule)
                 verbose && printstyled("Inserted rule $(r[1]) at index $idx\n";color=:green)
             end
         # else add it at the end
         else
             push!(IDENTIFIERS, r[1])
-            push!(RULES, r[2])
+            push!(RULES, rule)
             verbose && printstyled("Appended rule $(r[1]) at the end of RULES (index $(length(RULES)))\n";color = :magenta)
         end
     end
