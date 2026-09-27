@@ -179,7 +179,7 @@ const DIFFICULT_BASELINE = NTuple{2,Int}[
     (0, 2),  # 155  sqrt(5 + x^2)
     (1, 2),  # 156  x / sqrt(1 + x + x^2)
     (0, 2),  # 157  1 / sqrt(x + x^2)
-    (1, 2),  # 158  sqrt(2 - x - (x^2)) / (x^2)
+    (0, 2),  # 158  sqrt(2 - x - (x^2)) / (x^2)
     (0, 2),  # 159  log(t) / (1 + t)
     (0, 2),  # 160  log(exp(cos(x)))
     (0, 2),  # 161  exp(t) / t
