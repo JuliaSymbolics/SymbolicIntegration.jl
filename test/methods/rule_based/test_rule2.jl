@@ -159,3 +159,24 @@ end
     @test eq(SymbolicIntegration.rule2(r8, (x) / (y*(2 + 2x)^3))[2], -3)
     # denominator is a product
 end
+
+# `eq` must expand before comparing so products involving Symbolics.derivative
+# cancel (rule 1_1_1_7_7). See https://github.com/JuliaSymbolics/SymbolicIntegration.jl/issues/107
+@testset "eq expands before compare (issue #107)" begin
+    @variables x
+    Pp = -1 + 4x^5
+    Qq = 1 + x + x^5
+    m = -2
+    lhs = (SymbolicIntegration.exponent_of(Pp, x) + m * SymbolicIntegration.exponent_of(Qq, x) + 1) *
+          SymbolicIntegration.ext_coeff(Qq, x, SymbolicIntegration.exponent_of(Qq, x)) * Pp
+    rhs = SymbolicIntegration.ext_coeff(Pp, x, SymbolicIntegration.exponent_of(Pp, x)) *
+          x^(SymbolicIntegration.exponent_of(Pp, x) - SymbolicIntegration.exponent_of(Qq, x)) *
+          ((SymbolicIntegration.exponent_of(Pp, x) - SymbolicIntegration.exponent_of(Qq, x) + 1) * Qq +
+           (m + 1) * x * Symbolics.derivative(Qq, x))
+    @test eq(lhs, rhs)
+
+    expected = -x / (1 + x + x^5)
+    result = integrate((4x^5 - 1) / (x^5 + x + 1)^2, x, RuleBasedMethod())
+    @test !SymbolicIntegration.contains_int(result)
+    @test isequal(simplify(result - expected; expand = true), 0)
+end

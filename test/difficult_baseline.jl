@@ -16,8 +16,9 @@
 #
 # Bisect against pre-PR-#53 (`e4fff44`):
 #   - Risch: 0 regressions. Long-standing engine domain limits only.
-#   - RuleBased: 1 regression on `(-1 + 4(x^5))/((1 + x + x^5)^2)` —
-#     issue #107.
+#   - RuleBased: the Apostol integral `(-1 + 4(x^5))/((1 + x + x^5)^2)`
+#     (issue #107) was a regression until `eq` expanded before comparing;
+#     baseline entry below is now (0, 0).
 #
 # Engine improvements should tighten the codes here on the same PR.
 
@@ -163,7 +164,7 @@ const DIFFICULT_BASELINE = NTuple{2,Int}[
     (0, 1),  # 139  1 / (-1 + x^4)
     (1, 1),  # 140  1 / (1 + x^4)
     (0, 1),  # 141  (x^2) / ((2 + 2x + x^2)^2)
-    (2, 0),  # 142  (-1 + 4(x^5)) / ((1 + x + x^5)^2)
+    (0, 0),  # 142  (-1 + 4(x^5)) / ((1 + x + x^5)^2)  — fixed in #107
     (1, 1),  # 143  1 / (5 + 2sin(x) - cos(x))
     (2, 2),  # 144  1 / (1 + a*cos(x))
     (2, 1),  # 145  1 / (1 + 2cos(x))
