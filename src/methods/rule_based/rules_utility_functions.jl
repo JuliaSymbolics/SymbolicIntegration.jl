@@ -61,7 +61,9 @@ s(u) = isa(SymbolicUtils.unwrap(u), SymbolicUtils.BasicSymbolic)
 function eq(a, b)
     a = SymbolicUtils.unwrap_const(a)
     b = SymbolicUtils.unwrap_const(b)
-    return symbolic_iszero(SymbolicUtils.simplify(a - b))
+    # Expand so products like x*(1 + 5x^4) cancel against like terms; plain
+    # simplify leaves them factored and rule 1_1_1_7_7 (issue #107) never fires.
+    return symbolic_iszero(SymbolicUtils.simplify(a - b; expand = true))
 end
 
 symbolic_iszero(x) = begin
