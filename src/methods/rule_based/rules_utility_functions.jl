@@ -61,9 +61,18 @@ s(u) = isa(SymbolicUtils.unwrap(u), SymbolicUtils.BasicSymbolic)
 function eq(a, b)
     a = SymbolicUtils.unwrap_const(a)
     b = SymbolicUtils.unwrap_const(b)
-    # Expand so products like x*(1 + 5x^4) cancel against like terms; plain
-    # simplify leaves them factored and rule 1_1_1_7_7 (issue #107) never fires.
-    return symbolic_iszero(SymbolicUtils.simplify(a - b; expand = true))
+    d = a - b
+    # Plain simplify first (cheap). Expand only when needed so factored
+    # like-terms in larger rule conjuncts cancel. Expansion can hit Int
+    # gcd overflow in MultivariatePolynomials via SymbolicUtils.simplify_div;
+    # treat that as "not provably equal" instead of throwing.
+    symbolic_iszero(SymbolicUtils.simplify(d)) && return true
+    try
+        return symbolic_iszero(SymbolicUtils.simplify(d; expand = true))
+    catch err
+        err isa DivideError || err isa OverflowError || rethrow()
+        return false
+    end
 end
 
 symbolic_iszero(x) = begin
