@@ -160,8 +160,8 @@ end
     # denominator is a product
 end
 
-# `eq` must expand before comparing so products involving Symbolics.derivative
-# cancel (rule 1_1_1_7_7). See https://github.com/JuliaSymbolics/SymbolicIntegration.jl/issues/107
+# Full conjunct of rule 1_1_1_7_7 needs expand-backed `eq`. See
+# https://github.com/JuliaSymbolics/SymbolicIntegration.jl/issues/107
 @testset "eq expands before compare (issue #107)" begin
     @variables x
     Pp = -1 + 4x^5
@@ -179,4 +179,20 @@ end
     result = integrate((4x^5 - 1) / (x^5 + x + 1)^2, x, RuleBasedMethod())
     @test !SymbolicIntegration.contains_int(result)
     @test isequal(simplify(result - expected; expand = true), 0)
+end
+
+# Expanding in `eq` can DivideError via SymbolicUtils.simplify_div; the guard
+# must keep RuleBased from throwing on Hebisch Problems #2.
+# See https://github.com/JuliaSymbolics/SymbolicIntegration.jl/pull/149
+@testset "eq expand path does not throw (Hebisch #2)" begin
+    @variables x
+    f = (2 - x^2) * exp(x / (x^2 + 2)) / (x^3 + 2x)
+    threw = false
+    try
+        integrate(f, x, RuleBasedMethod())
+    catch
+        threw = true
+    end
+    # Unevaluated is fine (main returned fail code 2); throwing is not.
+    @test !threw
 end
