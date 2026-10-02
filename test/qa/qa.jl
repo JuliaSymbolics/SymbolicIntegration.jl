@@ -17,6 +17,7 @@ const INTENTIONAL_EXTENSIONS = (
     SymbolicIntegration.FresnelIntegrals.fresnelc,
     SymbolicIntegration.FresnelIntegrals.fresnels,
     SymbolicIntegration.PolyLog.reli,
+    SymbolicIntegration.SpecialFunctions.gamma,
 )
 
 run_qa(

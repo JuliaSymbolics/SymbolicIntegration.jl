@@ -625,7 +625,7 @@ function translate_conditions(conditions, vardefs)
         (r"PolynomialQuotient\[(.*?),(.*?)\]", s"poly_quotient(\1,\2)"),
         (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
 
-        ("TrueQ[\$UseGamma]", "USE_GAMMA"),
+        ("TrueQ[\$UseGamma]", "USE_GAMMA[]"),
         (r"MemberQ\[{(.*?)},(.*?)\]", s"in(\2, [\1])"),
 
         ("{", "["), # to transform lists syntax

@@ -510,7 +510,7 @@ function int_and_subst(
     if nonnegative_substitution(to)
         integrand = drop_abs_of_nonnegative(integrand, int_var)
     end
-    if VERBOSE
+    if VERBOSE[]
         printstyled("┌-------Applied rule $rule_from_identifier (change of variables):";);
         for ss in split(pretty_print_rule(rule_from_identifier), '\n')
             printstyled("\n| ";); printstyled(ss;bold=true)
@@ -521,12 +521,12 @@ function int_and_subst(
         printstyled(replace(string(from),string(int_var)=>"u")*" = "*string(to), "\n"; color = :light_blue)
     end
 
-    result = integrate_rule_based(integrand, int_var;verbose=VERBOSE)
-    push!(SILENCE, rule_from_identifier) # this is needed to not print again rule_from_identifier after the return of this function
+    result = integrate_rule_based(integrand, int_var;verbose=VERBOSE[], use_gamma=USE_GAMMA[])
+    push!(SILENCE[], rule_from_identifier) # this is needed to not print again rule_from_identifier after the return of this function
     if !contains_int(result)
         return substitute(result, from => to)
     end
-    VERBOSE && println("Integral not solved")
+    VERBOSE[] && println("Integral not solved")
     # substitute_after_int is a placeholder symbolic function
     return substitute_after_int(∫(integrand, int_var), from, to)
 end
