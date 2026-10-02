@@ -87,14 +87,21 @@ end
 
     @testset "Antiderivatives remain correct" begin
         # Exactness must not come at the cost of a wrong result: differentiating
-        # the antiderivative has to give the integrand back. `simplify` cannot
-        # show that residual to be zero because it evaluates `sqrt(2)` to a
-        # float in some subterms but not in others, so the check is done by
-        # evaluating the residual numerically at a few points.
+        # the antiderivative has to give the integrand back.
+        #
+        # `simplify` does not always cancel that residual to zero — for
+        # `1/(x^2 - 2)` and `1/(x^2 - 3)` it stops at an uncancelled product of
+        # conjugate factors — so correctness is checked by evaluating the
+        # residual numerically at a few points. What the simplified residual
+        # must never contain is a floating point number: that would mean the
+        # exact radicals leaked back into inexact ones. Before SymbolicUtils
+        # 4.49.0 it did, which is the behaviour this package's compat bound now
+        # excludes.
         D = Differential(x)
         for f in [1 / (x^2 - 2), 1 / (x^3 - 1), 1 / (x^4 + 1), 1 / (x^2 - 3)]
             result = integrate(f, x, RischMethod())
             residual = Symbolics.expand_derivatives(D(result)) - f
+            @test !contains_inexact_number(Symbolics.simplify(residual; expand = true))
             for x0 in [3 // 10, 17 // 10, 5, -12 // 5]
                 @test isapprox(evaluate_at(residual, x, x0), 0; atol = 1.0e-10)
             end
