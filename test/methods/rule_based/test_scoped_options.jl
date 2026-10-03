@@ -1,12 +1,12 @@
 using Test
 using SymbolicIntegration
 using Symbolics
+using SpecialFunctions
 
 const SI = SymbolicIntegration
 
-# The rule engine's verbose/use_gamma settings used to live in module globals,
-# so one call could change what a concurrent call printed or which rules fired.
-# They are now dynamically scoped per call.
+# RuleBasedMethod's verbose/use_gamma options are dynamically scoped to each
+# integrate call: a binding is visible only within that call's dynamic extent.
 # See https://github.com/JuliaSymbolics/SymbolicIntegration.jl/issues/19
 @testset "[RuleBased] scoped verbose/use_gamma" begin
     @variables x
@@ -33,33 +33,56 @@ const SI = SymbolicIntegration
         plain = integrate((1+x)*exp(x), x, RuleBasedMethod(use_gamma=false))
         gammad = integrate((1+x)*exp(x), x, RuleBasedMethod(use_gamma=true))
         @test !occursin("gamma", string(plain))
-        @test occursin("gamma", string(gammad))
+        @test isequal(gammad, -exp(-1) * SpecialFunctions.gamma(2, -1 - x))
         @test SI.USE_GAMMA[] === false
     end
 
-    @testset "quiet calls do not print while another task is verbose" begin
-        # warm up so the measured calls don't compile
-        integrate(x^9, x, RuleBasedMethod(verbose=false))
-        integrate(x*sin(x), x, RuleBasedMethod(verbose=true))
+    @testset "incomplete-gamma result differentiates back to the integrand" begin
+        gammad = integrate((1+x)*exp(x), x, RuleBasedMethod(use_gamma=true))
+        # SpecialFunctions.gamma evaluates only for complex arguments, so the
+        # finite-difference check probes a complex point. At real inputs the
+        # returned antiderivative throws DomainError upstream (the result is
+        # still a correct antiderivative on its branch).
+        f = Symbolics.build_function(gammad, x, expression = Val{false})
+        z = 0.5 + 0.25im
+        h = 1e-6
+        @test (f(z + h) - f(z - h)) / (2h) ≈ (1 + z) * exp(z) atol=1e-4
+    end
 
-        captured = mktemp() do path, io
-            redirect_stdout(io) do
-                stop = Threads.Atomic{Bool}(false)
-                bg = Threads.@spawn begin
-                    while !stop[]
-                        integrate(x*sin(x), x, RuleBasedMethod(verbose=true))
-                    end
+    @testset "option bindings do not cross task boundaries" begin
+        # The channels force this task's rule loop to run while the spawned
+        # task is inside the option scope that a
+        # RuleBasedMethod(verbose=true, use_gamma=true) call installs, so the
+        # assertion holds deterministically on any thread count.
+        SC = SI.ScopedValues
+        inside = Channel{Any}(1)
+        resume = Channel{Nothing}(1)
+        other = Threads.@spawn begin
+            try
+                SC.with(SI.VERBOSE => true, SI.USE_GAMMA => true) do
+                    put!(inside, nothing)
+                    take!(resume)
                 end
-                for _ in 1:100
-                    integrate(x^9, x, RuleBasedMethod(verbose=false))
-                end
-                stop[] = true
-                wait(bg)
+            catch e
+                put!(inside, e)
             end
-            flush(io)
-            read(path, String)
         end
-        # only the background task may print, and only its own problems
-        @test !occursin("x^9", captured)
+        sig = take!(inside)
+        sig isa Exception && throw(sig)
+        try
+            @test SI.VERBOSE[] === false
+            @test SI.USE_GAMMA[] === false
+            captured = mktemp() do path, io
+                redirect_stdout(io) do
+                    SI.repeated_prewalk(SI.∫(Symbolics.value(x^2), Symbolics.value(x)))
+                end
+                flush(io)
+                read(path, String)
+            end
+            @test captured == ""
+        finally
+            put!(resume, nothing)
+            wait(other)
+        end
     end
 end
