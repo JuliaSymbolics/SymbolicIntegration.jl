@@ -46,6 +46,7 @@ using SymbolicUtils: SymbolicUtils, @rule, @syms, arguments, expand, iscall,
     operation, simplify, substitute, unwrap_const
 using Symbolics: Symbolics, @register_symbolic, @variables, Num
 using PrecompileTools: @compile_workload, @setup_workload
+using ScopedValues: ScopedValues
 using TermInterface: maketerm, metadata
 
 # Include Risch method algorithm components
