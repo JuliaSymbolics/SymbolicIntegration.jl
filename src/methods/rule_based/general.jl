@@ -66,6 +66,8 @@ using FresnelIntegrals: FresnelIntegrals
 
 # upper incomplete gamma; the 1-argument gamma is already registered by SymbolicUtils
 @register_symbolic SpecialFunctions.gamma(a, x)
+# disambiguate against SpecialFunctions.gamma(::Integer, ::Number)
+SpecialFunctions.gamma(a::Integer, x::Num) = Symbolics.wrap(SpecialFunctions.gamma(a, Symbolics.value(x)))
 
 sinhintegral(x::Any) = println("hyperbolic sine integral Shi(z) function (https://en.wikipedia.org/wiki/Trigonometric_integral#Hyperbolic_sine_integral) is not implemented yet")
 @register_symbolic sinhintegral(x)
