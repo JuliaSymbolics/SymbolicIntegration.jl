@@ -58,6 +58,151 @@ end
 # to distinguish between symbolic expressions and numbers
 s(u) = isa(SymbolicUtils.unwrap(u), SymbolicUtils.BasicSymbolic)
 
+"""
+    constant_value(u)
+
+Numeric value of `u` if `u` denotes a constant, `nothing` otherwise.
+
+Rule replacements carry exact radicals such as `sqrt(2)`, which are symbolic
+objects that still denote a number. The predicates below have to decide on that
+number: treated as an opaque symbol, such a constant makes the comparisons give
+up and `pos` fall through to its "assume positive" default, so rules pick the
+branch for the wrong sign. Deciding on the value keeps the *form* exact while
+restoring the decisions taken when these constants were floats.
+"""
+function constant_value(u)
+    u = SymbolicUtils.unwrap_const(SymbolicUtils.unwrap(u))
+    u isa Number && return u
+    SymbolicUtils.iscall(u) || return nothing
+    args = Any[]
+    for a in SymbolicUtils.arguments(u)
+        v = constant_value(a)
+        v === nothing && return nothing
+        push!(args, v)
+    end
+    try
+        SymbolicUtils.operation(u)(args...)
+    catch
+        nothing
+    end
+end
+
+# Real value of `u` when it is a real constant, `nothing` otherwise.
+function real_constant_value(u)
+    c = constant_value(u)
+    (c === nothing || !isreal(c)) && return nothing
+    real(c)
+end
+
+"""
+    algebraic_constant_value(u)
+
+Value of `u` in the field of algebraic numbers, or `nothing` when `u` is not
+built from rational literals, `+`, `-`, `*`, `/`, integer powers and square
+roots.
+
+Unlike [`constant_value`](@ref) this is exact, which is what makes a sign
+decision trustworthy; it is also far more expensive, so the predicates below
+only reach for it when the floating point value is too close to zero to be
+conclusive.
+"""
+function algebraic_constant_value(u, QQBar::QQBarField = algebraic_closure(Nemo.QQ))
+    u = SymbolicUtils.unwrap_const(SymbolicUtils.unwrap(u))
+    u isa QQBarFieldElem && return u
+    u isa Integer && return QQBar(u)
+    u isa Rational && return QQBar(numerator(u)) / QQBar(denominator(u))
+    u isa Number && return nothing  # a float has already lost the exact value
+    SymbolicUtils.iscall(u) || return nothing
+    op = SymbolicUtils.operation(u)
+    args = SymbolicUtils.arguments(u)
+    if op === sqrt
+        length(args) == 1 || return nothing
+        a = algebraic_constant_value(args[1], QQBar)
+        a === nothing && return nothing
+        return sqrt(a)
+    elseif op === (^)
+        length(args) == 2 || return nothing
+        base = algebraic_constant_value(args[1], QQBar)
+        base === nothing && return nothing
+        e = SymbolicUtils.unwrap_const(SymbolicUtils.unwrap(args[2]))
+        e isa Integer && return base^e
+        e isa Rational && e == 1 // 2 && return sqrt(base)
+        return nothing
+    elseif op === (+) || op === (*) || op === (-) || op === (/)
+        vals = QQBarFieldElem[]
+        for a in args
+            v = algebraic_constant_value(a, QQBar)
+            v === nothing && return nothing
+            push!(vals, v)
+        end
+        isempty(vals) && return nothing
+        length(vals) == 1 && op === (-) && return -vals[1]
+        return reduce(op, vals)
+    end
+    return nothing
+end
+
+# Below this magnitude a floating point value is not conclusive: cancellation
+# between nearly equal radicals can consume every significant digit, and it can
+# even produce the wrong sign.
+const SIGN_FILTER = sqrt(eps(Float64))
+
+"""
+    exact_sign(u)
+
+`-1`, `0` or `1` when `u` denotes a real constant whose sign can be decided
+exactly, `nothing` otherwise.
+"""
+function exact_sign(u)
+    v = algebraic_constant_value(u)
+    v === nothing && return nothing
+    Nemo.is_real(v) || return nothing
+    iszero(v) && return 0
+    return v > 0 ? 1 : -1
+end
+
+"""
+    constant_sign(u)
+
+`-1`, `0` or `1` when `u` denotes a real constant, `nothing` otherwise.
+
+The floating point value decides whenever it is far enough from zero; otherwise
+the sign is taken over the algebraic numbers. `rubi_sqrt(10^16 + 1) - 10^8`
+folds to `0.0` in floating point although it is about `5.0e-9`, and these
+predicates choose rule branches, so that would silently select the
+antiderivative for the wrong sign.
+"""
+function constant_sign(u)
+    c = real_constant_value(u)
+    c === nothing && return nothing
+    isfinite(c) || return nothing
+    abs(c) > SIGN_FILTER && return c > 0 ? 1 : -1
+    e = exact_sign(u)
+    e === nothing || return e
+    # Not an expression we can decide exactly: keep the floating point verdict
+    # rather than inventing one, and let the caller treat it as it always has.
+    return iszero(c) ? 0 : (c > 0 ? 1 : -1)
+end
+
+"""
+    compare_constants(u, v)
+
+`-1`, `0` or `1` for the comparison of two real constants, `nothing` when either
+of them is not one. Near-equal values are separated exactly, for the reason given
+in [`constant_sign`](@ref).
+"""
+function compare_constants(u, v)
+    cu = real_constant_value(u)
+    cv = real_constant_value(v)
+    (cu === nothing || cv === nothing) && return nothing
+    (isfinite(cu) && isfinite(cv)) || return nothing
+    d = cu - cv
+    abs(d) > SIGN_FILTER * max(1.0, abs(cu), abs(cv)) && return d > 0 ? 1 : -1
+    e = exact_sign(u - v)
+    e === nothing || return e
+    return d > 0 ? 1 : (d < 0 ? -1 : 0)
+end
+
 function eq(a, b)
     a = SymbolicUtils.unwrap_const(a)
     b = SymbolicUtils.unwrap_const(b)
@@ -255,25 +400,37 @@ end
 function gt(u, v)
     u = SymbolicUtils.unwrap_const(u)
     v = SymbolicUtils.unwrap_const(v)
-    (s(u) || s(v)) ? false : u > v
+    (s(u) || s(v)) || return u > v
+    c = compare_constants(u, v)
+    c === nothing && return false
+    return c > 0
 end
 gt(u, v, w) = gt(u, v) && gt(v, w)
 function ge(u, v)
     u = SymbolicUtils.unwrap_const(u)
     v = SymbolicUtils.unwrap_const(v)
-    (s(u) || s(v)) ? false : u >= v
+    (s(u) || s(v)) || return u >= v
+    c = compare_constants(u, v)
+    c === nothing && return false
+    return c >= 0
 end
 ge(u, v, w) = ge(u, v) && ge(v, w)
 function lt(u, v)
     u = SymbolicUtils.unwrap_const(u)
     v = SymbolicUtils.unwrap_const(v)
-    (s(u) || s(v)) ? false : u < v
+    (s(u) || s(v)) || return u < v
+    c = compare_constants(u, v)
+    c === nothing && return false
+    return c < 0
 end
 lt(u, v, w) = lt(u, v) && lt(v, w)
 function le(u, v)
     u = SymbolicUtils.unwrap_const(u)
     v = SymbolicUtils.unwrap_const(v)
-    (s(u) || s(v)) ? false : u <= v
+    (s(u) || s(v)) || return u <= v
+    c = compare_constants(u, v)
+    c === nothing && return false
+    return c <= 0
 end
 le(u, v, w) = le(u, v) && le(v, w)
 
@@ -283,6 +440,60 @@ ige(a, b) = ext_isinteger(a) && ge(a, b)
 ilt(a, b) = ext_isinteger(a) && lt(a, b)
 ile(a, b) = ext_isinteger(a) && le(a, b)
 
+"""
+    rubi_sqrt(u)
+
+Square root used in the replacement side of the rule table.
+
+The rules are written with literal square roots such as `sqrt(3)`, and the
+replacement side is `eval`ed once a rule fires, so `sqrt` would be Julia's and
+would return a float for an exact argument, making the whole antiderivative
+inexact. An exact argument therefore becomes an unevaluated `sqrt` term put
+through `simplify`, which keeps it exact and reduces the radicand to lowest
+terms, so `rubi_sqrt(12//49)` gives `(2//7)*sqrt(3)` and `rubi_sqrt(4)` gives
+`2`. This is the same construction the Risch backend uses in
+`to_symb(::QQBarFieldElem)`, and it relies on the `simplify` rule that shipped
+in SymbolicUtils 4.46.8.
+
+Everything else, in particular the symbolic arguments of rules like
+`sqrt((~a) + (~b)*(~x)^2)`, falls back to `sqrt` unchanged.
+"""
+rubi_sqrt(u) = sqrt(u)
+function rubi_sqrt(u::Union{Integer, Rational})
+    u >= 0 && return SymbolicUtils.simplify(SymbolicUtils.term(sqrt, u))
+    return SymbolicUtils.simplify(SymbolicUtils.term(sqrt, -u)) * im
+end
+
+"""
+    exact_roots_in_rhs(rhs)
+
+Rewrite `sqrt` calls in the replacement side of a rule into [`rubi_sqrt`](@ref).
+
+Only the replacement side may be rewritten. `sqrt` also appears in the *match*
+side of rules such as `1/sqrt((~a) + (~b)*(~x)^2)`, and the matcher compares
+those by name (`rule.args[1] === :sqrt` in `check_expr_r`), so renaming it there
+would stop every integrand containing a square root from matching.
+"""
+function exact_roots_in_rhs(rhs::Expr)
+    args = Any[exact_roots_in_rhs(a) for a in rhs.args]
+    if rhs.head === :call && !isempty(args) && args[1] === :sqrt
+        args[1] = :rubi_sqrt
+    end
+    Expr(rhs.head, args...)
+end
+
+exact_roots_in_rhs(x) = x
+
+"""
+    exact_roots_in_rule(rule)
+
+Apply [`exact_roots_in_rhs`](@ref) to the replacement side of `rule`.
+
+Every path that puts a rule into the table goes through this, so `load_rules`
+and `reload_rules` cannot drift apart and reintroduce floating point roots.
+"""
+exact_roots_in_rule(rule::Pair) = rule.first => exact_roots_in_rhs(rule.second)
+
 # returns the simplest nth root of u
 # TODO this doesnt allow for exact simplification of roots, maybe use SymbolicUtils.Pow{Real}(u, 1⨸n)?
 function rt(u, n::Integer)
@@ -290,7 +501,7 @@ function rt(u, n::Integer)
     if !s(u) && u<0
         u=Complex(u)
     end
-    n==2 && return sqrt(u)
+    n==2 && return rubi_sqrt(u)
     return u^(1⨸n)
 end
 
@@ -298,6 +509,8 @@ end
 function pos(u)
     u = SymbolicUtils.unwrap(u)
     !s(u) && return !eq(u, 0) && (u>0)
+    sg = constant_sign(u)
+    sg === nothing || return sg > 0
     u = simplify(u)
     atom(u) && return true
     (isprod(u) || isdiv(u)) && return all(pos(arg) for arg in Symbolics.arguments(u))
