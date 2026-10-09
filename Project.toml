@@ -23,7 +23,7 @@ Symbolics = "0c5d862f-8b57-4792-8d23-62f2024744c7"
 TermInterface = "8ea1fca8-c5ef-4a55-8b96-4e9afe9c9a3c"
 
 [compat]
-AbstractAlgebra = "0.46, 0.47, 0.48, 0.49, 0.50"
+AbstractAlgebra = "0.46, 0.47, 0.48, 0.49, 0.50, 0.51"
 Combinatorics = "1.0.2"
 Elliptic = "1.0.1"
 FresnelIntegrals = "0.2.0"
