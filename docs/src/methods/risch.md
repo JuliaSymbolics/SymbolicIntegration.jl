@@ -188,11 +188,9 @@ Roots of degree three or higher have no such closed form and are kept as a
 `Root` placeholder holding the exact algebraic number.
 
 !!! note
-    Simplifying an antiderivative keeps it exact: `Symbolics.simplify` used to
-    evaluate a radical such as `sqrt(2)` to a floating point number in some
-    subterms, which was fixed in SymbolicUtils 4.49.0
-    ([issue #1079](https://github.com/JuliaSymbolics/SymbolicUtils.jl/issues/1079)),
-    and this package requires that version.
+    Simplifying an antiderivative keeps it exact. This requires
+    SymbolicUtils ≥ 4.49, whose `simplify` leaves a radical such as `sqrt(2)`
+    exact, which is why the package bounds it there.
 
     `simplify` still does not always cancel the difference between an
     antiderivative's derivative and the integrand down to zero — for
