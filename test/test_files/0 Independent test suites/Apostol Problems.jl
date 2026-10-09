@@ -405,7 +405,7 @@ file_tests = [
 (sqrt(x^2 + 5), (1⨸2)*x*sqrt(5 + x^2) + (5⨸2)*asinh(x/sqrt(Symbolics.Num(5))), x, 2),
 (x/sqrt(x^2 + x + 1), sqrt(1 + x + x^2) - (1⨸2)*asinh((1 + 2*x)/sqrt(3)), x, 3),
 (1/sqrt(x^2 + x), 2*atanh(x/sqrt(x + x^2)), x, 2),
-(sqrt(2 - x - x^2)/x^2, -(sqrt(2 - x - x^2)/x) + asin((1⨸3)*(-1 - 2*x)) + atanh((4 - x)/(2*sqrt(2)*sqrt(2 - x - x^2)))/(2*sqrt(2)), x, 6),
+(sqrt(2 - x - x^2)/x^2, -(sqrt(2 - x - x^2)/x) + asin((1⨸3)*(-1 - 2*x)) + atanh((4 - x)/(2*sqrt(Symbolics.Num(2))*sqrt(2 - x - x^2)))/(2*sqrt(Symbolics.Num(2))), x, 6),
 
 
 # ::Section::Closed::
