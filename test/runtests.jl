@@ -91,6 +91,7 @@ end
             # test internals of rulebased methods
             include("methods/rule_based/test_rule2.jl")
             include("methods/rule_based/test_special_functions.jl")
+            include("methods/rule_based/test_substitution_domain.jl")
 
         end
     end
