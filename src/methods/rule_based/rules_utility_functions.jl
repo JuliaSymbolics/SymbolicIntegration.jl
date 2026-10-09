@@ -456,6 +456,45 @@ but using a custom function is better because
 - if the rule is stupid and does a substitution in which from and to are equal, we can stop it
 - we can print rule application
 =#
+"""
+    nonnegative_substitution(to)
+
+`true` when the expression a change of variables substitutes for the new
+variable can only take nonnegative values.
+
+A principal even root is nonnegative: `sqrt(e + f*x)` and `(e + f*x)^(1//2)`
+cannot be negative, while an odd root such as `(e + f*x)^(1//3)` can.
+"""
+function nonnegative_substitution(to)
+    to = SymbolicUtils.unwrap(to)
+    SymbolicUtils.iscall(to) || return false
+    op = SymbolicUtils.operation(to)
+    op === sqrt && return true
+    op === (^) || return false
+    e = SymbolicUtils.unwrap_const(SymbolicUtils.unwrap(SymbolicUtils.arguments(to)[2]))
+    e isa Rational || return false
+    return e > 0 && iseven(denominator(e))
+end
+
+"""
+    drop_abs_of_nonnegative(integrand, int_var)
+
+Rewrite `abs(int_var)`, `sqrt(int_var^2)` and `(int_var^2)^(1//2)` to `int_var`.
+
+Only sound when `int_var` is known to be nonnegative, which
+[`nonnegative_substitution`](@ref) decides for the caller.
+"""
+function drop_abs_of_nonnegative(integrand, int_var)
+    is_int_var(y) = isequal(SymbolicUtils.unwrap(y), SymbolicUtils.unwrap(int_var))
+    rules = [
+        @rule(abs(~y::is_int_var) => ~y),
+        @rule(sqrt((~y::is_int_var)^2) => ~y),
+        @rule(((~y::is_int_var)^2)^(1 // 2) => ~y),
+    ]
+    rewriter = SymbolicUtils.Fixpoint(SymbolicUtils.Postwalk(SymbolicUtils.Chain(rules)))
+    return rewriter(integrand)
+end
+
 function int_and_subst(
     integrand::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal},
     int_var::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal},
@@ -464,6 +503,13 @@ function int_and_subst(
     rule_from_identifier::String)
 
     (from===to) && return ∫(integrand, int_var)
+    # The change of variables is the last place that knows the domain of the new
+    # variable. `u = sqrt(e + f*x)` is nonnegative, so `sqrt(u^2)` in the
+    # rewritten integrand is `u`; left alone it simplifies to `abs(u)`, which no
+    # rule matches, and the integral comes back unevaluated. See issue #145.
+    if nonnegative_substitution(to)
+        integrand = drop_abs_of_nonnegative(integrand, int_var)
+    end
     if VERBOSE
         printstyled("┌-------Applied rule $rule_from_identifier (change of variables):";);
         for ss in split(pretty_print_rule(rule_from_identifier), '\n')
