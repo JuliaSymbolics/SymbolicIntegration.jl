@@ -109,7 +109,7 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n)) - 1)*(~F)^((~a) + (~b)*(
 :((~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n))) => :(
     !contains_var((~F), (~a), (~b), (~c), (~d), (~n), (~x)) &&
     !(ext_isinteger(2/(~n))) ?
--(~F)^(~a)*((~c) + (~d)*(~x))* SymbolicUtils.gamma(1⨸(~n), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))⨸((~d)* (~n)*(-(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))^(1⨸(~n))) : nothing))
+-(~F)^(~a)*((~c) + (~d)*(~x))* incomplete_gamma(1⨸(~n), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))⨸((~d)* (~n)*(-(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))^(1⨸(~n))) : nothing))
 
 ("2_3_16",
 :(((~!e) + (~!f)*(~x))^(~!m)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n))) => :(
@@ -198,13 +198,13 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*(~F)^((~
 #     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~m), (~n), (~x)) &&
 #     eq((~d)*(~e) - (~c)*(~f), 0) &&
 #     !(USE_GAMMA[]) ?
-# -(~F)^(~a)*((~f)⨸(~d))^(~m)⨸((~d)*(~n)*(-(~b)*log((~F)))^simplify(((~m) + 1)⨸(~n)))* simplify(FunctionExpand[SymbolicUtils.gamma(simplify(((~m) + 1)⨸(~n)), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))]) : nothing)
+# -(~F)^(~a)*((~f)⨸(~d))^(~m)⨸((~d)*(~n)*(-(~b)*log((~F)))^simplify(((~m) + 1)⨸(~n)))* simplify(FunctionExpand[incomplete_gamma(simplify(((~m) + 1)⨸(~n)), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))]) : nothing)
 
 ("2_3_26",
 :(((~!e) + (~!f)*(~x))^(~!m)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n))) => :(
     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~m), (~n), (~x)) &&
     eq((~d)*(~e) - (~c)*(~f), 0) ?
--(~F)^(~a)*((~e) + (~f)*(~x))^((~m) + 1)⨸((~f)*(~n)*(-(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))^(((~m) + 1)⨸(~n)))* SymbolicUtils.gamma(((~m) + 1)⨸(~n), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F))) : nothing))
+-(~F)^(~a)*((~e) + (~f)*(~x))^((~m) + 1)⨸((~f)*(~n)*(-(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))^(((~m) + 1)⨸(~n)))* incomplete_gamma(((~m) + 1)⨸(~n), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F))) : nothing))
 
 #(* above integral : -F^a*(e+f*x)^(m+1)/(f*n)*ExpIntegralE[1-(m+1)/n,-b*(c+d*x)^n*Log[F] ] *)
 ("2_3_27",

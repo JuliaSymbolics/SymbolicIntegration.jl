@@ -73,8 +73,10 @@ Replaces functions with [] passed in `from`, to functions with () passed in
 `to`, no matter how many nested brackets there are.
 smart_replace("ArcTan[Rt[b, 2]*x/Rt[a, 2]] + Log[x]", "ArcTan", "atan")
 = "atan(Rt[b, 2]*x/Rt[a, 2]) + Log[x]"
+A call whose number of arguments is not in `n_args` is an error, or is left
+unchanged when `strict = false`.
 """
-function smart_replace(str, from, to, n_args)
+function smart_replace(str, from, to, n_args; strict = true)
     verbose = false#from=="Inttt"
     if isempty(n_args)
         n_args = -1
@@ -113,7 +115,10 @@ function smart_replace(str, from, to, n_args)
         if n_args != -1
             inside_parts = split_outside_brackets(inside, ',')
             if !(length(inside_parts) in n_args )
-                error("Expected $n_args arguments in '$from', but got $(length(inside_parts)) in: $str")
+                strict && error("Expected $n_args arguments in '$from', but got $(length(inside_parts)) in: $str")
+                processed += substring_index[1] + length(from)
+                substring_index = findfirst(from, str[processed:end])
+                continue
             end
         end
 

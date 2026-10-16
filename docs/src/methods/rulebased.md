@@ -37,7 +37,7 @@ julia> integrate(1/sqrt(1 + x), x, rbm)
 ```
 ### Configuration options
 - `verbose` specifies whether to print or not the integration rules applied (really helpful)
-- `use_gamma` specifies whether to use rules with the gamma function in the result, or not (default false). Results containing `SpecialFunctions.gamma(a, z)` can only be evaluated numerically on the branches SpecialFunctions supports: for example `-gamma(0, -x)` throws `DomainError` at positive real `x` but evaluates for complex `x`.
+- `use_gamma` specifies whether to use rules with the gamma function in the result, or not (default false). The upper incomplete gamma function Γ(a, z) appears in results as `SymbolicIntegration.incomplete_gamma(a, z)`, which evaluates numerically with `SpecialFunctions.gamma(a, z)` and only on the branches SpecialFunctions supports: for example `-incomplete_gamma(0, -x)` throws `DomainError` at positive real `x` but evaluates for complex `x`. Some rules return it with the default `use_gamma=false` too, e.g. `integrate(exp(x^3), x)`.
 
 # How it works internally
 The rules are defined as `Pair` of `Expr`s and are of this form:

@@ -64,10 +64,15 @@ using FresnelIntegrals: FresnelIntegrals
 @register_symbolic FresnelIntegrals.fresnelc(z)
 @register_symbolic FresnelIntegrals.fresnels(z)
 
-# upper incomplete gamma; the 1-argument gamma is already registered by SymbolicUtils
-@register_symbolic SpecialFunctions.gamma(a, x)
-# disambiguate against SpecialFunctions.gamma(::Integer, ::Number)
-SpecialFunctions.gamma(a::Integer, x::Num) = Symbolics.wrap(SpecialFunctions.gamma(a, Symbolics.value(x)))
+"""
+    incomplete_gamma(a, x)
+
+Upper incomplete gamma function Γ(a, x) = ∫ₓ^∞ t^(a-1) e^(-t) dt, evaluated
+numerically with `SpecialFunctions.gamma(a, x)` and kept unevaluated on symbolic
+arguments. Rule-based integration results use it for Γ(a, x).
+"""
+incomplete_gamma(a, x) = SpecialFunctions.gamma(a, x)
+@register_symbolic incomplete_gamma(a, x)
 
 sinhintegral(x::Any) = println("hyperbolic sine integral Shi(z) function (https://en.wikipedia.org/wiki/Trigonometric_integral#Hyperbolic_sine_integral) is not implemented yet")
 @register_symbolic sinhintegral(x)

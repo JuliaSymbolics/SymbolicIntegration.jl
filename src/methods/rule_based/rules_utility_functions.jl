@@ -546,6 +546,7 @@ const SPECIAL_FUNCTION_OPERATIONS = (
     SpecialFunctions.expinti,
     SpecialFunctions.expint,
     SpecialFunctions.gamma,
+    incomplete_gamma,
     SpecialFunctions.sinint,
     SpecialFunctions.cosint,
     SpecialFunctions.loggamma,

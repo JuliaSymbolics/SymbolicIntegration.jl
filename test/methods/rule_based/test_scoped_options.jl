@@ -5,23 +5,6 @@ using SpecialFunctions
 
 const SI = SymbolicIntegration
 
-const _overlap_entered = Channel{Any}(1)
-const _overlap_resume = Channel{Nothing}(1)
-const _overlap_progress = Ref(false)
-
-# A more-specific method pauses the rule loop of a task that sets the
-# :scoped_options_gate flag, so another task can run while that call is
-# still inside its integration. All other calls forward unchanged.
-function SI.repeated_prewalk(expr::SI.SymbolicUtils.BasicSymbolic; visited::Set = Set())
-    if get(task_local_storage(), :scoped_options_gate, false)
-        task_local_storage(:scoped_options_gate, false)
-        _overlap_progress[] = true
-        put!(_overlap_entered, nothing)
-        take!(_overlap_resume)
-    end
-    invoke(SI.repeated_prewalk, Tuple{Any}, expr; visited = visited)
-end
-
 # RuleBasedMethod's verbose/use_gamma options are dynamically scoped to each
 # integrate call: a binding is visible only within that call's dynamic extent.
 # See https://github.com/JuliaSymbolics/SymbolicIntegration.jl/issues/19
@@ -29,7 +12,7 @@ end
     @variables x
 
     @testset "verbose does not leak out of a call" begin
-        integrate(1/x, x, RuleBasedMethod(verbose=true))
+        integrate(1 / x, x, RuleBasedMethod(verbose = true))
         @test SI.VERBOSE[] === false
         @test isempty(SI.SILENCE[])
 
@@ -47,58 +30,40 @@ end
     @testset "use_gamma reaches the rule conditions" begin
         # (1+x)*exp(x) matches rule 2_1_1 (elementary recurrence) when
         # use_gamma=false, and rule 2_1_4 (incomplete gamma) when true.
-        plain = integrate((1+x)*exp(x), x, RuleBasedMethod(use_gamma=false))
-        gammad = integrate((1+x)*exp(x), x, RuleBasedMethod(use_gamma=true))
+        plain = integrate((1 + x) * exp(x), x, RuleBasedMethod(use_gamma = false))
+        gammad = integrate((1 + x) * exp(x), x, RuleBasedMethod(use_gamma = true))
         @test !occursin("gamma", string(plain))
-        @test isequal(gammad, -exp(-1) * SpecialFunctions.gamma(2, -1 - x))
+        @test isequal(gammad, -exp(-1) * SI.incomplete_gamma(2, -1 - x))
         @test SI.USE_GAMMA[] === false
     end
 
-    @testset "incomplete-gamma result differentiates back to the integrand" begin
-        gammad = integrate((1+x)*exp(x), x, RuleBasedMethod(use_gamma=true))
-        # SpecialFunctions.gamma(0, -z) evaluates only on a branch reached via
-        # complex arguments, so the finite-difference check probes a complex
-        # point. Evaluating this antiderivative at positive real inputs throws
-        # DomainError upstream.
+    @testset "incomplete-gamma results do not add SpecialFunctions.gamma methods" begin
+        @test isempty(methods(SpecialFunctions.gamma, SymbolicIntegration))
+        @test SI.incomplete_gamma(2, 1.5) == SpecialFunctions.gamma(2, 1.5)
+    end
+
+    @testset "incomplete-gamma results differentiate back to the integrand" begin
+        h = 1.0e-6
+        gammad = integrate((1 + x) * exp(x), x, RuleBasedMethod(use_gamma = true))
         f = Symbolics.build_function(gammad, x, expression = Val{false})
-        z = 0.5 + 0.25im
-        h = 1e-6
-        @test (f(z + h) - f(z - h)) / (2h) ≈ (1 + z) * exp(z) atol=1e-4
+        for z in (-0.7, 0.3, 1.0)
+            @test (f(z + h) - f(z - h)) / (2h) ≈ (1 + z) * exp(z) rtol = 1.0e-6
+        end
+
+        # rule 2_3_15 returns an incomplete gamma without use_gamma
+        cubic = integrate(exp(x^3), x, RuleBasedMethod())
+        @test occursin("incomplete_gamma", string(cubic))
+        g = Symbolics.build_function(cubic, x, expression = Val{false})
+        for z in (0.7 + 0.2im, 1.3 + 0.0im)
+            @test (g(z + h) - g(z - h)) / (2h) ≈ exp(z^3) rtol = 1.0e-6
+        end
     end
 
     @testset "a paused verbose call does not leak into concurrent work" begin
-        _overlap_progress[] = false
-        mktemp() do path, io
-            redirect_stdout(io) do
-                worker = Threads.@spawn begin
-                    try
-                        task_local_storage(:scoped_options_gate, true)
-                        integrate(1/x, x, RuleBasedMethod(verbose = true, use_gamma = true))
-                        put!(_overlap_entered, :finished)
-                    catch e
-                        put!(_overlap_entered, e)
-                        rethrow()
-                    end
-                end
-                sig = take!(_overlap_entered)
-                if sig isa Exception
-                    wait(worker)
-                    throw(sig)
-                end
-                sig === :finished &&
-                    error("background integrate returned without pausing in the rule loop")
-                try
-                    # the verbose integrate call is paused inside the rule
-                    # loop while this task evaluates a quiet one
-                    @test _overlap_progress[]
-                    SI.repeated_prewalk(SI.∫(Symbolics.value(x^9), Symbolics.value(x)))
-                    flush(io)
-                    @test read(path, String) == ""
-                finally
-                    put!(_overlap_resume, nothing)
-                    fetch(worker)
-                end
-            end
-        end
+        julia = joinpath(Sys.BINDIR, Sys.iswindows() ? "julia.exe" : "julia")
+        script = joinpath(@__DIR__, "scoped_options_isolation.jl")
+        cmd = `$julia --startup-file=no --project=$(Base.active_project()) --threads=$(Threads.nthreads()) $script`
+        @test success(pipeline(cmd; stdout = stdout, stderr = stderr))
+        @test all(m -> parentmodule(m) === SymbolicIntegration, methods(SI.repeated_prewalk))
     end
 end
