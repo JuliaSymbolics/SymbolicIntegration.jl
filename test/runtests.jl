@@ -86,10 +86,12 @@ end
             include("methods/risch/test_algorithm_internals.jl")
             include("methods/risch/test_textbook_transcendentals.jl")
             include("methods/risch/test_trig_integrals.jl")
+            include("methods/risch/test_exact_algebraic_coefficients.jl")
 
             # test internals of rulebased methods
             include("methods/rule_based/test_rule2.jl")
             include("methods/rule_based/test_special_functions.jl")
+            include("methods/rule_based/test_exact_roots.jl")
             include("methods/rule_based/test_substitution_domain.jl")
 
         end

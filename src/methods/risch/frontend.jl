@@ -98,16 +98,18 @@ function to_symb(t::QQBarFieldElem)
     if degree(f)==2 && iszero(coeff(f,1))
         y = to_symb(-coeff(f,0)//coeff(f, 2))
         if y>=0
+            term_sqrt = SymbolicUtils.simplify(SymbolicUtils.term(sqrt, y))
             if t==maximum(conjugates(t))
-                return sqrt(y)
+                return term_sqrt
             else
-                return -sqrt(y)
+                return -term_sqrt
             end
         else
+            term_sqrt = SymbolicUtils.simplify(SymbolicUtils.term(sqrt, -y))
             if imag(t)==maximum(imag.(conjugates(t)))
-                return sqrt(-y)*1im
+                return term_sqrt*im
             else
-                return -sqrt(-y)*1im
+                return -term_sqrt*im
             end
         end
     elseif degree(f)==2 # coeff(f,1)!=0
