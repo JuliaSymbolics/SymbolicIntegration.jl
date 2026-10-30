@@ -24,11 +24,11 @@ function apply_rule(problem)
         result = rule3(rule, integrand, integration_var)
         if result !== nothing
             if result===problem
-                VERBOSE && println("Infinite cycle created by rule $(IDENTIFIERS[i]) applied on ", problem)
+                VERBOSE[] && println("Infinite cycle created by rule $(IDENTIFIERS[i]) applied on ", problem)
                 continue
             end
             # add_statistics(IDENTIFIERS[i], "$problem")
-            if VERBOSE && !in(IDENTIFIERS[i], SILENCE)
+            if VERBOSE[] && !in(IDENTIFIERS[i], SILENCE[])
                 s = pretty_print_rule(rule, IDENTIFIERS[i])
                 printstyled("┌-------Applied rule $(IDENTIFIERS[i]) on ";);
                 printstyled(string(problem); color = :light_red)
@@ -38,12 +38,12 @@ function apply_rule(problem)
                 printstyled("\n└-------with result: ";)
                 printstyled(string(result), "\n"; color = :light_blue)
             end
-            in(IDENTIFIERS[i], SILENCE) && pop!(SILENCE)
+            in(IDENTIFIERS[i], SILENCE[]) && pop!(SILENCE[])
             return (result, true)
         end
     end
 
-    VERBOSE && println("No rule found for ", problem)
+    VERBOSE[] && println("No rule found for ", problem)
     return (problem, false)
 end
 
@@ -96,7 +96,7 @@ function repeated_prewalk(expr; visited::Set=Set())
         #     r2 = @rule ∫((~n)/*(~~d),~x) => ∫(~n*prod([ins(el) for el in ~~d]),~x)
         #     r2r = r2(expr)
         #     if r2r!==nothing
-        #         VERBOSE && println("integration of ", expr, " failed, trying with this mathematically equivalent integrand:\n$r2r")
+        #         VERBOSE[] && println("integration of ", expr, " failed, trying with this mathematically equivalent integrand:\n$r2r")
         #         (new_expr,success) = apply_rule(r2r)
         #         if success && new_expr===expr
         #             success=false
@@ -107,7 +107,7 @@ function repeated_prewalk(expr; visited::Set=Set())
         #     r1 = @rule ∫((~n)/(~d),~x) => ∫(~n*ins(~d),~x)
         #     r1r = r1(expr)
         #     if r1r!==nothing
-        #         VERBOSE && println("integration of ", expr, " failed, trying with this mathematically equivalent integrand:\n$r1r")
+        #         VERBOSE[] && println("integration of ", expr, " failed, trying with this mathematically equivalent integrand:\n$r1r")
         #         (new_expr,success) = apply_rule(r1r)
         #         # if success we know r1r!=new_expr
         #         # but clud be new_expr==expr
@@ -124,7 +124,7 @@ function repeated_prewalk(expr; visited::Set=Set())
             # TODO Can this be a bad idea sometimes?
             simplified_expr = simplify(expr, expand=true)
             if simplified_expr !== expr
-                VERBOSE && println("integration of ", expr, " failed, trying with the expanded version:\n", simplified_expr)
+                VERBOSE[] && println("integration of ", expr, " failed, trying with the expanded version:\n", simplified_expr)
                 (new_expr,success) = apply_rule(simplified_expr)
                 if !success
                     return new_expr
@@ -145,7 +145,7 @@ function repeated_prewalk(expr; visited::Set=Set())
 end
 
 function integrate_rule_based(integrand::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}, int_var::SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}; use_gamma::Bool=false, verbose::Bool=false, kwargs...)
-    global VERBOSE
-    VERBOSE = verbose
-    return repeated_prewalk(∫(integrand,int_var))
+    return ScopedValues.with(VERBOSE => verbose, USE_GAMMA => use_gamma, SILENCE => String[]) do
+        repeated_prewalk(∫(integrand,int_var))
+    end
 end

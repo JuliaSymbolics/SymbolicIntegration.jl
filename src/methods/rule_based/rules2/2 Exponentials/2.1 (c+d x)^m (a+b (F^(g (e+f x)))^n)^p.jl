@@ -6,7 +6,7 @@ file_rules = [
     !contains_var((~F), (~b), (~c), (~d), (~e), (~f), (~g), (~n), (~x)) &&
     gt((~m), 0) &&
     ext_isinteger(2*(~m)) &&
-    !(USE_GAMMA) ?
+    !(USE_GAMMA[]) ?
 ((~c) + (~d)*(~x))^(~m)*((~b)*(~F)^((~g)*((~e) + (~f)*(~x))))^(~n)⨸((~f)*(~g)*(~n)*log((~F))) - (~d)*(~m)⨸((~f)*(~g)*(~n)*log((~F)))* ∫(((~c) + (~d)*(~x))^((~m) - 1)*((~b)*(~F)^((~g)*((~e) + (~f)*(~x))))^(~n), (~x)) : nothing))
 
 ("2_1_2",
@@ -14,32 +14,32 @@ file_rules = [
     !contains_var((~F), (~b), (~c), (~d), (~e), (~f), (~g), (~n), (~x)) &&
     lt((~m), -1) &&
     ext_isinteger(2*(~m)) &&
-    !(USE_GAMMA) ?
+    !(USE_GAMMA[]) ?
 ((~c) + (~d)*(~x))^((~m) + 1)*((~b)*(~F)^((~g)*((~e) + (~f)*(~x))))^(~n)⨸((~d)*((~m) + 1)) - (~f)*(~g)*(~n)*log((~F))⨸((~d)*((~m) + 1))* ∫(((~c) + (~d)*(~x))^((~m) + 1)*((~b)*(~F)^((~g)*((~e) + (~f)*(~x))))^(~n), (~x)) : nothing))
 
 ("2_1_3",
 :((~F)^((~!g)*((~!e) + (~!f)*(~x)))/((~!c) + (~!d)*(~x))) => :(
     !contains_var((~F), (~c), (~d), (~e), (~f), (~g), (~x)) &&
-    !(USE_GAMMA) ?
+    !(USE_GAMMA[]) ?
 (~F)^((~g)*((~e) - (~c)*(~f)⨸(~d)))⨸(~d)*SymbolicUtils.expinti((~f)*(~g)*((~c) + (~d)*(~x))*log((~F))⨸(~d)) : nothing))
 
 ("2_1_4",
 :(((~!c) + (~!d)*(~x))^(~!m)*(~F)^((~!g)*((~!e) + (~!f)*(~x)))) => :(
     !contains_var((~F), (~c), (~d), (~e), (~f), (~g), (~x)) &&
     ext_isinteger((~m)) ?
-(-(~d))^(~m)*(~F)^((~g)*((~e) - (~c)*(~f)⨸(~d)))⨸((~f)^((~m) + 1)*(~g)^((~m) + 1)*log((~F))^((~m) + 1))* SymbolicUtils.gamma((~m) + 1, -(~f)*(~g)*log((~F))⨸(~d)*((~c) + (~d)*(~x))) : nothing))
+(-(~d))^(~m)*(~F)^((~g)*((~e) - (~c)*(~f)⨸(~d)))⨸((~f)^((~m) + 1)*(~g)^((~m) + 1)*log((~F))^((~m) + 1))* incomplete_gamma((~m) + 1, -(~f)*(~g)*log((~F))⨸(~d)*((~c) + (~d)*(~x))) : nothing))
 
 ("2_1_5",
 :((~F)^((~!g)*((~!e) + (~!f)*(~x)))/sqrt((~!c) + (~!d)*(~x))) => :(
     !contains_var((~F), (~c), (~d), (~e), (~f), (~g), (~x)) &&
-    !(USE_GAMMA) ?
+    !(USE_GAMMA[]) ?
 2⨸(~d)*int_and_subst((~F)^((~g)*((~e) - (~c)*(~f)⨸(~d)) + (~f)*(~g)*(~x)^2⨸(~d)),  (~x), (~x), sqrt((~c) + (~d)*(~x)), "2_1_5") : nothing))
 
 ("2_1_6",
 :(((~!c) + (~!d)*(~x))^(~m)*(~F)^((~!g)*((~!e) + (~!f)*(~x)))) => :(
     !contains_var((~F), (~c), (~d), (~e), (~f), (~g), (~m), (~x)) &&
     !(ext_isinteger((~m))) ?
--(~F)^((~g)*((~e) - (~c)*(~f)⨸(~d)))*((~c) + (~d)*(~x))^ fracpart( (~m))⨸((~d)*(-(~f)*(~g)*log((~F))⨸(~d))^(intpart((~m)) + 1)*(-(~f)*(~g)* log((~F))*((~c) + (~d)*(~x))⨸(~d))^fracpart((~m)))* SymbolicUtils.gamma((~m) + 1, (-(~f)*(~g)*log((~F))⨸(~d))*((~c) + (~d)*(~x))) : nothing))
+-(~F)^((~g)*((~e) - (~c)*(~f)⨸(~d)))*((~c) + (~d)*(~x))^ fracpart( (~m))⨸((~d)*(-(~f)*(~g)*log((~F))⨸(~d))^(intpart((~m)) + 1)*(-(~f)*(~g)* log((~F))*((~c) + (~d)*(~x))⨸(~d))^fracpart((~m)))* incomplete_gamma((~m) + 1, (-(~f)*(~g)*log((~F))⨸(~d))*((~c) + (~d)*(~x))) : nothing))
 
 ("2_1_7",
 :(((~!c) + (~!d)*(~x))^(~!m)*((~!b)*(~F)^((~!g)*((~!e) + (~!f)*(~x))))^(~n)) => :(
@@ -66,7 +66,7 @@ file_rules = [
     igt((~m), 0) ?
 1⨸(~a)*∫(((~c) + (~d)*(~x))^(~m)*((~a) + (~b)*((~F)^((~g)*((~e) + (~f)*(~x))))^(~n))^((~p) + 1), (~x)) - (~b)⨸(~a)* ∫(((~c) + (~d)*(~x))^(~m)*((~F)^((~g)*((~e) + (~f)*(~x))))^(~n)*((~a) + (~b)*((~F)^((~g)*((~e) + (~f)*(~x))))^(~n))^(~p), (~x)) : nothing))
 
-# TODO find definition of Dist and NormalizePowerOfLinear functinos.... where are they!!!!!??????
+# TODO find definition of Dist and NormalizePowerOfLinear functions.... where are they!!!!!??????
 # ("2_1_11",
 # @rule ∫(((~!c) + (~!d)*(~x))^(~!m)*((~a) + (~!b)*((~F)^((~!g)*((~!e) + (~!f)*(~x))))^(~!n))^(~p),(~x)) =>
 #     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~g), (~n), (~x)) &&
