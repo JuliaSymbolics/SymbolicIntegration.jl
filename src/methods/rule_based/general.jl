@@ -64,6 +64,16 @@ using FresnelIntegrals: FresnelIntegrals
 @register_symbolic FresnelIntegrals.fresnelc(z)
 @register_symbolic FresnelIntegrals.fresnels(z)
 
+"""
+    incomplete_gamma(a, x)
+
+Upper incomplete gamma function Γ(a, x) = ∫ₓ^∞ t^(a-1) e^(-t) dt, evaluated
+numerically with `SpecialFunctions.gamma(a, x)` and kept unevaluated on symbolic
+arguments. Rule-based integration results use it for Γ(a, x).
+"""
+incomplete_gamma(a, x) = SpecialFunctions.gamma(a, x)
+@register_symbolic incomplete_gamma(a, x)
+
 sinhintegral(x::Any) = println("hyperbolic sine integral Shi(z) function (https://en.wikipedia.org/wiki/Trigonometric_integral#Hyperbolic_sine_integral) is not implemented yet")
 @register_symbolic sinhintegral(x)
 coshintegral(x::Any) = println("hyperbolic cosine integral Chi(z) function (https://en.wikipedia.org/wiki/Trigonometric_integral#Hyperbolic_cosine_integral) is not implemented yet")
@@ -81,13 +91,13 @@ const RULES = Pair{Expr, Expr}[]
 const IDENTIFIERS = String[]
 
 # to use or not the gamma function in integration results
-USE_GAMMA = false # TODO make it work with revise and not just with reloading rules
+const USE_GAMMA = ScopedValues.ScopedValue{Bool}(false)
 
 # to print or not the integration steps
-VERBOSE = false
-# global array of rules identifiers to not print the corresponding rule
+const VERBOSE = ScopedValues.ScopedValue{Bool}(false)
+# rules identifiers to not print the corresponding rule
 # It's needed otherwise rules with subst_and_int would be printed twice
-const SILENCE = String[]
+const SILENCE = ScopedValues.ScopedValue{Vector{String}}(String[])
 
 all_rules_paths = [
 "9 Miscellaneous/0.1 Integrand simplification rules.jl"

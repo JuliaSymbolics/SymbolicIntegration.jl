@@ -294,6 +294,8 @@ function translate_integrand(integrand)
         ("Gamma", "SymbolicUtils.gamma"),
     ]
 
+    # Gamma[a, z] is the upper incomplete gamma, Gamma[z] the gamma function
+    integrand = smart_replace(integrand, "Gamma", "incomplete_gamma", (2,); strict = false)
     for (mathematica, julia, n_args...) in simple_substitutions
         integrand = smart_replace(integrand, mathematica, julia, n_args)
     end
@@ -421,6 +423,7 @@ function result_substitutions(result, vardefs)
         ("ExpandTrigReduce", "expand_trig_reduce",(2,3))
     ]
 
+    result = smart_replace(result, "Gamma", "incomplete_gamma", (2,); strict = false)
     for (mathematica, julia, n_args...) in simple_substitutions
         result = smart_replace(result, mathematica, julia, n_args)
     end
@@ -625,7 +628,7 @@ function translate_conditions(conditions, vardefs)
         (r"PolynomialQuotient\[(.*?),(.*?)\]", s"poly_quotient(\1,\2)"),
         (r"Expon\[(.*?),(.*?)\]", s"exponent_of(\1,\2)"),
 
-        ("TrueQ[\$UseGamma]", "USE_GAMMA"),
+        ("TrueQ[\$UseGamma]", "USE_GAMMA[]"),
         (r"MemberQ\[{(.*?)},(.*?)\]", s"in(\2, [\1])"),
 
         ("{", "["), # to transform lists syntax

@@ -11,7 +11,7 @@ file_rules = [
     !contains_var((~F), (~c), (~x)) &&
     poly((~u), (~x)) &&
     linear((~v), (~x)) &&
-    USE_GAMMA ?
+    USE_GAMMA[] ?
 ∫(ext_expand((~u)*(~F)^((~c)*expand_to_sum((~v), (~x))), (~x)), (~x)) : nothing))
 
 ("2_3_3",
@@ -19,7 +19,7 @@ file_rules = [
     !contains_var((~F), (~c), (~x)) &&
     poly((~u), (~x)) &&
     linear((~v), (~x)) &&
-    !(USE_GAMMA) ?
+    !(USE_GAMMA[]) ?
 ∫(ext_expand((~F)^((~c)*expand_to_sum((~v), (~x))), (~u), (~x)), (~x)) : nothing))
 
 ("2_3_4",
@@ -36,7 +36,7 @@ ext_coeff((~w), (~x))*(~u)^((~m) + 1)*(~F)^((~c)*(~v))⨸(ext_coeff((~v), (~x))*
 #     linear((~v), (~x)) &&
 #     PowerOflinear((~u), (~x)) &&
 #     ext_isinteger((~m)) &&
-#     USE_GAMMA ?
+#     USE_GAMMA[] ?
 # ∫(ext_expand( (~w)*NormalizePowerOfLinear[(~u), (~x)]^(~m)*(~F)^((~c)*expand_to_sum((~v), (~x))), (~x)), (~x)) : nothing)
 # 
 # ("2_3_6",
@@ -46,7 +46,7 @@ ext_coeff((~w), (~x))*(~u)^((~m) + 1)*(~F)^((~c)*(~v))⨸(ext_coeff((~v), (~x))*
 #     linear((~v), (~x)) &&
 #     PowerOflinear((~u), (~x)) &&
 #     ext_isinteger((~m)) &&
-#     !(USE_GAMMA) ?
+#     !(USE_GAMMA[]) ?
 # ∫(ext_expand((~F)^((~c)*expand_to_sum((~v), (~x))), (~w)*NormalizePowerOfLinear[(~u), (~x)]^(~m), (~x)), (~x)) : nothing)
 
 # ("2_3_7",
@@ -109,7 +109,7 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n)) - 1)*(~F)^((~a) + (~b)*(
 :((~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n))) => :(
     !contains_var((~F), (~a), (~b), (~c), (~d), (~n), (~x)) &&
     !(ext_isinteger(2/(~n))) ?
--(~F)^(~a)*((~c) + (~d)*(~x))* SymbolicUtils.gamma(1⨸(~n), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))⨸((~d)* (~n)*(-(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))^(1⨸(~n))) : nothing))
+-(~F)^(~a)*((~c) + (~d)*(~x))* incomplete_gamma(1⨸(~n), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))⨸((~d)* (~n)*(-(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))^(1⨸(~n))) : nothing))
 
 ("2_3_16",
 :(((~!e) + (~!f)*(~x))^(~!m)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n))) => :(
@@ -197,14 +197,14 @@ ext_den((~n))⨸(~d)* int_and_subst((~x)^(ext_den((~n))*((~m) + 1) - 1)*(~F)^((~
 #     igt(simplify(((~m) + 1)/(~n)), 0) &&
 #     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~m), (~n), (~x)) &&
 #     eq((~d)*(~e) - (~c)*(~f), 0) &&
-#     !(USE_GAMMA) ?
-# -(~F)^(~a)*((~f)⨸(~d))^(~m)⨸((~d)*(~n)*(-(~b)*log((~F)))^simplify(((~m) + 1)⨸(~n)))* simplify(FunctionExpand[SymbolicUtils.gamma(simplify(((~m) + 1)⨸(~n)), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))]) : nothing)
+#     !(USE_GAMMA[]) ?
+# -(~F)^(~a)*((~f)⨸(~d))^(~m)⨸((~d)*(~n)*(-(~b)*log((~F)))^simplify(((~m) + 1)⨸(~n)))* simplify(FunctionExpand[incomplete_gamma(simplify(((~m) + 1)⨸(~n)), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))]) : nothing)
 
 ("2_3_26",
 :(((~!e) + (~!f)*(~x))^(~!m)*(~F)^((~!a) + (~!b)*((~!c) + (~!d)*(~x))^(~n))) => :(
     !contains_var((~F), (~a), (~b), (~c), (~d), (~e), (~f), (~m), (~n), (~x)) &&
     eq((~d)*(~e) - (~c)*(~f), 0) ?
--(~F)^(~a)*((~e) + (~f)*(~x))^((~m) + 1)⨸((~f)*(~n)*(-(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))^(((~m) + 1)⨸(~n)))* SymbolicUtils.gamma(((~m) + 1)⨸(~n), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F))) : nothing))
+-(~F)^(~a)*((~e) + (~f)*(~x))^((~m) + 1)⨸((~f)*(~n)*(-(~b)*((~c) + (~d)*(~x))^(~n)*log((~F)))^(((~m) + 1)⨸(~n)))* incomplete_gamma(((~m) + 1)⨸(~n), -(~b)*((~c) + (~d)*(~x))^(~n)*log((~F))) : nothing))
 
 #(* above integral : -F^a*(e+f*x)^(m+1)/(f*n)*ExpIntegralE[1-(m+1)/n,-b*(c+d*x)^n*Log[F] ] *)
 ("2_3_27",
