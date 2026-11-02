@@ -184,8 +184,10 @@ Radicals are reported in lowest terms, so the largest perfect square factor is
 pulled out of the radicand: a coefficient of `sqrt(12//49)` is returned as
 `(2//7)*sqrt(3)`.
 
-Roots of degree three or higher have no such closed form and are kept as a
-`Root` placeholder holding the exact algebraic number.
+Radical forms are only produced for algebraic numbers of degree at most two.
+A coefficient of higher degree is kept exact as a `Root` placeholder holding
+the algebraic number, even when, like the roots of a cubic or a quartic, it
+could be written with radicals.
 
 !!! note
     Simplifying an antiderivative keeps it exact. This requires
