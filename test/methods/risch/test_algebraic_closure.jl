@@ -3,10 +3,16 @@ using SymbolicIntegration
 using Symbolics
 import Nemo
 
-# `RischMethod(use_algebraic_closure=true)` used to throw
-# `DomainError: comparing nonreal numbers` as soon as the roots were not real,
-# because a nonreal coefficient was compared with `<` to decide a sign.
-# See https://github.com/JuliaSymbolics/SymbolicIntegration.jl/issues/13
+# A nonreal algebraic coefficient has no sign, so it must never be compared
+# with `<`. See https://github.com/JuliaSymbolics/SymbolicIntegration.jl/issues/13
+
+# |F'(z) - f(z)|, relative to |f(z)|: zero up to rounding when F is an
+# antiderivative of f. Complex points keep the logarithms defined.
+function derivative_residual(F, f, x, z)
+    dF = build_function(expand_derivatives(Differential(x)(F)), x; expression = Val(false))
+    g = build_function(f, x; expression = Val(false))
+    return abs(dF(z) - g(z)) / max(1, abs(g(z)))
+end
 
 @testset "[Risch] Algebraic closure with nonreal roots" begin
     @variables x
@@ -41,19 +47,18 @@ import Nemo
             ]
             result = integrate(f, x, method)
             @test !isnothing(result)
-            # Rendering the result is part of the contract: the comparison that
-            # used to fail is also reached from `show`.
+            # `show` reaches the same sign decision.
             @test string(result) isa String
+            for z in (0.25 + 0.125im, -0.75 + 0.5im, 2.0 + 0.3im)
+                @test derivative_residual(result, f, x, z) < 1.0e-10
+            end
         end
     end
 
     @testset "Known remaining limitation" begin
-        # 1/(x^4 + 1) still raises from a different nonreal comparison, reached
-        # when the degree-4 `Root` placeholder in the result is rendered.
-        # `integrate` itself succeeds; only displaying the result throws, with a
-        # `DomainError` carrying the offending nonreal root. Asserting the
-        # exception type pins the current limitation without suppressing an
-        # unrelated failure: when rendering is fixed, this test fails and says so.
+        # Rendering the degree-4 `Root` placeholder in the result of
+        # 1/(x^4 + 1) still compares a nonreal root; `integrate` succeeds.
+        # This fails, deliberately, once rendering is fixed.
         method = RischMethod(use_algebraic_closure = true, catch_errors = false)
         result = integrate(1 / (x^4 + 1), x, method)
         @test !isnothing(result)
