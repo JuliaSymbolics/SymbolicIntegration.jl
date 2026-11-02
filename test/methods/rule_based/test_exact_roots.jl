@@ -68,6 +68,48 @@ end
         @test SI.ge(z, 0)
     end
 
+    @testset "a large rounding error does not decide the sign" begin
+        # p^2 - 2q^2 == 1 (a Pell solution), so u == 1/(p + q*sqrt(2)) > 0,
+        # about 1.7e-14. In floating point the two terms are about 3e13 and
+        # cancel to -0.00390625: far above any absolute threshold, wrong sign.
+        p = 30122754096401
+        q = 21300003689580
+        @test big(p)^2 - 2 * big(q)^2 == 1
+        u = p - q * SI.rubi_sqrt(2)
+        @test SI.exact_sign(u) == 1
+
+        @test SI.pos(u)
+        @test !SI.neg(u)
+        @test SI.gt(u, 0)
+        @test SI.ge(u, 0)
+        @test !SI.lt(u, 0)
+        @test !SI.le(u, 0)
+        # The same cancellation inside a comparison of two large operands.
+        @test SI.gt(p, q * SI.rubi_sqrt(2))
+        @test SI.lt(q * SI.rubi_sqrt(2), p)
+
+        @test SI.neg(-u)
+        @test !SI.pos(-u)
+    end
+
+    @testset "a zero that does not simplify structurally is not negative" begin
+        # sqrt(2)*sqrt(3) - sqrt(6) is exactly zero, but `eq` compares it
+        # through `simplify`, which does not see that.
+        z = SI.rubi_sqrt(2) * SI.rubi_sqrt(3) - SI.rubi_sqrt(6)
+        @test SI.exact_sign(z) == 0
+        @test !SI.pos(z)
+        @test !SI.neg(z)
+        @test SI.ge(z, 0)
+        @test SI.le(z, 0)
+        @test !SI.gt(z, 0)
+        @test !SI.lt(z, 0)
+    end
+
+    @testset "known limitation: a cubic denominator is not exact yet" begin
+        # The roots of x^3 - 1 still reach the result in floating point.
+        @test_broken !has_inexact_number(integrate(1 / (x^3 - 1), x))
+    end
+
     @testset "ordinary constants keep their decisions" begin
         @test SI.pos(SI.rubi_sqrt(2))
         @test !SI.pos(-SI.rubi_sqrt(2))

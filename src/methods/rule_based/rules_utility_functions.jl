@@ -102,9 +102,7 @@ built from rational literals, `+`, `-`, `*`, `/`, integer powers and square
 roots.
 
 Unlike [`constant_value`](@ref) this is exact, which is what makes a sign
-decision trustworthy; it is also far more expensive, so the predicates below
-only reach for it when the floating point value is too close to zero to be
-conclusive.
+decision trustworthy.
 """
 function algebraic_constant_value(u, QQBar::QQBarField = algebraic_closure(Nemo.QQ))
     u = SymbolicUtils.unwrap_const(SymbolicUtils.unwrap(u))
@@ -142,11 +140,6 @@ function algebraic_constant_value(u, QQBar::QQBarField = algebraic_closure(Nemo.
     return nothing
 end
 
-# Below this magnitude a floating point value is not conclusive: cancellation
-# between nearly equal radicals can consume every significant digit, and it can
-# even produce the wrong sign.
-const SIGN_FILTER = sqrt(eps(Float64))
-
 """
     exact_sign(u)
 
@@ -161,46 +154,50 @@ function exact_sign(u)
     return v > 0 ? 1 : -1
 end
 
+# Sign of a floating point value, used only when no exact decision exists.
+float_sign(c) = iszero(c) ? 0 : (c > 0 ? 1 : -1)
+
 """
     constant_sign(u)
 
 `-1`, `0` or `1` when `u` denotes a real constant, `nothing` otherwise.
 
-The floating point value decides whenever it is far enough from zero; otherwise
-the sign is taken over the algebraic numbers. `rubi_sqrt(10^16 + 1) - 10^8`
-folds to `0.0` in floating point although it is about `5.0e-9`, and these
-predicates choose rule branches, so that would silently select the
-antiderivative for the wrong sign.
+The sign is decided exactly, over the algebraic numbers, whenever `u` is built
+from rationals, arithmetic and square roots. These predicates choose rule
+branches, and no floating point threshold is safe: `rubi_sqrt(10^16 + 1) - 10^8`
+folds to `0.0` although it is about `5.0e-9`, and with `p^2 - 2q^2 == 1`,
+`p - q*rubi_sqrt(2)` folds to `-0.00390625` although it is positive. Only an
+expression outside that class (`π`, `exp`, a float literal) falls back to its
+floating point value.
 """
 function constant_sign(u)
     c = real_constant_value(u)
     c === nothing && return nothing
-    isfinite(c) || return nothing
-    abs(c) > SIGN_FILTER && return c > 0 ? 1 : -1
+    c isa Union{Integer, Rational} && return Int(sign(c))
     e = exact_sign(u)
     e === nothing || return e
-    # Not an expression we can decide exactly: keep the floating point verdict
-    # rather than inventing one, and let the caller treat it as it always has.
-    return iszero(c) ? 0 : (c > 0 ? 1 : -1)
+    isfinite(c) || return nothing
+    return float_sign(c)
 end
 
 """
     compare_constants(u, v)
 
 `-1`, `0` or `1` for the comparison of two real constants, `nothing` when either
-of them is not one. Near-equal values are separated exactly, for the reason given
-in [`constant_sign`](@ref).
+of them is not one. Decided exactly when possible, for the reason given in
+[`constant_sign`](@ref).
 """
 function compare_constants(u, v)
     cu = real_constant_value(u)
     cv = real_constant_value(v)
     (cu === nothing || cv === nothing) && return nothing
-    (isfinite(cu) && isfinite(cv)) || return nothing
-    d = cu - cv
-    abs(d) > SIGN_FILTER * max(1.0, abs(cu), abs(cv)) && return d > 0 ? 1 : -1
+    if cu isa Union{Integer, Rational} && cv isa Union{Integer, Rational}
+        return cmp(cu, cv)
+    end
     e = exact_sign(u - v)
     e === nothing || return e
-    return d > 0 ? 1 : (d < 0 ? -1 : 0)
+    (isfinite(cu) && isfinite(cv)) || return nothing
+    return float_sign(cu - cv)
 end
 
 function eq(a, b)
@@ -516,7 +513,15 @@ function pos(u)
     (isprod(u) || isdiv(u)) && return all(pos(arg) for arg in Symbolics.arguments(u))
     return true
 end
-neg(u) = !pos(u) && !eq(u, 0)
+function neg(u)
+    # A certified sign settles it; `eq` goes through `simplify`, which misses
+    # zeros such as `sqrt(2)*sqrt(3) - sqrt(6)`.
+    if s(SymbolicUtils.unwrap(u))
+        sg = constant_sign(u)
+        sg === nothing || return sg < 0
+    end
+    return !pos(u) && !eq(u, 0)
+end
 
 # extended denominator
 ext_den(u::Union{Num, SymbolicUtils.BasicSymbolic, Rational, Integer}) = denominator(u)
