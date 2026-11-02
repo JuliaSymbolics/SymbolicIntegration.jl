@@ -12,13 +12,10 @@ using Nemo: Nemo
 """
     zero_array(R, dims::Int...)
 
-Plain `Array` of `dims...` zeros of the ring `R`.
+Plain `Array` of `dims...` zeros of the ring `R`, each entry a distinct object.
 
-This is what `AbstractAlgebra.zeros(R::NCRing, dims...)` used to return before it
-was deprecated in favour of `zero_matrix`. `zero_matrix` is not a replacement
-here: it builds a matrix type, while the arrays built by this function are
-ordinary Julia `Array`s that get concatenated with `vcat`/`hcat` alongside
-matrices of coefficients, indexed elementwise, and returned as vectors.
+A plain `Array`, not a `zero_matrix`, because the Risch code concatenates these
+with ordinary Julia matrices and returns them as vectors.
 """
 function zero_array(R::AbstractAlgebra.NCRing, dims::Int...)
     A = Array{AbstractAlgebra.elem_type(R)}(undef, dims)

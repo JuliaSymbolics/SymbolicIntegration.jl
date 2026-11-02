@@ -4,11 +4,6 @@ using AbstractAlgebra
 import Nemo
 using Logging
 
-# `zero_array` replaces `AbstractAlgebra.zeros(R::NCRing, dims...)`, which is
-# deprecated in favour of `zero_matrix`. `zero_matrix` is not a substitute here:
-# the Risch code concatenates these arrays with `vcat`/`hcat` next to ordinary
-# Julia matrices and indexes them elementwise, so they must stay plain `Array`s.
-
 @testset "[Risch] zero_array" begin
     QQx, x = polynomial_ring(Nemo.QQ, :x)
     k = fraction_field(QQx)
@@ -27,7 +22,6 @@ using Logging
             @test size(m) == (2, 3)
             @test all(iszero, m)
 
-            # A zero-length request is reached when a coefficient vector is empty.
             empty_v = SymbolicIntegration.zero_array(R, 0)
             @test empty_v isa Vector{T}
             @test isempty(empty_v)
@@ -35,8 +29,7 @@ using Logging
     end
 
     @testset "entries are distinct objects" begin
-        # Ring elements are mutable, so filling the array with one shared zero
-        # would make an in-place update to one entry visible in the others.
+        # Ring elements are mutable: a shared zero would alias in-place updates.
         v = SymbolicIntegration.zero_array(QQx, 3)
         @test length(unique(objectid.(v))) == length(v)
 
@@ -44,13 +37,11 @@ using Logging
         @test length(unique(objectid.(vec(m)))) == length(m)
     end
 
-    @testset "convolution no longer calls a deprecated method" begin
+    @testset "convolution emits no deprecation warning" begin
         a = [k(1), k(x)]
         b = [k(1), k(2)]
 
         if Base.JLOptions().depwarn != 1
-            # `Pkg.test` enables deprecation warnings; without them this check
-            # cannot observe anything, so state that rather than pass vacuously.
             @info "skipping the deprecation check, this process does not enable depwarn"
         else
             logs, _ = Test.collect_test_logs(min_level = Logging.Warn) do
@@ -58,10 +49,8 @@ using Logging
             end
             @test isempty(logs)
 
-            # Positive control: the deprecated method still warns in this
-            # process, so the assertion above is meaningful. `collect_test_logs`
-            # installs a fresh logger, which resets the `maxlog = 1` budget of
-            # `Base.depwarn`, so an earlier warning elsewhere cannot mask it.
+            # Positive control: a fresh logger resets the `maxlog = 1` budget
+            # of `Base.depwarn`, so a deprecated call does warn here.
             if hasmethod(AbstractAlgebra.zeros, Tuple{typeof(QQx), Int})
                 control, _ = Test.collect_test_logs(min_level = Logging.Warn) do
                     AbstractAlgebra.zeros(QQx, 2)
@@ -70,7 +59,6 @@ using Logging
             end
         end
 
-        # The replacement must not change what `convolution` computes.
         @test SymbolicIntegration.convolution(a, b, 1) == [k(1) + 2 * k(x), k(2) + k(x)]
     end
 end
