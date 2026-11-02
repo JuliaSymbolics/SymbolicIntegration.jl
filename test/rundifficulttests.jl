@@ -295,8 +295,8 @@ close(output_io)
 println("Test results saved to: ", output_file)
 
 # Per-integral expected-outcome baseline. Bisect (commit-by-commit, against
-# the pre-PR-#53 `e4fff44` snapshot) showed zero Risch regressions and a
-# single RuleBased regression (issue #107). Everything else flagged
+# the pre-PR-#53 `e4fff44` snapshot) showed zero Risch regressions once the
+# RuleBased baseline matches current engine behaviour. Everything else flagged
 # `[ fail ]` / `[ fail?]` is a long-standing engine domain limit, not a
 # regression — see test/difficult_baseline.jl for the full list and the
 # rationale. CI gates on regressions vs the baseline rather than the
