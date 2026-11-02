@@ -84,6 +84,7 @@ end
             include("methods/risch/test_complex_fields.jl")
             include("methods/risch/test_bronstein_examples.jl")
             include("methods/risch/test_algorithm_internals.jl")
+            include("methods/risch/test_zero_array.jl")
             include("methods/risch/test_textbook_transcendentals.jl")
             include("methods/risch/test_trig_integrals.jl")
 
