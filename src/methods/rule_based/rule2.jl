@@ -39,6 +39,9 @@ simple
 using Combinatorics: permutations
 
 const SymsType = SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}
+
+# `n^-1` throws for an integer constant `n`; `1//n` keeps it exact.
+reciprocal(a::SymsType) = SymbolicUtils.unwrap_const(a) isa Integer ? 1 // a : a^-1
 const MatchDict = Base.ImmutableDict{Symbol, SymsType}
 const FAIL_DICT = MatchDict(:_fail,0)
 const op_map = Dict{Symbol, SymsType}(:+ => 0, :* => 1, :^ => 1)
@@ -231,10 +234,10 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         elseif iscall(d) && (operation(d)===*)
             # push!(sostituto, map(x->x^-1,arguments(d))...)
             for factor in arguments(d)
-                push!(sostituto, factor^-1)
+                push!(sostituto, reciprocal(factor))
             end
         else
-            push!(sostituto, d^-1)
+            push!(sostituto, reciprocal(d))
         end
         new_arg_data = SymsType[]
         if iscall(n)
