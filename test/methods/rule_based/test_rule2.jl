@@ -159,3 +159,17 @@ end
     @test eq(SymbolicIntegration.rule2(r8, (x) / (y*(2 + 2x)^3))[2], -3)
     # denominator is a product
 end
+
+const SingleBindingCounter = Ref(0)
+function single_binding_rejected()
+    SingleBindingCounter[] += 1
+    return nothing
+end
+
+@testset "[RuleBased] Single-binding rejected rule evaluates RHS once" begin
+    @syms x
+    rule = :(sin(~a)) => :(Main.single_binding_rejected())
+    SingleBindingCounter[] = 0
+    @test SymbolicIntegration.rule3(rule, sin(x), x) === nothing
+    @test SingleBindingCounter[] == 1
+end
