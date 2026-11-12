@@ -437,6 +437,7 @@ function rule3(rule::Pair{Expr, Expr}, integrand::SymsType, integration_var::Sym
         m = check_expr_r(integrand, rule.first, MatchDict(:x,integration_var); tried = tried_bindings)
 #    m===FAIL_DICT && printdb(1,"Rule failed to match")
         m===FAIL_DICT && return nothing::Nothing
+        any(t -> match_isequal(m, t), tried_bindings) && return nothing::Nothing
         push!(tried_bindings, m)
 #    printdb(1,"Rule matched successfully")
         # rule.second==:(~~) && return m # useful for debug
