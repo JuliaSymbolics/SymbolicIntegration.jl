@@ -359,17 +359,28 @@ end
 end
 
 @testset "Baseline diff report on closed output stream" begin
-    # output_io is closed above, so the regression/improvement report must go
-    # to stdout only — writing to a closed IOStream throws ArgumentError on
-    # Julia >= 1.14 (issue #162). Forge one worse and one better result vs the
-    # baseline so both report branches run through dual_println.
+    # Baseline comparisons run after output_io closes, so the report must go
+    # to stdout only (see dual_println above for the post-close invariant).
+    # Forge one worse and one better result vs the baseline so both report
+    # branches run through dual_println.
     probe = Int[b[1] for b in DIFFICULT_BASELINE]
     i_worse = findfirst(<(3), probe)
     probe[i_worse] += 1
     i_better = findfirst(i -> i != i_worse && probe[i] > 0 &&
                               i <= length(total_input_exprs), eachindex(probe))
     i_better === nothing || (probe[i_better] -= 1)
-    regressions, improvements = _check_method("ProbeMethod", probe, 1)
+    pipe = Pipe()
+    regressions, improvements = redirect_stdout(pipe) do
+        _check_method("ProbeMethod", probe, 1)
+    end
+    close(pipe.in)
+    report = read(pipe.out, String)
     @test length(regressions) == 1
     @test i_better === nothing || length(improvements) == 1
+    @test occursin("ProbeMethod regressions vs baseline", report)
+    @test occursin("  [$i_worse] $(total_input_exprs[i_worse])    expected=$(DIFFICULT_BASELINE[i_worse][1]) actual=$(probe[i_worse])", report)
+    if i_better !== nothing
+        @test occursin("ProbeMethod improvements vs baseline", report)
+        @test occursin("  [$i_better] $(total_input_exprs[i_better])    expected=$(DIFFICULT_BASELINE[i_better][1]) actual=$(probe[i_better])", report)
+    end
 end

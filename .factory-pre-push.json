@@ -1,5 +1,0 @@
-{
-  "exceptions": {
-    ".jl": "This repository declares no Julia formatter (no Runic workflow, no JuliaFormatter configuration) and existing sources are not Runic-clean; changed files keep the repository's hand-formatted style."
-  }
-}
