@@ -179,17 +179,23 @@ package_version = project_toml.version
 # Open file for writing and create a custom output stream
 output_io = open(output_file, "w")
 
-# Function to write to both console and file
+# Function to write to both console and file. Once output_io is closed the
+# message goes to stdout only — writing to a closed IOStream throws
+# ArgumentError on Julia >= 1.14 (issue #162).
 function dual_println(args...)
     println(args...)
-    println(output_io, args...)
-    flush(output_io)
+    if isopen(output_io)
+        println(output_io, args...)
+        flush(output_io)
+    end
 end
 
 function dual_printstyled(text; color=:normal, args...)
     printstyled(text; color=color, args...)
-    print(output_io, text)
-    flush(output_io)
+    if isopen(output_io)
+        print(output_io, text)
+        flush(output_io)
+    end
 end
 
 function print_results(method, result_codes, times, path)
@@ -350,4 +356,20 @@ end
 @testset "[Risch] Integration of $(length(total_input_exprs)) functions" begin
     regressions, _ = _check_method("Risch", total_result_codes_rs, 2)
     @test isempty(regressions)
+end
+
+@testset "Baseline diff report on closed output stream" begin
+    # output_io is closed above, so the regression/improvement report must go
+    # to stdout only — writing to a closed IOStream throws ArgumentError on
+    # Julia >= 1.14 (issue #162). Forge one worse and one better result vs the
+    # baseline so both report branches run through dual_println.
+    probe = Int[b[1] for b in DIFFICULT_BASELINE]
+    i_worse = findfirst(<(3), probe)
+    probe[i_worse] += 1
+    i_better = findfirst(i -> i != i_worse && probe[i] > 0 &&
+                              i <= length(total_input_exprs), eachindex(probe))
+    i_better === nothing || (probe[i_better] -= 1)
+    regressions, improvements = _check_method("ProbeMethod", probe, 1)
+    @test length(regressions) == 1
+    @test i_better === nothing || length(improvements) == 1
 end
