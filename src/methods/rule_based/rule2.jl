@@ -231,10 +231,10 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         elseif iscall(d) && (operation(d)===*)
             # push!(sostituto, map(x->x^-1,arguments(d))...)
             for factor in arguments(d)
-                push!(sostituto, factor^-1)
+                push!(sostituto, _reciprocal(factor))
             end
         else
-            push!(sostituto, d^-1)
+            push!(sostituto, _reciprocal(d))
         end
         new_arg_data = SymsType[]
         if iscall(n)
@@ -269,6 +269,16 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     end
     # normal checks
     return ceoaa(arg_data, arg_rule, matches)::MatchDict
+end
+
+"""
+Reciprocal of a symbolic expression. An integer constant becomes an exact
+rational, because `Int^-1` throws a `DomainError`.
+"""
+function _reciprocal(f)
+    c = SymbolicUtils.unwrap_const(f)
+    c isa Integer && return SymbolicUtils.Const{SymbolicUtils.SymReal}(1 // c)
+    return f^-1
 end
 
 """
