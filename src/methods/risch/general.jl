@@ -9,6 +9,22 @@ using AbstractAlgebra: AbstractAlgebra
 using Nemo: Nemo
 
 
+"""
+    zero_array(R, dims::Int...)
+
+Plain `Array` of `dims...` zeros of the ring `R`, each entry a distinct object.
+
+A plain `Array`, not a `zero_matrix`, because the Risch code concatenates these
+with ordinary Julia matrices and returns them as vectors.
+"""
+function zero_array(R::AbstractAlgebra.NCRing, dims::Int...)
+    A = Array{AbstractAlgebra.elem_type(R)}(undef, dims)
+    for i in eachindex(A)
+        A[i] = zero(R)
+    end
+    return A
+end
+
 struct NotImplementedError <: Exception
     msg::String
 end
@@ -162,7 +178,7 @@ function Nemo.roots(f::PolyRingElem{QQBarFieldElem})
     # over Galois conjugates (the loop above) leaves rational coefficients,
     # so go QQBar → Rational → Nemo.QQ rather than relying on a missing
     # direct `Nemo.QQField(::QQBarFieldElem)` constructor.
-    g = map_coefficients(c -> Nemo.QQ(Rational(c)), G(X, zeros(parent(X), n)...))
+    g = map_coefficients(c -> Nemo.QQ(Rational(c)), G(X, zero_array(parent(X), n)...))
     
     # `g` is a polynomial over `Nemo.QQ`, but the symmetrisation above
     # guarantees its roots include all of `f`'s QQBar roots — so we must
@@ -249,7 +265,7 @@ function PartialFraction(a::T, d::Vector{T}, e::Vector{Int}) where T <: RingElem
     # See Bronstein's book, Section 1.3, p. 17
     n = length(d)
     a0, aa = PartialFraction(a, [d[i]^e[i] for i=1:n])
-    A = [zeros(parent(a), e[i]) for i=1:n]
+    A = [zero_array(parent(a), e[i]) for i=1:n]
     for i=1:n
         for j=e[i]:-1:1
             q, A[i][j] = divrem(aa[i], d[i])
