@@ -92,6 +92,7 @@ end
             include("methods/rule_based/test_special_functions.jl")
             include("methods/rule_based/test_substitution_domain.jl")
             include("methods/rule_based/test_two_arg_simplify_rules.jl")
+            include("methods/rule_based/test_integer_reciprocal_in_rules.jl")
 
         end
     end
