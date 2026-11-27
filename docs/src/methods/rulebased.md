@@ -52,6 +52,13 @@ The rule left hand side pattern is the symbolic function `∫(var1, var2)` where
 
 The infix operator `⨸` is used to represent a custom division function, if called on integers returns a rational and if called on floats returns a float. This is done because // operator does not support floats. This specific character was chosen because it resembles the division symbol and because it has the same precedence as /.
 
+## Exact roots and sign conditions
+Square roots written in a rule, such as `sqrt(3)`, are built with `rubi_sqrt`, which keeps an exact argument exact: `integrate(1/(x^2 - 2), x)` contains `sqrt(2)`, not `1.4142135623730951`.
+
+Rule conditions then have to decide the sign of such constants (`pos`, `neg`, `gt`, `ge`, `lt`, `le`). They do so exactly, over the algebraic numbers, whenever the constant is built from rationals, arithmetic and square roots, because floating point can give the wrong sign after cancellation: `p - q*sqrt(2)` with `p^2 - 2q^2 = 1` is positive, but evaluates to `-0.0039` when `p` is about `3e13`. Only constants outside that class, such as ones involving `π` or `exp`, are decided on their floating point value.
+
+Known limitation: not every result is exact yet. `integrate(1/(x^3 - 1), x)` still contains floating point coefficients (`0.3333333333333333`, `1.7320508075688776`): the roots of the cubic are not yet carried through exactly.
+
 # Rules statistic
 Default is deactivated but its possible to activate that every time a rule gets applied on a expression it gets saved to a txt file (`test/statistics/rules_statistics.txt`) for continug which rules are actually used. to elaborate the file you can run from the home folder of the package
 ```
