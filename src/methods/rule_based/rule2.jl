@@ -40,8 +40,16 @@ using Combinatorics: permutations
 
 const SymsType = SymbolicUtils.BasicSymbolic{SymbolicUtils.SymReal}
 const MatchDict = Base.ImmutableDict{Symbol, SymsType}
-const FAIL_DICT = MatchDict(:_fail,0)
+const FAIL_DICT = MatchDict(:_fail, 0)
 const op_map = Dict{Symbol, SymsType}(:+ => 0, :* => 1, :^ => 1)
+
+function match_isequal(a::MatchDict, b::MatchDict)
+    length(a) != length(b) && return false
+    for (k, v) in a
+        (!haskey(b, k) || !isequal(b[k], v)) && return false
+    end
+    return true
+end
 
 """
 Modify the variable verbose_level to print more or less steps of the matching
@@ -58,7 +66,7 @@ Rule verbose level:
 6 - print also the rewriting of the rhs
 
 """
-# The printdb calls really slow down the matching process (2x slover) (because 
+# The printdb calls really slow down the matching process (2x slover) (because
 # even if verbose_level=0 the $ are evaluated). So after finished debugging
 # comment all the printdb calls with this regex:
 # `(^[^#f].*printdb.*$)` transformed into `#$1`
@@ -115,40 +123,40 @@ The function checks in this order:
       calling ceoaa function). If operation of rule is + or *, does commutative
       checks
 """
-function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
-#    printdb(3,"Checking $data against $rule, with matches: $(matches...)")
+function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict; tried = nothing)::MatchDict
+    #    printdb(3,"Checking $data against $rule, with matches: $(matches...)")
     # rule.head != :call && error("It happened, rule head is not a call") #it should never happen TODO remove
     # ((1)) rule is a slot
     if rule.head == :call && rule.args[1] == :(~)
         return end_of_tree(rule.args[2], data, matches)
     end
     # ((2)) if there is a deflsot in the arguments
-    p=findfirst(a->isa(a, Expr) && a.args[1] == :~ && isa(a.args[2], Expr) && a.args[2].args[1] == :!,rule.args[2:end])
-    if p!==nothing
+    p = findfirst(a -> isa(a, Expr) && a.args[1] == :~ && isa(a.args[2], Expr) && a.args[2].args[1] == :!, rule.args[2:end])
+    if p !== nothing
         # ((2.1)) build rule expr without defslot and check it
-        tmp = rule.args[2:end]; tmp[p] = :(~$(rule.args[p+1].args[2].args[2]))
+        tmp = rule.args[2:end]; tmp[p] = :(~$(rule.args[p + 1].args[2].args[2]))
         newr = Expr(:call, rule.args[1], tmp...)
-#        printdb(4, "$(rule.args[p+1]) deflost detected. first trying normal match")
-        rdict = check_expr_r(data, newr, matches)
-        rdict!==FAIL_DICT && return rdict::MatchDict
-#        printdb(4, "defslot normal match failed, trying modified one")
+        #        printdb(4, "$(rule.args[p+1]) deflost detected. first trying normal match")
+        rdict = check_expr_r(data, newr, matches; tried = tried)
+        rdict !== FAIL_DICT && return rdict::MatchDict
+        #        printdb(4, "defslot normal match failed, trying modified one")
         # ((2.2)) if no normal match, check only the non-defslot part of the rule
-        if length(tmp)==2 # if defslot + other + nothing else
+        if length(tmp) == 2 # if defslot + other + nothing else
             tmp = rule.args[2:end]
             deleteat!(tmp, p)
             tmp = tmp[1]
         else
             tmp = copy(rule)
-            deleteat!(tmp.args,p+1)
+            deleteat!(tmp.args, p + 1)
         end
 
-        rdict = check_expr_r(data, tmp, matches) # this possibly contains more stuff than matches
+        rdict = check_expr_r(data, tmp, matches; tried = tried) # this possibly contains more stuff than matches
 
-        rdict !== FAIL_DICT && return end_of_tree(rule.args[p+1].args[2].args[2], get(op_map, rule.args[1], -1), rdict)
-#        printdb(4, "defslot failed also with the modified match :(")
+        rdict !== FAIL_DICT && return end_of_tree(rule.args[p + 1].args[2].args[2], get(op_map, rule.args[1], -1), rdict)
+        #        printdb(4, "defslot failed also with the modified match :(")
         return FAIL_DICT::MatchDict
-    # ((3)) if there is a segment in the (only) argument
-    elseif length(rule.args)==2 && isa(rule.args[2], Expr) && rule.args[2].args[1]==:~ && isa(rule.args[2].args[2], Expr) && rule.args[2].args[2].args[1] == :~
+        # ((3)) if there is a segment in the (only) argument
+    elseif length(rule.args) == 2 && isa(rule.args[2], Expr) && rule.args[2].args[1] == :~ && isa(rule.args[2].args[2], Expr) && rule.args[2].args[2].args[1] == :~
         # check operations
         !iscall(data) && return FAIL_DICT::MatchDict
         (Symbol(operation(data)) !== rule.args[1]) && return FAIL_DICT::MatchDict
@@ -162,58 +170,65 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         r.num == rule.args[2] && r.den == rule.args[3] && return matches::MatchDict
         return FAIL_DICT::MatchDict
     end
-    
+
     !iscall(data) && return FAIL_DICT::MatchDict # :):):)
-    
-    arg_data = arguments(data); arg_rule = rule.args[2:end];
+
+    arg_data = arguments(data); arg_rule = rule.args[2:end]
 
     # ((5))
-    if rule.args[1]===:^
+    if rule.args[1] === :^
         # try first normal checks
         if (operation(data) === ^)
-            rdict = ceoaa(arg_data, arg_rule, matches)
-            rdict!==FAIL_DICT && return rdict::MatchDict
+            rdict = ceoaa(arg_data, arg_rule, matches; tried = tried)
+            rdict !== FAIL_DICT && return rdict::MatchDict
         end
         # try building frankestein arg_data (f.a.d.), a matemathically equivalent but in different form
         fad = SymsType[]
         is1divsmth = (operation(data) === /) && symbolic_isone(arg_data[1])
         if is1divsmth && iscall(arg_data[2]) && (operation(arg_data[2]) === ^)
             # if data is of the alternative form 1/(...)^(...)
-            push!(fad, arguments(arg_data[2])[1], -1*arguments(arg_data[2])[2])
+            push!(fad, arguments(arg_data[2])[1], -1 * arguments(arg_data[2])[2])
         elseif is1divsmth && iscall(arg_data[2]) && (operation(arg_data[2]) === sqrt)
             # if data is of the alternative form 1/sqrt(...), it might match with exponent -1//2
-            push!(fad, arguments(arg_data[2])[1], -1//2)
+            push!(fad, arguments(arg_data[2])[1], -1 // 2)
         elseif is1divsmth && iscall(arg_data[2]) && (operation(arg_data[2]) === exp)
             # if data is of the alternative form 1/exp(...), it might match ℯ ^ -...
-            push!(fad, ℯ, -1*arguments(arg_data[2])[1])
+            push!(fad, ℯ, -1 * arguments(arg_data[2])[1])
         elseif is1divsmth
             # if data is of the alternative form 1/(...), it might match with exponent = -1
             push!(fad, arg_data[2], -1)
         elseif (operation(data) === ^) && iscall(arg_data[1]) && (operation(arg_data[1]) === /) && symbolic_isone(arguments(arg_data[1])[1])
             # if data is of the alternative form (1/...)^(...)
-            push!(fad, arguments(arg_data[1])[2], -1*arg_data[2])
-        elseif operation(data)===exp
+            push!(fad, arguments(arg_data[1])[2], -1 * arg_data[2])
+        elseif operation(data) === exp
             # if data is a exp call, it might match with base e
             push!(fad, ℯ, arg_data[1])
-        elseif operation(data)===sqrt
+        elseif operation(data) === sqrt
             # if data is a sqrt call, it might match with exponent 1//2
-            push!(fad, arg_data[1], 1//2)
-        else return FAIL_DICT::MatchDict
+            push!(fad, arg_data[1], 1 // 2)
+        else
+            return FAIL_DICT::MatchDict
         end
-        
-        return ceoaa(fad, arg_rule, matches)::MatchDict
+
+        return ceoaa(fad, arg_rule, matches; tried = tried)::MatchDict
     elseif rule.args[1] === :sqrt
-        if (operation(data) === sqrt) tocheck = arg_data # normal checks
-        elseif (operation(data) === ^) && (unwrap_const(arg_data[2]) === 1//2) tocheck = arg_data[1]
-        else return FAIL_DICT::MatchDict
+        if (operation(data) === sqrt)
+            tocheck = arg_data # normal checks
+        elseif (operation(data) === ^) && (unwrap_const(arg_data[2]) === 1 // 2)
+            tocheck = arg_data[1]
+        else
+            return FAIL_DICT::MatchDict
         end
-        return ceoaa(tocheck, arg_rule, matches)::MatchDict
+        return ceoaa(tocheck, arg_rule, matches; tried = tried)::MatchDict
     elseif rule.args[1] === :exp
-        if (operation(data) === exp) tocheck = arg_data # normal checks
-        elseif (operation(data) === ^) && (unwrap_const(arg_data[1]) === ℯ) tocheck = arg_data[2]
-        else return FAIL_DICT::MatchDict
+        if (operation(data) === exp)
+            tocheck = arg_data # normal checks
+        elseif (operation(data) === ^) && (unwrap_const(arg_data[1]) === ℯ)
+            tocheck = arg_data[2]
+        else
+            return FAIL_DICT::MatchDict
         end
-        return ceoaa(tocheck, arg_rule, matches)::MatchDict
+        return ceoaa(tocheck, arg_rule, matches; tried = tried)::MatchDict
     end
 
     neim_pass = false
@@ -221,14 +236,14 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
     # transform it to a multiplication (the final solution would be remove
     # divisions form rules) if the rule is a product, at least one of the
     # factors is a power, and data is a division
-    if (rule.args[1]===:*) && any(x->(isa(x,Expr) && x.head===:call && x.args[1]===:^), arg_rule) && (operation(data)===/)
+    if (rule.args[1] === :*) && any(x -> (isa(x, Expr) && x.head === :call && x.args[1] === :^), arg_rule) && (operation(data) === /)
         neim_pass = true
         n = arguments(data)[1]; d = arguments(data)[2]
         # then push the denominator of data up with negative power
         sostituto = SymsType[]
-        if iscall(d) && (operation(d)==^)
+        if iscall(d) && (operation(d) == ^)
             push!(sostituto, arguments(d)[1]^(-arguments(d)[2]))
-        elseif iscall(d) && (operation(d)===*)
+        elseif iscall(d) && (operation(d) === *)
             # push!(sostituto, map(x->x^-1,arguments(d))...)
             for factor in arguments(d)
                 push!(sostituto, _reciprocal(factor))
@@ -238,37 +253,41 @@ function check_expr_r(data::SymsType, rule::Expr, matches::MatchDict)::MatchDict
         end
         new_arg_data = SymsType[]
         if iscall(n)
-            if operation(n)===*
+            if operation(n) === *
                 append!(new_arg_data, arguments(n))
             else
                 push!(new_arg_data, n)
             end
-        elseif SymbolicUtils.unwrap_const(n)!==1
+        elseif SymbolicUtils.unwrap_const(n) !== 1
             push!(new_arg_data, n)
-        # else dont push anything bc *1 gets canceled
+            # else dont push anything bc *1 gets canceled
         end
         append!(new_arg_data, sostituto)
         arg_data = new_arg_data
-#        printdb(4,"Applying neim trick, new arg_data is $arg_data")
+        #        printdb(4,"Applying neim trick, new arg_data is $arg_data")
     end
 
     ((Symbol(operation(data)) !== rule.args[1]) && !neim_pass) && return FAIL_DICT::MatchDict # :):):)
     (length(arg_data) != length(arg_rule)) && return FAIL_DICT::MatchDict # :):):)
 
     # ((7))
-    if (rule.args[1]===:+) || (rule.args[1]===:*)
+    if (rule.args[1] === :+) || (rule.args[1] === :*)
         # commutative checks
         for perm_arg_data in permutations(arg_data) # is the same if done on arg_rule right?
-#            printdb(5,"trying this permutation $perm_arg_data")
-            matches_this_perm = ceoaa(perm_arg_data, arg_rule, matches)
-            matches_this_perm!==FAIL_DICT && return matches_this_perm::MatchDict
+            #            printdb(5,"trying this permutation $perm_arg_data")
+            matches_this_perm = ceoaa(perm_arg_data, arg_rule, matches; tried = tried)
+            # a binding that a previous condition already rejected is not retried
+            already = tried !== nothing && any(m -> match_isequal(matches_this_perm, m), tried)
+            if matches_this_perm !== FAIL_DICT && !already
+                return matches_this_perm::MatchDict
+            end
             # else try with next perm
         end
         # if all perm failed
         return FAIL_DICT::MatchDict
     end
     # normal checks
-    return ceoaa(arg_data, arg_rule, matches)::MatchDict
+    return ceoaa(arg_data, arg_rule, matches; tried = tried)::MatchDict
 end
 
 """
@@ -290,16 +309,16 @@ and calls check_expr_r for every couple.
 - arg_rule is a vector of Expr or Real
 - arg_data is of type ??? TODO maybe SymsType[]
 """
-@inline function ceoaa(arg_data, arg_rule::Vector{Any}, matches::MatchDict)
-#    printdb(4,"ceoaa start <---")
+@inline function ceoaa(arg_data, arg_rule::Vector{Any}, matches::MatchDict; tried = nothing)
+    #    printdb(4,"ceoaa start <---")
     for (a, b) in zip(arg_data, arg_rule)
-#        printdb(4,"ceoaa iter")
-        matches = check_expr_r(a, b, matches)
-#        matches===FAIL_DICT && printdb(4, "ceoaa fail <---")
-        matches===FAIL_DICT && return FAIL_DICT::MatchDict
+        #        printdb(4,"ceoaa iter")
+        matches = check_expr_r(a, b, matches; tried = tried)
+        #        matches===FAIL_DICT && printdb(4, "ceoaa fail <---")
+        matches === FAIL_DICT && return FAIL_DICT::MatchDict
         # else the match has been added (or not added but confirmed)
     end
-#    printdb(4, "ceoaa success <---")
+    #    printdb(4, "ceoaa success <---")
     return matches::MatchDict
 end
 
@@ -310,9 +329,16 @@ helper function for when you reach the end of the symbolic tree and you either:
 - check the predicate and then add the new match
 """
 @inline function end_of_tree(rule_symbol, value_matched, current_dict::MatchDict)
-    if rule_symbol in keys(current_dict)
+    # a predicate slot ~s::pred is stored under s, so repeated occurrences
+    # must agree with the existing binding and satisfy the predicate again
+    slot = isa(rule_symbol, Expr) ? rule_symbol.args[1] : rule_symbol
+    if haskey(current_dict, slot)
         # check if it matched the same symbolic expression
-        !isequal(current_dict[rule_symbol], value_matched) && return FAIL_DICT::MatchDict
+        !isequal(current_dict[slot], value_matched) && return FAIL_DICT::MatchDict
+        if isa(rule_symbol, Expr)
+            pred = rule_symbol.args[2]
+            !Base.invokelatest(eval(pred), SymbolicUtils.unwrap_const(value_matched)) && return FAIL_DICT
+        end
         return current_dict::MatchDict
     else # if never been matched
         # if there is a predicate, rule_symbol is a expression with ::
@@ -320,32 +346,31 @@ helper function for when you reach the end of the symbolic tree and you either:
             # check it
             pred = rule_symbol.args[2]
             # printdb(5, "about to check defslot predicate $pred with eval")
-            !Base.invokelatest(eval(pred),SymbolicUtils.unwrap_const(value_matched)) && return FAIL_DICT
-            # printdb(4, "adding defslot match $(rule_symbol.args[1]) => $value_matched")
-            return MatchDict(current_dict, rule_symbol.args[1], value_matched)::MatchDict
+            !Base.invokelatest(eval(pred), SymbolicUtils.unwrap_const(value_matched)) && return FAIL_DICT
+            # printdb(4, "adding defslot match $slot => $value_matched")
         end
         # if no predicate add match
         # printdb(4, "adding defslot match $rule_symbol => $value_matched to rditct: $(current_dict...)")
-        return MatchDict(current_dict, rule_symbol, value_matched)::MatchDict
+        return MatchDict(current_dict, slot, value_matched)::MatchDict
     end
 end
 
 # for when the rule contains a symbol, like ℯ
-function check_expr_r(data::SymsType, rule::Symbol, matches::MatchDict)
-#    printdb(3,"Checking $data against ℯ, with matches: $(matches...)")
+function check_expr_r(data::SymsType, rule::Symbol, matches::MatchDict; tried = nothing)
+    #    printdb(3,"Checking $data against ℯ, with matches: $(matches...)")
     if rule == :ℯ
-        SymbolicUtils.unwrap_const(data)===ℯ && return matches::MatchDict
+        SymbolicUtils.unwrap_const(data) === ℯ && return matches::MatchDict
         return FAIL_DICT::MatchDict
     end
     # this could also be extended easily to all symbols...
     error("rule is a symbol that is not ℯ")
 end
 # for when the rule contains a constant, a literal number
-function check_expr_r(data::SymsType, rule::Real, matches::MatchDict)
-#    printdb(3,"Checking $data against the real $rule, with matches: $(matches...)")
+function check_expr_r(data::SymsType, rule::Real, matches::MatchDict; tried = nothing)
+    #    printdb(3,"Checking $data against the real $rule, with matches: $(matches...)")
     unw = unwrap_const(data)
     if isa(unw, Real)
-        unw!==rule && return FAIL_DICT::MatchDict
+        unw !== rule && return FAIL_DICT::MatchDict
         return matches::MatchDict
     end
     # else always fail
@@ -362,7 +387,7 @@ Expr
 substitute it with the value found in matches dictionary.
 """
 function rewrite(matches::MatchDict, rhs::Expr)
-#    printdb(6, "called rewrite with rhs $rhs")
+    #    printdb(6, "called rewrite with rhs $rhs")
     # if a expression of a slot, change it with the matches
     if rhs.head == :call && rhs.args[1] == :(~)
         var_name = rhs.args[2]
@@ -403,14 +428,14 @@ expr: the input symbolic expression to check
 """
 function rule2(rule::Pair{Expr, Expr}, expr::SymsType)::Union{SymsType, Nothing}
     # global indentation_zero = length(stacktrace())
-#    printdb(1, "Applying $rule on $expr")
+    #    printdb(1, "Applying $rule on $expr")
     m = check_expr_r(expr, rule.first, MatchDict())
-#    m===FAIL_DICT && printdb(1,"Rule failed to match")
-    m===FAIL_DICT && return nothing::Nothing
-#    printdb(1,"Rule matched successfully")
+    #    m===FAIL_DICT && printdb(1,"Rule failed to match")
+    m === FAIL_DICT && return nothing::Nothing
+    #    printdb(1,"Rule matched successfully")
     # rule.second==:(~~) && return m # useful for debug
     r = rewrite(m, rule.second)
-#    printdb(2,"About to return eval of $r") 
+    #    printdb(2,"About to return eval of $r")
     return eval(r)
 end
 
@@ -426,13 +451,23 @@ integration variable. So every rule is written assuming ~x is the integration va
 """
 function rule3(rule::Pair{Expr, Expr}, integrand::SymsType, integration_var::SymsType)::Union{SymsType, Nothing}
     # global indentation_zero = length(stacktrace())
-#    printdb(1, "Applying $rule on $integrand")
-    m = check_expr_r(integrand, rule.first, MatchDict(:x,integration_var))
-#    m===FAIL_DICT && printdb(1,"Rule failed to match")
-    m===FAIL_DICT && return nothing::Nothing
-#    printdb(1,"Rule matched successfully")
-    # rule.second==:(~~) && return m # useful for debug
-    r = rewrite(m, rule.second)
-#    printdb(2,"About to return eval of $r") 
-    return eval(r)
+    #    printdb(1, "Applying $rule on $integrand")
+    # a matched binding whose condition fails can still have another valid
+    # binding for the same LHS, so retry matching with rejected bindings
+    # excluded instead of moving on to the next rule
+    tried_bindings = MatchDict[]
+    for _ in 1:64
+        m = check_expr_r(integrand, rule.first, MatchDict(:x, integration_var); tried = tried_bindings)
+        #    m===FAIL_DICT && printdb(1,"Rule failed to match")
+        m === FAIL_DICT && return nothing::Nothing
+        any(t -> match_isequal(m, t), tried_bindings) && return nothing::Nothing
+        push!(tried_bindings, m)
+        #    printdb(1,"Rule matched successfully")
+        # rule.second==:(~~) && return m # useful for debug
+        r = rewrite(m, rule.second)
+        #    printdb(2,"About to return eval of $r")
+        result = eval(r)
+        result !== nothing && return result
+    end
+    return nothing::Nothing
 end

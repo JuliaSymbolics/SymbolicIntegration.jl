@@ -8,7 +8,7 @@ using SymbolicIntegration: eq
 @testset "General" begin
     @syms a
 
-    r1 = :(sin(2*~x)) => :(2sin(~x)*cos(~x))
+    r1 = :(sin(2 * ~x)) => :(2sin(~x) * cos(~x))
 
     @test SymbolicIntegration.rule2(r1, sin(2a)) !== nothing
 end
@@ -17,16 +17,16 @@ end
     @syms x
     rp = :(~!a + ~x) => :(~a)
     @test eq(SymbolicIntegration.rule2(rp, x), 0)
-    @test eq(SymbolicIntegration.rule2(rp, x+3), 3)
+    @test eq(SymbolicIntegration.rule2(rp, x + 3), 3)
     rt = :(~!a * ~x) => :(~a)
     @test eq(SymbolicIntegration.rule2(rt, x), 1)
-    @test eq(SymbolicIntegration.rule2(rt, x*3), 3)
+    @test eq(SymbolicIntegration.rule2(rt, x * 3), 3)
     rpo = :((~x)^(~!a)) => :(~a)
     @test eq(SymbolicIntegration.rule2(rpo, x), 1)
     @test eq(SymbolicIntegration.rule2(rpo, x^3), 3)
 
     # multiple occurrences of the same defslot
-    rmo = :((~(!a1) + ~(!b1) * (~x) ^ ~n) ^ ~(!p) * (~(!a2) + ~(!b2) * (~x) ^ ~n) ^ ~(!p)) => :(~p)
+    rmo = :((~(!a1) + ~(!b1) * (~x)^~n)^~(!p) * (~(!a2) + ~(!b2) * (~x)^~n)^~(!p)) => :(~p)
     @test SymbolicIntegration.rule2(rmo, (x^3) / sqrt(4 + x^3)) === nothing
     @test eq(SymbolicIntegration.rule2(rmo, (x^3) * (4 + x^3)), 1)
     # predicates with defslots
@@ -37,14 +37,14 @@ end
 
 @testset "neg exponent" begin
     @syms x
-    r = :((~x::(in->!iscall(in))) ^ ~m) => :(~m)
-    @test eq(SymbolicIntegration.rule2(r, 1/(x^3)), -3)
-    @test eq(SymbolicIntegration.rule2(r, (1/x)^3), -3)
-    @test eq(SymbolicIntegration.rule2(r, 1/x), -1)
+    r = :((~x::(in -> !iscall(in)))^~m) => :(~m)
+    @test eq(SymbolicIntegration.rule2(r, 1 / (x^3)), -3)
+    @test eq(SymbolicIntegration.rule2(r, (1 / x)^3), -3)
+    @test eq(SymbolicIntegration.rule2(r, 1 / x), -1)
     @test eq(SymbolicIntegration.rule2(r, exp(x)), x)
-    @test eq(SymbolicIntegration.rule2(r, sqrt(x)), 1//2)
-    @test eq(SymbolicIntegration.rule2(r, 1/sqrt(x)), -1//2)
-    @test eq(SymbolicIntegration.rule2(r, 1/exp(x)), -x)
+    @test eq(SymbolicIntegration.rule2(r, sqrt(x)), 1 // 2)
+    @test eq(SymbolicIntegration.rule2(r, 1 / sqrt(x)), -1 // 2)
+    @test eq(SymbolicIntegration.rule2(r, 1 / exp(x)), -x)
 end
 
 # This testset is for functions that are shorthand notation for powers, like exp and sqrt
@@ -52,16 +52,16 @@ end
     @syms x
     rs = :(sqrt(~x)) => :(~x)
     @test eq(SymbolicIntegration.rule2(rs, sqrt(x)), x)
-    @test eq(SymbolicIntegration.rule2(rs, x^(1//2)), x)
+    @test eq(SymbolicIntegration.rule2(rs, x^(1 // 2)), x)
     rs = :(exp(~x)) => :(~x)
-    @test eq(SymbolicIntegration.rule2(rs, exp(x+1)), x+1)
+    @test eq(SymbolicIntegration.rule2(rs, exp(x + 1)), x + 1)
     @test eq(SymbolicIntegration.rule2(rs, ℯ^x), x)
 end
 
 @testset "Segment" begin
     @syms x y z
     r = :(sin(+(~~a))) => :(~a)
-    @test eq(SymbolicIntegration.rule2(r, sin(1+x+y+z)), 1+x+y+z)
+    @test eq(SymbolicIntegration.rule2(r, sin(1 + x + y + z)), 1 + x + y + z)
 end
 
 function test_random_exprs(n_to_check::Int, depth_level::Int)
@@ -77,37 +77,43 @@ function test_random_exprs(n_to_check::Int, depth_level::Int)
     # depth is the max depth of the recursive expression
     # type = 1: build a Expr, type = 2: build a symbolic expression
     function build_r(depth::Int, type::Int, prev_op = nothing)
-        if type==1
+        if type == 1
             if prev_op in associative_exp_ops
-                op = rand(filter(x->x!=prev_op, exp_ops))
-            else op = rand(exp_ops)
+                op = rand(filter(x -> x != prev_op, exp_ops))
+            else
+                op = rand(exp_ops)
             end
         else
             if prev_op in associative_sym_ops
-                op = rand(filter(x->x!=prev_op, sym_ops))
-            else op = rand(sym_ops)
+                op = rand(filter(x -> x != prev_op, sym_ops))
+            else
+                op = rand(sym_ops)
             end
         end
         args = []
-        if depth==1
+        if depth == 1
             # bc we dont want to have in the rule x*x or x+x
             tmp_args = []
-            if type==1 tmp_args = copy(exp_args)
-            else tmp_args = copy(sym_args)
+            if type == 1
+                tmp_args = copy(exp_args)
+            else
+                tmp_args = copy(sym_args)
             end
             for i in 1:rand(op[2]:op[3])
                 choiche_idx = rand(1:length(tmp_args))
                 choiche = tmp_args[choiche_idx]
                 deleteat!(tmp_args, choiche_idx)
-                push!(args , choiche)
+                push!(args, choiche)
             end
         else
             for i in 1:rand(op[2]:op[3])
-                push!(args , build_r(rand(1:depth-1), type, op))
+                push!(args, build_r(rand(1:(depth - 1)), type, op))
             end
         end
-        if type==1 return Expr(:call, op[1], args...)
-        else return op[1](args...)
+        if type == 1
+            return Expr(:call, op[1], args...)
+        else
+            return op[1](args...)
         end
     end
 
@@ -120,8 +126,8 @@ function test_random_exprs(n_to_check::Int, depth_level::Int)
         smbe = build_r(depth_level, 2)
         println("Testing $tmp against $smbe")
 
-        result = SymbolicIntegration.rule2(tmp => Expr(:string,"yes"), smbe)
-        if SymbolicUtils.unwrap_const(result)!="yes"
+        result = SymbolicIntegration.rule2(tmp => Expr(:string, "yes"), smbe)
+        if SymbolicUtils.unwrap_const(result) != "yes"
             println("Failed testing this expression")
             return false
         end
@@ -137,25 +143,66 @@ end
 
 @testset "Neim Problem" begin
     @syms x y z
-    r = :((~a)^2/(~b)^~n)=>:(~n) # normal rule, neim trick not applied
-    r2 = :((~a)^2*(~b)^~n)=>:(~n) # prod of powers
-    r3 = :((~c)^2*(~a)^3/(~b)^~n)=>:(~n) # normal rule, neim trick not applied
-    r4 = :((~c)^2*(~a)^3*(~b)^~n)=>:(~n) # prod of 3 powers
-    r5 = :((~c)^~m*(~a)^3/(~b))=>:(~b)
-    r6 = :((~d + ~x) * (~(!a) + ~(!b) * ~x) ^ ~(!p)) => :(~p) # prod of not all powers
-    r7 = :((~c)*(~a)*(~b)^~n)=>:(~n) # prod of not all powers
-    r8 = :((~c)*(~a)^~m*(~b)^~n::(x->(x==-1)))=>:(~n,~m) # prod of not all powers
+    r = :((~a)^2 / (~b)^~n) => :(~n) # normal rule, neim trick not applied
+    r2 = :((~a)^2 * (~b)^~n) => :(~n) # prod of powers
+    r3 = :((~c)^2 * (~a)^3 / (~b)^~n) => :(~n) # normal rule, neim trick not applied
+    r4 = :((~c)^2 * (~a)^3 * (~b)^~n) => :(~n) # prod of 3 powers
+    r5 = :((~c)^~m * (~a)^3 / (~b)) => :(~b)
+    r6 = :((~d + ~x) * (~(!a) + ~(!b) * ~x)^~(!p)) => :(~p) # prod of not all powers
+    r7 = :((~c) * (~a) * (~b)^~n) => :(~n) # prod of not all powers
+    r8 = :((~c) * (~a)^~m * (~b)^~n::(x -> (x == -1))) => :(~n, ~m) # prod of not all powers
     # the predicate is needed bc otherwise both (n=-1,m=-3) and (n=-3,m=-1) would be valid
-    @test eq(SymbolicIntegration.rule2(r, x^2/y^3), 3)
-    @test eq(SymbolicIntegration.rule2(r2, x^2*y^3), 3)
-    @test eq(SymbolicIntegration.rule2(r2, x^2/y^3), -3)
-    @test eq(SymbolicIntegration.rule2(r3, x^2*y^3/z^8), 8)
-    @test eq(SymbolicIntegration.rule2(r4, x^2*y^3*z^8), 8)
-    @test eq(SymbolicIntegration.rule2(r4, x^2*y^3/z^8), -8)
+    @test eq(SymbolicIntegration.rule2(r, x^2 / y^3), 3)
+    @test eq(SymbolicIntegration.rule2(r2, x^2 * y^3), 3)
+    @test eq(SymbolicIntegration.rule2(r2, x^2 / y^3), -3)
+    @test eq(SymbolicIntegration.rule2(r3, x^2 * y^3 / z^8), 8)
+    @test eq(SymbolicIntegration.rule2(r4, x^2 * y^3 * z^8), 8)
+    @test eq(SymbolicIntegration.rule2(r4, x^2 * y^3 / z^8), -8)
     # @test eq(SymbolicIntegration.rule2(r5, (y)^3/(x*z^2)), x) this still doesnt work
     @test eq(SymbolicIntegration.rule2(r6, (1 + x) / ((2 + 2x)^3)), -3) # numerator is not a product
-    @test eq(SymbolicIntegration.rule2(r7, (x*y) / ((2 + 2x)^3)), -3) # numerator is a product
-    @test eq(SymbolicIntegration.rule2(r8, (x) / (y*(2 + 2x)^3))[1], -1)
-    @test eq(SymbolicIntegration.rule2(r8, (x) / (y*(2 + 2x)^3))[2], -3)
+    @test eq(SymbolicIntegration.rule2(r7, (x * y) / ((2 + 2x)^3)), -3) # numerator is a product
+    @test eq(SymbolicIntegration.rule2(r8, (x) / (y * (2 + 2x)^3))[1], -1)
+    @test eq(SymbolicIntegration.rule2(r8, (x) / (y * (2 + 2x)^3))[2], -3)
     # denominator is a product
+end
+
+const SingleBindingCounter = Ref(0)
+function single_binding_rejected()
+    SingleBindingCounter[] += 1
+    return nothing
+end
+
+@testset "[RuleBased] Single-binding rejected rule evaluates RHS once" begin
+    @syms x
+    rule = :(sin(~a)) => :(Main.single_binding_rejected())
+    SingleBindingCounter[] = 0
+    @test SymbolicIntegration.rule3(rule, sin(x), x) === nothing
+    @test SingleBindingCounter[] == 1
+end
+
+const RepeatedSlotCounter = Ref(0)
+function repeated_slot_rejected()
+    RepeatedSlotCounter[] += 1
+    return nothing
+end
+
+@testset "[RuleBased] Repeated predicate slot requires equal bindings" begin
+    @syms x
+    # the lhs of rule 1_1_1_2_5, which uses ~m::P_igt_x_plus_half twice
+    rule = :(
+        ((~a) + (~!b) * (~x))^(~m::P_igt_x_plus_half) *
+            ((~c) + (~!d) * (~x))^(~m::P_igt_x_plus_half)
+    ) =>
+        :(Main.repeated_slot_rejected())
+
+    # equal exponents still match, so the RHS runs
+    RepeatedSlotCounter[] = 0
+    @test SymbolicIntegration.rule3(rule, (2 + 3x)^(3 // 2) * (4 - 6x)^(3 // 2), x) === nothing
+    @test RepeatedSlotCounter[] > 0
+
+    # unequal exponents fail the match instead of shadowing the first ~m
+    # binding, so the rejected binding is not re-evaluated
+    RepeatedSlotCounter[] = 0
+    @test SymbolicIntegration.rule3(rule, (2 + 3x)^(3 // 2) * (4 - 6x)^(5 // 2), x) === nothing
+    @test RepeatedSlotCounter[] == 0
 end
